@@ -76,7 +76,9 @@
     "labelLift_m": 0.3,
     "provisionalEdgeColor": "#ff9800",
     "ownerChangeColor": "#ab47bc",
-    "ownerChangeZoneOpacity": 0.18
+    "ownerChangeZoneOpacity": 0.18,
+    "ownerChangeRemovedColor": "#e53935",
+    "ownerChangeRemovedOpacity": 0.35
   },
   "plumbing": {
     "chamberColor": "#26a69a",

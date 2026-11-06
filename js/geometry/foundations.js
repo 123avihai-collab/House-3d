@@ -51,25 +51,43 @@ export function buildFoundations(ctx) {
   // owner changes (data/changes/owner-changes.json): a slab may be replaced by another level/outline
   const changes = (data.ownerChanges?.changes || []).filter(c => c.replaceSlab);
   const byId = Object.fromEntries(F.slabs.map(s => [s.id, s]));
-  const slabs = F.slabs.map(s => {
-    const c = changes.find(c => c.replaceSlab.remove === s.id);
-    if (!c) return s;
+  // both variants are built; the registry shows one of them by state.ownerChanges[id] (meta.variant)
+  const slabs = [];
+  for (const s0 of F.slabs) {
+    const c = changes.find(c => c.replaceSlab.remove === s0.id);
+    if (!c) { slabs.push(s0); continue; }
+    slabs.push({ ...s0, variant: { change: c.id, show: 'original' } });
     const from = byId[c.replaceSlab.levelFrom], out = byId[c.replaceSlab.outlineFrom];
-    return { ...out, id: `${s.id}→${c.id}`, top: from.top, thickness_m: from.thickness_m, status: 'owner-change', change: c, replaced: s,
-      source: `${c.source}; קו: ${out.source}; מפלס ועובי כמו ${from.id}: ${from.source}` };
-  });
+    slabs.push({ ...out, id: `${s0.id}→${c.id}`, top: from.top, thickness_m: from.thickness_m, status: 'owner-change', change: c, replaced: s0,
+      variant: { change: c.id, show: 'changed' }, source: `${c.source}; קו: ${out.source}; מפלס ועובי כמו ${from.id}: ${from.source}` });
+    slabs.push({ ...s0, id: `${s0.id} (מבוטל)`, removedBy: c, variant: { change: c.id, show: 'changed' } });
+  }
   for (const s of slabs) {
     if (s.top == null) { stats.beamsMissing.push(s.id); continue; }
+    const c = s.outlineITM.reduce((a, p) => [a[0] + p[0] / s.outlineITM.length, a[1] + p[1] / s.outlineITM.length], [0, 0]);
+    if (s.removedBy) {
+      // what the change cancels: the original slab as a red translucent ghost with a dashed outline
+      const ghost = new THREE.MeshBasicMaterial({ color: D.ownerChangeRemovedColor, transparent: true, opacity: D.ownerChangeRemovedOpacity, depthWrite: false });
+      const m = prism(s.outlineITM, s.holesITM || [], H(s.top - s.thickness_m), H(s.top), ghost); m.castShadow = false; m.renderOrder = 4;
+      const g = new THREE.Group(); g.add(m);
+      const ls = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineDashedMaterial({ color: D.ownerChangeRemovedColor, dashSize: 0.15, gapSize: 0.1 }));
+      ls.computeLineDistances(); g.add(ls);
+      g.add(label(`${s.removedBy.id} · ${s.removedBy.removedLabel}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl removed'));
+      registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'ownerChanges' }, {
+        name: `${s.removedBy.id} – מבוטל: ${s.removedBy.removedLabel}`, status: 'owner-change', variant: s.variant, pickable: false,
+        note: s.removedBy.description, source: s.source,
+      });
+      scene.add(g); continue;
+    }
     const m = prism(s.outlineITM, s.holesITM || [], H(s.top - s.thickness_m), H(s.top), conc);
     const g = new THREE.Group(); g.add(m);
-    const c = s.outlineITM.reduce((a, p) => [a[0] + p[0] / s.outlineITM.length, a[1] + p[1] / s.outlineITM.length], [0, 0]);
     if (s.change) {
       g.add(edges(m, D.ownerChangeColor));
       g.add(label(`${s.change.id} · שינוי אביחי: רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)} (במקום ${s.replaced.top.toFixed(2)})`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl change'));
     } else g.add(label(`רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl beam'));
-    stats.slabs_m3 += s.area_m2 * s.thickness_m;
+    if (s.variant?.show !== 'original') stats.slabs_m3 += s.area_m2 * s.thickness_m;
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'slabs' }, {
-      name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)`, status: s.status,
+      name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)${s.variant ? ' – לפי התוכניות' : ''}`, status: s.status, variant: s.variant,
       rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.top))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
       note: s.change ? `${s.change.description} ממתין לאישור: ${s.change.approvals.map(a => a.who).join(', ')}.` : (s.note || 'רצפה תלויה על ארגזי פוליביד 25 ס"מ (דוח קרקע 9.1)'), source: s.source,
@@ -108,11 +126,16 @@ export function buildPlumbingFoundations(ctx) {
     const mat = new THREE.MeshStandardMaterial({ color: D.chamberColor, roughness: 0.6, side: THREE.DoubleSide });
     const m = new THREE.Mesh(geo, mat); m.position.copy(coords.toLocal(c.E, c.N, (c.TL + c.IL) / 2)); m.castShadow = true;
     const g = new THREE.Group(); g.add(m);
-    const d = document.createElement('div'); d.className = 'lbl ' + (c.affectedBy ? 'change' : 'beam');
-    d.textContent = `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}${c.affectedBy ? ' · מושפע מ-' + c.affectedBy : ''}`;
+    const d = document.createElement('div'); d.className = 'lbl beam';
+    d.textContent = `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}`;
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.4)); g.add(o);
+    if (c.affectedBy) {
+      const ga = new THREE.Group(); const da = document.createElement('div'); da.className = 'lbl change'; da.textContent = `מושפע מ-${c.affectedBy}`;
+      const oa = new CSS2DObject(da); oa.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.9)); ga.add(oa); scene.add(ga);
+      registry.add(ga, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, { name: `${c.id} – מושפע מ-${c.affectedBy}`, variant: { change: c.affectedBy, show: 'changed' }, note: c.note });
+    }
     registry.add(g, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, {
-      name: `${c.id} – ${c.title}`, status: c.affectedBy ? 'owner-change' : c.status,
+      name: `${c.id} – ${c.title}`, status: c.status,
       rows: [['קוטר', `${Math.round(c.diameter_m * 100)} ס"מ`], ['T.L. (מכסה)', coords.fmtH(c.TL)], ['I.L. (תחתית)', coords.fmtH(c.IL)], ['עומק', `${c.H_m.toFixed(2)} מ'`],
         ['ITM', `${c.E.toFixed(3)} / ${c.N.toFixed(3)}`]],
       note: c.note || null, source: c.source,
@@ -140,7 +163,7 @@ export function buildOwnerChangeZones(ctx) {
     const cen = s.outlineITM.reduce((a, p) => [a[0] + p[0] / s.outlineITM.length, a[1] + p[1] / s.outlineITM.length], [0, 0]);
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(cen[0], cen[1], coords.H0 + c.zone.toRel + 0.3)); g.add(o);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'excavation', layer: 'ownerChanges' }, {
-      name: `${c.id} – ${c.title}`, status: 'owner-change', note: `${c.description} ${c.zone.note}`, source: c.source,
+      name: `${c.id} – ${c.title}`, status: 'owner-change', variant: { change: c.id, show: 'changed' }, note: `${c.description} ${c.zone.note}`, source: c.source,
     });
     scene.add(g);
   }

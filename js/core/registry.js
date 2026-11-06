@@ -1,6 +1,6 @@
 // Component registry. Every model component is registered with tags
 // {floor, system, stage, stageTo?, layer} and metadata (name, source, ...).
-// Visibility = layer on  AND  floor visible  AND  stage reached  AND  system passes filter.
+// Visibility = layer on  AND  floor visible  AND  stage reached  AND  system passes filter  AND  owner-change variant matches.
 export class Registry {
   constructor(tagsConfig) {
     this.items = [];
@@ -27,7 +27,10 @@ export class Registry {
       const layerOn = state.layers[t.layer] !== false;
       const floor = state.floors[t.floor] || { visible: true, opacity: 1 };
       const sysOn = !state.systemFilter || state.systemFilter.includes(t.system);
-      const visible = layerOn && floor.visible && sysOn && si >= from && si <= to;
+      // owner-change variants: "original" shows while the change is off, "changed" while it is on
+      const v = it.meta.variant;
+      const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
+      const visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       it.object.visible = visible;
       if (visible) this.applyOpacity(it, floor.opacity);
     }

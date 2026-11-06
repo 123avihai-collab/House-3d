@@ -25,7 +25,7 @@ button.na, .row.na { opacity: .55; }
 #topbar .actions { margin-inline-start: auto; display: flex; gap: 4px; }
 #topbar .icon { width: 34px; height: 34px; padding: 0; }
 .seg { display: flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
-.seg button { border: 0; border-radius: 0; padding: 6px 10px; background: transparent; }
+.ocseg button { border: 0; border-radius: 0; padding: 6px 10px; background: transparent; }
 .seg button + button { border-inline-start: 1px solid var(--line); }
 .seg button.on { background: var(--accent); }
 .seg.small button { font-size: 12px; padding: 4px 8px; }
@@ -140,3 +140,9 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 .lbl.beam { background: rgba(255,152,0,0.85); color: #1a1a1a; font-size: 10px; }
 .lbl.change { background: rgba(171,71,188,0.92); color: #fff; font-size: 11px; }
 .oc { border-inline-start: 3px solid #ab47bc; padding: 4px 8px; margin: 6px 0; }
+.lbl.removed { background: rgba(229,57,53,0.92); color: #fff; font-size: 11px; text-decoration: line-through; }
+.ocseg { display: inline-flex; border: 1px solid #ab47bc; border-radius: 8px; overflow: hidden; margin: 4px 0; }
+.ocseg button { border: 0; border-radius: 0; padding: 4px 10px; background: transparent; color: inherit; }
+.ocseg button.on { background: #ab47bc; color: #fff; }
+.oc-badge { border: 1px solid #ab47bc; color: #ce93d8; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: transparent; cursor: pointer; }
+.oc-badge.off { border-color: #777; color: #aaa; }

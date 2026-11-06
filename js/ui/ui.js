@@ -43,6 +43,11 @@ export class UI {
     top.append(
       h('div', { class: 'brand' }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
       modes, ws,
+      (this.ocBadge = h('button', { class: 'oc-badge', title: 'שינויים של אביחי: הפעלה / כיבוי של כל השינויים (להשוואה מול התוכניות)', onclick: () => {
+        const cur = app.store.get().ownerChanges || {}; const anyOn = Object.values(cur).some(Boolean);
+        app.store.set({ ownerChanges: Object.fromEntries(Object.keys(cur).map(k => [k, !anyOn])) }, { label: 'ownerChanges' });
+        this.toast(anyOn ? 'מוצג לפי התוכניות (שינויים כבויים)' : 'מוצגים השינויים של אביחי');
+      } }, '')),
       h('div', { class: 'actions' },
         btn('↶', 'ביטול (Ctrl+Z)', () => app.store.undo(), 'undo'),
         btn('↷', 'חזרה (Ctrl+Y)', () => app.store.redo(), 'redo'),
@@ -60,6 +65,12 @@ export class UI {
     });
   }
   syncTop() {
+    if (this.ocBadge) {
+      const cur = this.app.store.get().ownerChanges || {}; const n = Object.keys(cur).length, on = Object.values(cur).filter(Boolean).length;
+      this.ocBadge.style.display = n ? '' : 'none';
+      this.ocBadge.textContent = on ? `שינויים: פעילים (${on})` : 'לפי התוכניות';
+      this.ocBadge.classList.toggle('off', !on);
+    }
     const s = this.app.store.get();
     document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === s.mode));
     this.$('undo').disabled = !this.app.store.canUndo();
@@ -233,6 +244,10 @@ export class UI {
       ...(app.data.ownerChanges?.changes || []).map(c => h('div', { class: 'oc' },
         h('b', {}, `${c.id} · ${c.title}`), h('div', {}, c.description),
         h('small', {}, `${c.date} · ממתין לאישור: ${c.approvals.filter(a => a.status === 'pending').map(a => a.who).join(', ')}`),
+        h('div', { class: 'ocseg' },
+          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
+          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
+        h('div', { class: 'muted' }, (s.ownerChanges?.[c.id] ?? true) ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
         h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => { app.store.set({ stageIndex: app.data.tags.stages.findIndex(x => x.id === c.showStage) }, { label: 'stage' }); app.flyToPoint({ E: c.locationITM[0], N: c.locationITM[1], H: app.coords.H0 + c.locationRel }); } }, 'הצג')))),
       h('h4', {}, 'הערות ותיקונים'),
       s.notes.length ? h('ol', { class: 'notes' }, s.notes.map((n, i) => h('li', { class: n.done ? 'done' : '' },

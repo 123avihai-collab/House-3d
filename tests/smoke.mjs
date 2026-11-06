@@ -68,6 +68,18 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     info.walkEyeAboveGround = await page.evaluate(() => { const a = window.__app; const c = a.viewer.camera.position; const g = a.nav.groundAt(c.x, c.z, c.y + 5); a.nav.stopWalk(); return g == null ? null : +(c.y - g).toFixed(3); });
     for (const t of ['layers', 'floors', 'sun', 'section', 'tools', 'nav', 'notes', 'electric', 'settings']) await page.evaluate((t) => window.__app.ui.openTab(t), t);
     info.exportOk = await page.evaluate(() => JSON.parse(window.__app.store.exportJson()).app === 'house3d-5187');
+    // owner-change toggle: "changed" items visible with the change on, "original" with it off
+    info.ownerChange = await page.evaluate(() => {
+      const a = window.__app; const ids = Object.keys(a.store.get().ownerChanges || {}); if (!ids.length) return 'none';
+      const vis = (show) => a.registry.items.filter(i => i.meta.variant?.show === show && i.object.visible).length;
+      a.store.set({ stageIndex: a.data.tags.stages.length - 1, ownerChanges: Object.fromEntries(ids.map(k => [k, true])) });
+      const on = { changed: vis('changed'), original: vis('original') };
+      a.store.set({ ownerChanges: Object.fromEntries(ids.map(k => [k, false])) });
+      const off = { changed: vis('changed'), original: vis('original') };
+      a.store.undo();
+      return on.changed > 0 && on.original === 0 && off.changed === 0 && off.original > 0 ? 'ok' : JSON.stringify({ on, off });
+    });
+    if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('owner-change toggle: ' + info.ownerChange);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

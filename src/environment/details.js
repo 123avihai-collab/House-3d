@@ -151,7 +151,12 @@ export function buildDetails(ctx, mats, lots) {
   }
   for (const b of D.bays) {
     if (b.kind === 'line') { const z = gAt(...b.pts[0]); S.lines.push(box(b.pts[0], b.pts[b.pts.length - 1], z + 0.005, z + 0.02, 0.1, 0, [0, 0])); }
-    else { const zs = b.ring.map(p => gAt(...p)); S.island.push(extrude(b.ring, Math.min(...zs) - 0.2, Math.max(...zs) + 0.15)); }
+    else {
+      // planting island: soil 5 cm below a raised edge stone (אבן גן) all around it
+      const zs = b.ring.map(p => gAt(...p)), zt = Math.max(...zs), r = b.ring, ec = D.config.street.islandEdge;
+      S.island.push(extrude(r, Math.min(...zs) - 0.2, zt + ec.height_m - ec.soilBelow_m));
+      for (let i = 0; i < r.length; i++) S.curb.push(box(r[i], r[(i + 1) % r.length], zt - 0.25, zt + ec.height_m, ec.width_m, 0, [0, 0]));
+    }
   }
   for (const m of D.marks || []) {
     if (m.ring) { const z = Math.max(...m.ring.map(p => gAt(...p))); S.lines.push(extrude(m.ring, z + 0.005, z + 0.02)); }

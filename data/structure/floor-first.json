@@ -279,9 +279,9 @@
     60,
     65
    ],
-   "bottomRel": 3.45,
+   "bottomRel": 3.7,
    "topRel": 6.65,
-   "standsOn": "עמוד C9 של קומת הקרקע (רציף)",
+   "standsOn": "תקרת הקרקע +3.70",
    "status": "provisional",
    "note": "אין תקרת K-41 מעליו – ראש זמני בתחתית תקרת הגג הראשית; משורטט 44/60 (חלקו מוסתר בקיר) מול תווית 60/65 – לפי התווית, רציף עם C9 שמתחתיו",
    "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"

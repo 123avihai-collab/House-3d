@@ -512,6 +512,40 @@ def main():
         beams.append(rec)
     seen = set(); beams = [b for b in beams if not (b['id'] in seen or seen.add(b['id']))]
 
+    # the slab runs on under the walls and columns that stand on it, and the ceiling runs on over the ones that carry it:
+    # the drawn faces stop at their outlines, which leaves notches / holes at every column and wall -> absorb them
+    def absorb(panels, elems, zones=None):
+        n = 0
+        for g in elems:
+            g = g.buffer(0)
+            cand = [p for p in panels if (zones is None or p.get('zone') in zones) and p['poly'].distance(g) < 0.05]
+            if not cand: continue
+            tgt = max(cand, key=lambda p: p['poly'].buffer(0.05, join_style=2).intersection(g).area)
+            u = unary_union([tgt['poly'].buffer(0.005, join_style=2), g.buffer(0.005, join_style=2)]).buffer(-0.005, join_style=2)
+            tgt['poly'] = max(polys(u), key=lambda x: x.area); n += 1
+        return n
+    elems21 = [Polygon(c['footprintITM']) for c in col_out] + [Polygon(w['footprintITM'], w['holesITM']) for w in wall_out]
+    n21 = absorb(panels21, elems21)
+    # thin strips of the K-21 line work between slab panels (the faces of the beams the slab edges stop at): the slab /
+    # beam concrete is continuous there -> into the neighbouring panel (the house first)
+    openU = unary_union([o['poly'] for o in open21] + [pool_zone])
+    strips = [f for f in faces21 if 2 * f.area / f.length <= 0.35 and f.area > 0.05 and not f.intersects(openU.buffer(-0.02))
+              and sum(1 for p in panels21 if p['poly'].distance(f) < 0.05) >= 2
+              and f.intersection(lot.exterior.buffer(0.6)).area < 0.3 * f.area]   # not the perimeter walls (later step)
+    for f in strips:
+        cand = [p for p in panels21 if p['poly'].distance(f) < 0.05]
+        house = [p for p in cand if p['zone'] in ('house', 'mamad', 'entry')]
+        tgt = max(house or cand, key=lambda p: p['poly'].buffer(0.05, join_style=2).intersection(f).area)
+        u = unary_union([tgt['poly'].buffer(0.005, join_style=2), f.buffer(0.005, join_style=2)]).buffer(-0.005, join_style=2)
+        tgt['poly'] = max(polys(u), key=lambda x: x.area)
+    print('beam strips filled', len(strips))
+    for p in panels21:   # holes the columns / walls left inside a panel
+        q = p['poly']; p['poly'] = Polygon(q.exterior, [r for r in q.interiors if not any(Polygon(r).buffer(0.02).intersects(e) for e in elems21)])
+    elems31 = elems21 + hatches(m31, 'IfcColumn', to)
+    n31 = absorb(panels31, elems31)
+    panels31 = fill_thin(close(panels31, gap=0.35))
+    print('absorbed into slabs: ground', n21, 'ceiling', n31)
+
     out = {
         'floor': 'ground',
         'placement': {'k31dxf': 'k21dxf translation (same Revit coordinates)', 'k31_vs_k21_columns_m': [r3(v) for v in same_coords],

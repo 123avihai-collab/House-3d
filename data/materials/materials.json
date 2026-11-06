@@ -65,7 +65,7 @@
     "concrete": {
       "texture": "assets/textures/concrete_floor_01",
       "size_m": 2.0,
-      "tint": "#d6d3cc",
+      "tint": "#a7adb2",
       "roughness": 0.95,
       "envMapIntensity": 0.8
     },

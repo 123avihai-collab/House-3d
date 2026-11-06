@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 // Stage 2b – basement walls, basement floor slabs and foundation beams from data/structure/framing.json.
-// All sizes and levels come from the data (tools/extract_framing.py); provisional records get an orange edge.
+// All sizes and levels come from the data (tools/extract_framing.py). Concrete is grey; provisional records get an orange edge.
 export function buildFoundations(ctx) {
   const { data, coords, registry, scene, materials, display } = ctx;
   const F = data.framing; const D = display.framing;
@@ -31,13 +31,13 @@ export function buildFoundations(ctx) {
     const d = document.createElement('div'); d.className = cls; d.textContent = text;
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(E, N, Habs)); return o;
   };
-  const conc = materials.get('concrete'), concP = materials.get('concreteProvisional');
+  const conc = materials.get('concrete');
   const stats = { walls_m3: 0, slabs_m3: 0, beams_m3: 0, beamsCount: 0, beamsMissing: [] };
 
   // basement walls
   for (const w of F.basementWalls) {
-    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), w.status === 'provisional' ? concP : conc);
-    const g = new THREE.Group(); g.add(m);
+    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
+    const g = new THREE.Group(); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
       name: `קירות מרתף (${w.id})`, status: w.status,
@@ -69,7 +69,7 @@ export function buildFoundations(ctx) {
     const [[E1, N1], [E2, N2]] = b.axisITM;
     const L = Math.hypot(E2 - E1, N2 - N1), ux = (E2 - E1) / L, uy = (N2 - N1) / L, hw = b.width_m / 2;
     const ring = [[E1 - uy * hw, N1 + ux * hw], [E2 - uy * hw, N2 + ux * hw], [E2 + uy * hw, N2 - ux * hw], [E1 + uy * hw, N1 - ux * hw]];
-    const m = prism(ring, [], H(b.bottomRel), H(b.topRel), concP);
+    const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
     g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
     stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;

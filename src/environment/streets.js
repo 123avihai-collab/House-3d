@@ -64,17 +64,6 @@ export function buildStreets(ctx, mats) {
     }
   });
 
-  // integrated-street linework from the buyer's map: central gutter, edge stones at the lot lines, planting islands
-  const hAt = (E, N) => ground.heightAt(E, N, 'env');
-  const lw = new THREE.Group();
-  for (const c of S.integratedStreet.gutter) lw.add(fatLine(ctx, drape(coords, c.points, hAt, 0.03), D.gutterColor, 2.4));
-  for (const c of S.integratedStreet.edgeStones) lw.add(fatLine(ctx, drape(coords, c.points, hAt, 0.03), D.streetEdgeColor, 1.6));
-  for (const c of S.integratedStreet.islands) lw.add(fatLine(ctx, drape(coords, c.points, hAt, 0.03, 0.3), D.islandColor, 2));
-  registry.add(lw, ENV_TAGS('street'), {
-    name: 'רחוב משולב – תעלת ניקוז מרכזית, אבני גן ואיי שתילה', kind: 'lines',
-    rows: [['תעלה', S.integratedStreet.materials.gutter], ['אבן גן בקו המגרש', S.integratedStreet.materials.edgeAtLot]],
-    source: `${S.integratedStreet.linesSource}; חומרים: ${S.integratedStreet.materials.source}`,
-  });
-  scene.add(lw);
+  // (the buyer's-map gutter / islands are built as real elements in details.js – no draped lines here)
   return { interp };
 }

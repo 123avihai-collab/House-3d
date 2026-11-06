@@ -1,5 +1,5 @@
 {
- "_doc": "Environment materials (PBR, Poly Haven CC0 – assets/CREDITS.json). Street: 'מלבן' paving (נספח 003 פרט 14, graphite); fences: stone cladding + plaster (נספח 009 פרט 5.1); houses: minimalist white plaster + wood accent (illustrative).",
+ "_doc": "Environment materials (PBR, Poly Haven CC0 – assets/CREDITS.json). Street: 'מלבן' paving (נספח 003 פרט 14, graphite); fences: stone cladding + plaster (נספח 009 פרט 5.1); houses: minimalist white plaster + wood accent (illustrative). Integrated street: interlocking 'מלבן' pavers in herringbone (נספח 003 פרט 14).",
  "materials": {
   "envLot": {
    "texture": "assets/textures/dry_ground_01",
@@ -9,9 +9,9 @@
    "envMapIntensity": 0.7
   },
   "envStreet": {
-   "texture": "assets/textures/rectangular_paving",
-   "size_m": 2.0,
-   "tint": "#a9a6a0",
+   "texture": "assets/textures/herringbone_pavement_03",
+   "size_m": 2.4,
+   "tint": "#c9c4bb",
    "roughness": 1.0,
    "envMapIntensity": 0.8
   },
@@ -189,9 +189,9 @@
    "envMapIntensity": 0.6
   },
   "envLane": {
-   "texture": "assets/textures/rectangular_paving",
+   "texture": "assets/textures/herringbone_pavement",
    "size_m": 2.0,
-   "tint": "#4a4c4e",
+   "tint": "#9a9a9a",
    "roughness": 1.0,
    "envMapIntensity": 0.8
   },
@@ -201,6 +201,11 @@
    "tint": "#6c6e70",
    "roughness": 1.0,
    "envMapIntensity": 0.8
+  },
+  "nbSteel": {
+   "color": "#80858a",
+   "roughness": 0.45,
+   "envMapIntensity": 1.2
   }
  }
 }

@@ -81,17 +81,26 @@ export function buildDetails(ctx, mats, lots) {
   merged(H.door, M('nbDoor'), 'neighborHouses', hm);
 
   // ---------------- parking structures ----------------
-  const P = { body: [], door: [] };
+  // carports (נספח 009 'חניה קלה'): grey galvanised columns + perimeter beam + flat roof, open sides
+  const CP = D.config.carport, P = { steel: [], roof: [] };
   for (const p of D.parking) {
-    P.body.push(extrude(p.ring, p.base, p.top));
-    // garage door on the street side: outward = away from the structure's centroid
-    const c = p.ring.reduce((s, q) => [s[0] + q[0] / p.ring.length, s[1] + q[1] / p.ring.length], [0, 0]);
-    const m = [(p.door.a[0] + p.door.b[0]) / 2, (p.door.a[1] + p.door.b[1]) / 2], o = [m[0] - c[0], m[1] - c[1]], ol = Math.hypot(...o);
-    P.door.push(box(p.door.a, p.door.b, p.base, p.top - 0.35, 0.06, 0.04, [o[0] / ol, o[1] / ol]));
+    const r = p.ring, n = r.length, cIn = CP.column_m / 2 + 0.05;
+    const cen = r.reduce((s, q) => [s[0] + q[0] / n, s[1] + q[1] / n], [0, 0]);
+    const inset = (q) => { const dx = cen[0] - q[0], dy = cen[1] - q[1], L = Math.hypot(dx, dy); return [q[0] + dx / L * cIn * 1.4, q[1] + dy / L * cIn * 1.4]; };
+    for (let i = 0; i < n; i++) {
+      const a = inset(r[i]), b = inset(r[(i + 1) % n]), L = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.max(1, Math.ceil(L / CP.columnMaxSpacing_m));
+      for (let j = 0; j < k; j++) { // columns along each side (corner + intermediate)
+        const t = j / k, x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
+        const g = new THREE.BoxGeometry(CP.column_m, p.top - CP.beam_m - p.base, CP.column_m);
+        g.translate(X(x), Y((p.base + p.top - CP.beam_m) / 2), Z(y)); P.steel.push(g);
+      }
+      P.steel.push(box(r[i], r[(i + 1) % n], p.top - CP.beam_m - CP.roof_m, p.top - CP.roof_m, CP.column_m, -CP.column_m / 2)); // edge beam
+    }
+    P.roof.push(extrude(r, p.top - CP.roof_m, p.top));
   }
-  const pm = { name: 'מבני חניה – גיליון 04, 2.70 מ\'', kind: 'parking', source: D.parking[0]?.source };
-  merged(P.body, M('nbPlaster'), 'neighborHouses', pm);
-  merged(P.door, M('nbWood'), 'neighborHouses', pm);
+  const pm = { name: 'חניה מקורה – עמודים, קורה וגג מתכת אפורה', kind: 'parking', note: 'מיקום וגודל מגיליון 04; מבנה לפי נספח 009 פרט "חניה קלה"; גובה 2.70', source: CP.source };
+  merged(P.steel, M('nbSteel'), 'neighborHouses', pm);
+  merged(P.roof, M('nbSteel'), 'neighborHouses', pm);
 
   // ---------------- fences + gates ----------------
   const F = D.config.fence, Fg = { stone: [], plaster: [], coping: [], gate: [] };
@@ -159,6 +168,12 @@ export function buildDetails(ctx, mats, lots) {
   merged(BayG, M('envBay'), 'streetFurniture', { name: 'מפרצי חניה', kind: 'street-bays', source: D.config.street.detail_source }, false);
   merged(CrossG, M('nbDriveway'), 'streetFurniture', { name: 'כניסה לחניה – ריצוף מלבן גרפיט במעבר המדרכה (נספח 003 פרט 10)', kind: 'crossing', source: D.config.street.detail_source }, false);
   merged(BolG, M('nbMetal'), 'streetFurniture', { name: 'עמודונים', kind: 'bollards', note: 'המחשה (נספח 003 פרט 14)' });
+  const GutG = [];
+  for (const gt of D.gutters || []) for (let i = 0; i < gt.pts.length - 1; i++) {
+    const a = gt.pts[i], b = gt.pts[i + 1], z = Math.min(gAt(...a), gAt(...b));
+    GutG.push(box(a, b, z - 0.1, z + 0.015, gt.width, 0, [0, 0]));
+  }
+  merged(GutG, M('curb'), 'streetFurniture', { name: 'תעלת ניקוז – אבן תעלה דו-שיפועית 30/10/50', kind: 'gutter', source: D.config.street.gutter_why }, false);
   const sm = { name: 'פיתוח רחוב – אבני שפה, סימון כביש, מעברי חצייה, חניות, איי שתילה', kind: 'street-furniture', note: 'מקצב החניות והאיים – המחשה' };
   merged(S.curb, M('curb'), 'streetFurniture', sm);
   merged(S.lines, M('nbLine'), 'streetFurniture', sm, false);

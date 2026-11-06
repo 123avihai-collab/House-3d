@@ -169,9 +169,10 @@
    "envMapIntensity": 0.6
   },
   "nbFoliage": {
-   "color": "#58783a",
-   "roughness": 0.9,
-   "envMapIntensity": 0.6
+   "color": "#ffffff",
+   "roughness": 0.85,
+   "envMapIntensity": 0.6,
+   "vertexColors": true
   },
   "curb": {
    "texture": "assets/textures/concrete_floor_01",
@@ -179,6 +180,13 @@
    "tint": "#e6e3dc",
    "roughness": 1.0,
    "envMapIntensity": 0.8
+  },
+  "nbBed": {
+   "texture": "assets/textures/dry_ground_01",
+   "size_m": 2.0,
+   "tint": "#8a6f55",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
   }
  }
 }

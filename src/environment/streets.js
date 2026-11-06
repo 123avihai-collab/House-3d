@@ -22,6 +22,7 @@ export function buildStreets(ctx, mats) {
     ['שיפוע רוחבי', sec.crossSlope],
     ['ריצוף', S.integratedStreet.materials.paving],
   ];
+  const curbH = data.envDetails?.config?.street?.curbHeight_m ?? 0; // sidewalks sit above the road by the curb height
   const ZMAT = { integrated: 'envStreet', sidewalk: 'envSidewalk', parkingStrip: 'envPlantingStrip', carriageway: 'envAsphalt', street: 'envStreet' };
   const secOf = Object.fromEntries((S.sections || []).map(x => [x.id, x]));
   S.surfaces.forEach((s, i) => {
@@ -31,6 +32,7 @@ export function buildStreets(ctx, mats) {
     const zoneRows = sec2 && !integ ? [['חתך', sec2.name], ['מקור החתך', sec2.source]] : [];
     if (s.heights === 'source' && interp) {
       const mesh = regionMesh(s.ring, interp, coords, mats.get(ZMAT[s.zone] || 'envStreet'), mats.get('envSide'), display.terrain, ctrl);
+      if (s.zone === 'sidewalk') mesh.position.y += curbH;
       registry.add(mesh, ENV_TAGS('street'), {
         name: `${nm} (גבהים מהמפה למשתכן)`, kind: 'terrain', role: 'street', parcel: s.parcel, ring: s.ring,
         rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה מינ׳/מקס׳', `${coords.fmtH(mesh.userData.hMin)} / ${coords.fmtH(mesh.userData.hMax)}`], ...(integ ? sectionRows : zoneRows)],
@@ -41,6 +43,7 @@ export function buildStreets(ctx, mats) {
       ground.add(s.ring, interp, 'env', `env-street-${i}`);
     } else if (s.heights === 'derived' && dInterp) {
       const mesh = regionMesh(s.ring, dInterp, coords, mats.get(ZMAT[s.zone] || 'envStreet'), mats.get('envSide'), display.terrain, dCtrl);
+      if (s.zone === 'sidewalk') mesh.position.y += curbH;
       const hAt2 = (E, N) => dInterp(E, N);
       const outline = new THREE.Group();
       outline.add(fatLine(ctx, drape(coords, s.ring.concat([s.ring[0]]), hAt2, 0.03, 0.6), D.missingOutlineColor, 1.4, { dashed: true }));

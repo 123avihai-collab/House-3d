@@ -317,7 +317,9 @@
    "footing_m": 0.3,
    "pedGateWidth_m": 1.2,
    "pedGateMaxDist_m": 1.5,
-   "carGateMaxDist_m": 2.0
+   "carGateMaxDist_m": 2.0,
+   "claddingFull": true,
+   "claddingFull_why": "החלטת אביחי 06.11.2026: חיפוי אבן מלא בכל גובה החומה (נספח 009 פרט 5.1 מגביל ל-65 ס\"מ – להמחשה בלבד)"
   },
   "yard": {
    "pathWidth_m": 1.2,
@@ -326,7 +328,14 @@
    "treeInset_m": 1.5,
    "treeClear_m": 1.2,
    "treeHeight_m": 4.5,
-   "treeCrown_m": 3.0
+   "treeCrown_m": 3.0,
+   "bedWidth_m": 1.0,
+   "shrubEvery_m": 1.4,
+   "shrubRadius_m": 0.45,
+   "treePerArea_m2": 50,
+   "treePerArea_why": "(rule) A_1 §12.4",
+   "treeFromHouse_m": 3.0,
+   "treeFromFence_m": 1.5
   },
   "street": {
    "curbHeight_m": 0.15,
@@ -338,9 +347,14 @@
    "islandEvery_m": 12.0,
    "islandRadius_m": 1.4,
    "lampEvery_m": 22.0,
-   "lampInset_m": 0.6,
+   "lampInset_m": 2.1,
    "lampMinGap_m": 12.0,
-   "lampHeight_m": 6.0
+   "lampHeight_m": 6.0,
+   "lampInsetSidewalk_m": 2.6,
+   "dash_m": 3.0,
+   "gap_m": 3.0,
+   "crossFromEnd_m": 3.0,
+   "crossWidth_m": 3.0
   }
  }
 }

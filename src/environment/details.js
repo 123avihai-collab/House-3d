@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { regionMesh } from '../../js/geometry/terrain.js';
 import { ENV_TAGS } from './common.js';
+import { treeGeometry, shrubGeometry } from './vegetation.js';
 
 // Detailed neighbourhood from data/environment/details.json: houses (sheet 04 massing, minimalist facades),
 // fences with stone cladding and gates, yards (lawn, paths, driveways), street trees, lamps, curbs, parking bays.
@@ -31,7 +32,8 @@ export function buildDetails(ctx, mats, lots) {
   }
   const merged = (geos, mat, layer, meta, cast = true) => {
     const gs = geos.filter(Boolean); if (!gs.length) return null;
-    const m = new THREE.Mesh(mergeGeometries(gs, false), mat); m.castShadow = cast; m.receiveShadow = true;
+    const mix = gs.some(g => g.index) && gs.some(g => !g.index);
+    const m = new THREE.Mesh(mergeGeometries(mix ? gs.map(g => g.index ? g.toNonIndexed() : g) : gs, false), mat); m.castShadow = cast; m.receiveShadow = true;
     registry.add(m, ENV_TAGS(layer), meta); scene.add(m); return m;
   };
   const extrude = (ring, z0, z1) => {
@@ -96,7 +98,7 @@ export function buildDetails(ctx, mats, lots) {
   for (const f of D.fences) {
     const c = Math.min(f.claddingTo, f.top - 0.1);
     Fg.stone.push(box(f.a, f.b, f.base, c, F.thickness_m + 0.032, 0, [0, 0]));
-    Fg.plaster.push(box(f.a, f.b, c, f.top - F.copingThick_m, F.thickness_m, 0, [0, 0]));
+    if (f.top - F.copingThick_m - c > 0.02) Fg.plaster.push(box(f.a, f.b, c, f.top - F.copingThick_m, F.thickness_m, 0, [0, 0]));
     Fg.coping.push(box(f.a, f.b, f.top - F.copingThick_m, f.top, F.copingWidth_m, 0, [0, 0]));
   }
   for (const g of D.gates) {
@@ -107,7 +109,7 @@ export function buildDetails(ctx, mats, lots) {
       Fg.gate.push(box([g.a[0] + ax * t0, g.a[1] + ay * t0], [g.a[0] + ax * t1, g.a[1] + ay * t1], g.z, g.z + g.height, 0.05, 0, [0, 0]));
     }
   }
-  const fm = { name: 'חומות המגרשים – חיפוי אבן עד 0.65, טיח, קופינג', kind: 'fence', source: D.sources.fence,
+  const fm = { name: F.claddingFull ? 'חומות המגרשים – חיפוי אבן מלא, קופינג' : 'חומות המגרשים – חיפוי אבן עד 0.65, טיח, קופינג', note: F.claddingFull ? F.claddingFull_why : null, kind: 'fence', source: D.sources.fence,
     rows: [['גדר חזית', `${F.frontHeight_m.toFixed(2)} מ' מעל המדרכה (A_1 §14.2.1)`], ['בין שכנים', `${F.neighbourHeight_m.toFixed(2)} מ' מעל המגרש הגבוה (A_1 §14.5)`], ['דירוג', `כל ${F.stepLength_m} מ', בקפיצות ${F.stepRound_m.toFixed(2)}`], ['עובי / קופינג', `${F.thickness_m} / ${F.copingWidth_m}×${F.copingThick_m} (נספח 009 פרט 5.1)`]] };
   merged(Fg.stone, M('nbStone'), 'neighborFences', fm);
   merged(Fg.plaster, M('nbPlaster'), 'neighborFences', fm);
@@ -124,7 +126,10 @@ export function buildDetails(ctx, mats, lots) {
   };
   for (const y of D.yards) drapeMesh(y.ring, y.parcel, 0.02, lawnG);
   for (const p of D.paths) drapeMesh(p.ring, p.parcel, 0.04, p.kind === 'driveway' ? drvG : paveG);
-  const ym = { name: 'חצרות השכנים – דשא, שבילים וחניות (המחשה)', kind: 'yard', pickable: true };
+  const bedG = [];
+  for (const b of D.beds || []) drapeMesh(b.ring, b.parcel, 0.035, bedG);
+  const ym = { name: 'חצרות השכנים – דשא, ערוגות, שבילים וחניות (המחשה)', kind: 'yard', pickable: true };
+  merged(bedG, M('nbBed'), 'neighborYards', ym, false);
   merged(lawnG, M('nbGrass'), 'neighborYards', ym, false);
   merged(paveG, M('nbPaving'), 'neighborYards', ym, false);
   merged(drvG, M('nbDriveway'), 'neighborYards', ym, false);
@@ -139,35 +144,36 @@ export function buildDetails(ctx, mats, lots) {
     if (b.kind === 'line') { const z = gAt(...b.pts[0]); S.lines.push(box(b.pts[0], b.pts[b.pts.length - 1], z + 0.005, z + 0.02, 0.1, 0, [0, 0])); }
     else { const zs = b.ring.map(p => gAt(...p)); S.island.push(extrude(b.ring, Math.min(...zs) - 0.2, Math.max(...zs) + 0.15)); }
   }
-  const sm = { name: 'פיתוח רחוב – אבני שפה, סימון חניות, איי שתילה', kind: 'street-furniture', note: 'מקצב החניות והאיים – המחשה' };
+  for (const m of D.marks || []) {
+    if (m.ring) { const z = Math.max(...m.ring.map(p => gAt(...p))); S.lines.push(extrude(m.ring, z + 0.005, z + 0.02)); }
+    else { const a = m.pts[0], b = m.pts[m.pts.length - 1], z = Math.max(gAt(...a), gAt(...b)); S.lines.push(box(a, b, z + 0.005, z + 0.02, m.w, 0, [0, 0])); }
+  }
+  const sm = { name: 'פיתוח רחוב – אבני שפה, סימון כביש, מעברי חצייה, חניות, איי שתילה', kind: 'street-furniture', note: 'מקצב החניות והאיים – המחשה' };
   merged(S.curb, M('curb'), 'streetFurniture', sm);
   merged(S.lines, M('nbLine'), 'streetFurniture', sm, false);
   merged(S.island, M('nbGrass'), 'streetFurniture', sm);
 
-  const fol = M('nbFoliage'); fol.flatShading = true; fol.needsUpdate = true;
-  const Tr = { trunk: [], crown: [] };
+  const fol = M('nbFoliage'); fol.vertexColors = true; fol.needsUpdate = true;
+  const Tr = { wood: [], leaves: [] };
   for (const t of D.trees) {
-    const [E, N] = t.at, h = t.height, r = t.crown / 2;
-    const tr = new THREE.CylinderGeometry(0.12, 0.18, h * 0.55, 8); tr.translate(X(E), Y(t.z) + h * 0.275, Z(N)); Tr.trunk.push(tr);
-    // crown: three overlapping low-poly spheres (deterministic offsets from the position)
-    const s = Math.abs(Math.sin(E * 12.9898 + N * 78.233)) * 6.28;
-    for (let k = 0; k < 5; k++) {
-      const a = s + k * 1.26, rr = r * (0.42 + 0.07 * (k % 3));
-      const g = new THREE.IcosahedronGeometry(rr, 1);
-      g.translate(X(E) + Math.cos(a) * r * 0.45, Y(t.z) + h * 0.6 + (k % 2) * r * 0.45, Z(N) + Math.sin(a) * r * 0.45); Tr.crown.push(g);
-    }
+    const g = treeGeometry(X(t.at[0]), Y(t.z), Z(t.at[1]), t.height, t.crown, t.species);
+    Tr.wood.push(...g.wood); Tr.leaves.push(...g.leaves);
   }
-  const tm = { name: 'עצים', kind: 'trees', note: 'עצי חצר: כלל A_1 §12.2 (עץ כל 8 מ\' חזית). עצי רחוב: המחשה – מיקום לא נמצא במקורות', source: D.sources.tree };
-  merged(Tr.trunk, M('nbBark'), 'streetFurniture', tm);
-  merged(Tr.crown, M('nbFoliage'), 'streetFurniture', tm);
+  for (const sh of D.shrubs || []) {
+    const g = shrubGeometry(X(sh.at[0]), Y(sh.z), Z(sh.at[1]), sh.r); Tr.leaves.push(...g.leaves);
+  }
+  const tm = { name: 'עצים ושיחים', kind: 'trees', note: 'עצי חצר: A_1 §12.2 (עץ כל 8 מ\' חזית) ו-§12.4 (עץ לכל 50 מ"ר פנויים). מיקומים, מינים ושיחים – המחשה', source: D.sources.tree };
+  merged(Tr.wood, M('nbBark'), 'streetFurniture', tm);
+  merged(Tr.leaves, M('nbFoliage'), 'streetFurniture', tm);
 
   const Lp = { pole: [], head: [] };
   for (const l of D.lamps) {
     const [E, N] = l.at, z = l.z, h = l.height;
     const p = new THREE.BoxGeometry(0.15, h, 0.15); p.translate(X(E), Y(z) + h / 2, Z(N)); Lp.pole.push(p);
-    const a = [E - l.arm[0] * 1.1, N - l.arm[1] * 1.1];
+    // arm points over the walkway (data: unit vector toward the lot side)
+    const a = [E + l.arm[0] * 1.3, N + l.arm[1] * 1.3];
     Lp.pole.push(box([E, N], a, z + h - 0.1, z + h, 0.1, 0, [0, 0]));
-    Lp.head.push(box([a[0] + l.arm[0] * 0.15, a[1] + l.arm[1] * 0.15], [a[0] - l.arm[0] * 0.45, a[1] - l.arm[1] * 0.45], z + h - 0.18, z + h - 0.06, 0.28, 0, [0, 0]));
+    Lp.head.push(box([a[0] - l.arm[0] * 0.15, a[1] - l.arm[1] * 0.15], [a[0] + l.arm[0] * 0.45, a[1] + l.arm[1] * 0.45], z + h - 0.18, z + h - 0.06, 0.28, 0, [0, 0]));
   }
   const lm = { name: 'עמודי תאורה 15X15, 6 מ\' (גיליון 04 – מקרא)', kind: 'lamps', note: 'מיקום העמודים – המחשה', source: D.sources.lamp };
   merged(Lp.pole, M('nbMetal'), 'streetFurniture', lm);

@@ -164,7 +164,7 @@ def facade_items(fp, door_pt, z0, levels):
     return walls, door
 
 
-houses, parking, fences, gates, yards, paths, trees = [], [], [], [], [], [], []
+houses, parking, fences, gates, yards, paths, trees, beds, shrubs = [], [], [], [], [], [], [], [], []
 fence_done = set()
 for k, l in lots.items():
     r = s4.get(k)
@@ -276,7 +276,7 @@ for k, l in lots.items():
                     kind = 'neighbour'
                 top = math.ceil(top / F['stepRound_m']) * F['stepRound_m']
                 fences.append({'parcel': k, 'kind': kind, 'a': pts([seg.coords[0]])[0], 'b': pts([seg.coords[-1]])[0],
-                               'base': r3(min(g_in + g_out) - F['footing_m']), 'top': r3(top), 'claddingTo': r3(min(g_in + g_out) + F['claddingHeight_m'])})
+                               'base': r3(min(g_in + g_out) - F['footing_m']), 'top': r3(top), 'claddingTo': r3(top - F['copingThick_m'] if F.get('claddingFull') else min(g_in + g_out) + F['claddingHeight_m'])})
 
     # ------------------------------------------------ yard: paths, driveway, lawn, trees
     Y = C['yard']
@@ -319,8 +319,46 @@ for k, l in lots.items():
             c = p + vin * Y['treeInset_m']
             if Point(c).distance(hard_u) < Y['treeClear_m'] or not inner.contains(Point(c)):
                 continue
-            trees.append({'at': pts([c])[0], 'z': r3(gz[k](*c)), 'height': Y['treeHeight_m'], 'crown': Y['treeCrown_m'], 'kind': 'yard',
-                          'status': 'rule', 'source': src['tree']})
+            trees.append({'at': pts([c])[0], 'z': r3(gz[k](*c)), 'height': Y['treeHeight_m'], 'crown': Y['treeCrown_m'], 'kind': 'yard', 'parcel': k,
+                          'species': 'olive' if q % 2 else 'broad', 'status': 'rule', 'source': src['tree']})
+    # planting beds along the fences (inside the lawn) with shrubs; illustrative
+    lawn_u = unary_union([Polygon(y_['ring']) for y_ in yards if y_['parcel'] == k])
+    fence_lines = unary_union([LineString([f['a'], f['b']]) for f in fences if f['parcel'] == k] +
+                              [LineString(e['pts']) for e in l['edges']])
+    bed = lawn_u.intersection(fence_lines.buffer(Y['bedWidth_m'] + F['thickness_m'] / 2)).difference(hard_u.buffer(0.3))
+    for g in (bed.geoms if bed.geom_type in ('MultiPolygon', 'GeometryCollection') else [bed]):
+        if g.geom_type == 'Polygon' and g.area > 1.0:
+            beds.append({'parcel': k, 'ring': ring(g)})
+            mid = g.buffer(-Y['bedWidth_m'] / 2 + 0.05)
+            spine = mid.exterior if mid.geom_type == 'Polygon' and not mid.is_empty else None
+            if spine is not None:
+                n = int(spine.length / 2 // Y['shrubEvery_m'])
+                for q in range(n):
+                    c = spine.interpolate(q * Y['shrubEvery_m'] * 2 % spine.length)
+                    if g.contains(c):
+                        shrubs.append({'at': pts([c.coords[0]])[0], 'z': r3(gz[k](c.x, c.y)), 'r': Y['shrubRadius_m'] * (0.8 + 0.4 * ((q * 7) % 5) / 4)})
+    # A_1 §12.4: one mature tree for every 50 m² of free yard – front trees count; the rest in the lawn, spread out
+    free = lawn_u.area
+    need = int(free // Y['treePerArea_m2']) - sum(1 for t in trees if t.get('parcel') == k)
+    placed = [np.array(t['at']) for t in trees if t.get('parcel') == k]
+    cand = []
+    for g in (lawn_u.geoms if lawn_u.geom_type == 'MultiPolygon' else [lawn_u]):
+        x0, y0, x1, y1 = g.bounds
+        for x in np.arange(x0, x1, 1.0):
+            for y in np.arange(y0, y1, 1.0):
+                pp = Point(x, y)
+                if g.contains(pp) and pp.distance(fp) > Y['treeFromHouse_m'] and pp.distance(lp.exterior) > Y['treeFromFence_m'] and pp.distance(hard_u) > 1.0:
+                    cand.append(np.array([x, y]))
+    for _ in range(max(0, need)):
+        if not cand:
+            break
+        best = max(cand, key=lambda c: min([np.linalg.norm(c - q) for q in placed] + [99]))
+        if placed and min(np.linalg.norm(best - q) for q in placed) < 3.0:
+            break
+        placed.append(best)
+        trees.append({'at': pts([best])[0], 'z': r3(gz[k](*best)), 'height': Y['treeHeight_m'] * 1.1, 'crown': Y['treeCrown_m'] * 1.1, 'kind': 'yard', 'parcel': k,
+                      'species': ['broad', 'olive', 'cypress'][len(placed) % 3], 'status': 'rule',
+                      'source': 'A_1 §12.4: עץ בוגר לכל 50 מ"ר פנויים בחצר (מיקום – המחשה)'})
 
 # ---------------------------------------------------------------- streets: curbs, parking bays, trees, lamps
 SC = C['street']
@@ -355,7 +393,7 @@ for s in surf:
         if k_ % 3 == 2:
             cpt = a + t * (pos + 1.0) + off / 2
             if g.buffer(0.2).contains(Point(*cpt)):
-                trees.append({'at': pts([cpt])[0], 'z': r3(street_f(*cpt)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'status': 'illustrative'})
+                trees.append({'at': pts([cpt])[0], 'z': r3(street_f(*cpt)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
                 isl = Polygon([a + t * pos, a + t * (pos + 2.0), a + t * (pos + 2.0) + off, a + t * pos + off]).intersection(g)
                 if not isl.is_empty and isl.area > 0.5:
                     bays.append({'kind': 'island', 'ring': ring(isl)})
@@ -395,13 +433,13 @@ for g in (band_out.geoms if band_out.geom_type == 'MultiPolygon' else [band_out]
             continue
         bays.append({'kind': 'island', 'ring': ring(isl)})
         cc = isl.centroid
-        trees.append({'at': pts([cc.coords[0]])[0], 'z': r3(street_f(cc.x, cc.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'status': 'illustrative'})
+        trees.append({'at': pts([cc.coords[0]])[0], 'z': r3(street_f(cc.x, cc.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
 # MIG islands near 5187 get a tree too
 for isl in ST['integratedStreet']['islands']:
     lsx = LineString(isl['points'])
     if lsx.length > 4:
         c = Polygon(isl['points']).centroid if len(isl['points']) > 3 else lsx.centroid
-        trees.append({'at': pts([c.coords[0]])[0], 'z': r3(street_f(c.x, c.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'status': 'illustrative'})
+        trees.append({'at': pts([c.coords[0]])[0], 'z': r3(street_f(c.x, c.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
 # street lamps: along each lot frontage, every lampEvery_m, at lampInset_m from the lot line (illustrative)
 done = []
 for l in L['lots']:
@@ -417,15 +455,53 @@ for l in L['lots']:
             t = t / (np.linalg.norm(t) or 1); vo = np.array([t[1], -t[0]])
             if Polygon(l['ring']).contains(Point(*(p + vo * 0.5))):
                 vo = -vo
-            c = p + vo * SC['lampInset_m']
+            probe = Point(*(p + vo * 1.0))
+            inset = SC['lampInsetSidewalk_m'] if zone_u.get('sidewalk') is not None and zone_u['sidewalk'].buffer(0.1).contains(probe) else SC['lampInset_m']
+            c = p + vo * inset
             if any(math.dist(c, d) < SC['lampMinGap_m'] for d in done) or lot257.distance(Point(*c)) < 0.5:
                 continue
             done.append(c)
-            lamps.append({'at': pts([c])[0], 'z': r3(street_f(*c)), 'height': SC['lampHeight_m'], 'arm': pts([vo])[0], 'status': 'illustrative', 'source': src['lamp']})
+            lamps.append({'at': pts([c])[0], 'z': r3(street_f(*c)), 'height': SC['lampHeight_m'], 'arm': pts([-vo])[0], 'status': 'illustrative', 'source': src['lamp']})
+
+# ---------------- road markings: centre line (dashed), edge lines, crosswalks at the ends of each carriageway ----------------
+marks = []
+cw = zone_u.get('carriageway')
+for g in (cw.geoms if cw is not None and cw.geom_type == 'MultiPolygon' else ([cw] if cw is not None and not cw.is_empty else [])):
+    if g.area < 20:
+        continue
+    mrr = list(g.minimum_rotated_rectangle.exterior.coords)[:4]
+    e1, e2 = (np.array(mrr[0]), np.array(mrr[1])), (np.array(mrr[1]), np.array(mrr[2]))
+    ln1, ln2 = np.linalg.norm(e1[1] - e1[0]), np.linalg.norm(e2[1] - e2[0])
+    (a, b), wv = (e1, e2[1] - e2[0]) if ln1 > ln2 else (e2, e1[1] - e1[0])
+    Lc, W = np.linalg.norm(b - a), min(ln1, ln2)
+    if Lc < 8:
+        continue
+    t = (b - a) / Lc; nrm = wv / np.linalg.norm(wv)
+    mid0 = a + nrm * W / 2
+    s_ = 0.0
+    while s_ + SC['dash_m'] < Lc:  # centre line: dashes
+        seg = LineString([mid0 + t * s_, mid0 + t * (s_ + SC['dash_m'])]).intersection(g.buffer(-0.3))
+        if not seg.is_empty and seg.geom_type == 'LineString':
+            marks.append({'kind': 'centre', 'pts': pts(seg.coords), 'w': 0.12})
+        s_ += SC['dash_m'] + SC['gap_m']
+    for off in (0.25, W - 0.25):  # edge lines
+        seg = LineString([a + nrm * off, b + nrm * off]).intersection(g)
+        if not seg.is_empty and seg.geom_type == 'LineString':
+            marks.append({'kind': 'edge', 'pts': pts(seg.coords), 'w': 0.1})
+    for end in (SC['crossFromEnd_m'], Lc - SC['crossFromEnd_m'] - SC['crossWidth_m']):
+        if end < 0 or Lc < 2 * SC['crossFromEnd_m'] + SC['crossWidth_m']:
+            continue
+        q = 0.3
+        while q + 0.5 < W:
+            st = Polygon([a + t * end + nrm * q, a + t * (end + SC['crossWidth_m']) + nrm * q,
+                          a + t * (end + SC['crossWidth_m']) + nrm * (q + 0.5), a + t * end + nrm * (q + 0.5)]).intersection(g)
+            if not st.is_empty and st.area > 0.2:
+                marks.append({'kind': 'zebra', 'ring': ring(st)})
+            q += 1.0
 
 out = {'_doc': 'Detailed neighbourhood for display. Generated by tools/environment/derive_details.py – do not edit. '
                'status: rule / sheet04 / illustrative (illustrative = no dimension in the sources, shown only).',
        'sources': src, 'houses': houses, 'parking': parking, 'fences': fences, 'gates': gates, 'yards': yards, 'paths': paths,
-       'trees': trees, 'lamps': lamps, 'curbs': curbs, 'bays': bays, 'config': C}
+       'trees': trees, 'lamps': lamps, 'curbs': curbs, 'bays': bays, 'beds': beds, 'shrubs': shrubs, 'marks': marks, 'config': C}
 json.dump(out, open(os.path.join(ROOT, 'data', 'environment', 'details.json'), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 print({k: len(v) for k, v in out.items() if isinstance(v, list)})

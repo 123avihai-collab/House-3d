@@ -296,7 +296,7 @@ export class UI {
   buildStageBar() {
     const { app } = this; const bar = this.$('stagebar');
     const st = app.data.tags.stages;
-    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => app.store.setCoalesced('stage', { stageIndex: +e.target.value }) });
+    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => { app.store.setCoalesced('stage', { stageIndex: +e.target.value }); this.hint(st[+e.target.value].hint || ''); clearTimeout(this._hintT); this._hintT = setTimeout(() => this.hint(''), 4000); } });
     this.stageLabel = h('b', {});
     const ticks = h('div', { class: 'ticks' }, st.map(s => h('span', {}, s.label)));
     bar.append(h('div', { class: 'stg-head' }, 'שלב בנייה: ', this.stageLabel,

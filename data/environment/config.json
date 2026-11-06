@@ -317,9 +317,11 @@
    "footing_m": 0.3,
    "pedGateWidth_m": 1.2,
    "pedGateMaxDist_m": 1.5,
-   "carGateMaxDist_m": 2.0,
+   "carGateMaxDist_m": 5.0,
    "claddingFull": true,
-   "claddingFull_why": "החלטת אביחי 06.11.2026: חיפוי אבן מלא בכל גובה החומה (נספח 009 פרט 5.1 מגביל ל-65 ס\"מ – להמחשה בלבד)"
+   "claddingFull_why": "החלטת אביחי 06.11.2026: חיפוי אבן מלא בכל גובה החומה (נספח 009 פרט 5.1 מגביל ל-65 ס\"מ – להמחשה בלבד)",
+   "carGateMinWidth_m": 5.4,
+   "carGateMinWidth_why": "(rule) A_1 §7.8: רוחב כניסה לחניה מינימום 5.4 מ'"
   },
   "yard": {
    "pathWidth_m": 1.2,
@@ -354,7 +356,15 @@
    "dash_m": 3.0,
    "gap_m": 3.0,
    "crossFromEnd_m": 3.0,
-   "crossWidth_m": 3.0
+   "crossWidth_m": 3.0,
+   "chicanePhase_m": 24.0,
+   "islandLen_m": 9.0,
+   "islandGap_m": 6.0,
+   "islandTaper_m": 1.2,
+   "bollardEvery_m": 2.5,
+   "crossingDepthSidewalk_m": 3.0,
+   "crossingDepthWalk_m": 2.0,
+   "detail_source": "נספח פרטי פיתוח 003: פרט 14 'מקטע רחוב משולב – תכנית טיפוסית 1:100', פרט 13 'מקטע כביש – תכנית טיפוסית', פרט 10 'ריצוף בכניסות לחניות'"
   }
  }
 }

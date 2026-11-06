@@ -148,6 +148,17 @@ export function buildDetails(ctx, mats, lots) {
     if (m.ring) { const z = Math.max(...m.ring.map(p => gAt(...p))); S.lines.push(extrude(m.ring, z + 0.005, z + 0.02)); }
     else { const a = m.pts[0], b = m.pts[m.pts.length - 1], z = Math.max(gAt(...a), gAt(...b)); S.lines.push(box(a, b, z + 0.005, z + 0.02, m.w, 0, [0, 0])); }
   }
+  // integrated street lane (dark 'מלבן' pavers), regular-road parking bays, driveway crossings, bollards
+  const curbH = D.config.street.curbHeight_m, LaneG = [], BayG = [], CrossG = [], BolG = [];
+  const flat = (ring, lift, arr) => { const zs = ring.map(p => gAt(...p)); arr.push(extrude(ring, Math.min(...zs) + lift - 0.01, Math.max(...zs) + lift)); };
+  for (const r of D.lane || []) { const g = regionMesh(r, (E, N) => gAt(E, N), coords, M('envLane'), null, T, []).children[0].geometry; g.translate(0, 0.012, 0); LaneG.push(g); }
+  for (const b of D.bayPave || []) { const g = regionMesh(b.ring, (E, N) => gAt(E, N), coords, M('envBay'), null, T, []).children[0].geometry; g.translate(0, 0.01, 0); BayG.push(g); }
+  for (const c of D.crossings || []) { const g = regionMesh(c.ring, (E, N) => gAt(E, N), coords, M('nbDriveway'), null, T, []).children[0].geometry; g.translate(0, (c.curbCut ? curbH : 0) + 0.02, 0); CrossG.push(g); }
+  for (const b of D.bollards || []) { const g = new THREE.CylinderGeometry(0.07, 0.08, 0.8, 10); g.translate(X(b.at[0]), Y(b.z) + 0.4, Z(b.at[1])); BolG.push(g); }
+  merged(LaneG, M('envLane'), 'streetFurniture', { name: 'רחוב משולב – נתיב נסיעה (אבן מלבן שחור 20/8/10), שיקנה', kind: 'street-lane', note: 'צורת השיקנה ואורכי האיים – המחשה לפי נספח 003 פרט 14', source: D.config.street.detail_source }, false);
+  merged(BayG, M('envBay'), 'streetFurniture', { name: 'מפרצי חניה', kind: 'street-bays', source: D.config.street.detail_source }, false);
+  merged(CrossG, M('nbDriveway'), 'streetFurniture', { name: 'כניסה לחניה – ריצוף מלבן גרפיט במעבר המדרכה (נספח 003 פרט 10)', kind: 'crossing', source: D.config.street.detail_source }, false);
+  merged(BolG, M('nbMetal'), 'streetFurniture', { name: 'עמודונים', kind: 'bollards', note: 'המחשה (נספח 003 פרט 14)' });
   const sm = { name: 'פיתוח רחוב – אבני שפה, סימון כביש, מעברי חצייה, חניות, איי שתילה', kind: 'street-furniture', note: 'מקצב החניות והאיים – המחשה' };
   merged(S.curb, M('curb'), 'streetFurniture', sm);
   merged(S.lines, M('nbLine'), 'streetFurniture', sm, false);

@@ -189,7 +189,8 @@ for k, l in lots.items():
     fp = big(fp.intersection(env).simplify(0.02))   # exact building lines (raster edges may stick out by < 0.25 m)
     up = big(up.intersection(fp).simplify(0.02))
     ent = unary_union([Polygon(e) for e in r['entrance']]) if r['entrance'] else None
-    door_pt = nearest_points(fp.exterior, ent)[0].coords[0] if ent is not None else None
+    st_line = unary_union([LineString(e['pts']) for e in l['edges'] if e['across'].startswith('רחוב')])
+    door_pt = nearest_points(fp.exterior, ent if ent is not None else st_line)[0].coords[0]
     H = C['house']
     levels = [z0, z0 + H['floor_m'], z0 + 2 * H['floor_m']]
     walls, door = facade_items(fp, door_pt, z0, levels[0:2])
@@ -226,13 +227,18 @@ for k, l in lots.items():
         if el.distance(door_line) > F['carGateMaxDist_m']:
             continue
         s0, s1 = sorted([el.project(Point(p)) for p in door_line.coords])
-        openings.append(('car', el, s0 - 0.1, s1 + 0.1))
-    if ent is not None:
-        e = min(street_edges, key=lambda e: LineString(e['pts']).distance(ent))
-        el = LineString(e['pts'])
-        if el.distance(ent) < F['pedGateMaxDist_m']:
-            c = el.project(ent.centroid)
-            openings.append(('ped', el, c - F['pedGateWidth_m'] / 2, c + F['pedGateWidth_m'] / 2))
+        w = max(s1 - s0, F['carGateMinWidth_m'])  # A_1 §7.8: entrance width min 5.4 m
+        c_ = (s0 + s1) / 2
+        openings.append(('car', el, max(0.0, c_ - w / 2), min(el.length, c_ + w / 2)))
+    target = ent if ent is not None else Point(door_pt)
+    e = min(street_edges, key=lambda e: LineString(e['pts']).distance(target))
+    el = LineString(e['pts'])
+    c = el.project(target.centroid)
+    for kind, line, a0, a1 in openings:  # keep the pedestrian gate clear of the car opening
+        if line.equals(el) and a0 - 1.0 < c < a1 + 1.0:
+            c = a0 - 1.2 if c - a0 < a1 - c and a0 > 2 else a1 + 1.2
+    if 0.8 < c < el.length - 0.8:
+        openings.append(('ped', el, c - F['pedGateWidth_m'] / 2, c + F['pedGateWidth_m'] / 2))
     for e in l['edges']:
         street = e['across'].startswith('רחוב')
         key = tuple(sorted([k, e['across']]))
@@ -281,11 +287,13 @@ for k, l in lots.items():
     # ------------------------------------------------ yard: paths, driveway, lawn, trees
     Y = C['yard']
     hard = []
-    if door and ent is not None:
-        gp = next((g for g in gates if g['parcel'] == k and g['kind'] == 'ped'), None)
+    gp = next((g for g in gates if g['parcel'] == k and g['kind'] == 'ped'), None)
+    if door and (gp or ent is not None):
         start = ((np.array(gp['a']) + np.array(gp['b'])) / 2) if gp else np.array(ent.centroid.coords[0])
         dmid = (np.array(door['a']) + np.array(door['b'])) / 2
-        pth = LineString([start, dmid]).buffer(Y['pathWidth_m'] / 2, cap_style='flat').union(ent)
+        pth = LineString([start, dmid]).buffer(Y['pathWidth_m'] / 2, cap_style='flat')
+        if ent is not None:
+            pth = pth.union(ent)
         hard.append(('path', pth))
     for (pg, dl), gt in zip(pk_all, [g for g in gates if g['parcel'] == k and g['kind'] == 'car'] or [None] * len(pk_all)):
         if gt:
@@ -404,64 +412,114 @@ for s in surf:
                 bays.append({'kind': 'line', 'pts': pts(ln.coords)})
             pos += SC['bayLength_m']
         k_ += 1
-# integrated street: planting islands + trees in the 5.0 m band (south side, as at 5187 in the buyer's map),
-# alternating with parking; outside the buyer-map frame only (inside it the drawn islands exist)
-frame = Polygon(ST['frameITM'])
-sec = ST['integratedStreet']['typicalSection']
-south_lots = ['222', '223', '218', '217', '262']
-south = unary_union([Polygon(lots[q]['ring']) for q in south_lots if q in lots] +
-                    [Polygon(p['ring']) for p in J('data', 'site', 'parcels.json')['parcels'] if p['parcel'] in ('216', '219', '220', '221', '263', '264')])
+# ---------------- integrated street (נספח 003 פרט 14): chicane ----------------
+# Section 2.0 walk | 4.5 lane | 5.0 parking/planting | 1.5 walk (from the north lots). The dark lane (אבן 'מלבן' שחור 20/8/10)
+# swaps sides every chicanePhase_m; planting islands (tree + lamp) fill the 5.0 band beside it, trapezoid ends;
+# bollards along the lane on the walkway side. Inside the buyer-map frame the phase is fixed so the islands sit where
+# the DWG draws them (south half). Rhythm/lengths: illustrative.
+samples = [w for w in ST['frontageWidths'] if w['section'] == '960']
+P_ = np.array([w['at'] for w in samples])
+c0 = P_.mean(0); _, _, vt = np.linalg.svd(P_ - c0); axis_u = vt[0]
+south = np.array([axis_u[1], -axis_u[0]]) if axis_u[1] * -1 + 0 < 0 else np.array([-axis_u[1], axis_u[0]])
+if south[1] > 0: south = -south
+frame_st = [float((np.array(p) - c0) @ axis_u) for p in Polygon(ST['frameITM']).exterior.coords]
+lot257_mid = np.array(lot257.centroid.coords[0]); st5187 = float((lot257_mid - c0) @ axis_u)
+PH = SC['chicanePhase_m']
+def phase(st):  # 0 = lane north / islands south (as at 5187 in the DWG), 1 = swapped
+    return int(math.floor((st - st5187) / PH + 0.5)) % 2
+lane_parts, isl_parts, bol = [], [], []
 integ = zone_u.get('integrated', Polygon())
-band0, band1 = sec['zones'][-1]['width_m'], sec['zones'][-1]['width_m'] + sec['zones'][-2]['width_m']
-band = integ.intersection(south.buffer(band1).difference(south.buffer(band0)))
-band_out = band.difference(frame.buffer(1))
-for g in (band_out.geoms if band_out.geom_type == 'MultiPolygon' else [band_out]):
-    if g.is_empty or g.area < 10:
-        continue
-    sk = g.buffer(-0.1)
-    line = LineString(list(g.minimum_rotated_rectangle.exterior.coords)[:2])
-    if line.length < 5:
-        line = LineString(list(g.minimum_rotated_rectangle.exterior.coords)[1:3])
-    n = int(line.length // SC['islandEvery_m'])
-    for q in range(n):
-        c = line.interpolate((q + 0.5) / n, normalized=True)
-        cpt = nearest_points(g.centroid if False else g, c)[0] if not g.contains(c) else c
-        p = Point(cpt.x, cpt.y)
-        # project to the middle of the band
-        isl = p.buffer(SC['islandRadius_m']).intersection(g)
-        if isl.area < 1:
-            continue
-        bays.append({'kind': 'island', 'ring': ring(isl)})
-        cc = isl.centroid
-        trees.append({'at': pts([cc.coords[0]])[0], 'z': r3(street_f(cc.x, cc.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
-# MIG islands near 5187 get a tree too
+for w in samples:
+    k = w['lot']; pl = Polygon(lots[k]['ring']) if k in lots else next((Polygon(p['ring']) for p in J('data', 'site', 'parcels.json')['parcels'] if p['parcel'] == k), None)
+    if pl is None: continue
+    p = np.array(w['at']); ext = pl.exterior
+    s_ = ext.project(Point(*p)); a_ = np.array(ext.interpolate(s_ - 0.6).coords[0]); b_ = np.array(ext.interpolate(s_ + 0.6).coords[0])
+    t = (b_ - a_) / (np.linalg.norm(b_ - a_) or 1); n = np.array([t[1], -t[0]])
+    if pl.contains(Point(*(p + n * 0.3))): n = -n
+    north_side = n @ south > 0          # this lot is on the north side of the street
+    st = float((p - c0) @ axis_u); ph = phase(st)
+    lane_n = (2.0, 6.5) if ph == 0 else (6.5, 11.0)      # distances from the north lot line
+    isl_n = (6.5, 11.3) if ph == 0 else (1.7, 6.5)
+    W = w['width_m']
+    conv = (lambda d0, d1: (d0, d1)) if north_side else (lambda d0, d1: (W - d1, W - d0))
+    for rng_, out_ in ((lane_n, lane_parts), (isl_n, isl_parts)):
+        d0, d1 = conv(*rng_)
+        out_.append(Polygon([p - t * 0.6 + n * d0, p + t * 0.6 + n * d0, p + t * 0.6 + n * d1, p - t * 0.6 + n * d1]))
+lane = unary_union(lane_parts).intersection(integ).buffer(0.3).buffer(-0.3)
+isl_band = unary_union(isl_parts).intersection(integ).buffer(0.2).buffer(-0.2)
+# islands: chop the band into islands of islandLen_m with gaps (parking / driveway crossings), trapezoid ends
+islands_i = []
+for g in (isl_band.geoms if isl_band.geom_type == 'MultiPolygon' else [isl_band]):
+    if g.area < 4: continue
+    sts = [float((np.array(q) - c0) @ axis_u) for q in g.exterior.coords]
+    s0, s1 = min(sts), max(sts); pos = s0 + 1.0
+    while pos + SC['islandLen_m'] <= s1:
+        cut = Polygon([c0 + axis_u * pos + south * -60, c0 + axis_u * (pos + SC['islandLen_m']) + south * -60,
+                       c0 + axis_u * (pos + SC['islandLen_m']) + south * 60, c0 + axis_u * pos + south * 60])
+        isl = g.intersection(cut).buffer(-0.15).buffer(-SC['islandTaper_m'], join_style='bevel').buffer(SC['islandTaper_m'], join_style='bevel')
+        if not isl.is_empty and isl.area > 3 and not Polygon(ST['frameITM']).buffer(-1).contains(isl.centroid):
+            islands_i.append(isl if isl.geom_type == 'Polygon' else max(isl.geoms, key=lambda q: q.area))
+        pos += SC['islandLen_m'] + SC['islandGap_m']
+for isl in islands_i:
+    bays.append({'kind': 'island', 'ring': ring(isl)})
+    cc = isl.centroid
+    trees.append({'at': pts([cc.coords[0]])[0], 'z': r3(street_f(cc.x, cc.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
+    # lamp at the island's lane-side end (detail 14: lamps in the islands)
+    lp_ = np.array(nearest_points(isl.boundary, lane)[0].coords[0]) if not lane.is_empty else np.array(cc.coords[0])
+    toward = np.array(cc.coords[0]) - lp_; toward = toward / (np.linalg.norm(toward) or 1)
+    c = lp_ + toward * 0.5
+    lamps.append({'at': pts([c])[0], 'z': r3(street_f(*c)), 'height': SC['lampHeight_m'], 'arm': pts([-toward])[0], 'status': 'illustrative', 'source': src['lamp']})
+# MIG-drawn islands near 5187 (inside the frame): tree + lamp each
 for isl in ST['integratedStreet']['islands']:
     lsx = LineString(isl['points'])
     if lsx.length > 4:
         c = Polygon(isl['points']).centroid if len(isl['points']) > 3 else lsx.centroid
         trees.append({'at': pts([c.coords[0]])[0], 'z': r3(street_f(c.x, c.y)), 'height': SC['treeHeight_m'], 'crown': SC['treeCrown_m'], 'kind': 'street', 'species': 'broad', 'status': 'illustrative'})
-# street lamps: along each lot frontage, every lampEvery_m, at lampInset_m from the lot line (illustrative)
-done = []
-for l in L['lots']:
-    for e in l['edges']:
-        if not e['across'].startswith('רחוב'):
-            continue
-        el = LineString(e['pts'])
-        n = max(1, round(el.length / SC['lampEvery_m']))
-        for q in range(n):
-            s = (q + 0.5) * el.length / n
-            p = np.array(el.interpolate(s).coords[0])
-            t = np.array(el.interpolate(min(el.length, s + 0.5)).coords[0]) - np.array(el.interpolate(max(0, s - 0.5)).coords[0])
-            t = t / (np.linalg.norm(t) or 1); vo = np.array([t[1], -t[0]])
-            if Polygon(l['ring']).contains(Point(*(p + vo * 0.5))):
-                vo = -vo
-            probe = Point(*(p + vo * 1.0))
-            inset = SC['lampInsetSidewalk_m'] if zone_u.get('sidewalk') is not None and zone_u['sidewalk'].buffer(0.1).contains(probe) else SC['lampInset_m']
-            c = p + vo * inset
-            if any(math.dist(c, d) < SC['lampMinGap_m'] for d in done) or lot257.distance(Point(*c)) < 0.5:
-                continue
-            done.append(c)
-            lamps.append({'at': pts([c])[0], 'z': r3(street_f(*c)), 'height': SC['lampHeight_m'], 'arm': pts([-vo])[0], 'status': 'illustrative', 'source': src['lamp']})
+lane_rings = [ring(g) for g in (lane.geoms if lane.geom_type == 'MultiPolygon' else [lane]) if g.area > 2]
+# bollards along the lane edge on the walkway side where there is no island (every bollardEvery_m)
+lane_edge = lane.boundary.difference(isl_band.buffer(0.6)).difference(integ.boundary.buffer(0.4))
+for g in (lane_edge.geoms if hasattr(lane_edge, 'geoms') else [lane_edge]):
+    if g.geom_type != 'LineString' or g.length < 2: continue
+    for q in np.arange(0.5, g.length, SC['bollardEvery_m']):
+        c = g.interpolate(q); bol.append({'at': pts([c.coords[0]])[0], 'z': r3(street_f(c.x, c.y))})
+
+# ---------------- regular roads (נספח 003 פרט 13): parking bays paved dark, lamps in the planting islands ----------------
+bay_pave = []
+for s in surf:
+    if s['zone'] != 'parkingStrip': continue
+    g = Polygon(s['ring']).buffer(0)
+    rest = g.difference(unary_union([Polygon(b['ring']) for b in bays if b['kind'] == 'island']).buffer(0.05))
+    for q in (rest.geoms if rest.geom_type == 'MultiPolygon' else [rest]):
+        if q.area > 1: bay_pave.append({'ring': ring(q)})
+for b in [b for b in bays if b['kind'] == 'island']:
+    cc = Polygon(b['ring']).centroid
+    if any(Polygon(b['ring']).within(Polygon(s['ring']).buffer(0.3)) for s in surf if s['zone'] == 'parkingStrip'):
+        sw = zone_u.get('sidewalk')
+        if sw is None: continue
+        ps = np.array(nearest_points(sw, cc)[0].coords[0]); toward = ps - np.array(cc.coords[0]); toward = toward / (np.linalg.norm(toward) or 1)
+        c = np.array(cc.coords[0]) + toward * 0.6
+        lamps.append({'at': pts([c])[0], 'z': r3(street_f(*c)), 'height': SC['lampHeight_m'], 'arm': pts([toward])[0], 'status': 'illustrative', 'source': src['lamp']})
+
+# ---------------- driveway crossings over the sidewalk / walk strip (נספח 003 פרט 10) + curb cuts ----------------
+crossings = []
+for g in gates:
+    if g['kind'] != 'car': continue
+    a_, b_ = np.array(g['a']), np.array(g['b']); t = (b_ - a_) / np.linalg.norm(b_ - a_); n = np.array([t[1], -t[0]])
+    if Polygon(lots[g['parcel']]['ring']).contains(Point(*((a_ + b_) / 2 + n * 0.3))): n = -n
+    mid = (a_ + b_) / 2
+    sw = zone_u.get('sidewalk')
+    depth = SC['crossingDepthSidewalk_m'] if sw is not None and sw.buffer(0.1).contains(Point(*(mid + n * 1.0))) else SC['crossingDepthWalk_m']
+    poly = Polygon([a_, b_, b_ + n * depth, a_ + n * depth]).intersection(unary_union([Polygon(x['ring']).buffer(0) for x in surf]).buffer(0.05))
+    if not poly.is_empty and poly.area > 1:
+        crossings.append({'parcel': g['parcel'], 'ring': ring(poly), 'curbCut': depth == SC['crossingDepthSidewalk_m']})
+cut_u = unary_union([Polygon(c['ring']).buffer(0.3) for c in crossings]) if crossings else Polygon()
+curbs2 = []
+for c in curbs:
+    rest = LineString(c['pts']).difference(cut_u)
+    for g in (rest.geoms if hasattr(rest, 'geoms') else [rest]):
+        if g.geom_type == 'LineString' and g.length > 0.5:
+            curbs2.append({**c, 'pts': pts(g.coords)})
+curbs = curbs2
 
 # ---------------- road markings: centre line (dashed), edge lines, crosswalks at the ends of each carriageway ----------------
 marks = []
@@ -502,6 +560,7 @@ for g in (cw.geoms if cw is not None and cw.geom_type == 'MultiPolygon' else ([c
 out = {'_doc': 'Detailed neighbourhood for display. Generated by tools/environment/derive_details.py – do not edit. '
                'status: rule / sheet04 / illustrative (illustrative = no dimension in the sources, shown only).',
        'sources': src, 'houses': houses, 'parking': parking, 'fences': fences, 'gates': gates, 'yards': yards, 'paths': paths,
-       'trees': trees, 'lamps': lamps, 'curbs': curbs, 'bays': bays, 'beds': beds, 'shrubs': shrubs, 'marks': marks, 'config': C}
+       'trees': trees, 'lamps': lamps, 'curbs': curbs, 'bays': bays, 'beds': beds, 'shrubs': shrubs, 'marks': marks,
+       'lane': lane_rings, 'bollards': bol, 'bayPave': bay_pave, 'crossings': crossings, 'config': C}
 json.dump(out, open(os.path.join(ROOT, 'data', 'environment', 'details.json'), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 print({k: len(v) for k, v in out.items() if isinstance(v, list)})

@@ -11,7 +11,7 @@
   "envStreet": {
    "texture": "assets/textures/rectangular_paving",
    "size_m": 2.0,
-   "tint": "#7d7f80",
+   "tint": "#a9a6a0",
    "roughness": 1.0,
    "envMapIntensity": 0.8
   },
@@ -187,6 +187,20 @@
    "tint": "#8a6f55",
    "roughness": 1.0,
    "envMapIntensity": 0.6
+  },
+  "envLane": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#4a4c4e",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "envBay": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#6c6e70",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
   }
  }
 }

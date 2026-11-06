@@ -16,6 +16,8 @@ ROOT = F.ROOT; r3 = F.r3
 SEC = 'sources/structure/pool-walls/בריכה חתך א+ב.pdf'
 # levels written on the section sheet (absolute, m)
 DECK, FLOOR, STEPS, TANK_FLOOR, TANK_SLAB = 280.48, 279.30, 279.97, 278.33, 0.20
+POOL_SLAB = 0.27          # dimension "27" under the pool floor (section A); section scale verified 1:50 (280.48→279.30 = 67 pt = 1.18 m = written "118")
+CHANNEL_BOTTOM = 279.75   # cover-shutter pit (section B, right): bottom of its slab measured at the verified 1:50 scale from the 280.48 level line
 ring = lambda g: [[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]]
 
 
@@ -50,18 +52,19 @@ def main():
     out = {
         'pool': {'outerITM': ring(pool_outer), 'area_m2': r3(pool_outer.area), 'wallsITM': [ring(q) for q in pool_walls],
                  'deck': DECK, 'floorFinish': FLOOR, 'stepsLevel': STEPS,
-                 'slabUndersideWest': r3(min(west)), 'slabUndersideEast': r3(min(east)),
+                 'slabThickness_m': POOL_SLAB, 'slabUndersideWest': r3(min(west)), 'slabUndersideEast': r3(FLOOR - POOL_SLAB),
+                 'checkDeepEnd': {'fromSection': r3(FLOOR - POOL_SLAB), 'pileHeads29_31': r3(min(east))},
                  'status': 'provisional',
-                 'note': 'מפלסי גמר (סיפון 280.48, רצפה 279.30 בעומק 1.20, מדרגות 279.97, שיפוע 4.9%) – מחתכי הבריכה. תחתית רצפת הבריכה = ראשי הכלונסאות שמתחתיה (K-400: 28/30 ‎-1.20 במערב, 29/31 ‎-1.50 במזרח). עובי רצפה/קירות ומצע – חסרים (תוכנית הבריכה של הקונסטרוקטור).',
+                 'note': 'מחתכי הבריכה (קנ"מ 1:50 אומת מול המפלסים הכתובים): סיפון 280.48, רצפה 279.30 בעומק 1.20 ("118"), עובי רצפה 27 ס"מ → תחתית 279.03 בצד העמוק (מול ראשי כלונסאות 29/31: 279.00 – הפרש 3 ס"מ). מדרגות 279.97, שיפוע 4.9%. בצד הרדוד – תחתית לפי ראשי כלונסאות 28/30 (279.30). מצע מתחת לרצפה – לא כתוב.',
                  'source': f'{F.K21} (קירות הבריכה, IfcWall); {SEC} (מפלסים); {F.K400} (ראשי כלונסאות 28–31)'},
         'channel': {'outerITM': ring(ch_outer), 'area_m2': r3(ch_outer.area), 'wallsITM': [ring(q) for q in ch_walls], 'top': DECK,
-                    'bottom': r3(min(east)), 'status': 'provisional',
-                    'note': 'תעלת כיסוי הבריכה (הקופסה הצרה בצד המזרחי של הבריכה, K-400/K-21). מפלס תחתית לא נמצא במקורות – הונח כתחתית רצפת הבריכה בצד המזרחי (ראשי כלונסאות 29/31).',
+                    'bottom': CHANNEL_BOTTOM, 'status': 'source',
+                    'note': 'תעלת תריס כיסוי הבריכה (הקופסה הצרה בצד המזרחי, K-400/K-21). תחתית 279.75 – נמדדה בחתך ב (קנ"מ 1:50 מאומת) מקו הסיפון 280.48.',
                     'source': f'{F.K21} (IfcWall); tools/pool-pieces.json; {F.K400}'},
         'tank': {'outerITM': ring(tank_outer), 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
                  'top': DECK, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),
-                 'pile32Head': r3(P['32']['headRel'] + H0), 'status': 'provisional',
-                 'note': 'חדר מכונות + בור איזון. רצפת בור האיזון 278.33 (עומק 2.17) ועובי רצפה 20 ס"מ – מהחתך (קנ"מ החתך לא אומת מול מידה נוספת). ראש כלונס 32 (278.25) נכנס לרצפה. רצפת חדר המכונות – אין מפלס נפרד; הונח כמו בור האיזון.',
+                 'pile32Head': r3(P['32']['headRel'] + H0), 'status': 'source',
+                 'note': 'חדר מכונות (רצפה 278.33, עומק 2.17, גובה פנים "180", רצפה "20" ס"מ – מחתך א, קנ"מ 1:50 מאומת); פתח בור האיזון מעליו. ראש כלונס 32 (278.25) נכנס לרצפה (תחתית 278.13).',
                  'source': f'{F.K21} (קירות, IfcWall); {SEC} (מפלסים); {F.K400} (כלונס 32)'},
         'castWith': 'basement', 'stages': {'excavation': 'excavation', 'slab': 'slab', 'walls': 'walls'},
     }

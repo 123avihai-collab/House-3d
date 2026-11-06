@@ -10,6 +10,7 @@ import { buildSite, centroid } from './geometry/site.js';
 import { buildNeighbors } from './geometry/neighbors.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
+import { buildFoundations } from './geometry/foundations.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -36,7 +37,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx) };
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));

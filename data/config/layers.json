@@ -120,13 +120,18 @@
         },
         {
           "id": "groundBeams",
-          "label": "קורות יסוד",
-          "implemented": false
+          "label": "קורות יסוד (זמני – מ-PDF)",
+          "visible": true
+        },
+        {
+          "id": "basementWalls",
+          "label": "קירות מרתף",
+          "visible": true
         },
         {
           "id": "slabs",
-          "label": "תקרות",
-          "implemented": false
+          "label": "רצפות ותקרות",
+          "visible": true
         },
         {
           "id": "columns",

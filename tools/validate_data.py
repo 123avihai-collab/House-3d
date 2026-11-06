@@ -65,6 +65,11 @@ if 'excavation' in D:
         if 'source' not in b: errors.append(f'excavation build-up without source: {b["item"]}')
     if X['workingSpace_m'] is not None and X.get('workingSpaceStatus') not in ('provisional', 'approved'): errors.append('working space status missing')
 if 'basement' in D and 'source' not in D['basement']: errors.append('basement without source')
+if 'framing' in D:
+    for k in ('basementWalls', 'slabs', 'groundBeams'):
+        for r in D['framing'][k]:
+            if 'source' not in r: errors.append(f'framing {k} {r.get("id")} without source')
+            if r.get('status') not in ('source', 'provisional', 'missing'): errors.append(f'framing {k} {r.get("id")} bad status')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

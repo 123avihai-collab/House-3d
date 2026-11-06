@@ -136,3 +136,5 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
   #info { top: auto; bottom: 140px; }
   .ticks span:nth-child(even) { visibility: hidden; }
 }
+
+.lbl.beam { background: rgba(255,152,0,0.85); color: #1a1a1a; font-size: 10px; }

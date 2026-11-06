@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 2 – חפירה ליחידת הדיור וכלונסאות** (ממתין לאישור). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 2ב – קורות יסוד, רצפת מרתף, קירות מרתף** (ממתין לאישור; קורות בקירוב עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 
@@ -13,6 +13,7 @@ npm test               # בדיקת נתונים + בדיקת דפדפן headles
 npm run extract        # חילוץ מחדש מקבצי המקור (דורש את sources/ ו-tools/cache, ראו sources/README.md)
 node tools/verify_stage1.mjs   # טבלת אימות שלב 1
 node tools/verify_stage2.mjs   # טבלת אימות שלב 2 (חפירה + כלונסאות)
+python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
 ```
 
 ## מבנה
@@ -35,7 +36,8 @@ js/
     site.js                גבול מגרש, נקודות, קווי בניין, קווי גובה, תוויות, חץ צפון, רשת ITM
     neighbors.js           מעטפות מקסימליות לבתי השכנים
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח
-    piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג)
+    piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
+    foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (מ-data/structure/framing.json)
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
     measure.js             מדידה חופשית בין שתי נקודות
@@ -47,7 +49,7 @@ js/
 data/
   manifest.json            רשימת קובצי הנתונים
   site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
-  structure/               כלונסאות, קו מרתף, חפירה (נוצרים ע"י tools/extract_structure.py)
+  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py)
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   materials/               הגדרות חומרים
 assets/                    טקסטורות PBR ו-HDRI (Poly Haven, CC0 – assets/CREDITS.json)

@@ -29,9 +29,33 @@ export function buildExcavation(ctx) {
     if (runs.some(r => distToPolyline(q.x, q.y, r) <= D.shoringMatchTol_m)) return existing(E, N);
     return Math.min(existing(E, N), zb + q.dist / ex.sideSlope_HperV);
   };
+  // trenches for the foundation beams outside the basement pit (stage 2b, provisional with the beams):
+  // beam footprint (width from the tag) down to beam bottom − (lean concrete + void formers) from the excavation build-up
+  const below = ex.bottomBuildUp.filter(b => b.thickness_m).reduce((a, b) => a + b.thickness_m, 0);
+  const trenches = (data.framing?.groundBeams || []).filter(b => b.axisITM && b.stage === 'groundBeams' && b.sheet === 'K-21').map(b => {
+    const [[E1, N1], [E2, N2]] = b.axisITM; const L = Math.hypot(E2 - E1, N2 - N1);
+    return { E1, N1, ux: (E2 - E1) / L, uy: (N2 - N1) / L, L, hw: b.width_m / 2, z: coords.H0 + b.bottomRel - below, b };
+  });
+  const trenchZ = (E, N) => {
+    let z = Infinity;
+    for (const t of trenches) {
+      const dx = E - t.E1, dy = N - t.N1, a = dx * t.ux + dy * t.uy, c = -dx * t.uy + dy * t.ux;
+      if (a >= -t.hw && a <= t.L + t.hw && Math.abs(c) <= t.hw) z = Math.min(z, t.z);
+    }
+    return z;
+  };
+  const pitOnly = pitZ;
+  const pitZ2 = (E, N) => Math.min(pitOnly(E, N), trenchZ(E, N));
+  pitZ2.kind = 'excavation';
   const lot = data.plot.ring;
   const T = { ...display.terrain, sampleSpacing_m: D.sampleSpacing_m, boundaryDensify_m: D.sampleSpacing_m };
   const ctrl = densifyRing(floor, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
+  // crisp trench walls: control points just inside / outside every trench edge
+  for (const t of trenches) for (const off of [-1, 1]) for (const k of [0.999, 1.001]) {
+    const n = Math.max(2, Math.ceil(t.L / D.sampleSpacing_m));
+    for (let i = 0; i <= n; i++) { const a = -t.hw + (t.L + 2 * t.hw) * i / n, c = off * t.hw * k;
+      ctrl.push({ x: t.E1 + a * t.ux - c * t.uy, y: t.N1 + a * t.uy + c * t.ux, z: 0 }); }
+  }
   // crisp vertical cut at shored stretches: control points just inside / outside the floor outline
   const off = D.shoringCtrlOffset_m;
   for (const r of runs) for (let i = 1; i < r.length; i++) {
@@ -40,7 +64,7 @@ export function buildExcavation(ctx) {
     const inside = pointInRing(x1 + nx * off, y1 + ny * off, floor) ? 1 : -1;
     for (const s of [inside, -inside]) ctrl.push({ x: x1 + nx * off * s, y: y1 + ny * off * s, z: 0 });
   }
-  const mesh = regionMesh(lot, pitZ, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrl);
+  const mesh = regionMesh(lot, pitZ2, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrl);
 
   // volume (cut below existing ground 2025) on a regular grid
   const g = D.volumeGrid_m;
@@ -52,6 +76,13 @@ export function buildExcavation(ctx) {
       const dz = existing(x, y) - pitZ(x, y);
       if (dz > 0) { vol += dz * g * g; maxDepth = Math.max(maxDepth, dz); }
     }
+  }
+  let trenchVol = 0;
+  for (const t of trenches) {
+    const n = Math.max(2, Math.ceil(t.L / g)); let acc = 0;
+    for (let i = 0; i < n; i++) { const a = (i + 0.5) / n * t.L, E = t.E1 + a * t.ux, N = t.N1 + a * t.uy;
+      acc += Math.max(0, Math.min(existing(E, N), pitOnly(E, N)) - t.z); }
+    trenchVol += acc / n * t.L * 2 * t.hw;
   }
   const group = new THREE.Group();
   group.add(mesh);
@@ -110,7 +141,7 @@ export function buildExcavation(ctx) {
   const c = bottom.reduce((a, p) => [a[0] + p[0] / bottom.length, a[1] + p[1] / bottom.length], [0, 0]);
   const lo = new CSS2DObject(lbl); lo.position.copy(coords.toLocal(c[0], c[1], zb + 0.4)); group.add(lo);
 
-  const stats = { volume_m3: vol, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(floor)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH, shoringArea_m2: shoringArea };
+  const stats = { volume_m3: vol + trenchVol, pitVolume_m3: vol, trenchVolume_m3: trenchVol, trenchCount: trenches.length, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(floor)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH, shoringArea_m2: shoringArea };
   registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'ceiling', layer: 'excavation' }, {
     name: 'חפירה ליחידת הדיור (מרתף)', kind: 'terrain', role: 'excavation', ring: lot,
     hMin: zb, hMax: mesh.userData.hMax, area: stats.bottomArea_m2,
@@ -137,6 +168,6 @@ export function buildExcavation(ctx) {
     });
     scene.add(w);
   }
-  ground.add(lot, pitZ, 'excavation', 'lot-257-excavation');
+  ground.add(lot, pitZ2, 'excavation', 'lot-257-excavation');
   return stats;
 }

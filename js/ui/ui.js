@@ -254,10 +254,17 @@ export class UI {
       h('h4', {}, 'חפירה ליחידת הדיור'),
       X ? h('table', { class: 'kv' },
         tr('נפח חפירה (מול קרקע 2025)', `${X.volume_m3.toFixed(1)} מ"ק`),
+        tr('מתוכו: בור המרתף / תעלות קורות (זמני)', `${X.pitVolume_m3.toFixed(1)} / ${X.trenchVolume_m3.toFixed(1)} מ"ק`),
         tr('שטח תחתית', `${X.bottomArea_m2.toFixed(1)} מ"ר`),
         tr('מפלס תחתית', app.coords.fmtH(app.data.excavation.bottomAbs)),
         tr('עומק מקסימלי', `${X.maxDepth_m.toFixed(2)} מ'`),
         tr('דיפון (זמני – חסר תכנון)', `${X.shoringLength_m.toFixed(1)} מ' · גובה עד ${X.shoringMaxHeight_m.toFixed(2)} מ' · ${X.shoringArea_m2.toFixed(1)} מ"ר`)) : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, 'יסודות ומרתף (זמני – עד IFC)'),
+      q.foundations ? h('table', { class: 'kv' },
+        tr('קורות יסוד ששורטטו', `${q.foundations.beamsCount} · ${q.foundations.beams_m3.toFixed(2)} מ"ק`),
+        tr('רצפת מרתף (תלויה)', `${q.foundations.slabs_m3.toFixed(2)} מ"ק`),
+        tr('קירות מרתף', `${q.foundations.walls_m3.toFixed(2)} מ"ק`),
+        tr('חסרים (ללא מיקום/מפלס)', q.foundations.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
       h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
   }
 

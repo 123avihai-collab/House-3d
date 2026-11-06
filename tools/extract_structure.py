@@ -141,7 +141,9 @@ def main():
     G = sol.x
     georef = {'method': 'similarity at verified 1:50, fitted to 4 plot lines (perimeter wall band, uniform offset solved)',
               'rotationDeg': round(math.degrees(G[0]), 5), 'bandOffsetFromPlotLine_m': r3(G[3]),
-              'maxLineResidual_m': float(np.abs(sol.fun).max()), 'equations': len(sol.fun), 'unknowns': 4}
+              'maxLineResidual_m': float(np.abs(sol.fun).max()), 'equations': len(sol.fun), 'unknowns': 4,
+              'sheetToItm': {'theta_rad': float(G[0]), 'tx': float(G[1]), 'ty': float(G[2]), 'ptPerM': PT_PER_M,
+                             'formula': 'X=x/ptPerM, Y=-y/ptPerM; E=tx+X cos(theta)-Y sin(theta); N=ty+X sin(theta)+Y cos(theta) (x,y = K-400 sheet pt)'}}
     to_itm = lambda x, y: sheet2itm(G, x, y)
 
     # scale check on the written dimension chain between piles 100-101-102-104-105 (horizontal dims, cm)

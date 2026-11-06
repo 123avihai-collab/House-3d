@@ -56,18 +56,28 @@ export class Viewer {
     this.scene.add(this.sun, this.sun.target);
 
     // environment (HDRI)
+    const useEnv = (tex) => {
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      const pmrem = new THREE.PMREMGenerator(r);
+      this.scene.environment = pmrem.fromEquirectangular(tex).texture;
+      this.scene.environmentIntensity = s.ambientEnvIntensity;
+      this.scene.background = tex;
+      this.scene.backgroundIntensity = 0.9;
+      pmrem.dispose();
+      this.invalidate();
+    };
+    // hosts that do not serve .hdr files (e.g. the Claude artifact page) get the same bytes as base64 text: <hdri>.b64.txt
+    const fromBase64 = async () => {
+      const txt = await (await fetch(hdri + '.b64.txt')).text();
+      const bin = atob(txt.trim()); const buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      const td = new HDRLoader().parse(buf.buffer);
+      const tex = new THREE.DataTexture(td.data, td.width, td.height, THREE.RGBAFormat, td.type);
+      tex.colorSpace = THREE.LinearSRGBColorSpace; tex.minFilter = tex.magFilter = THREE.LinearFilter; tex.generateMipmaps = false; tex.flipY = true; tex.needsUpdate = true;
+      return tex;
+    };
     this.hdriReady = new Promise((resolve) => {
-      new HDRLoader().load(hdri, (tex) => {
-        tex.mapping = THREE.EquirectangularReflectionMapping;
-        const pmrem = new THREE.PMREMGenerator(r);
-        this.scene.environment = pmrem.fromEquirectangular(tex).texture;
-        this.scene.environmentIntensity = s.ambientEnvIntensity;
-        this.scene.background = tex;
-        this.scene.backgroundIntensity = 0.9;
-        pmrem.dispose();
-        this.invalidate();
-        resolve();
-      }, undefined, (e) => { console.error('HDRI', e); resolve(); });
+      new HDRLoader().load(hdri, (tex) => { useEnv(tex); resolve(); }, undefined,
+        () => fromBase64().then(useEnv).catch((e) => console.error('HDRI', e)).finally(resolve));
     });
 
     // post-processing

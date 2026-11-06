@@ -101,4 +101,6 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 
 ## צפייה אונליין
 
-הקובץ `.github/workflows/pages.yml` מפרסם את האתר ל-GitHub Pages. נדרשת הפעלה חד-פעמית: **Settings → Pages → Source: GitHub Actions**. אחרי ההפעלה הכתובת תהיה https://123avihai-collab.github.io/House-3d/
+הקובץ `.github/workflows/pages.yml` מפרסם את האתר ל-GitHub Pages. נדרשת הפעלה חד-פעמית: **Settings → Pages → Source: GitHub Actions**. אחרי ההפעלה הכתובת תהיה https://123avihai-collab.github.io/House-3d/ (נכון ל-06.11.2026 עדיין לא הופעל – כל הריצות נכשלות בשלב configure-pages).
+
+**ארטיפקט (claude.ai):** המודל מפורסם גם כארטיפקט: https://claude.ai/artifact/PAZSdXundfZmojjpG2vKnQ . שרת הארטיפקטים לא מגיש קובצי ‎.hdr, לכן מפרסמים לצד הקבצים את ה-HDRI בקידוד base64 (`assets/hdri/<name>.hdr.b64.txt`, נוצר ב-`base64 -w0`), ו-`js/core/viewer.js` טוען אותו אוטומטית כשה-‎.hdr לא נמצא. מפרסמים רק את `index.html`, `css/`, `js/`, `data/`, `assets/` ואת קובצי `vendor/` שהקוד מייבא בפועל.

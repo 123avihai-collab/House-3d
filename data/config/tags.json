@@ -1,36 +1,277 @@
 {
-  "_doc": "Tag definitions. Every model component carries {floor, system, stage}. Floor levels are relative to the house ±0.00 (H0 in data/site/origin.json); null = not yet defined by a source (later stages).",
-  "floors": [
-    { "id": "site",   "label": "מגרש וסביבה", "level": null },
-    { "id": "unit",   "label": "יחידת דיור",  "level": -2.60, "levelSource": "user brief (יחידת דיור -2.60); permit sections show -2.60 — to be verified from DXF at stage 3" },
-    { "id": "ground", "label": "קרקע",        "level": 0.00,  "levelSource": "±0.00 = 280.50 (data/site/origin.json)" },
-    { "id": "first",  "label": "קומה א'",     "level": null },
-    { "id": "roof",   "label": "גג",          "level": null }
-  ],
-  "systems": [
-    { "id": "site",        "label": "פיתוח וטופוגרפיה", "color": "#8d7a5b" },
-    { "id": "environment", "label": "סביבה ושכנים",     "color": "#9aa4ad" },
-    { "id": "structure",   "label": "שלד",               "color": "#9e9e9e" },
-    { "id": "walls",       "label": "קירות",             "color": "#c8b89a" },
-    { "id": "finishes",    "label": "גמרים",             "color": "#d9cbb3" },
-    { "id": "plumbing",    "label": "אינסטלציה",         "color": "#1e88e5" },
-    { "id": "water",       "label": "מים",               "color": "#00acc1" },
-    { "id": "sewage",      "label": "ביוב",              "color": "#6d4c41" },
-    { "id": "drainage",    "label": "ניקוז",             "color": "#43a047" },
-    { "id": "electrical",  "label": "חשמל",              "color": "#fdd835" },
-    { "id": "hvac",        "label": "מיזוג",             "color": "#e53935" }
-  ],
-  "stages": [
-    { "id": "existing",    "label": "מצב קיים" },
-    { "id": "excavation",  "label": "חפירה" },
-    { "id": "piles",       "label": "כלונסאות" },
-    { "id": "groundBeams", "label": "קורות יסוד" },
-    { "id": "slab",        "label": "רצפה" },
-    { "id": "walls",       "label": "קירות" },
-    { "id": "ceiling",     "label": "תקרה" },
-    { "id": "finishes",    "label": "גמרים" },
-    { "id": "furniture",   "label": "ריהוט" }
-  ],
-  "skeletonStages": ["existing", "excavation", "piles", "groundBeams", "slab", "walls", "ceiling"],
-  "skeletonSystems": ["site", "environment", "structure"]
+ "_doc": "Tag definitions. Every model component carries {floor, system, stage}. Floor levels are relative to the house ±0.00 (H0 in data/site/origin.json); null = not yet defined by a source (later stages).",
+ "floors": [
+  {
+   "id": "site",
+   "label": "מגרש וסביבה",
+   "level": null
+  },
+  {
+   "id": "unit",
+   "label": "יחידת דיור",
+   "level": -2.6,
+   "levelSource": "user brief (יחידת דיור -2.60); permit sections show -2.60 — to be verified from DXF at stage 3"
+  },
+  {
+   "id": "ground",
+   "label": "קרקע",
+   "level": 0.0,
+   "levelSource": "±0.00 = 280.50 (data/site/origin.json)"
+  },
+  {
+   "id": "first",
+   "label": "קומה א'",
+   "level": null
+  },
+  {
+   "id": "roof",
+   "label": "גג",
+   "level": null
+  }
+ ],
+ "systems": [
+  {
+   "id": "site",
+   "label": "פיתוח וטופוגרפיה",
+   "color": "#8d7a5b"
+  },
+  {
+   "id": "environment",
+   "label": "סביבה ושכנים",
+   "color": "#9aa4ad"
+  },
+  {
+   "id": "structure",
+   "label": "שלד",
+   "color": "#9e9e9e"
+  },
+  {
+   "id": "walls",
+   "label": "קירות",
+   "hint": "קירות המרתף (גובה זמני עד IFC).",
+   "color": "#c8b89a"
+  },
+  {
+   "id": "finishes",
+   "label": "גמרים",
+   "hint": "גמרים – בשלבים הבאים.",
+   "color": "#d9cbb3"
+  },
+  {
+   "id": "plumbing",
+   "label": "אינסטלציה",
+   "color": "#1e88e5"
+  },
+  {
+   "id": "water",
+   "label": "מים",
+   "color": "#00acc1"
+  },
+  {
+   "id": "sewage",
+   "label": "ביוב",
+   "color": "#6d4c41"
+  },
+  {
+   "id": "drainage",
+   "label": "ניקוז",
+   "color": "#43a047"
+  },
+  {
+   "id": "electrical",
+   "label": "חשמל",
+   "color": "#fdd835"
+  },
+  {
+   "id": "hvac",
+   "label": "מיזוג",
+   "color": "#e53935"
+  }
+ ],
+ "stages": [
+  {
+   "id": "existing",
+   "label": "מצב קיים",
+   "hint": "מצב קיים: קרקע לפי מדידת 2025, בלי עבודות."
+  },
+  {
+   "id": "excavation",
+   "label": "חפירה",
+   "hint": "חפירה: בור המרתף, דיפון (זמני) ותעלות לקורות."
+  },
+  {
+   "id": "piles",
+   "label": "כלונסאות",
+   "hint": "כלונסאות (בשקיפות דרך הקרקע). קורות, רצפות וקירות – בשלבים הבאים."
+  },
+  {
+   "id": "groundBeams",
+   "label": "קורות יסוד",
+   "hint": "קורות יסוד (בקירוב, מסומנות בכתום). רצפות וקירות – בשלבים הבאים."
+  },
+  {
+   "id": "slab",
+   "label": "רצפה",
+   "hint": "רצפת המרתף התלויה. קירות המרתף – בשלב הבא."
+  },
+  {
+   "id": "walls",
+   "label": "קירות",
+   "hint": "קירות המרתף (גובה זמני עד IFC)."
+  },
+  {
+   "id": "ceiling",
+   "label": "תקרה",
+   "hint": "תקרות – יתווספו בשלב 3."
+  },
+  {
+   "id": "finishes",
+   "label": "גמרים",
+   "hint": "גמרים – בשלבים הבאים."
+  },
+  {
+   "id": "furniture",
+   "label": "ריהוט",
+   "hint": "הכול."
+  }
+ ],
+ "skeletonStages": [
+  "existing",
+  "excavation",
+  "piles",
+  "groundBeams",
+  "slab",
+  "walls",
+  "ceiling"
+ ],
+ "skeletonSystems": [
+  "site",
+  "environment",
+  "structure"
+ ],
+ "sequence": [
+  {
+   "id": "existing",
+   "label": "מצב קיים",
+   "hint": "מצב קיים: קרקע לפי מדידת 2025, בלי עבודות.",
+   "includes": [
+    {
+     "stage": "existing"
+    }
+   ]
+  },
+  {
+   "id": "excavation",
+   "label": "חפירה",
+   "hint": "חפירה: בור המרתף, דיפון (זמני) ותעלות לקורות.",
+   "includes": [
+    {
+     "stage": "excavation"
+    }
+   ]
+  },
+  {
+   "id": "piles",
+   "label": "כלונסאות",
+   "hint": "כלונסאות (בשקיפות דרך הקרקע). קורות, רצפות וקירות – בשלבים הבאים.",
+   "includes": [
+    {
+     "stage": "piles"
+    }
+   ]
+  },
+  {
+   "id": "groundBeams",
+   "label": "קורות יסוד",
+   "hint": "קורות יסוד (בקירוב, מסומנות בכתום). רצפות וקירות – בשלבים הבאים.",
+   "includes": [
+    {
+     "stage": "groundBeams"
+    }
+   ]
+  },
+  {
+   "id": "basementSlab",
+   "label": "רצפת מרתף",
+   "hint": "רצפת המרתף התלויה, רצפת הבריכה וחדר המכונות.",
+   "includes": [
+    {
+     "stage": "slab"
+    }
+   ]
+  },
+  {
+   "id": "basementWalls",
+   "label": "קירות מרתף",
+   "hint": "קירות המרתף, הבריכה, תעלות וחדר המכונות; שוחות וצנרת ביוב.",
+   "includes": [
+    {
+     "stage": "walls"
+    }
+   ]
+  },
+  {
+   "id": "groundSlab",
+   "label": "רצפת קרקע",
+   "hint": "קורות K-21 ורצפת קומת הקרקע (תקרת המרתף) – נוצקות יחד.",
+   "includes": [
+    {
+     "stage": "ceiling"
+    },
+    {
+     "floor": "ground",
+     "stage": "slab"
+    }
+   ]
+  },
+  {
+   "id": "groundWalls",
+   "label": "קירות קרקע",
+   "hint": "קירות ועמודי קומת הקרקע (K-21).",
+   "includes": [
+    {
+     "floor": "ground",
+     "stage": "walls"
+    }
+   ]
+  },
+  {
+   "id": "perimeter",
+   "label": "חומות",
+   "hint": "חומות היקפיות – יתווספו אחרי אישור שלד הקרקע.",
+   "includes": []
+  },
+  {
+   "id": "groundCeiling",
+   "label": "תקרת קרקע",
+   "hint": "קורות ותקרת קומת הקרקע (K-31).",
+   "includes": [
+    {
+     "floor": "ground",
+     "stage": "ceiling"
+    }
+   ]
+  },
+  {
+   "id": "finishes",
+   "label": "גמרים",
+   "hint": "גמרים – בשלבים הבאים.",
+   "includes": [
+    {
+     "stage": "finishes"
+    }
+   ]
+  },
+  {
+   "id": "furniture",
+   "label": "ריהוט",
+   "hint": "הכול.",
+   "includes": [
+    {
+     "stage": "furniture"
+    }
+   ]
+  }
+ ],
+ "_docSequence": "Construction-step slider. A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) up to its stageTo (same rule) or, with tag stepTo, up to that step id (\"skeletonEnd\" = the step before finishes). Optional tag step overrides the start step. Tags themselves follow CLAUDE.md §3."
 }

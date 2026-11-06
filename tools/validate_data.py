@@ -65,6 +65,36 @@ if 'excavation' in D:
         if 'source' not in b: errors.append(f'excavation build-up without source: {b["item"]}')
     if X['workingSpace_m'] is not None and X.get('workingSpaceStatus') not in ('provisional', 'approved'): errors.append('working space status missing')
 if 'basement' in D and 'source' not in D['basement']: errors.append('basement without source')
+if 'framing' in D:
+    for k in ('basementWalls', 'slabs', 'groundBeams'):
+        for r in D['framing'][k]:
+            if 'source' not in r: errors.append(f'framing {k} {r.get("id")} without source')
+            if r.get('status') not in ('source', 'provisional', 'missing'): errors.append(f'framing {k} {r.get("id")} bad status')
+if 'floorGround' in D:
+    G = D['floorGround']
+    recs = [('slab', r) for r in G['slab']] + [('walls', r) for r in G['walls']] + [('columns', r) for r in G['columns']] + \
+           [('ceiling.slab', r) for r in G['ceiling']['slab']] + [('ceiling.beams', r) for r in G['ceiling']['beams']]
+    for k, r in recs:
+        if 'source' not in r: errors.append(f'floorGround {k} {r.get("id")} without source')
+        if r.get('status') not in ('source', 'provisional', 'approx', 'missing'): errors.append(f'floorGround {k} {r.get("id")} bad status')
+        if k in ('walls', 'columns') and not (r['topRel'] > r['bottomRel']): errors.append(f'floorGround {k} {r.get("id")} top <= bottom')
+# construction-step slider: every step id unique, every stage reachable
+if 'tags' in D and 'sequence' in D['tags']:
+    ids = [s['id'] for s in D['tags']['sequence']]
+    if len(ids) != len(set(ids)): errors.append('tags.sequence: duplicate step ids')
+    for st in D['tags']['stages']:
+        if not any(x['stage'] == st['id'] and not x.get('floor') for s in D['tags']['sequence'] for x in s['includes']):
+            errors.append(f'tags.sequence: stage {st["id"]} has no stage-only step')
+if 'ownerChanges' in D:
+    for c in D['ownerChanges']['changes']:
+        for k in ('id', 'date', 'title', 'description', 'source', 'status', 'approvals'):
+            if k not in c: errors.append(f'owner change {c.get("id")} missing {k}')
+if 'ownerChangesGeometry' in D:
+    for cid, g in D['ownerChangesGeometry']['changes'].items():
+        for k, w in g.get('wallPieces', {}).items():
+            if 'source' not in w: errors.append(f'{cid} wall piece {k} without source')
+        sp = g.get('slabSplit')
+        if sp and abs(sp['check']['sumArea_m2'] - sp['check']['original_m2']) > 0.01: errors.append(f'{cid} slab split area mismatch')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

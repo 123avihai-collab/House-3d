@@ -71,5 +71,27 @@
     "overloadTint": "#ff8a65",
     "ghostColor": "#90caf9",
     "ghostOpacity": 0.28
+  },
+  "framing": {
+    "labelLift_m": 0.3,
+    "provisionalEdgeColor": "#ff9800",
+    "ownerChangeColor": "#ab47bc",
+    "ownerChangeZoneOpacity": 0.18,
+    "ownerChangeRemovedColor": "#e53935",
+    "ownerChangeRemovedOpacity": 0.35
+  },
+  "plumbing": {
+    "chamberColor": "#26a69a",
+    "radialSegments": 24,
+    "sewerColor": "#8d6e63",
+    "provisionalPipeColor": "#ffb74d",
+    "unknownLevelColor": "#bdbdbd",
+    "flowArrowColor": "#1565c0",
+    "sleeveColor": "#e53935",
+    "unknownDiameter_m": 0.11,
+    "labelMinLength_m": 2.0,
+    "ghostOpacity": 0.45,
+    "coverRatio": 0.85,
+    "coverThickness_m": 0.06
   }
 }

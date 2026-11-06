@@ -10,6 +10,8 @@ import { buildSite, centroid } from './geometry/site.js';
 import { buildEnvironment } from '../src/environment/index.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
+import { buildFoundations, buildPlumbingFoundations, buildOwnerChangeZones, buildPool } from './geometry/foundations.js';
+import { buildFloorSkeleton } from './geometry/floors.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -36,7 +38,8 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   const environment = buildEnvironment(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround) };
+  buildOwnerChangeZones(ctx);
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));
@@ -51,12 +54,13 @@ async function main() {
   for (const g of data.layers.groups) for (const l of g.layers) layers[l.id] = g.implemented && l.implemented !== false ? l.visible !== false : false;
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: data.origin.timezone });
   const defaults = {
-    version: 1, mode: 'view', layers,
+    version: 2, mode: 'view', layers,
     floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1 }])),
-    stageIndex: data.tags.stages.length - 1, systemFilter: null,
+    stageIndex: data.tags.sequence.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
-    notes: [], bookmarks: [],
+    notes: [], bookmarks: [], labelsOff: {},
+    ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).map(c => [c.id, true])),
     quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0 },
   };
   const store = new StateStore(defaults);
@@ -90,7 +94,8 @@ async function main() {
   app.flyToPoint = (n) => { const t = coords.toLocal(n.E, n.N, n.H); viewer.flyTo(t, t.clone().add(new THREE.Vector3(6, 6, 6))); };
   app.viewLink = () => {
     const v = app.currentView(); const s = store.get();
-    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${s.stageIndex}&date=${s.sun.date}&t=${s.sun.minutes}`;
+    const oc = Object.entries(s.ownerChanges || {}).map(([k, v]) => `${k}:${v ? 1 : 0}`).join(',');
+    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${s.stageIndex}&date=${s.sun.date}&t=${s.sun.minutes}${oc ? '&oc=' + oc : ''}`;
   };
   let playTimer = null;
   app.toggleSunPlay = () => {
@@ -121,6 +126,11 @@ async function main() {
   // deep link
   const hp = new URLSearchParams(location.hash.slice(1));
   if (hp.get('v')) { const a = hp.get('v').split(',').map(Number); if (a.length === 6) { viewer.camera.position.set(a[0], a[1], a[2]); viewer.controls.target.set(a[3], a[4], a[5]); } }
+  if (hp.get('oc')) {
+    const cur = { ...(store.get().ownerChanges || {}) };
+    for (const kv of hp.get('oc').split(',')) { const [k, v] = kv.split(':'); if (k in cur) cur[k] = v === '1'; }
+    store.set({ ownerChanges: cur }, { record: false });
+  }
   if (hp.get('stage') || hp.get('date')) {
     store.set({ stageIndex: +(hp.get('stage') ?? store.get().stageIndex), sun: { date: hp.get('date') || store.get().sun.date, minutes: +(hp.get('t') ?? store.get().sun.minutes) } }, { record: false });
   }

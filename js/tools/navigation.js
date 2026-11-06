@@ -21,6 +21,9 @@ export class Navigation {
       { id: 'overview', label: 'מבט כללי על המגרש', target: c, offset: new THREE.Vector3(-30, 28, 34) },
       { id: 'top', label: 'מבט על (צפון למעלה)', target: c, offset: new THREE.Vector3(0, 70, 0.01) },
       { id: 'street', label: 'מהרחוב (דרום-מערב)', target: c, offset: new THREE.Vector3(-14, 4, 26) },
+      { id: 'foundations', label: 'יסודות ומרתף', target: c.clone().add(new THREE.Vector3(2, -2, -1)), offset: new THREE.Vector3(0, 15, 23), stage: 'walls' },
+      { id: 'sewer', label: 'ביוב: שוחות וצנרת', target: c.clone().add(new THREE.Vector3(-4, -1.5, 8)), offset: new THREE.Vector3(1, 8.5, 11), stage: 'walls' },
+      { id: 'groundSkeleton', label: 'שלד קומת הקרקע', target: c.clone().add(new THREE.Vector3(1, 1, -1)), offset: new THREE.Vector3(-14, 14, 20), step: 'groundCeiling' },
       { id: 'pit', label: 'חפירה וכלונסאות', target: c.clone().add(new THREE.Vector3(0, -3, 0)), offset: new THREE.Vector3(-16, 13, 18), stage: 'piles' },
     ];
     for (const [name, p] of Object.entries(data.plot.points)) {
@@ -31,7 +34,7 @@ export class Navigation {
   }
   goTo(vp) {
     this.stopWalk();
-    if (vp.stage) { const i = this.app.data.tags.stages.findIndex(s => s.id === vp.stage); if (i >= 0) this.app.store.set({ stageIndex: i }, { label: 'stage' }); }
+    if (vp.stage || vp.step) { const i = vp.step ? this.app.registry.stepById(vp.step) : this.app.registry.stepIndex(vp.stage, 'unit'); if (i >= 0) this.app.store.set({ stageIndex: i }, { label: 'stage' }); }
     this.app.viewer.flyTo(vp.target.clone(), vp.target.clone().add(vp.offset));
   }
   // ----- walk -----

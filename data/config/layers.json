@@ -1,294 +1,348 @@
 {
-  "_doc": "Layer tree for the layers/infrastructure panel. 'implemented': false = placeholder (shown as 'בקרוב'). Each layer id is referenced by geometry builders through component tags.",
-  "groups": [
+ "_doc": "Layer tree for the layers/infrastructure panel. 'implemented': false = placeholder (shown as 'בקרוב'). Each layer id is referenced by geometry builders through component tags.",
+ "groups": [
+  {
+   "id": "site",
+   "label": "מגרש וטופוגרפיה",
+   "system": "site",
+   "implemented": true,
+   "layers": [
     {
-      "id": "site",
-      "label": "מגרש וטופוגרפיה",
-      "system": "site",
-      "implemented": true,
-      "layers": [
-        {
-          "id": "topoPlanned",
-          "label": "טופוגרפיה מתוכננת (סופית)",
-          "visible": true
-        },
-        {
-          "id": "topoExisting2025",
-          "label": "קרקע קיימת במגרש – מדידה 2025 (בשלב 'מצב קיים')",
-          "visible": true
-        },
-        {
-          "id": "excavation",
-          "label": "חפירה ליחידת הדיור (מרתף)",
-          "visible": true
-        },
-        {
-          "id": "existingOverlay",
-          "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
-          "visible": false
-        },
-        {
-          "id": "surveyPoints2025",
-          "label": "נקודות גובה – מדידה 2025",
-          "visible": false
-        },
-        {
-          "id": "surveyPoints2023",
-          "label": "נקודות גובה – מפה למשתכן 2023",
-          "visible": false
-        },
-        {
-          "id": "plotBoundary",
-          "label": "גבול מגרש 5187 + נקודות",
-          "visible": true
-        },
-        {
-          "id": "buildingLines",
-          "label": "קווי בניין",
-          "visible": true
-        },
-        {
-          "id": "plannedHeights",
-          "label": "תוויות גבהים מתוכננים",
-          "visible": true
-        },
-        {
-          "id": "contours",
-          "label": "קווי גובה מתוכננים (רחוב)",
-          "visible": true
-        },
-        {
-          "id": "pavedEntries",
-          "label": "משטחי כניסה מתוכננים",
-          "visible": true
-        }
-      ]
+     "id": "topoPlanned",
+     "label": "טופוגרפיה מתוכננת (סופית)",
+     "visible": true
     },
     {
-      "id": "environment",
-      "label": "סביבה",
-      "system": "environment",
-      "implemented": true,
-      "layers": [
-        {
-          "id": "street",
-          "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
-          "visible": true
-        },
-        {
-          "id": "neighborLots",
-          "label": "מגרשי שכנים (פני קרקע סופיים)",
-          "visible": true
-        },
-        {
-          "id": "neighborLotLines",
-          "label": "גבולות מגרשי השכנים",
-          "visible": true
-        },
-        {
-          "id": "streetHeightOutline",
-          "label": "קו כתום – גובה רחוב משוער",
-          "visible": true
-        },
-        {
-          "id": "neighborHouses",
-          "label": "בתי השכנים – מפורט (חלונות, דלתות, חניות)",
-          "visible": true
-        },
-        {
-          "id": "neighborFences",
-          "label": "חומות ושערים (חיפוי אבן, טיח, קופינג)",
-          "visible": true
-        },
-        {
-          "id": "neighborYards",
-          "label": "חצרות: דשא, שבילים, חניות",
-          "visible": true
-        },
-        {
-          "id": "streetFurniture",
-          "label": "פיתוח רחוב: עצים, תאורה, אבני שפה, חניות",
-          "visible": true
-        },
-        {
-          "id": "neighborEnvelopes",
-          "label": "מעטפות בתי שכנים (תמל/1016, 2 קומות)",
-          "visible": false
-        },
-        {
-          "id": "neighborSheet04",
-          "label": "בתי השכנים לפי גיליון 04 (תכנית בינוי)",
-          "visible": false
-        },
-        {
-          "id": "neighborParking",
-          "label": "מבני חניה של השכנים (גיליון 04, 2.70 מ')",
-          "visible": false
-        },
-        {
-          "id": "neighborEntrances",
-          "label": "כניסות ראשיות של השכנים (גיליון 04)",
-          "visible": false
-        },
-        {
-          "id": "neighborBuildingLines",
-          "label": "קווי בניין של השכנים",
-          "visible": true
-        },
-        {
-          "id": "neighborLabels",
-          "label": "מספרי מגרשים וגבהים של השכנים",
-          "visible": true
-        },
-        {
-          "id": "contextParcels",
-          "label": "חלקות בסביבה (קווי גבול)",
-          "visible": true
-        },
-        {
-          "id": "northArrow",
-          "label": "חץ צפון",
-          "visible": true
-        },
-        {
-          "id": "itmGrid",
-          "label": "רשת ITM",
-          "visible": false
-        }
-      ]
+     "id": "topoExisting2025",
+     "label": "קרקע קיימת במגרש – מדידה 2025 (בשלב 'מצב קיים')",
+     "visible": true
     },
     {
-      "id": "structure",
-      "label": "שלד",
-      "system": "structure",
-      "implemented": true,
-      "layers": [
-        {
-          "id": "piles",
-          "label": "כלונסאות (K-400)",
-          "visible": true
-        },
-        {
-          "id": "shoring",
-          "label": "קיר דיפון (זמני)",
-          "visible": true
-        },
-        {
-          "id": "groundBeams",
-          "label": "קורות יסוד",
-          "implemented": false
-        },
-        {
-          "id": "slabs",
-          "label": "תקרות",
-          "implemented": false
-        },
-        {
-          "id": "columns",
-          "label": "עמודים",
-          "implemented": false
-        }
-      ]
+     "id": "excavation",
+     "label": "חפירה ליחידת הדיור (מרתף)",
+     "visible": true
     },
     {
-      "id": "plumbing",
-      "label": "אינסטלציה",
-      "system": "plumbing",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "coldWater",
-          "label": "מים קרים"
-        },
-        {
-          "id": "hotWater",
-          "label": "מים חמים"
-        }
-      ]
+     "id": "existingOverlay",
+     "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
+     "visible": false
     },
     {
-      "id": "sewage",
-      "label": "ביוב",
-      "system": "sewage",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "sewagePipes",
-          "label": "צנרת"
-        },
-        {
-          "id": "sewageManholes",
-          "label": "שוחות"
-        }
-      ]
+     "id": "surveyPoints2025",
+     "label": "נקודות גובה – מדידה 2025",
+     "visible": false
     },
     {
-      "id": "drainage",
-      "label": "ניקוז",
-      "system": "drainage",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "drainPipes",
-          "label": "צנרת"
-        },
-        {
-          "id": "drainChannels",
-          "label": "תעלות"
-        }
-      ]
+     "id": "surveyPoints2023",
+     "label": "נקודות גובה – מפה למשתכן 2023",
+     "visible": false
     },
     {
-      "id": "water",
-      "label": "מים",
-      "system": "water",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "waterSupply",
-          "label": "חיבור מים"
-        }
-      ]
+     "id": "plotBoundary",
+     "label": "גבול מגרש 5187 + נקודות",
+     "visible": true
     },
     {
-      "id": "electrical",
-      "label": "חשמל",
-      "system": "electrical",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "sockets",
-          "label": "שקעים"
-        },
-        {
-          "id": "switches",
-          "label": "מפסקים"
-        },
-        {
-          "id": "lighting",
-          "label": "תאורה"
-        },
-        {
-          "id": "comm",
-          "label": "תקשורת"
-        }
-      ]
+     "id": "buildingLines",
+     "label": "קווי בניין",
+     "visible": true
     },
     {
-      "id": "hvac",
-      "label": "מיזוג",
-      "system": "hvac",
-      "implemented": false,
-      "layers": [
-        {
-          "id": "hvacUnits",
-          "label": "יחידות"
-        },
-        {
-          "id": "hvacDucts",
-          "label": "תעלות"
-        }
-      ]
+     "id": "plannedHeights",
+     "label": "תוויות גבהים מתוכננים",
+     "visible": true
+    },
+    {
+     "id": "contours",
+     "label": "קווי גובה מתוכננים (רחוב)",
+     "visible": true
+    },
+    {
+     "id": "pavedEntries",
+     "label": "משטחי כניסה מתוכננים",
+     "visible": true
     }
-  ]
+   ]
+  },
+  {
+   "id": "environment",
+   "label": "סביבה",
+   "system": "environment",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "street",
+     "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
+     "visible": true
+    },
+    {
+     "id": "neighborLots",
+     "label": "מגרשי שכנים (פני קרקע סופיים)",
+     "visible": true
+    },
+    {
+     "id": "neighborLotLines",
+     "label": "גבולות מגרשי השכנים",
+     "visible": true
+    },
+    {
+     "id": "streetHeightOutline",
+     "label": "קו כתום – גובה רחוב משוער",
+     "visible": true
+    },
+    {
+     "id": "neighborHouses",
+     "label": "בתי השכנים – מפורט (חלונות, דלתות, חניות)",
+     "visible": true
+    },
+    {
+     "id": "neighborFences",
+     "label": "חומות ושערים (חיפוי אבן, טיח, קופינג)",
+     "visible": true
+    },
+    {
+     "id": "neighborYards",
+     "label": "חצרות: דשא, שבילים, חניות",
+     "visible": true
+    },
+    {
+     "id": "streetFurniture",
+     "label": "פיתוח רחוב: עצים, תאורה, אבני שפה, חניות",
+     "visible": true
+    },
+    {
+     "id": "neighborEnvelopes",
+     "label": "מעטפות בתי שכנים (תמל/1016, 2 קומות)",
+     "visible": false
+    },
+    {
+     "id": "neighborSheet04",
+     "label": "בתי השכנים לפי גיליון 04 (תכנית בינוי)",
+     "visible": false
+    },
+    {
+     "id": "neighborParking",
+     "label": "מבני חניה של השכנים (גיליון 04, 2.70 מ')",
+     "visible": false
+    },
+    {
+     "id": "neighborEntrances",
+     "label": "כניסות ראשיות של השכנים (גיליון 04)",
+     "visible": false
+    },
+    {
+     "id": "neighborBuildingLines",
+     "label": "קווי בניין של השכנים",
+     "visible": true
+    },
+    {
+     "id": "neighborLabels",
+     "label": "מספרי מגרשים וגבהים של השכנים",
+     "visible": true
+    },
+    {
+     "id": "contextParcels",
+     "label": "חלקות בסביבה (קווי גבול)",
+     "visible": true
+    },
+    {
+     "id": "northArrow",
+     "label": "חץ צפון",
+     "visible": true
+    },
+    {
+     "id": "itmGrid",
+     "label": "רשת ITM",
+     "visible": false
+    }
+   ]
+  },
+  {
+   "id": "structure",
+   "label": "שלד",
+   "system": "structure",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "piles",
+     "label": "כלונסאות (K-400)",
+     "visible": true
+    },
+    {
+     "id": "shoring",
+     "label": "קיר דיפון (זמני)",
+     "visible": true
+    },
+    {
+     "id": "groundBeams",
+     "label": "קורות יסוד – מפלס המרתף (מיקום בקירוב – מ-PDF)",
+     "visible": true
+    },
+    {
+     "id": "groundFloorBeams",
+     "label": "קורות קומת קרקע על כלונסאות (מיקום בקירוב – מ-PDF)",
+     "visible": true
+    },
+    {
+     "id": "ceilingBeams",
+     "label": "קורות תקרת המרתף (מיקום בקירוב – מ-PDF)",
+     "visible": true
+    },
+    {
+     "id": "basementWalls",
+     "label": "קירות מרתף",
+     "visible": true
+    },
+    {
+     "id": "pool",
+     "label": "בריכה + חדר מכונות/בור איזון (זמני – ממתין לתוכנית הבריכה)",
+     "visible": true
+    },
+    {
+     "id": "slabs",
+     "label": "רצפות מרתף",
+     "visible": true
+    },
+    {
+     "id": "groundSlab",
+     "label": "רצפת קומת הקרקע (K-21)",
+     "visible": true
+    },
+    {
+     "id": "groundWalls",
+     "label": "קירות קומת הקרקע (K-21)",
+     "visible": true
+    },
+    {
+     "id": "groundColumns",
+     "label": "עמודי קומת הקרקע (K-21)",
+     "visible": true
+    },
+    {
+     "id": "groundCeiling",
+     "label": "תקרת קומת הקרקע (K-31, +3.70)",
+     "visible": true
+    },
+    {
+     "id": "groundCeilingBeams",
+     "label": "קורות תקרת הקרקע (K-31)",
+     "visible": true
+    },
+    {
+     "id": "ownerChanges",
+     "label": "שינויים של אביחי (סימון אזור)",
+     "visible": true
+    }
+   ]
+  },
+  {
+   "id": "plumbing",
+   "label": "אינסטלציה",
+   "system": "plumbing",
+   "implemented": false,
+   "layers": [
+    {
+     "id": "coldWater",
+     "label": "מים קרים"
+    },
+    {
+     "id": "hotWater",
+     "label": "מים חמים"
+    }
+   ]
+  },
+  {
+   "id": "sewage",
+   "label": "ביוב",
+   "system": "sewage",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "sewagePipes",
+     "label": "צנרת ביוב (מתוכנית האינסטלציה) + שרוולים",
+     "visible": true
+    },
+    {
+     "id": "sewageManholes",
+     "label": "שוחות ביוב 0–5",
+     "visible": true
+    }
+   ]
+  },
+  {
+   "id": "drainage",
+   "label": "ניקוז",
+   "system": "drainage",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "drainChambers",
+     "label": "תאי ביוב/שאיבה (מתוכנית האינסטלציה)",
+     "visible": true
+    },
+    {
+     "id": "drainPipes",
+     "label": "צנרת",
+     "implemented": false
+    },
+    {
+     "id": "drainChannels",
+     "label": "תעלות",
+     "implemented": false
+    }
+   ]
+  },
+  {
+   "id": "water",
+   "label": "מים",
+   "system": "water",
+   "implemented": false,
+   "layers": [
+    {
+     "id": "waterSupply",
+     "label": "חיבור מים"
+    }
+   ]
+  },
+  {
+   "id": "electrical",
+   "label": "חשמל",
+   "system": "electrical",
+   "implemented": false,
+   "layers": [
+    {
+     "id": "sockets",
+     "label": "שקעים"
+    },
+    {
+     "id": "switches",
+     "label": "מפסקים"
+    },
+    {
+     "id": "lighting",
+     "label": "תאורה"
+    },
+    {
+     "id": "comm",
+     "label": "תקשורת"
+    }
+   ]
+  },
+  {
+   "id": "hvac",
+   "label": "מיזוג",
+   "system": "hvac",
+   "implemented": false,
+   "layers": [
+    {
+     "id": "hvacUnits",
+     "label": "יחידות"
+    },
+    {
+     "id": "hvacDucts",
+     "label": "תעלות"
+    }
+   ]
+  }
+ ]
 }

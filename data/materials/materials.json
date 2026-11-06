@@ -65,7 +65,7 @@
     "concrete": {
       "texture": "assets/textures/concrete_floor_01",
       "size_m": 2.0,
-      "tint": "#d6d3cc",
+      "tint": "#a7adb2",
       "roughness": 0.95,
       "envMapIntensity": 0.8
     },
@@ -80,6 +80,13 @@
       "texture": "assets/textures/concrete_floor_01",
       "size_m": 2.0,
       "tint": "#e8a46a",
+      "roughness": 0.95,
+      "envMapIntensity": 0.8
+    },
+    "concreteProvisional": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 2.0,
+      "tint": "#e2c6a4",
       "roughness": 0.95,
       "envMapIntensity": 0.8
     }

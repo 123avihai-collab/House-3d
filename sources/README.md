@@ -25,7 +25,7 @@
 |---|---|
 | `structure/K-400-תכנית יסודות.pdf` | **תכנית יסודות וכלונסאות** (PDF וקטורי, 1:50): מיקום, קוטר, L, מפלס ראש ועומס לכל כלונס; פרט בטון רזה 3÷5 ס"מ. DXF יגיע בהמשך ויגבר |
 | `structure/k-11.dxf` | מרתף – גיאומטריה (Revit, ס"מ, קואורדינטות מקומיות): קו חוץ של קירות המרתף (IfcWall), תגיות תקרה O.K/D |
-| `structure/k-21.dxf`, `k-31.dxf`, `k-41.dxf`, `K-1x…K-4x.pdf`, `dwg/*.dwg` | שלד קומות – לשלבים הבאים |
+| `structure/k-21.dxf`, `k-31.dxf`, `k-41.dxf`, `K-1x…K-4x.pdf`, `dwg/*.dwg` | שלד קומות. k-21/k-31 + K-31 PDF – בשימוש בשלב 3א. K-21.pdf הוחלף בגרסת 06.11.2026 (זהה בתוכן, עם סימון "יש להגדיל קיר ב-10 ס\"מ" ליד W8 – open-issues #38) |
 | `geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf` | דוח קרקע: 6.5 (L בקרקע טבעית), 9.1 (ארגזי הפרדה 25 ס"מ), 10.1 (חפירה זמנית 1V:2H), 10.2 (דיפון) |
 | `development/תוכנית גבהים בגוש שלי.pdf` | תוכנית גבהי פיתוח (וקטורי) – טרם עובדה (שאלה 6) |
 | `development/תוכנית נוף.pdf` | תוכנית נוף (סרוקה) – טרם עובדה |
@@ -55,6 +55,21 @@
 | `neighborhood/analytic-map-rakafot.pdf` | לא שימש לגיאומטריה (קואורדינטות מעוגלות ~0.83 מ') |
 | `neighborhood/development-B1/תכנית בינוי גיליון 04 מתחם B1.pdf` | סרוק: בית (לבן), מבנה חניה (סגול) וכניסה ראשית (כתום) לכל שכן – `tools/environment/extract_sheet04.py` |
 | `zoning/plan-605-0843136-traffic-appendix.pdf` | נספח תנועה לתוכנית 605-0843136 (הועלה ע"י אביחי 06.11.2026, Illustrator וקטורי): מספרי כבישים ורוזטות רוחב – אימות 910 = 15.0, 870 = 17.0 |
+## תוכניות אינסטלציה (הועלו ע"י אביחי 06.11.2026) – נסרקו, טרם עובדו למודל
+
+תיקייה `plumbing/`:
+- `אינסטלציה חתכים הכל.dxf` – תוכניות מים וביוב: מרתף, קרקע, א', גג (1:100, ס"מ, קואורדינטות מקומיות), מקרא והערות. טקסטים חלקם בקידוד מקלדת לטינית (תעתיק אוטומטי).
+- `פרטים - לאינסטלציה - ….dxf` – פרטים (דוד, מזגן, עטיפת צינור ביוב ועוד).
+- PDF: יחידת דיור, קומת קרקע ופיתוח, קומה א', גג (טקסט ה-PDF לא קריא – עובדים מה-DXF).
+- גאורפרנס: הבלוק martef (רקע המרתף) מותאם ל-k-11.dxf בהזזה בלבד (ICP, שארית 0.1 מ"מ) → ITM דרך שרשרת שלב 2. חילוץ: `python3 tools/extract_plumbing.py` → `data/systems/plumbing-foundations.json`.
+
+## בריכה וחומות היקפיות (הועלו ע"י אביחי 06.11.2026) – `structure/pool-walls/`
+
+- `בריכה חתך א+ב.pdf` – חתכי בריכה ובור איזון (אדריכלי, מפלסים מוחלטים) → `tools/extract_pool.py` → `data/structure/pool.json`.
+- `בריכה - חתך א+ב - בור איזון.dxf` – ריק (כותרת בלבד, ללא גיאומטריה).
+- `בריכה מבט על …pdf` – תכנית בריכה 1:50 (מידות: 369 רוחב).
+- `חומה מזרחית + מערבית …pdf`, `חומה קדמית + חומה אחורית …pdf` – חזיתות החומות ההיקפיות עם מפלסים – טרם עובדו.
+- `קומה מרתף - מבט על …pdf` – תכנית מרתף אדריכלית – טרם עובדה.
 
 ## קבצים שלא ניתן היה להוריד (מעל 10MB – מגבלת הכלי)
 
@@ -91,5 +106,9 @@ python3 tools/extract_structure.py # -> data/structure/{piles,basement,excavatio
 node tools/verify_stage2.mjs       # -> docs/verification/stage-2.md
 python3 tools/environment/extract_environment.py  # -> data/environment/{lots,streets}.json
 python3 tools/environment/verify_environment.py   # -> docs/verification/environment.md
+python3 tools/extract_pool.py      # -> data/structure/pool.json (k-21 + חתכי/תוכנית הבריכה 1:50)
+python3 tools/extract_floor.py     # -> data/structure/floor-ground.json (k-21, k-31, K-31 PDF)
+python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 ```
+גאורפרנס שלב 3: k-31.dxf (וגם k-41.dxf) באותן קואורדינטות Revit כמו k-21.dxf – ההזזה של k-21 (framing.json) משמשת כמות שהיא (עמודים 4, 5 זהים עד 0.1 מ"מ). K-31 PDF מוצב על גיליון K-400 ב-ICP מול k-31.dxf (שארית חציונית 0.05 pt).
 קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.

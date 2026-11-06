@@ -43,6 +43,11 @@ export class UI {
     top.append(
       h('div', { class: 'brand' }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
       modes, ws,
+      (this.ocBadge = h('button', { class: 'oc-badge', title: 'שינויים של אביחי: הפעלה / כיבוי של כל השינויים (להשוואה מול התוכניות)', onclick: () => {
+        const cur = app.store.get().ownerChanges || {}; const anyOn = Object.values(cur).some(Boolean);
+        app.store.set({ ownerChanges: Object.fromEntries(Object.keys(cur).map(k => [k, !anyOn])) }, { label: 'ownerChanges' });
+        this.toast(anyOn ? 'מוצג לפי התוכניות (שינויים כבויים)' : 'מוצגים השינויים של אביחי');
+      } }, '')),
       h('div', { class: 'actions' },
         btn('↶', 'ביטול (Ctrl+Z)', () => app.store.undo(), 'undo'),
         btn('↷', 'חזרה (Ctrl+Y)', () => app.store.redo(), 'redo'),
@@ -60,6 +65,12 @@ export class UI {
     });
   }
   syncTop() {
+    if (this.ocBadge) {
+      const cur = this.app.store.get().ownerChanges || {}; const n = Object.keys(cur).length, on = Object.values(cur).filter(Boolean).length;
+      this.ocBadge.style.display = n ? '' : 'none';
+      this.ocBadge.textContent = on ? `שינויים: פעילים (${on})` : 'לפי התוכניות';
+      this.ocBadge.classList.toggle('off', !on);
+    }
     const s = this.app.store.get();
     document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === s.mode));
     this.$('undo').disabled = !this.app.store.canUndo();
@@ -116,7 +127,7 @@ export class UI {
 
   panel_layers() {
     const { app } = this; const s = app.store.get();
-    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הדלקה וכיבוי לכל שכבה. מערכות שעוד אין להן נתונים מסומנות "בקרוב".'));
+    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הדלקה וכיבוי לכל שכבה. 🏷 = הסתרת התוויות וקווי הסימון של השכבה בלבד (למשל הקו האדום של הדיפון) – הרכיבים נשארים. מערכות שעוד אין להן נתונים מסומנות "בקרוב".'));
     const colors = Object.fromEntries(app.data.tags.systems.map(x => [x.id, x.color]));
     for (const g of app.data.layers.groups) {
       const sw = h('i', { class: 'sw', style: `background:${colors[g.system]}` });
@@ -124,16 +135,20 @@ export class UI {
       for (const l of g.layers) {
         const impl = g.implemented && l.implemented !== false;
         const on = s.layers[l.id] !== false;
-        box.append(h('label', { class: 'row' + (impl ? '' : ' na') },
-          h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
-            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()));
+        const lblOff = !!(s.labelsOff || {})[l.id];
+        box.append(h('div', { class: 'row lrow' + (impl ? '' : ' na') },
+          h('label', {}, h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
+            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()),
+          impl ? h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
+            onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
       }
       if (g.id === 'environment' && app.environment) box.querySelector('summary').after(app.environment.panel());
       wrap.append(box);
     }
     wrap.append(h('div', { class: 'btns' },
       h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, true])) }, { label: 'layers' }) }, 'הצג הכול'),
-      h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל')));
+      h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל'),
+      h('button', { onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')));
     return wrap;
   }
 
@@ -230,6 +245,16 @@ export class UI {
       h('div', { class: 'btns' },
         h('button', { class: app.activeTool === 'note' ? 'on' : '', onclick: () => app.setTool('note') }, '📝 הוסף הערה'),
         h('button', { onclick: () => { navigator.clipboard?.writeText(app.tools.notes.toText()); this.toast('כל ההערות הועתקו'); } }, '📋 העתק את כל ההערות')),
+      h('h4', {}, 'שינויים של אביחי (מעבר לתוכניות)'),
+      ...(app.data.ownerChanges?.changes || []).map(c => h('div', { class: 'oc' },
+        h('b', {}, `${c.id} · ${c.title}`), h('div', {}, c.description),
+        h('small', {}, `${c.date} · ממתין לאישור: ${c.approvals.filter(a => a.status === 'pending').map(a => a.who).join(', ')}`),
+        h('div', { class: 'ocseg' },
+          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
+          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
+        h('div', { class: 'muted' }, (s.ownerChanges?.[c.id] ?? true) ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
+        h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => { app.store.set({ stageIndex: app.registry.stepIndex(c.showStage, 'unit') }, { label: 'stage' }); app.flyToPoint({ E: c.locationITM[0], N: c.locationITM[1], H: app.coords.H0 + c.locationRel }); } }, 'הצג')))),
+      h('h4', {}, 'הערות ותיקונים'),
       s.notes.length ? h('ol', { class: 'notes' }, s.notes.map((n, i) => h('li', { class: n.done ? 'done' : '' },
         h('div', {}, n.text), h('small', {}, `${n.component || '—'} · ${app.coords.fmtH(n.H)}`),
         h('div', { class: 'btns' },
@@ -255,10 +280,24 @@ export class UI {
       h('h4', {}, 'חפירה ליחידת הדיור'),
       X ? h('table', { class: 'kv' },
         tr('נפח חפירה (מול קרקע 2025)', `${X.volume_m3.toFixed(1)} מ"ק`),
+        tr('מתוכו: בור המרתף / תעלות קורות (זמני)', `${X.pitVolume_m3.toFixed(1)} / ${X.trenchVolume_m3.toFixed(1)} מ"ק`),
         tr('שטח תחתית', `${X.bottomArea_m2.toFixed(1)} מ"ר`),
         tr('מפלס תחתית', app.coords.fmtH(app.data.excavation.bottomAbs)),
         tr('עומק מקסימלי', `${X.maxDepth_m.toFixed(2)} מ'`),
         tr('דיפון (זמני – חסר תכנון)', `${X.shoringLength_m.toFixed(1)} מ' · גובה עד ${X.shoringMaxHeight_m.toFixed(2)} מ' · ${X.shoringArea_m2.toFixed(1)} מ"ר`)) : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, 'יסודות ומרתף (זמני – עד IFC)'),
+      q.foundations ? h('table', { class: 'kv' },
+        tr('קורות יסוד ששורטטו', `${q.foundations.beamsCount} · ${q.foundations.beams_m3.toFixed(2)} מ"ק`),
+        tr('רצפת מרתף (תלויה)', `${q.foundations.slabs_m3.toFixed(2)} מ"ק`),
+        tr('קירות מרתף', `${q.foundations.walls_m3.toFixed(2)} מ"ק`),
+        tr('חסרים (ללא מיקום/מפלס)', q.foundations.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, 'שלד קומת הקרקע (עד IFC)'),
+      q.groundFloor ? h('table', { class: 'kv' },
+        tr('רצפת הקרקע', `${q.groundFloor.slab_m3.toFixed(2)} מ"ק`),
+        tr('קירות קומת הקרקע', `${q.groundFloor.walls_m3.toFixed(2)} מ"ק`),
+        tr('תקרת הקרקע (+3.70)', `${q.groundFloor.ceiling_m3.toFixed(2)} מ"ק`),
+        tr('קורות התקרה', `${q.groundFloor.beams_m3.toFixed(2)} מ"ק`),
+        tr('קורות בלי גיאומטריה', q.groundFloor.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
       h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
   }
 
@@ -289,19 +328,19 @@ export class UI {
   // ---------------- stage bar ----------------
   buildStageBar() {
     const { app } = this; const bar = this.$('stagebar');
-    const st = app.data.tags.stages;
-    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => app.store.setCoalesced('stage', { stageIndex: +e.target.value }) });
+    const st = app.data.tags.sequence;
+    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => { app.store.setCoalesced('stage', { stageIndex: +e.target.value }); this.hint(st[+e.target.value].hint || ''); clearTimeout(this._hintT); this._hintT = setTimeout(() => this.hint(''), 4000); } });
     this.stageLabel = h('b', {});
     const ticks = h('div', { class: 'ticks' }, st.map(s => h('span', {}, s.label)));
     bar.append(h('div', { class: 'stg-head' }, 'שלב בנייה: ', this.stageLabel,
       h('div', { class: 'btns' },
-        h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.findIndex(x => x.id === 'ceiling'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
+        h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: app.registry.stepById('skeletonEnd'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.length - 1, systemFilter: null }, { label: 'all' }) }, 'הכול'))),
       this.stageRange, ticks);
     this.syncStageBar();
   }
   syncStageBar() {
-    const s = this.app.store.get(); const st = this.app.data.tags.stages;
+    const s = this.app.store.get(); const st = this.app.data.tags.sequence;
     this.stageRange.value = s.stageIndex;
     this.stageLabel.textContent = st[s.stageIndex].label + (s.systemFilter ? ' · רק שלד' : '');
   }

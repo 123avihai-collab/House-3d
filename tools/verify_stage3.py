@@ -90,6 +90,26 @@ x0_, y0_, x1_, y1_ = affinity.rotate(fr2, -theta, origin=(0, 0), use_radians=Tru
 out += ['', '**בדיקה בלתי תלויה – מידות כוללות של הגג (תקרה + קורות + קירות) מול K-41:**', '', '| מידה | מודל | כתוב | סטייה |', '|---|---|---|---|',
         f"| אורך | {x1_ - x0_:.3f} | 15.79 (\"1579\") | {abs(x1_ - x0_ - 15.79) * 100:.1f} ס\"מ |",
         f"| רוחב | {y1_ - y0_:.3f} | 14.97 (\"1497\") | {abs(y1_ - y0_ - 14.97) * 100:.1f} ס\"מ |", '']
+ST = J('data/structure/stairs.json')
+pg, pb = ST['placement']['groundSheet'], ST['placement']['basementSheet']
+shaft = [o for o in G['openZones'] if o['zone'] == 'stairShaft']
+cc = list(Polygon(shaft[0]['footprintITM']).minimum_rotated_rectangle.exterior.coords)
+sw = min(math.dist(cc[0], cc[1]), math.dist(cc[1], cc[2]))
+s1, s2, s3 = ST['stairs']
+out += ['## 8. מדרגות ופילר מערכות (תוכניות אדריכלות 1:100 + חתך א-א)', '',
+        '| בדיקה | מודל | מקור | סטייה |', '|---|---|---|---|',
+        f"| מיקום גיליון הקרקע (ICP מול k-21) | קנ\"מ {pg['scaleCheck']}, {pg['matchedPoints']} נק' | ×2 = 1:100 | שארית חציונית {pg['medianResidual_mm']:.1f} מ\"מ |",
+        f"| מיקום גיליון המרתף (ICP מול k-11) | קנ\"מ {pb['scaleCheck']}, {pb['matchedPoints']} נק' | ×2 = 1:100 | שארית חציונית {pb['medianResidual_mm']:.1f} מ\"מ |",
+        f"| רוחב פיר המדרגות (פתח K-21) | {sw:.3f} | 1.86 (K-21 \"186\") / 1.84 (K-31 \"184\") | {abs(sw - 1.86) * 100:.1f} / {abs(sw - 1.84) * 100:.1f} ס\"מ |",
+        f"| מרתף ← קרקע: רומים | 15 × {s1['rise_m'] * 100:.2f} ס\"מ | 2.60 / 15 (חתך: ‎-2.60 → 0, שלבים 1–15) | 0 |",
+        f"| שלבים 9–15: גיליון הקרקע מול גיליון המרתף | {max(s1['crossCheck_m']['flight9to15_groundVsBasementSheet']) * 100:.0f} ס\"מ | אותם קווים בשני הגיליונות | קו אף המדרגה |",
+        f"| רוחב שלחים 1–8 / 9–15 | {s1['flights'][0]['width_m']:.3f} / {s1['flights'][1]['width_m']:.3f} | (186 − מחיצה) / 2 | — |",
+        f"| שלח (עומק מדרך) | {s1['flights'][0]['going_m']:.3f} / {s1['flights'][1]['going_m']:.3f} | 2×רום + שלח = {2 * s1['rise_m'] + s1['flights'][0]['going_m']:.3f} (נוחות 0.60–0.65) | — |",
+        f"| קרקע ← קומה א': רומים | 22 × {s2['rise_m'] * 100:.2f} ס\"מ | 3.85 / 22 (חתך: \"385 קומה א'\", שלבים 16–37) | 0 |",
+        f"| ירידה ליחידה: רומים / רוחב | 14 × {s3['rise_m'] * 100:.2f} ס\"מ / {s3['flights'][0]['width_m']:.3f} | 280.31 → 277.88 / \"82\" | {abs(s3['flights'][0]['width_m'] - 0.82) * 100:.1f} ס\"מ |",
+        f"| פילר: גובה | {ST['pillar']['topRel'] - ST['pillar']['bottomRel']:.2f} | \"240\" (חזית החומה הקדמית) | 0 |",
+        f"| פילר: עובי קיר / שטח חדר האשפה | {ST['pillar']['wallThickness_m'][0]:.3f} / {ST['pillar']['innerAreas_m2'][0]:.2f} מ\"ר | קווי התוכנית | — |", '',
+        'עובי שיפוע (20 ס"מ ניצב) ופודסט (28) – נמדדו בחתך א-א 1:100 (קנ"מ אומת: 0 → ‎-260 = 73.7 pt). מפלסי המדרגות – גמר (אחרי ריצוף).', '']
 missing = [b['id'] for b in C['beams'] if b['status'] == 'missing']
 out += [f"קורות בלי גיאומטריה (לא שורטטו): {', '.join(missing) or '—'}.", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)

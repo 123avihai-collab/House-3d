@@ -61,6 +61,16 @@
      "id": "pavedEntries",
      "label": "משטחי כניסה מתוכננים",
      "visible": true
+    },
+    {
+     "id": "pillar",
+     "label": "פילר מערכות + חדר אשפה",
+     "visible": true
+    },
+    {
+     "id": "electricCabinet",
+     "label": "ארון חשמל (פילר)",
+     "visible": true
     }
    ]
   },
@@ -166,6 +176,16 @@
     {
      "id": "groundOpenZones",
      "label": "חצרות אנגליות / מדרגות למרתף / גינה (בלי רצפה)",
+     "visible": true
+    },
+    {
+     "id": "stairs",
+     "label": "מדרגות בטון (מרתף←קרקע, ירידה ליחידה)",
+     "visible": true
+    },
+    {
+     "id": "stairsLight",
+     "label": "מדרגות קלות (קרקע←קומה א')",
      "visible": true
     },
     {

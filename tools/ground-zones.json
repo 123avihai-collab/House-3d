@@ -2,8 +2,8 @@
   "_doc": "Zones of the ground-floor slab panels (faces of the k-21 slab/wall line work). Each zone names interior points (ITM) of the panels it holds. Identification only – from the architectural ground floor + perimeter development sheet (sources/architecture/קומה קרקע- פיתוח היקפי, 1:100 verified, placed on the K-21 sheet by ICP), checked on an overlay with K-21. Levels and outlines stay from K-21. slab=false: no concrete slab is built (open courtyard, stairs down, garden, pool).",
   "source": "sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
   "zones": {
-    "house":          {"label": "רצפת הבית", "slab": true,  "points": [[179601.03, 576240.71], [179593.83, 576243.07], [179597.41, 576236.64]],
-                       "note": "פנים הבית: סלון/מטבח/פ.אוכל (O.K -0.15), יחידת הורים, ממ\"ד, חדרים וכניסה (מעל המרתף – בלי תגית), חדר המדרגות"},
+    "house":          {"label": "רצפת הבית", "slab": true,  "points": [[179601.03, 576240.71], [179593.83, 576243.07]],
+                       "note": "פנים הבית: סלון/מטבח/פ.אוכל (O.K -0.15), יחידת הורים, ממ\"ד, חדרים וכניסה (מעל המרתף – בלי תגית). פיר המדרגות – פתח (stairShaft)"},
     "entry":          {"label": "כניסה מקורה", "slab": true,  "points": [[179598.35, 576233.29]], "note": "\"כניסה\" באדריכלות (280.48)"},
     "terrace":        {"label": "מרפסת / משטח מרוצף", "slab": true, "points": [[179600.2, 576246.5], [179596.09, 576249.93], [179592.49, 576250.15]],
                        "note": "המשטח הצפוני (פרגולה, סביב הבריכה) ורצועות בין קיר הבית הצפוני לקורה B-39"},
@@ -13,6 +13,8 @@
     "parking":        {"label": "חניה", "slab": true,  "points": [[179602.84, 576231.63]], "note": "\"חניה מחומר קל H=2.50\" – O.K -0.47"},
     "courtyard":      {"label": "חצר אנגלית (רשת מדרך)", "slab": false, "points": [[179590.49, 576243.99], [179591.39, 576247.39]],
                        "note": "פתוחה עד המרתף, מכוסה ברשת מדרך (לא בטון)"},
+    "stairShaft":     {"label": "פיר מדרגות (פתח ברצפה)", "slab": false, "points": [[179597.32, 576236.41]],
+                       "note": "פיר המדרגות מרתף ← קרקע ← קומה א' (186 בין הקירות): ב-K-21 וב-K-31 פתח (לבן + משולש אפור = חלל). המדרגות והפודסטים – data/structure/stairs.json"},
     "basementStairs": {"label": "מדרגות ירידה למרתף", "slab": false, "points": [[179588.48, 576239.92]], "note": "מדרגות חוץ (14 שלבים) למשטח הכניסה למרתף -2.62"},
     "garden":         {"label": "גינה", "slab": false, "points": [[179594.07, 576255.36]], "note": "\"גינון 1 – 30 מ\"ר\" – אדמה, בלי רצפה"}
   }

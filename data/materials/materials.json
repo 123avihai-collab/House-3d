@@ -89,6 +89,18 @@
       "tint": "#e2c6a4",
       "roughness": 0.95,
       "envMapIntensity": 0.8
+    },
+    "stairLight": {
+      "color": "#8a7560",
+      "roughness": 0.7,
+      "envMapIntensity": 0.8,
+      "_note": "מדרגות קלות – החומר לפי מסמך העיצוב (חסר); צבע ניטרלי זמני"
+    },
+    "cabinetSteel": {
+      "color": "#b0b6ba",
+      "roughness": 0.45,
+      "envMapIntensity": 1.0,
+      "_note": "ארון חשמל (פח) – צבע ניטרלי זמני"
     }
   }
 }

@@ -93,5 +93,8 @@
     "ghostOpacity": 0.45,
     "coverRatio": 0.85,
     "coverThickness_m": 0.06
+  },
+  "stairs": {
+    "labelLift_m": 0.4
   }
 }

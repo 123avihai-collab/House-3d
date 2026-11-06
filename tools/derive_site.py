@@ -172,12 +172,16 @@ def main():
     lots = []
     for pid in rules['lots']:
         env, summ = envelope(pid)
-        ctrl = [h['z'] for h in heights['lotCorners'] if h['parcel'] == pid]
-        base = sum(ctrl) / len(ctrl) if ctrl else None
+        el = rules['entranceLevel'].get('byParcel', {}).get(pid)
+        if el:
+            base, base_status = el['pm0'], rules['entranceLevel']['status']
+        else:
+            ctrl = [h['z'] for h in heights['lotCorners'] if h['parcel'] == pid]
+            base, base_status = (sum(ctrl) / len(ctrl) if ctrl else None), 'provisional'
         lots.append({'parcel': pid, 'footprint': ring_of(env), 'footprintArea_m2': r3(env.area),
                      'edgeKinds': {k: sorted(set(map(str, v))) for k, v in summ.items()},
                      'entranceLevel': r3(base) if base is not None else None,
-                     'entranceLevelStatus': 'provisional',
+                     'entranceLevelStatus': base_status, 'lot': (el or {}).get('lot'),
                      'height_m': rules['maxHeightAboveEntrance_m']['value'],
                      'heightStatus': rules['maxHeightAboveEntrance_m']['status'],
                      'floors': rules['floorsAboveEntrance']})

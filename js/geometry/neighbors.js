@@ -26,17 +26,17 @@ export function buildNeighbors(ctx) {
     const c = centroid(lot.footprint);
     const div = document.createElement('div');
     div.className = 'lbl envelope' + (provisional ? ' provisional' : '');
-    div.textContent = `מעטפת מקס' · חלקה ${lot.parcel} · ${lot.floors} קומות`;
+    div.textContent = `מעטפת מקס' · חלקה ${lot.parcel}${lot.lot ? ' (מגרש ' + lot.lot + ')' : ''} · ±0.00=${lot.entranceLevel.toFixed(2)} · ${lot.height_m} מ'`;
     div.title = `תכסית ${lot.footprintArea_m2} מ"ר · גובה ${lot.height_m} מ' (${lot.heightStatus}) · מפלס כניסה ${lot.entranceLevel} (${lot.entranceLevelStatus})`;
     const lbl = new CSS2DObject(div);
     lbl.position.copy(coords.toLocal(c[0], c[1], lot.entranceLevel + lot.height_m + 0.6));
     g.add(lbl);
     registry.add(g, { floor: 'site', system: 'environment', stage: 'existing', layer: 'neighborEnvelopes' }, {
-      name: `מעטפת מקסימלית – חלקה ${lot.parcel}`, kind: 'envelope', parcel: lot.parcel,
+      name: `מעטפת מקסימלית – חלקה ${lot.parcel}${lot.lot ? ' / מגרש ' + lot.lot : ''}`, kind: 'envelope', parcel: lot.parcel,
       footprint: lot.footprint, area: lot.footprintArea_m2, height: lot.height_m, base: lot.entranceLevel,
       edgeKinds: lot.edgeKinds, provisional,
       note: provisional ? 'גובה המעטפת ומפלס הכניסה זמניים – ממתינים לאישור (docs/open-issues.md)' : null,
-      source: data.neighbors.rules.source,
+      source: `${data.neighbors.rules.source}; ±0.00: ${data.neighbors.rules.entranceLevel.source || data.neighbors.rules.entranceLevel.rule}; גובה: ${data.neighbors.rules.maxHeightAboveEntrance_m.source}`,
     });
     scene.add(g);
   }

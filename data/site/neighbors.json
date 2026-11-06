@@ -10,16 +10,52 @@
   "floorsAboveEntrance": 2,
   "floorsBelowEntrance": 1,
   "maxHeightAboveEntrance_m": {
-   "value": 8.05,
+   "value": 8.0,
    "status": "approved",
-   "why": "TAMAL/1016 limits floors (2) but no height in metres was found in the sources. Placeholder = top of parapet of lot 5187 per its own permit sections (+8.05). Awaiting user decision — see docs/open-issues.md",
-   "source": "sources/permit/permit-sheet1-gramushka.dwg (section texts '+8.05')",
+   "why": "TAMAL/1016 limits floors (2) but gives no height in metres; no height found in the B1 development documents either. Avihai: use 8.00 m (neighbours will not exceed 6–7 m above their ground) – conservative envelope.",
+   "source": "הנחיית אביחי 06.11.2026",
    "approved": "אושר ע\"י אביחי 06.11.2026"
   },
   "entranceLevel": {
-   "rule": "mean of the planned lot heights of that lot (buyer's map)",
-   "status": "provisional",
-   "why": "The planned ±0.00 of neighbouring houses is not in the sources."
+   "rule": "planned ±0.00 per lot from the development plan sheet 04 (symbol \"מפלס כניסה קובעת\")",
+   "status": "source",
+   "source": "sources/neighborhood/development-B1/תכנית בינוי גיליון 04 מתחם B1.pdf (סרוק; פירוט ב-docs/sources-inventory/neighborhood.md)",
+   "byParcel": {
+    "256": {
+     "lot": "5186",
+     "pm0": 279.8
+    },
+    "258": {
+     "lot": "5188",
+     "pm0": 281.2
+    },
+    "228": {
+     "lot": "5149",
+     "pm0": 281.35
+    },
+    "229": {
+     "lot": "5150",
+     "pm0": 281.3
+    },
+    "222": {
+     "lot": "5143",
+     "pm0": 279.85
+    },
+    "227": {
+     "lot": "5148",
+     "pm0": 280.95
+    },
+    "226": {
+     "lot": "5147",
+     "pm0": 280.4
+    }
+   },
+   "checkOwnLot": {
+    "parcel": "257",
+    "lot": "5187",
+    "pm0": 280.5,
+    "matches": "data/site/origin.json H0 = 280.50"
+   }
   },
   "lots": [
    "256",
@@ -112,9 +148,10 @@
      "9"
     ]
    },
-   "entranceLevel": 279.525,
-   "entranceLevelStatus": "provisional",
-   "height_m": 8.05,
+   "entranceLevel": 279.8,
+   "entranceLevelStatus": "source",
+   "lot": "5186",
+   "height_m": 8.0,
    "heightStatus": "approved",
    "floors": 2
   },
@@ -434,8 +471,9 @@
     ]
    },
    "entranceLevel": 281.2,
-   "entranceLevelStatus": "provisional",
-   "height_m": 8.05,
+   "entranceLevelStatus": "source",
+   "lot": "5188",
+   "height_m": 8.0,
    "heightStatus": "approved",
    "floors": 2
   },
@@ -537,9 +575,10 @@
      "257"
     ]
    },
-   "entranceLevel": 281.075,
-   "entranceLevelStatus": "provisional",
-   "height_m": 8.05,
+   "entranceLevel": 281.35,
+   "entranceLevelStatus": "source",
+   "lot": "5149",
+   "height_m": 8.0,
    "heightStatus": "approved",
    "floors": 2
   },
@@ -999,9 +1038,10 @@
      "258"
     ]
    },
-   "entranceLevel": 282.4,
-   "entranceLevelStatus": "provisional",
-   "height_m": 8.05,
+   "entranceLevel": 281.3,
+   "entranceLevelStatus": "source",
+   "lot": "5150",
+   "height_m": 8.0,
    "heightStatus": "approved",
    "floors": 2
   },
@@ -1122,9 +1162,10 @@
      "20/28"
     ]
    },
-   "entranceLevel": 279.45,
-   "entranceLevelStatus": "provisional",
-   "height_m": 8.05,
+   "entranceLevel": 279.85,
+   "entranceLevelStatus": "source",
+   "lot": "5143",
+   "height_m": 8.0,
    "heightStatus": "approved",
    "floors": 2
   }

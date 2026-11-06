@@ -56,8 +56,8 @@ export class Viewer {
     this.scene.add(this.sun, this.sun.target);
 
     // environment (HDRI)
-    this.hdriReady = new Promise((resolve) => {
-      new HDRLoader().load(hdri, (tex) => {
+    this.hdriReady = resolveHdri(hdri).then((url) => new Promise((resolve) => {
+      new HDRLoader().load(url, (tex) => {
         tex.mapping = THREE.EquirectangularReflectionMapping;
         const pmrem = new THREE.PMREMGenerator(r);
         this.scene.environment = pmrem.fromEquirectangular(tex).texture;
@@ -68,7 +68,7 @@ export class Viewer {
         this.invalidate();
         resolve();
       }, undefined, (e) => { console.error('HDRI', e); resolve(); });
-    });
+    }));
 
     // post-processing
     this.composer = new EffectComposer(r);
@@ -137,4 +137,24 @@ export class Viewer {
     step();
   }
   screenshot() { this.composer.render(); return this.renderer.domElement.toDataURL('image/png'); }
+}
+
+// The claude.ai artifact host does not serve .hdr files, so the publish step
+// (tools/build_artifact.py) adds a base64 copy next to it: <name>.hdr.b64.txt.
+// Use the binary file when it is served, otherwise decode the base64 copy.
+async function resolveHdri(url) {
+  try {
+    const bin0 = await fetch(url);
+    if (bin0.ok) return URL.createObjectURL(await bin0.blob());
+    await bin0.text(); // drain the 404 body so the request completes cleanly
+    const res = await fetch(url + '.b64.txt');
+    if (!res.ok) return url;
+    const b64 = (await res.text()).replace(/\s+/g, '');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+  } catch {
+    return url;
+  }
 }

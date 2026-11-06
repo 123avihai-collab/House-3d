@@ -98,4 +98,6 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 
 ## צפייה אונליין
 
-המודל מתפרסם **רק כארטיפקט** ב-claude.ai (אתר מרובה קבצים: `index.html` + `css/`, `js/`, `data/`, `assets/`, `vendor/`). אין פרסום ל-GitHub Pages.
+המודל מתפרסם **רק כארטיפקט** ב-claude.ai: https://claude.ai/artifact/M1fRFgsAyjSGz3cjM72keQ (אתר מרובה קבצים: `index.html` + `css/`, `js/`, `data/`, `assets/`, `vendor/`). אין פרסום ל-GitHub Pages.
+
+לפני פרסום מריצים `python3 tools/build_artifact.py`. הסקריפט מפיק את מפת הקבצים (`tools/cache/artifact/files.json`) ועותק base64 של קובץ ה-HDRI, כי שרת הארטיפקטים לא מגיש קובצי `.hdr`. ‏`js/core/viewer.js` טוען את העותק הזה אוטומטית כשקובץ ה-`.hdr` לא זמין.

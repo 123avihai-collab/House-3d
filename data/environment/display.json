@@ -1,0 +1,19 @@
+{
+ "_doc": "Display-only constants for the environment (src/environment). Not model dimensions.",
+ "lotOutlineColor": "#ffb74d",
+ "lotOutlineWidth_px": 2,
+ "buildingLineColor": "#ba68c8",
+ "buildingLineWidth_px": 1.6,
+ "streetEdgeColor": "#eceff1",
+ "gutterColor": "#90a4ae",
+ "islandColor": "#7cb342",
+ "missingOutlineColor": "#ff9800",
+ "lineLift_m": 0.04,
+ "labelLift_m": 0.6,
+ "envelopeEdgeColor": "#6d6a64",
+ "envelopeZeroLineColor": "#5e35b1",
+ "envelopeDefaultOpacity": 0.55,
+ "envelopeOpacityRange": [0.1, 1.0],
+ "noDataLift_m": 0.015,
+ "overviewOffset_m": [-45, 60, 55]
+}

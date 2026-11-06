@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""Checks for data/environment/*.json: sources on every record, setbacks respected by every envelope,
+±0.00 cross-checked against sheet 04 where available, flagged values, street width vs the typical section."""
+import json, math, os, sys
+from shapely.geometry import Polygon, LineString
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+J = lambda *p: json.load(open(os.path.join(ROOT, *p), encoding='utf-8'))
+L, S = J('data', 'environment', 'lots.json'), J('data', 'environment', 'streets.json')
+err = []
+g = L['georeference']
+if g['lengthsMap']['maxResidual_m'] > 0.02: err.append('lengths map georeference residual > 2 cm')
+if g['heightsPlan']['medianResidual_m'] > 0.03: err.append('heights plan georeference median residual > 3 cm')
+if g['boundaryPointCheck']['maxDist_m'] > 0.03: err.append('lengths-map boundary points off the DWG > 3 cm')
+if L['envelopeSelfCheck']['maxDeviation_m'] > 0.03: err.append('5187 envelope self-check > 3 cm')
+if abs(S['integratedStreet']['widthCheck']['deviation_m']) > 0.02: err.append('integrated street width differs from the typical section')
+for l in L['lots']:
+    k = l['parcel']
+    for f in ('ringSource', 'lotNumberSource'):
+        if not l.get(f): err.append(f'lot {k}: missing {f}')
+    if not l['lot']: err.append(f'lot {k}: no lot number')
+    if not l['cornerLevels']: err.append(f'lot {k}: no corner levels')
+    for c in l['cornerLevels']:
+        if 'source' not in c: err.append(f'lot {k}: corner level without source')
+        if not 270 < c['z'] < 300: err.append(f'lot {k}: corner level {c["z"]} out of range')
+    pm = l['pm0']
+    if pm['status'] == 'source' and pm['z'] is None: err.append(f'lot {k}: ±0.00 missing but status source')
+    if pm.get('check') and not pm['check']['match']: err.append(f'lot {k}: ±0.00 differs from sheet 04 scan')
+    if pm['status'] not in ('source', 'owner', 'suspect', 'missing'): err.append(f'lot {k}: unknown ±0.00 status')
+    if pm['status'] == 'owner' and not pm.get('source'): err.append(f'lot {k}: owner decision without reference')
+    if pm['status'] in ('source', 'owner') and l['cornerLevels'] and not (min(c['z'] for c in l['cornerLevels']) - 1.5 <= pm['z'] <= max(c['z'] for c in l['cornerLevels']) + 1.5):
+        err.append(f'lot {k}: ±0.00 {pm["z"]} far from its corner levels and not flagged')
+    e = l['envelope']
+    if e['build'] and pm['status'] not in ('source', 'owner'): err.append(f'lot {k}: envelope built on a non-source ±0.00')
+    lot, env = Polygon(l['ring']), Polygon(e['ring'])
+    if not lot.buffer(1e-6).contains(env): err.append(f'lot {k}: envelope outside the lot')
+    for ed in l['edges']:
+        d = LineString(ed['pts']).distance(env)
+        if d < ed['setback_m'] - 0.005: err.append(f'lot {k}: envelope {d:.3f} m from edge across {ed["across"]} (setback {ed["setback_m"]})')
+    if l['cornerLot'] and l['frontStatus'] not in ('assumption', 'owner', 'sheet04'): err.append(f'lot {k}: corner lot front not flagged')
+for s in S['surfaces']:
+    if 'source' not in s: err.append('street surface without source')
+    if s['heights'] == 'missing' and not s.get('note'): err.append('street without heights not flagged')
+# sheet 04 (scanned building plan)
+S4p = os.path.join(ROOT, 'data', 'environment', 'sheet04.json')
+if os.path.exists(S4p):
+    S4 = json.load(open(S4p, encoding='utf-8'))
+    g4 = S4['georeference']
+    if g4['medianResidual_m'] > 0.15 or g4['pairs'] < 10: err.append('sheet 04 georeference weak')
+    for r in S4['lots']:
+        if r['parcel'] == '257': continue
+        lot = next((l for l in L['lots'] if l['parcel'] == r['parcel']), None)
+        if not lot: err.append(f"sheet04 lot {r['parcel']} not in lots.json"); continue
+        lp = Polygon(lot['ring']).buffer(0.01)
+        for kind in ('building', 'parking', 'entrance'):
+            for ring in r[kind]:
+                if not lp.contains(Polygon(ring)): err.append(f"sheet04 {r['lot']} {kind} outside the lot")
+        if not r['building']: err.append(f"sheet04 {r['lot']}: no building found")
+        if r['parkingArea_m2'] > 40: err.append(f"sheet04 {r['lot']}: parking {r['parkingArea_m2']} m2 > 40")
+if L.get('parking', {}).get('status') not in ('provisional', 'owner') or not L['parking'].get('source'): err.append('parking height needs a status and a source')
+for x in S['surfaces']:
+    if x['heights'] == 'derived' and x.get('heightStatus') != 'provisional': err.append('derived street height not flagged provisional')
+if any(x['heights'] == 'derived' for x in S['surfaces']) and S['derivedHeightControl']['check']['afterBias_meanAbs_m'] > 0.35:
+    err.append('derived street levels deviate > 0.35 m from the DWG inside the frame')
+# detailed neighbourhood (illustration)
+Dp = os.path.join(ROOT, 'data', 'environment', 'details.json')
+if os.path.exists(Dp):
+    DD = json.load(open(Dp, encoding='utf-8')); F = DD['config']['fence']
+    envs = {l['parcel']: Polygon(l['envelope']['ring']).buffer(0.05) for l in L['lots']}
+    for h in DD['houses']:
+        if not envs[h['parcel']].contains(Polygon(h['ring'])): err.append(f"detail house {h['lot']} outside its building lines")
+        if abs(h['top'] - (h['pm0'] + 8.0)) > 0.01: err.append(f"detail house {h['lot']} top != ±0.00 + 8.00")
+    for f in DD['fences']:
+        if f['top'] <= f['base']: err.append('fence with top <= base')
+    for t in DD['trees'] + DD['lamps']:
+        if 'status' not in t: err.append('tree/lamp without status')
+if err:
+    print('\n'.join('ENV ERROR: ' + e for e in err)); sys.exit(1)
+print(f"environment data OK: {len(L['lots'])} lots, {sum(1 for l in L['lots'] if l['envelope']['build'])} envelopes, {len(S['surfaces'])} street surfaces")

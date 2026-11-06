@@ -41,6 +41,21 @@
 - `רשימת צמחייה מומלצת.pdf`, `תרשים טיפוסים חלק דרומי…`, `תכנית חזיתות וחתכים טיפוס A1/A2/A3` (דוגמה בלבד)
 - `מפה אורכי מגרשים רקפות.pdf` (זהה ביט-לביט ל-`F02628-17-DIAN-RG-03.07.2022MIG-Frm-3.pdf` – מפת אורכים מתאריך 03.07.2022, באותה סדרה F02628 כמו המפה למשתכן) – וקטורי 1:500, אורכי צלעות; ללא ITM, אך התאמת דמיון ל-5 נקודות הגבול: שארית 6 מ"מ
 
+## קבצים בשימוש בסביבה (שכונה, 06.11.2026) – `tools/environment/extract_environment.py`
+
+| נתיב | שימוש |
+|---|---|
+| `survey/INDEX_F02628-36-MIG-5187.dwg` (דרך `data/site/parcels.json`, `street.json`) | גבולות המגרשים והרחובות (תרשים 1:5000, העתק מדויק), קווי הרחוב המשולב (תעלה, אבני גן, איים), גבהי רחוב בתוך מסגרת המפה, קו בניין של 5187 לבדיקה עצמית |
+| `neighborhood/מפה אורכי מגרשים רקפות.pdf` | מספרי מגרשים לכל חלקה, קו החלוקה 226/227 (2463–2479), בדיקת 54 נקודות גבול מול ה-DWG |
+| `development/תוכנית גבהים בגוש שלי.pdf` | ±0.00 ("מפלס כניסה קובעת") וגבהי פינות סופיים לכל מגרש. מספרים בלבד – לא גיאומטריה |
+| `development/תוכנית נוף.pdf` | חתך טיפוסי "רח' משולב" 13.0 מ' (2.0 / 4.5 / 5.0 / 1.5), שיפוע רוחבי 1.5% – `data/environment/manual-readings.json` |
+| `neighborhood/development-B1/נספח פרטי פיתוח מהדורה 003.pdf` | חומרי הרחוב המשולב (פרט 14) – חומרים בלבד |
+| `neighborhood/development-B1/נספח פרטי פיתוח מהדורה 009.pdf` | נבדק – פרטי גדר/פילרים/חניה בתוך המגרש; אין בו רוחבים או גבהים של רחובות |
+| `zoning/tamal-1016-instructions.pdf` §4.1.2 + טבלה 5 | קווי בניין 3/3/5, 2 קומות, מגרש פינתי (דרך `data/config/neighbors-rules.json`) |
+| `neighborhood/analytic-map-rakafot.pdf` | לא שימש לגיאומטריה (קואורדינטות מעוגלות ~0.83 מ') |
+| `neighborhood/development-B1/תכנית בינוי גיליון 04 מתחם B1.pdf` | סרוק: בית (לבן), מבנה חניה (סגול) וכניסה ראשית (כתום) לכל שכן – `tools/environment/extract_sheet04.py` |
+| `zoning/plan-605-0843136-traffic-appendix.pdf` | נספח תנועה לתוכנית 605-0843136 (הועלה ע"י אביחי 06.11.2026, Illustrator וקטורי): מספרי כבישים ורוזטות רוחב – אימות 910 = 15.0, 870 = 17.0 |
+
 ## קבצים שלא ניתן היה להוריד (מעל 10MB – מגבלת הכלי)
 
 | שם | גודל | השפעה |
@@ -60,6 +75,9 @@
 | K-400 (PDF) | קנ"מ 1:50 אומת מול שרשרת מידות (≤1.1 ס"מ); דמיון (סיבוב −21.986°) מותאם ל-4 קווי מגרש עם היסט אחיד של פס הקיר | 0.15 מ"מ (8 משוואות / 4 נעלמים) |
 | K-11 (DXF) → K-400 | ICP, הזזה בלבד בקנ"מ 0.5669 pt/ס"מ | חציון 0.64 מ"מ (בקנ"מ PDF) |
 | בדיקה עצמאית: קו מרתף מול קירות הגרמושקה | — | חציון 1.4 ס"מ |
+| מפה אורכי מגרשים (PDF וקטורי 1:500) | דמיון (עם שיקוף) מול 8 נקודות גבול מה-DWG | מקס' 0.011 מ'; 54 נקודות גבול נוספות מול ה-DWG: מקס' 0.016 |
+| תוכנית גבהים בגוש (PDF וקטורי) | ICP של קצוות קווי המגרשים מול פינות ה-DWG (474 זוגות) | חציון 0.010 מ', 95% – 0.06 |
+| גיליון 04 B1 (סריקה) | אפיני, 44 סמלי ±0.00 מול תוכנית הגבהים | חציון 0.07 מ', מקס' 0.16 מ' |
 
 ## צינור החילוץ
 
@@ -71,5 +89,7 @@ python3 tools/derive_site.py       # -> terrain-regions.json, neighbors.json
 node tools/verify_stage1.mjs       # -> docs/verification/stage-1.md
 python3 tools/extract_structure.py # -> data/structure/{piles,basement,excavation}.json (K-400, k-11.dxf, דוח קרקע)
 node tools/verify_stage2.mjs       # -> docs/verification/stage-2.md
+python3 tools/environment/extract_environment.py  # -> data/environment/{lots,streets}.json
+python3 tools/environment/verify_environment.py   # -> docs/verification/environment.md
 ```
 קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.

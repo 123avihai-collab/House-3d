@@ -72,17 +72,72 @@
       "layers": [
         {
           "id": "street",
-          "label": "כביש, מדרכה ואבני שפה",
+          "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
           "visible": true
         },
         {
           "id": "neighborLots",
-          "label": "מגרשי שכנים",
+          "label": "מגרשי שכנים (פני קרקע סופיים)",
+          "visible": true
+        },
+        {
+          "id": "neighborLotLines",
+          "label": "גבולות מגרשי השכנים",
+          "visible": true
+        },
+        {
+          "id": "streetHeightOutline",
+          "label": "קו כתום – גובה רחוב משוער",
+          "visible": true
+        },
+        {
+          "id": "neighborHouses",
+          "label": "בתי השכנים – מפורט (חלונות, דלתות, חניות)",
+          "visible": true
+        },
+        {
+          "id": "neighborFences",
+          "label": "חומות ושערים (חיפוי אבן, טיח, קופינג)",
+          "visible": true
+        },
+        {
+          "id": "neighborYards",
+          "label": "חצרות: דשא, שבילים, חניות",
+          "visible": true
+        },
+        {
+          "id": "streetFurniture",
+          "label": "פיתוח רחוב: עצים, תאורה, אבני שפה, חניות",
           "visible": true
         },
         {
           "id": "neighborEnvelopes",
-          "label": "מעטפות בתי שכנים (תב\"ע)",
+          "label": "מעטפות בתי שכנים (תמל/1016, 2 קומות)",
+          "visible": false
+        },
+        {
+          "id": "neighborSheet04",
+          "label": "בתי השכנים לפי גיליון 04 (תכנית בינוי)",
+          "visible": false
+        },
+        {
+          "id": "neighborParking",
+          "label": "מבני חניה של השכנים (גיליון 04, 2.70 מ')",
+          "visible": false
+        },
+        {
+          "id": "neighborEntrances",
+          "label": "כניסות ראשיות של השכנים (גיליון 04)",
+          "visible": false
+        },
+        {
+          "id": "neighborBuildingLines",
+          "label": "קווי בניין של השכנים",
+          "visible": true
+        },
+        {
+          "id": "neighborLabels",
+          "label": "מספרי מגרשים וגבהים של השכנים",
           "visible": true
         },
         {

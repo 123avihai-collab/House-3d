@@ -82,6 +82,13 @@
   },
   "plumbing": {
     "chamberColor": "#26a69a",
-    "radialSegments": 24
+    "radialSegments": 24,
+    "sewerColor": "#8d6e63",
+    "provisionalPipeColor": "#ffb74d",
+    "unknownLevelColor": "#bdbdbd",
+    "flowArrowColor": "#1565c0",
+    "sleeveColor": "#e53935",
+    "unknownDiameter_m": 0.11,
+    "labelMinLength_m": 2.0
   }
 }

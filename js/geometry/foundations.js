@@ -141,11 +141,11 @@ export function buildFoundations(ctx) {
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
     g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
     stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;
-    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.stage === 'ceiling' ? 'ceilingBeams' : 'groundBeams' }, {
+    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.layer || 'groundBeams' }, {
       name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
       rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
         ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך (בקירוב)', `${L.toFixed(2)} מ'`], ['גיליון', b.sheet]],
-      note: (b.stage === 'ceiling' ? 'קורה של תקרת הקרקע מעל המרתף – יושבת על קיר המרתף (לא קורת יסוד). ' : '') + 'חתך ומפלס – מדויקים, מתווית הקורה. מיקום ואורך – בקירוב, לפי פס הבטון בתכנית K-400 (PDF). יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,
+      note: (b.layer === 'ceilingBeams' ? 'קורה של תקרת הקרקע מעל המרתף – יושבת על קיר המרתף. ' : b.layer === 'groundFloorBeams' ? 'קורת קומת הקרקע על כלונסאות – נוצקת אחרי קירות המרתף והמילוי, יחד עם רצפת הקרקע. ' : '') + 'חתך ומפלס – מדויקים, מתווית הקורה. מיקום ואורך – בקירוב, לפי פס הבטון בתכנית K-400 (PDF). יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,
     });
     scene.add(g);
   }
@@ -160,18 +160,19 @@ export function buildPlumbingFoundations(ctx) {
   for (const c of P.chambers) {
     const r = c.diameter_m / 2, h = c.TL - c.IL;
     const geo = new THREE.CylinderGeometry(r, r, h, D.radialSegments, 1, true);
-    const mat = new THREE.MeshStandardMaterial({ color: D.chamberColor, roughness: 0.6, side: THREE.DoubleSide });
+    const sewer = c.kind === 'sewerManhole';
+    const mat = new THREE.MeshStandardMaterial({ color: sewer ? D.sewerColor : D.chamberColor, roughness: 0.6, side: THREE.DoubleSide });
     const m = new THREE.Mesh(geo, mat); m.position.copy(coords.toLocal(c.E, c.N, (c.TL + c.IL) / 2)); m.castShadow = true;
     const g = new THREE.Group(); g.add(m);
     const d = document.createElement('div'); d.className = 'lbl beam';
-    d.textContent = `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}`;
+    d.textContent = sewer ? `שוחה ${c.number} · ø${Math.round(c.diameter_m * 100)} · T.L ${c.TL.toFixed(2)} · I.L ${c.IL.toFixed(2)}` : `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}`;
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.4)); g.add(o);
     if (c.affectedBy) {
       const ga = new THREE.Group(); const da = document.createElement('div'); da.className = 'lbl change'; da.textContent = `מושפע מ-${c.affectedBy}`;
       const oa = new CSS2DObject(da); oa.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.9)); ga.add(oa); scene.add(ga);
       registry.add(ga, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, { name: `${c.id} – מושפע מ-${c.affectedBy}`, variant: { change: c.affectedBy, show: 'changed' }, note: c.note });
     }
-    registry.add(g, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, {
+    registry.add(g, sewer ? { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewageManholes' } : { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, {
       name: `${c.id} – ${c.title}`, status: c.status,
       rows: [['קוטר', `${Math.round(c.diameter_m * 100)} ס"מ`], ['T.L. (מכסה)', coords.fmtH(c.TL)], ['I.L. (תחתית)', coords.fmtH(c.IL)], ['עומק', `${c.H_m.toFixed(2)} מ'`],
         ['ITM', `${c.E.toFixed(3)} / ${c.N.toFixed(3)}`]],
@@ -179,7 +180,60 @@ export function buildPlumbingFoundations(ctx) {
     });
     scene.add(g);
   }
-  return { chambers: P.chambers.length };
+  // sewer pipes (centre line from the plumbing PDF; levels from the chambers / slope labels – see each record's status)
+  const sevC = new THREE.Color(D.sewerColor);
+  let pipeLen = 0;
+  for (const q of P.pipes || []) {
+    const r = (q.diameter_m || D.unknownDiameter_m) / 2;
+    const z1 = q.ILfrom != null ? q.ILfrom + r : coords.H0 + q.displayLevelRel - r;
+    const z2 = q.ILto != null ? q.ILto + r : z1;
+    const a = coords.toLocal(q.fromITM[0], q.fromITM[1], z1), b = coords.toLocal(q.toITM[0], q.toITM[1], z2);
+    const dir = b.clone().sub(a), L = dir.length();
+    const geo = new THREE.CylinderGeometry(r, r, L, 16, 1); geo.translate(0, L / 2, 0); geo.rotateX(Math.PI / 2);
+    const col = q.status === 'missing' ? D.unknownLevelColor : q.status === 'provisional' ? D.provisionalPipeColor : D.sewerColor;
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 }));
+    m.position.copy(a); m.lookAt(b); m.castShadow = true;
+    const g = new THREE.Group(); g.add(m);
+    if (q.ILfrom != null) {   // flow arrow at mid-length, pointing downstream
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(r * 1.8, r * 4, 12), new THREE.MeshBasicMaterial({ color: D.flowArrowColor }));
+      cone.position.copy(a.clone().lerp(b, 0.5)); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); g.add(cone);
+    }
+    if (q.lengthM > D.labelMinLength_m && q.diameter_m) {
+      const dl = document.createElement('div'); dl.className = 'lbl pipe';
+      dl.textContent = `ø${Math.round(q.diameter_m * 1000)} · ${(q.slope * 100).toFixed(q.slope < 0.1 ? 2 : 1)}%${q.status !== 'source' ? ' *' : ''}`;
+      const o = new CSS2DObject(dl); o.position.copy(a.clone().lerp(b, 0.5)); o.position.y += 0.25; g.add(o);
+    }
+    pipeLen += q.lengthM;
+    const st = { source: 'מפלסים מהשוחות/תוויות', derived: 'מפלס נגזר (שיפוע כתוב)', provisional: 'מפלס זמני (שיפוע הונח 2%)', missing: 'מפלס לא ידוע – מיקום בלבד' }[q.status];
+    registry.add(g, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, {
+      name: `צינור ביוב ${q.id}${q.diameter_m ? ` · ø${Math.round(q.diameter_m * 1000)} ${q.material || ''}` : ''}`, status: q.status === 'source' ? 'source' : 'provisional',
+      rows: [['אורך', `${q.lengthM.toFixed(2)} מ'`], ['שיפוע', q.slope ? `${(q.slope * 100).toFixed(2)}%` : '—'],
+        ['I.L התחלה → סוף', q.ILfrom != null ? `${coords.fmtH(q.ILfrom)} → ${coords.fmtH(q.ILto)}` : '—'], ['כיוון זרימה', q.between?.[1] ? `אל ${q.between[1]}` : '—'], ['מעמד', st]]
+        .concat(q.dropAtEnd_m ? [['מפל בכניסה לשוחה', `${q.dropAtEnd_m.toFixed(2)} מ'`]] : []),
+      note: q.note || null, source: q.source,
+    });
+    scene.add(g);
+  }
+  // crossings: pipe through a basement wall / foundation beam -> sleeve
+  for (const x of P.pipeCrossings || []) {
+    if (!x.pipe) continue;
+    const q = (P.pipes || []).find(p => p.id === x.pipe); if (!q) continue;
+    const r = (q.diameter_m || D.unknownDiameter_m) / 2;
+    const t = Math.hypot(x.E - q.fromITM[0], x.N - q.fromITM[1]) / q.lengthM;
+    const z = q.ILfrom != null ? q.ILfrom + (q.ILto - q.ILfrom) * t + r : coords.H0 + q.displayLevelRel - r;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 1.6, r * 0.35, 8, 24), new THREE.MeshBasicMaterial({ color: D.sleeveColor }));
+    ring.position.copy(coords.toLocal(x.E, x.N, z)); ring.lookAt(coords.toLocal(q.toITM[0], q.toITM[1], z));
+    const g = new THREE.Group(); g.add(ring);
+    const dl = document.createElement('div'); dl.className = 'lbl removed'; dl.style.textDecoration = 'none'; dl.textContent = `שרוול · ${x.pipe} ↔ ${x.element}`;
+    const o = new CSS2DObject(dl); o.position.copy(ring.position); o.position.y += 0.35; g.add(o);
+    registry.add(g, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, {
+      name: `מעבר צנרת ${x.pipe} דרך ${x.kind === 'beam' ? 'קורה' : 'קיר מרתף'} ${x.element} – שרוול נדרש`, status: 'provisional',
+      rows: [['ITM', `${x.E.toFixed(3)} / ${x.N.toFixed(3)}`], ['אורך מעבר', `${x.length_m.toFixed(2)} מ'`]],
+      note: x.note || 'לתאם עם הקונסטרוקטור: שרוול/פתח באלמנט הבטון לפני היציקה.', source: q.source,
+    });
+    scene.add(g);
+  }
+  return { chambers: P.chambers.length, pipes: (P.pipes || []).length, pipeLength_m: pipeLen, sleeves: (P.pipeCrossings || []).filter(x => x.pipe).length };
 }
 
 // Owner-change zones (data/changes/owner-changes.json → zone): a translucent purple box over the changed area.

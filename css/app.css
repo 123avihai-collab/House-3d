@@ -146,3 +146,4 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 .ocseg button.on { background: #ab47bc; color: #fff; }
 .oc-badge { border: 1px solid #ab47bc; color: #ce93d8; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: transparent; cursor: pointer; }
 .oc-badge.off { border-color: #777; color: #aaa; }
+.lbl.pipe { background: rgba(141,110,99,0.92); color: #fff; font-size: 10px; }

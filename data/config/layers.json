@@ -120,7 +120,12 @@
         },
         {
           "id": "groundBeams",
-          "label": "קורות יסוד (מיקום בקירוב – מ-PDF)",
+          "label": "קורות יסוד – מפלס המרתף (מיקום בקירוב – מ-PDF)",
+          "visible": true
+        },
+        {
+          "id": "groundFloorBeams",
+          "label": "קורות קומת קרקע על כלונסאות (מיקום בקירוב – מ-PDF)",
           "visible": true
         },
         {
@@ -170,15 +175,17 @@
       "id": "sewage",
       "label": "ביוב",
       "system": "sewage",
-      "implemented": false,
+      "implemented": true,
       "layers": [
         {
           "id": "sewagePipes",
-          "label": "צנרת"
+          "label": "צנרת ביוב (מתוכנית האינסטלציה) + שרוולים",
+          "visible": true
         },
         {
           "id": "sewageManholes",
-          "label": "שוחות"
+          "label": "שוחות ביוב 0–5",
+          "visible": true
         }
       ]
     },

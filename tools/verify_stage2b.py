@@ -57,6 +57,18 @@ below = sum(b['thickness_m'] for b in X['bottomBuildUp'] if b.get('thickness_m')
 out += ['', f"בדיקת עקביות: תחתית רצפה ראשית {main['top'] - main['thickness_m']:+.2f} = ראש כלונסאות {heads[0]:+.2f} "
         f"{'✓' if abs(main['top'] - main['thickness_m'] - heads[0]) < 0.005 else '✗'}; תחתית חפירה {X['bottomRel']:+.2f} = {heads[0]:+.2f} − {below:.2f} "
         f"{'✓' if abs(heads[0] - below - X['bottomRel']) < 0.005 else '✗'}.", '']
+PL = J('data/systems/plumbing-foundations.json'); ck = PL.get('checks', {})
+out += ['## 5. אינסטלציה (ביוב) – מיקום ובדיקות בלתי תלויות', '', '| בדיקה | תוצאה |', '|---|---|',
+        f"| התאמת תוכנית האינסטלציה (קרקע) ל-k-21 – שארית חציונית | {PL['placement']['ground']['medianResidual_cm']} ס\"מ |",
+        f"| התאמת תוכנית האינסטלציה (מרתף) ל-k-11 – שארית חציונית | {PL['placement']['medianResidual_cm']} ס\"מ |",
+        f"| שוחה 0 מול השוחה העירונית במפה למשתכן | {ck.get('municipalManhole_vs_MIG_m')} מ' |",
+        f"| I.L שוחה 1 מול נפל המגרש במפה למשתכן (278.20) | סטייה {ck.get('connectionIL_vs_MIG_nipple_m')} מ' |",
+        f"| התאמת ה-PDF (קווי הצנרת) ל-6 השוחות | שארית מקסימלית {ck.get('pdfFitMaxResidual_m')} מ' |", '',
+        '| צינור | בין | קוטר | שיפוע | I.L התחלה → סוף | מעמד |', '|---|---|---|---|---|---|']
+for q in PL['pipes']:
+    if q.get('ILfrom') is None: continue
+    out.append(f"| {q['id']} | {q['between'][0] or 'בית'} → {q['between'][1]} | {q.get('diameter_m') or '—'} | {q['slope'] * 100:.2f}% | {q['ILfrom']:.3f} → {q['ILto']:.3f} | {q['status']} |")
+out.append('')
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)
 open(os.path.join(ROOT, 'docs/verification/stage-2b.md'), 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 print(f'beams vs piles: ok {ok}, bad {bad}; missing beams {missing}')

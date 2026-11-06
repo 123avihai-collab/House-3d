@@ -3291,7 +3291,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-39",
@@ -3319,7 +3320,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-37",
@@ -3347,7 +3349,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-53",
@@ -3375,7 +3378,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-47",
@@ -3403,7 +3407,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-49",
@@ -3431,7 +3436,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-48",
@@ -3459,7 +3465,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-44",
@@ -3519,7 +3526,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": true,
-   "stage": "ceiling"
+   "stage": "ceiling",
+   "layer": "ceilingBeams"
   },
   {
    "id": "B-45",
@@ -3547,7 +3555,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": true,
-   "stage": "ceiling"
+   "stage": "ceiling",
+   "layer": "ceilingBeams"
   },
   {
    "id": "B-43",
@@ -3575,7 +3584,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": true,
-   "stage": "ceiling"
+   "stage": "ceiling",
+   "layer": "ceilingBeams"
   },
   {
    "id": "B-60",
@@ -3619,7 +3629,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-51",
@@ -3647,7 +3658,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-38",
@@ -3675,7 +3687,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-42",
@@ -3703,7 +3716,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-41",
@@ -3731,7 +3745,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-52",
@@ -3759,7 +3774,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-56",
@@ -3787,7 +3803,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "ceiling",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-57",
@@ -3863,7 +3880,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": true,
-   "stage": "groundBeams"
+   "stage": "groundBeams",
+   "layer": "groundBeams"
   },
   {
    "id": "B-32",
@@ -3907,7 +3925,8 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
    "status": "provisional",
    "overBasement": false,
-   "stage": "groundBeams"
+   "stage": "groundBeams",
+   "layer": "groundBeams"
   },
   {
    "id": "B-35",

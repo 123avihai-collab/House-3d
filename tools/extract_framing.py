@@ -263,7 +263,13 @@ def main():
             over = bsm.buffer(0.15).intersection(ax).length / max(ax.length, 1e-6)
             rec['overBasement'] = over > 0.6
             # a ground-floor (K-21) beam above the basement is part of the slab over the basement, not a foundation beam
-            rec['stage'] = 'ceiling' if rec['overBasement'] and t['sheet'] == 'K-21' else 'groundBeams'
+            # construction order: basement-level beams (K-11) first; ground-floor beams (K-21) are cast after the basement
+            # walls and backfill, in one pour with the ground slab / the slab over the basement -> stage "ceiling"
+            if t['sheet'] == 'K-21':
+                rec['stage'] = 'ceiling'
+                rec['layer'] = 'ceilingBeams' if rec['overBasement'] else 'groundFloorBeams'
+            else:
+                rec['stage'] = 'groundBeams'; rec['layer'] = 'groundBeams'
         beams.append(rec)
     # de-duplicate identical tags (same beam tagged twice)
     seen = set(); beams = [b for b in beams if not ((b['id'], tuple(map(tuple, b['axisITM'] or []))) in seen or seen.add((b['id'], tuple(map(tuple, b['axisITM'] or [])))))]

@@ -2872,8 +2872,9 @@
   {
    "item": "בטון רזה 3÷5 ס\"מ + יריעות דיקט",
    "thickness_m": 0.05,
-   "status": "provisional",
-   "source": "sources/structure/K-400-תכנית יסודות.pdf פרט כלונס טיפוסי מתחת לקורת יסוד – נלקח הערך העליון בטווח 3÷5 ס\"מ"
+   "status": "approved",
+   "approved": "אביחי 06.11.2026 – הערך העליון בטווח",
+   "source": "sources/structure/K-400-תכנית יסודות.pdf פרט כלונס טיפוסי מתחת לקורת יסוד: \"בטון רזה בעובי 3÷5 ס\"מ\" (טווח 3 עד 5)"
   },
   {
    "item": "ארגזי הפרדה (פוליביד) 25 ס\"מ",
@@ -2883,9 +2884,9 @@
  ],
  "sideSlope_HperV": 2.0,
  "sideSlopeSource": "sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf סעיף 10.1: חפירה זמנית בשיפוע 1V:2H",
- "workingSpace_m": 0.0,
- "workingSpaceStatus": "provisional",
- "workingSpaceNote": "מרווח עבודה בתחתית לא מופיע במקורות – 0 עד לאישור (open-issues)",
+ "workingSpace_m": 1.0,
+ "workingSpaceStatus": "approved",
+ "workingSpaceNote": "לא מופיע במקורות. הנחיית אביחי 06.11.2026: המקובל 0.80–1.00 מ' בתחתית, מהפנים החיצוניים של הקיר עד דופן החפירה (טפסות, איטום ביריעות ביטומניות, לוח הגנה, צינור ניקוז, מילוי והידוק); מינימום 0.60. נלקח 1.00 (הערך העליון).",
  "shoringRule": "sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf סעיף 10.2: חפירה החודרת למגרש שכן/פיתוח מחייבת כלונסאות דיפון",
  "clipToPlot": true,
  "source": "sources/structure/k-11.dxf + sources/structure/K-400-תכנית יסודות.pdf + sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf"

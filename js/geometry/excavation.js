@@ -86,12 +86,13 @@ export function buildExcavation(ctx) {
     rows: [
       ['מפלס תחתית חפירה', coords.fmtH(zb)],
       ['שיפוע דפנות', `1:${ex.sideSlope_HperV} (אנכי:אופקי)`],
+      ['מרווח עבודה בתחתית', `${ex.workingSpace_m.toFixed(2)} מ' מהקיר החיצוני`],
       ['נפח חפירה (מול קרקע 2025)', `${vol.toFixed(1)} מ"ק`],
       ['עומק חפירה מקסימלי', `${maxDepth.toFixed(2)} מ'`],
       ['שטח תחתית', `${stats.bottomArea_m2.toFixed(1)} מ"ר`],
       ['דיפון נדרש לאורך גבול המגרש', `${shoringLen.toFixed(1)} מ' (גובה חתך עד ${shoringMaxH.toFixed(2)} מ')`],
     ],
-    note: `מרווח עבודה ${ex.workingSpace_m} מ' ובטון רזה 5 ס"מ – זמניים, לאישור. ${ex.shoringRule}`,
+    note: `מרווח עבודה ${ex.workingSpace_m} מ'${ex.workingSpaceStatus === 'provisional' ? ' – זמני, לאישור' : ''}. ${ex.shoringRule}`,
     source: ex.source,
   });
   scene.add(group);

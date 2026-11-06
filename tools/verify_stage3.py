@@ -110,6 +110,20 @@ out += ['## 8. מדרגות ופילר מערכות (תוכניות אדריכל
         f"| פילר: גובה | {ST['pillar']['topRel'] - ST['pillar']['bottomRel']:.2f} | \"240\" (חזית החומה הקדמית) | 0 |",
         f"| פילר: עובי קיר / שטח חדר האשפה | {ST['pillar']['wallThickness_m'][0]:.3f} / {ST['pillar']['innerAreas_m2'][0]:.2f} מ\"ר | קווי התוכנית | — |", '',
         'עובי שיפוע (20 ס"מ ניצב) ופודסט (28) – נמדדו בחתך א-א 1:100 (קנ"מ אומת: 0 → ‎-260 = 73.7 pt). מפלסי המדרגות – גמר (אחרי ריצוף).', '']
+PM = J('data/structure/perimeter.json')
+from shapely.geometry import Point as _Pt
+allp = [p_ for p_ in P['piles'] if p_['id'].isdigit() and int(p_['id']) >= 100]
+inside = [p_['id'] for p_ in allp if any(Polygon(f['ringITM']).buffer(0.05).contains(_Pt(p_['E'], p_['N'])) for f in PM['footings'])]
+out += ['## 9. חומות היקפיות (K-400 + חזיתות החומות)', '',
+        '| צד | קו חוץ | פנים הקיר | פנים היסוד | B = רוחב היסוד | טבלת "חתך חומה" |', '|---|---|---|---|---|---|']
+for c in PM['measuredOffsets']:
+    out.append(f"| {c['side']} | {c['stemOuter_m']:+.2f} | {c['stemInner_m']:+.2f} | {c['footingInner_m']:+.2f} | {c['footingInner_m'] - c['stemOuter_m']:.2f} | 0.80 (H 0.5–1.0) |")
+out += ['', 'היסט מקו המגרש פנימה (מ\'). צפון / מזרח / מערב: קיר 20 ס"מ ממורכז על הגבול (משותף לשכן).', '',
+        f"כלונסאות 100–118 בתוך יסוד חומה: {len(inside)}/{len(allp)}. תחתית היסוד = ראש הכלונס (K-400), עובי a=0.20 לפי הטבלה.", '',
+        '| חומה | צד | אורך | עובי | ראש (חזית) | תחתית | מעמד |', '|---|---|---|---|---|---|---|']
+for w in PM['walls']:
+    out.append(f"| {w['id']} | {w['side']} | {w['length_m']:.2f} | {w['thickness_m']:.2f} | {w['topAbs']:.2f} | {w['bottomRel']:+.2f} | {w['status']} |")
+out += ['']
 missing = [b['id'] for b in C['beams'] if b['status'] == 'missing']
 out += [f"קורות בלי גיאומטריה (לא שורטטו): {', '.join(missing) or '—'}.", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)

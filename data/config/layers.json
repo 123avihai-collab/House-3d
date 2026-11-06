@@ -179,6 +179,16 @@
      "visible": true
     },
     {
+     "id": "perimeterFootings",
+     "label": "יסודות החומות ההיקפיות (על כלונסאות 100–118)",
+     "visible": true
+    },
+    {
+     "id": "perimeterWalls",
+     "label": "חומות היקפיות",
+     "visible": true
+    },
+    {
      "id": "stairs",
      "label": "מדרגות בטון (מרתף←קרקע, ירידה ליחידה)",
      "visible": true

@@ -13,6 +13,7 @@ import { buildPiles } from './geometry/piles.js';
 import { buildFoundations, buildPlumbingFoundations, buildOwnerChangeZones, buildPool } from './geometry/foundations.js';
 import { buildFloorSkeleton } from './geometry/floors.js';
 import { buildStairs } from './geometry/stairs.js';
+import { buildPerimeter } from './geometry/perimeter.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -39,7 +40,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx), perimeter: buildPerimeter(ctx) };
   buildOwnerChangeZones(ctx);
 
   const pc = centroid(data.plot.ring);

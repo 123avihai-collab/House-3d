@@ -13,8 +13,20 @@ const h = (tag, attrs = {}, ...kids) => {
   return e;
 };
 
-const NEIGHBOUR_LAYERS = ['neighborBuildingLines', 'neighborLabels', 'neighborFences', 'neighborYards'];
+const NEIGHBOUR_LAYERS = ['neighborFences', 'neighborYards'];
 const VOL = ['neighborHouses', 'neighborEnvelopes', 'neighborSheet04', 'neighborParking', 'neighborEntrances'];
+// lines and labels that can be switched off together ("הסתר קווים") or one by one
+const LINES = [
+  ['neighborLotLines', 'גבולות המגרשים'],
+  ['neighborBuildingLines', 'קווי בניין של השכנים'],
+  ['streetHeightOutline', 'קו כתום – גובה רחוב משוער'],
+  ['neighborLabels', 'מספרי מגרשים, ±0.00 וגבהים'],
+  ['contours', 'קווי גובה מתוכננים (רחוב)'],
+  ['plannedHeights', 'תוויות גבהים מתוכננים'],
+  ['contextParcels', 'חלקות בסביבה (קווים ומספרים)'],
+  ['buildingLines', 'קו בניין של 5187'],
+  ['plotBoundary', 'גבול מגרש 5187 ונקודות'],
+];
 const MODES = [
   ['detail', 'מפורט', { neighborHouses: true, neighborEnvelopes: false, neighborSheet04: false, neighborParking: false, neighborEntrances: false }],
   ['envelope', 'מעטפות מקס\'', { neighborHouses: false, neighborEnvelopes: true, neighborSheet04: false, neighborParking: true, neighborEntrances: true }],
@@ -71,6 +83,12 @@ export function buildControls(app, env) {
           h('input', { type: 'range', min: Math.round(lo * 100), max: Math.round(hi * 100), step: 5, value: pct,
             title: 'אטימות המעטפות. הצל שהמעטפות מטילות נשאר מלא בכל ערך – כך רואים את הצל על המגרש דרך המעטפה',
             oninput: (e) => app.store.setCoalesced('envOpacity', { environment: { ...(app.store.get().environment || {}), envelopeOpacity: +e.target.value / 100 } }) })),
+        h('details', { class: 'env-lines', open: true }, h('summary', {}, 'קווים ותוויות'),
+          h('div', { class: 'btns' },
+            h('button', { onclick: () => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(LINES.map(([id]) => [id, false])) } }, { label: 'lines off' }) }, 'הסתר את כל הקווים'),
+            h('button', { onclick: () => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(LINES.map(([id]) => [id, true])) } }, { label: 'lines on' }) }, 'הצג הכול')),
+          LINES.map(([id, lbl]) => h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: s.layers[id] !== false,
+            onchange: (e) => app.store.set({ layers: { ...app.store.get().layers, [id]: e.target.checked } }, { label: 'layer' }) }), lbl))),
         h('div', { class: 'btns' },
           h('button', { onclick: () => { const v = overviewView(app); app.viewer.flyTo(v.target, v.cam); } }, 'מבט על השכונה'),
           h('button', { onclick: () => app.ui.openTab('sun') }, 'שמש וצל…')),

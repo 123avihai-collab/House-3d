@@ -35,7 +35,7 @@ export function buildLots(ctx, mats) {
     // outline + label
     const g = new THREE.Group();
     g.add(fatLine(ctx, drape(coords, lot.ring.concat([lot.ring[0]]), hAt, D.lineLift_m, 0.4), D.lotOutlineColor, D.lotOutlineWidth_px));
-    registry.add(g, ENV_TAGS('neighborLots'), { name: `${name} – גבול`, kind: 'lines', source: lot.ringSource });
+    registry.add(g, ENV_TAGS('neighborLotLines'), { name: `${name} – גבול`, kind: 'lines', source: lot.ringSource });
     scene.add(g);
 
     // building lines (envelope footprint draped on the lot)

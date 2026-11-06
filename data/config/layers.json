@@ -81,6 +81,16 @@
           "visible": true
         },
         {
+          "id": "neighborLotLines",
+          "label": "גבולות מגרשי השכנים",
+          "visible": true
+        },
+        {
+          "id": "streetHeightOutline",
+          "label": "קו כתום – גובה רחוב משוער",
+          "visible": true
+        },
+        {
           "id": "neighborHouses",
           "label": "בתי השכנים – מפורט (חלונות, דלתות, חניות)",
           "visible": true

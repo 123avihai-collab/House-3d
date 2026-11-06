@@ -12,3 +12,6 @@
 .env-seg { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
 .env-seg button { flex: 1 1 auto; font-size: 12px; padding: 4px 8px; border-radius: 6px; }
 .env-seg button.on { outline: 2px solid currentColor; font-weight: 700; }
+.env-lines { margin: 6px 0; }
+.env-lines summary { cursor: pointer; font-weight: 600; }
+.env-lines .row { font-size: 13px; }

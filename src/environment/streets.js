@@ -47,7 +47,7 @@ export function buildStreets(ctx, mats) {
       const hAt2 = (E, N) => dInterp(E, N);
       const outline = new THREE.Group();
       outline.add(fatLine(ctx, drape(coords, s.ring.concat([s.ring[0]]), hAt2, 0.03, 0.6), D.missingOutlineColor, 1.4, { dashed: true }));
-      registry.add(outline, ENV_TAGS('street'), { name: `${nm} – גבול אזור עם גובה משוער`, kind: 'lines', pickable: false });
+      registry.add(outline, ENV_TAGS('streetHeightOutline'), { name: `${nm} – גבול אזור עם גובה משוער`, kind: 'lines', pickable: false });
       scene.add(outline);
       const chk = S.derivedHeightControl.check;
       registry.add(mesh, ENV_TAGS('street'), {

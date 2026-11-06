@@ -161,3 +161,6 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 .tagbtn { background: transparent; border: 1px solid #555; border-radius: 6px; padding: 0 6px; font-size: 13px; cursor: pointer; opacity: 1; }
 .tagbtn.off { opacity: 0.35; text-decoration: line-through; }
 .op-badge { border-color: #29b6f6; color: #81d4fa; }
+#minimapClose { position: absolute; bottom: 10px; right: 10px; transform: translate(-4px, calc(-1 * var(--mm-size, 180px) + 4px)); width: 24px; height: 24px; padding: 0; font-size: 13px; line-height: 1; border-radius: 6px; background: rgba(30, 34, 40, .88); z-index: 6; }
+body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
+@media (max-width: 760px) { #minimapClose { --mm-size: 120px; } }

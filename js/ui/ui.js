@@ -103,6 +103,9 @@ export class UI {
     tb.append(h('button', { title: 'חתך', onclick: () => { this.openTab('section'); } }, '✂'));
     tb.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
     tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
+    const setMap = (on) => { const q = app.store.get().quality; app.store.set({ quality: { ...q, minimap: on } }, { label: 'minimap' }); };
+    tb.append(h('button', { 'data-k': 'minimap', title: 'מפה קטנה: הצגה / הסתרה', onclick: () => setMap(app.store.get().quality.minimap === false) }, '🗺'));
+    document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
   }
   setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); }
   setWalkUI(on) {
@@ -347,6 +350,7 @@ export class UI {
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.ao, onchange: (e) => app.store.set({ quality: { ...q, ao: e.target.checked } }, { label: 'q' }) }), 'Ambient Occlusion'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.shadows, onchange: (e) => app.store.set({ quality: { ...q, shadows: e.target.checked } }, { label: 'q' }) }), 'צללים'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.labels, onchange: (e) => app.store.set({ quality: { ...q, labels: e.target.checked } }, { label: 'q' }) }), 'תוויות'),
+      h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.minimap !== false, onchange: (e) => app.store.set({ quality: { ...q, minimap: e.target.checked } }, { label: 'q' }) }), 'מפה קטנה'),
       h('label', { class: 'col' }, `חשיפה: ${q.exposure.toFixed(2)}`, h('input', { type: 'range', min: 0.4, max: 1.8, step: 0.05, value: q.exposure, oninput: (e) => app.store.setCoalesced('exp', { quality: { ...app.store.get().quality, exposure: +e.target.value } }) })),
       h('div', { class: 'btns' },
         h('button', { onclick: () => { if (confirm('לאפס את כל ההגדרות (כולל הערות ומבטים שמורים)?')) app.store.reset(); } }, 'איפוס הגדרות')),

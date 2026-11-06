@@ -61,7 +61,7 @@ async function main() {
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
     notes: [], bookmarks: [], labelsOff: {},
     ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).map(c => [c.id, true])),
-    quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0 },
+    quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0, minimap: true },
   };
   const store = new StateStore(defaults);
 
@@ -114,6 +114,8 @@ async function main() {
     if (viewer.renderer.shadowMap.enabled !== s.quality.shadows) viewer.setShadows(s.quality.shadows);
     viewer.renderer.toneMappingExposure = s.quality.exposure;
     document.body.classList.toggle('no-labels', !s.quality.labels);
+    document.body.classList.toggle('no-minimap', s.quality.minimap === false);
+    document.querySelector('#toolbar [data-k="minimap"]')?.classList.toggle('on', s.quality.minimap !== false);
     viewer.invalidate();
   };
   store.on(applyState);

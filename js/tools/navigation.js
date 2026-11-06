@@ -117,6 +117,7 @@ export class Minimap {
   toPx(x, z) { const c = this.app.plotCenter, k = this.size / this.extent; return [this.size / 2 + (x - c.x) * k, this.size / 2 + (z - c.z) * k]; }
   toWorld(px, py) { const c = this.app.plotCenter, k = this.size / this.extent; return [c.x + (px - this.size / 2) / k, c.z + (py - this.size / 2) / k]; }
   draw() {
+    if (this.app.store?.get().quality.minimap === false) return;   // hidden by the user
     const now = performance.now(); if (now - this.last < 60) return; this.last = now;
     const { ctx, app } = this; const dpr = devicePixelRatio;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

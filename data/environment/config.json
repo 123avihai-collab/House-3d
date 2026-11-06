@@ -1,0 +1,39 @@
+{
+ "_doc": "Input settings for tools/environment/extract_environment.py (which lots, PDF windows, matching tolerances). Not model dimensions.",
+ "lots": ["255", "256", "258", "226", "227", "228", "229", "217", "218", "222", "223", "259", "262"],
+ "lotsWhy": "2 lots on each side along the row (255, 256 | 258 = corner on street 910), rear row (226–229), across the integrated street (217, 218, 222, 223) and across street 910 (259, 262)",
+ "splits": [
+  {"merged": "226/227", "parts": ["226", "227"], "line": ["2463", "2479"],
+   "why": "the dividing line 226/227 is missing in the DWG inset (stage 1 open issue 8); taken from the lengths map"}
+ ],
+ "lengthsMap": {"pdfWindow": [4600, 2600, 6200, 4200], "markerSize_pt": 5.6, "pointLabelMaxHeight_pt": 25, "lotLabelMinHeight_pt": 25, "labelMarkerMaxDist_pt": 14},
+ "heightsPlan": {
+  "pdfWindowRotated": [2700, 900, 4100, 2300],
+  "lotLineColor": [0.0, 0.24706000089645386, 1.0],
+  "icpTolerances_m": [3, 1.5, 1, 0.6, 0.4, 0.3, 0.3],
+  "zeroLabelMinDistFromBoundary_m": 3.5,
+  "cornerLabelMaxDistFromBoundary_m": 3.0,
+  "minSegment_pt": 6,
+  "lotLabelBoxHalf_pt": [40, 18]
+ },
+ "envelope": {"cornerSplitTurn_deg": 45},
+ "frontOverrides": {
+  "258": {"rear": "229", "status": "assumption", "why": "מגרש פינתי (רחוב משולב + כביש 910). תמל/1016: במגרש פינתי קו הבניין המחייב בחזית אחת בלבד, ייקבע בהיתר. הונח: חזית לרחוב המשולב (כמו שאר השורה), אחורי 5 מ' כלפי 229, צדדי 3 מ' כלפי 5187 – המקרה המחמיר לצל על 5187"},
+  "223": {"rear": "221", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב המשולב (כמו שאר השורה 5141–5144), אחורי 5 מ' כלפי 221"},
+  "259": {"rear": "262", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב שמצפון (שורת 5189), אחורי 5 מ' כלפי 262"},
+  "262": {"rear": "259", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב שמדרום (שורת 5192–5194), אחורי 5 מ' כלפי 259"},
+  "229": {"rear": "228", "status": "assumption", "why": "מגרש פינתי (כביש 910 + הרחוב שמצפון). הונח: חזית לכביש 910, אחורי 5 מ' כלפי 228, צדדי 3 מ' כלפי 5187 ו-5188 – המקרה המחמיר לצל על 5187"}
+ },
+ "suspectValues": {
+  "262": {"note": "±0.00 = 292.40 בתוכנית הגבהים – כ-10 מ' מעל פינות המגרש (281.80–282.30). כנראה טעות הקלדה (282.40?). לא נבנתה מעטפת עד בירור."}
+ },
+ "lotTypes": {
+  "256": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
+  "258": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
+  "226": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
+  "227": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
+  "228": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
+  "229": {"type": "A3", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"}
+ },
+ "streets": {"parcels": "auto", "windowMargin_m": 3.0, "integratedParcels": ["9", "20/28"], "oppositeLots": ["222", "223"]}
+}

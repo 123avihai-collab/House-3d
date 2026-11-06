@@ -23,6 +23,10 @@
     "tools": "data/config/tools.json",
     "piles": "data/structure/piles.json",
     "basement": "data/structure/basement.json",
-    "excavation": "data/structure/excavation.json"
+    "excavation": "data/structure/excavation.json",
+    "envLots": "data/environment/lots.json",
+    "envStreets": "data/environment/streets.json",
+    "envDisplay": "data/environment/display.json",
+    "envMaterials": "data/environment/materials.json"
   }
 }

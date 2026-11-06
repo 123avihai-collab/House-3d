@@ -1,0 +1,30 @@
+{
+ "_doc": "Values read by eye from scanned sources (no text layer). Each entry names the sheet and the place on it.",
+ "integratedStreetSection": {
+  "name": "רחוב משולב (כביש 960 בגיליון 04)",
+  "total_m": 13.0,
+  "zones": [
+   {"label": "שביל", "width_m": 2.0},
+   {"label": "מיסעה / הולכי רגל", "width_m": 4.5},
+   {"label": "חניה / אזור שתילה / מיתון", "width_m": 5.0},
+   {"label": "שביל", "width_m": 1.5}
+  ],
+  "crossSlope": "1.5% (חץ 'שיפוע' בחתך)",
+  "singleLevel": true,
+  "orderNote": "החתך הטיפוסי לא מציין צפון/דרום; ברחוב מול 5187 תעלת הניקוז (HW-CURB-GUTR, 0.30 מ') נמצאת במרכז (6.35–6.65 מ' מקו המגרש) ואיי השתילה בחצי הדרומי – לפי המפה למשתכן",
+  "source": "sources/development/תוכנית נוף.pdf – נספח נופי תמל/1016, גיליון 1, חתך שמאלי עליון \"רח' משולב קנ\"מ 1:200\" (סרוק, ערכים כתובים)"
+ },
+ "otherSections": [
+  {"name": "רח' מיתון תנועה", "total_m": 15.0, "zones": "מדרכה 3.0 | כביש 9.0 (2.0 חניה/שתילה + 5.0 מיסעה + 2.0) | מדרכה 3.0",
+   "source": "sources/development/תוכנית נוף.pdf – חתך שני משמאל, קנ\"מ 1:200", "usedFor": "לא מיושם – לא זוהה רחוב כזה במגרשים שבחלון"},
+  {"name": "כביש 10", "total_m": 17.0, "zones": "מדרכה 3.6 (2.0 + 1.6) | כביש 9.8 (2.0 + 5.8 + 2.0) | מדרכה 3.6 ; + שצ\"פ 4.7",
+   "source": "sources/development/תוכנית נוף.pdf – חתך שלישי משמאל, קנ\"מ 1:200", "usedFor": "לא מיושם – שיוך רחוב 910 לחתך טיפוסי לא ידוע (docs/open-issues.md)"}
+ ],
+ "streetMaterials": {
+  "paving": "אבן משתלבת 'מלבן' 20/8/10 – גוון ברחוב לא ניתן לבחירה; מדרכה: 'מלבן' 15/30/7 אפור גרפיט",
+  "edgeAtLot": "אבן גן 'רמות' אפור 12.5/18.75/50",
+  "gutter": "אבן תעלה דו-שיפועית 30/10/50",
+  "source": "sources/neighborhood/development-B1/נספח פרטי פיתוח מהדורה 003.pdf פרט 14 (רחוב משולב) ופרט 10 – docs/sources-inventory/neighborhood.md ש4",
+  "note": "חומרים בלבד, לא מידות. מוצג בטקסטורות Poly Haven קרובות (אבן משתלבת, בטון)"
+ }
+}

@@ -72,17 +72,27 @@
       "layers": [
         {
           "id": "street",
-          "label": "כביש, מדרכה ואבני שפה",
+          "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
           "visible": true
         },
         {
           "id": "neighborLots",
-          "label": "מגרשי שכנים",
+          "label": "מגרשי שכנים (פני קרקע סופיים)",
           "visible": true
         },
         {
           "id": "neighborEnvelopes",
-          "label": "מעטפות בתי שכנים (תב\"ע)",
+          "label": "מעטפות בתי שכנים (תמל/1016, 2 קומות)",
+          "visible": true
+        },
+        {
+          "id": "neighborBuildingLines",
+          "label": "קווי בניין של השכנים",
+          "visible": true
+        },
+        {
+          "id": "neighborLabels",
+          "label": "מספרי מגרשים וגבהים של השכנים",
           "visible": true
         },
         {

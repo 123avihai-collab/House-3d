@@ -128,6 +128,7 @@ export class UI {
           h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
             onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()));
       }
+      if (g.id === 'environment' && app.environment) box.querySelector('summary').after(app.environment.panel());
       wrap.append(box);
     }
     wrap.append(h('div', { class: 'btns' },

@@ -7,7 +7,7 @@ import { StateStore } from './core/state.js';
 import { MaterialLibrary } from './core/materials.js';
 import { buildTerrain } from './geometry/terrain.js';
 import { buildSite, centroid } from './geometry/site.js';
-import { buildNeighbors } from './geometry/neighbors.js';
+import { buildEnvironment } from '../src/environment/index.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
 import { SunController } from './tools/sun.js';
@@ -35,7 +35,7 @@ async function main() {
 
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
-  buildNeighbors(ctx);
+  const environment = buildEnvironment(ctx);
   const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx) };
 
   const pc = centroid(data.plot.ring);
@@ -66,6 +66,8 @@ async function main() {
     sun: new SunController(viewer, coords, display, data.origin.timezone),
   };
   app.sun.center.copy(plotCenter);
+  app.environment = environment;
+  environment.attach(app);
   app.ui = new UI(app);
   app.nav = new Navigation(app);
   app.tools.inspect = new InspectTool(app);

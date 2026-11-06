@@ -213,7 +213,7 @@
   {
    "id": "groundSlab",
    "label": "רצפת קרקע",
-   "hint": "קורות K-21 ורצפת קומת הקרקע (תקרת המרתף) – נוצקות יחד.",
+   "hint": "קורות K-21 ורצפת הבית (כולל תקרת המרתף והכניסה) – נוצקות יחד.",
    "includes": [
     {
      "stage": "ceiling"
@@ -253,6 +253,12 @@
    ]
   },
   {
+   "id": "outdoorSlabs",
+   "label": "רצפות חוץ",
+   "hint": "רצפות החוץ התלויות של K-21 וקורותיהן: משטח צפוני, חצרות, מרווח מערבי, חניה – אחרי שלד הבית והחומות.",
+   "includes": []
+  },
+  {
    "id": "finishes",
    "label": "גמרים",
    "hint": "גמרים – בשלבים הבאים.",
@@ -273,5 +279,12 @@
    ]
   }
  ],
- "_docSequence": "Construction-step slider. A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) up to its stageTo (same rule) or, with tag stepTo, up to that step id (\"skeletonEnd\" = the step before finishes). Optional tag step overrides the start step. Tags themselves follow CLAUDE.md §3."
+ "_docSequence": "Construction-step slider. A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) up to its stageTo (same rule) or, with tag stepTo, up to that step id (\"skeletonEnd\" = the step before finishes). Optional tag step overrides the start step. Tags themselves follow CLAUDE.md §3.",
+ "outdoorZones": [
+  "terrace",
+  "eastYard",
+  "southYard",
+  "westYard",
+  "parking"
+ ]
 }

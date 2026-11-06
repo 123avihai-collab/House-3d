@@ -22,36 +22,28 @@
    "zoneLabel": "רצפת הבית",
    "footprintITM": [
     [
-     179588.68,
-     576237.93
+     179588.209,
+     576238.099
     ],
     [
-     179588.402,
-     576238.043
+     179588.191,
+     576238.107
     ],
     [
-     179588.989,
-     576239.497
+     179588.787,
+     576239.583
     ],
     [
-     179588.786,
-     576239.58
+     179588.787,
+     576239.583
     ],
     [
-     179589.534,
-     576241.435
+     179589.536,
+     576241.438
     ],
     [
-     179589.738,
-     576241.352
-    ],
-    [
-     179589.854,
-     576241.64
-    ],
-    [
-     179589.651,
-     576241.722
+     179589.652,
+     576241.725
     ],
     [
      179589.934,
@@ -62,12 +54,40 @@
      576242.41
     ],
     [
-     179590.135,
-     576242.335
+     179590.006,
+     576242.549
     ],
     [
-     179590.191,
-     576242.475
+     179590.026,
+     576242.599
+    ],
+    [
+     179590.062,
+     576242.688
+    ],
+    [
+     179590.137,
+     576242.874
+    ],
+    [
+     179590.137,
+     576242.874
+    ],
+    [
+     179590.137,
+     576242.874
+    ],
+    [
+     179590.322,
+     576242.799
+    ],
+    [
+     179590.322,
+     576242.799
+    ],
+    [
+     179590.322,
+     576242.799
     ],
     [
      179590.247,
@@ -110,32 +130,24 @@
      576245.969
     ],
     [
-     179591.493,
-     576246.21
+     179591.492,
+     576246.211
     ],
     [
-     179591.826,
-     576247.033
+     179591.289,
+     576246.293
     ],
     [
-     179591.622,
-     576247.116
+     179591.623,
+     576247.119
     ],
     [
-     179591.846,
-     576247.672
+     179591.85,
+     576247.681
     ],
     [
-     179592.05,
-     576247.59
-    ],
-    [
-     179592.189,
-     576247.932
-    ],
-    [
-     179591.985,
-     576248.015
+     179591.986,
+     576248.018
     ],
     [
      179592.209,
@@ -148,6 +160,14 @@
     [
      179592.517,
      576248.745
+    ],
+    [
+     179592.331,
+     576248.819
+    ],
+    [
+     179592.593,
+     576249.468
     ],
     [
      179592.779,
@@ -282,24 +302,48 @@
      576234.372
     ],
     [
+     179597.508,
+     576234.365
+    ],
+    [
+     179597.395,
+     576234.087
+    ],
+    [
+     179597.163,
+     576234.18
+    ],
+    [
      179597.276,
      576234.458
     ],
     [
-     179595.784,
-     576235.061
+     179596.116,
+     576234.926
     ],
     [
-     179596.002,
-     576235.6
+     179596.004,
+     576234.648
     ],
     [
-     179595.649,
-     576235.743
+     179595.672,
+     576234.782
     ],
     [
-     179595.574,
-     576235.558
+     179595.486,
+     576234.857
+    ],
+    [
+     179595.603,
+     576235.145
+    ],
+    [
+     179595.742,
+     576235.49
+    ],
+    [
+     179595.583,
+     576235.554
     ],
     [
      179595.036,
@@ -326,16 +370,64 @@
      576235.598
     ],
     [
-     179593.877,
-     576235.616
+     179593.782,
+     576235.38
     ],
     [
-     179593.952,
-     576235.801
+     179593.709,
+     576235.199
     ],
     [
-     179593.396,
-     576236.026
+     179593.709,
+     576235.199
+    ],
+    [
+     179593.709,
+     576235.199
+    ],
+    [
+     179593.704,
+     576235.201
+    ],
+    [
+     179593.524,
+     576235.274
+    ],
+    [
+     179593.519,
+     576235.276
+    ],
+    [
+     179593.191,
+     576235.408
+    ],
+    [
+     179593.153,
+     576235.424
+    ],
+    [
+     179593.153,
+     576235.424
+    ],
+    [
+     179593.153,
+     576235.424
+    ],
+    [
+     179593.297,
+     576235.783
+    ],
+    [
+     179593.314,
+     576235.822
+    ],
+    [
+     179593.314,
+     576235.822
+    ],
+    [
+     179593.314,
+     576235.823
     ],
     [
      179593.389,
@@ -344,15 +436,43 @@
     [
      179588.673,
      576237.912
+    ],
+    [
+     179588.605,
+     576237.745
+    ],
+    [
+     179588.605,
+     576237.745
+    ],
+    [
+     179588.605,
+     576237.745
+    ],
+    [
+     179588.327,
+     576237.857
+    ],
+    [
+     179588.142,
+     576237.932
+    ],
+    [
+     179588.142,
+     576237.932
+    ],
+    [
+     179588.142,
+     576237.932
     ]
    ],
    "holesITM": [],
-   "area_m2": 159.01,
+   "area_m2": 160.825,
    "topRel": -0.15,
    "thickness_m": 0.25,
    "bottomRel": -0.4,
    "status": "provisional",
-   "note": "חלק מהרצפה בלי תגית מפלס ב-K-21 (DXF ו-PDF) – לפי התגית הקרובה למרתף (‎-0.15, כמו ראש קירות המרתף בשלב 2ב).",
+   "note": "חלק מהרצפה בלי תגית מפלס ב-K-21 (DXF ו-PDF) – לפי התגית הקרובה למרתף (‎-0.15, כמו ראש קירות המרתף בשלב 2ב). כולל 11 רצועות מעל קירות המרתף שמתחת לקירות הקרקע.",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)"
   },
   {
@@ -1103,24 +1223,60 @@
    "zoneLabel": "ממ\"ד",
    "footprintITM": [
     [
+     179591.038,
+     576242.555
+    ],
+    [
+     179591.041,
+     576242.562
+    ],
+    [
+     179590.763,
+     576242.675
+    ],
+    [
+     179591.108,
+     576243.528
+    ],
+    [
      179591.386,
      576243.416
     ],
     [
-     179591.513,
-     576243.73
+     179591.509,
+     576243.72
     ],
     [
-     179591.513,
-     576243.73
+     179591.76,
+     576244.343
     ],
     [
-     179591.858,
-     576244.584
+     179591.482,
+     576244.455
     ],
     [
-     179591.886,
-     576244.655
+     179591.612,
+     576244.777
+    ],
+    [
+     179591.887,
+     576245.458
+    ],
+    [
+     179592.01,
+     576245.762
+    ],
+    [
+     179592.022,
+     576245.792
+    ],
+    [
+     179592.092,
+     576245.966
+    ],
+    [
+     179592.37,
+     576245.854
     ],
     [
      179592.371,
@@ -1133,19 +1289,15 @@
     [
      179594.339,
      576241.222
-    ],
-    [
-     179591.038,
-     576242.555
     ]
    ],
    "holesITM": [],
-   "area_m2": 12.669,
+   "area_m2": 13.434,
    "topRel": -0.15,
    "thickness_m": 0.25,
    "bottomRel": -0.4,
    "status": "provisional",
-   "note": "ממ\"ד – \"ראה תכנית הג\"א מאושרת\" (K-21). מפלס ועובי לפי תוכנית הג\"א, שלא הועלתה – זמני כמו רצפת הבית.",
+   "note": "ממ\"ד – \"ראה תכנית הג\"א מאושרת\" (K-21). מפלס ועובי לפי תוכנית הג\"א, שלא הועלתה – זמני כמו רצפת הבית. כולל 4 רצועות מעל קירות המרתף שמתחת לקירות הקרקע.",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)"
   },
   {
@@ -1538,8 +1690,9 @@
    "holesITM": [],
    "area_m2": 1.208,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -1567,10 +1720,11 @@
    "holesITM": [],
    "area_m2": 0.921,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.31,
+   "standsOn": null,
    "status": "provisional",
-   "note": "ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ג)",
+   "note": "אין במקורות אלמנט נושא מתחתיו (קורה / קיר מרתף / רצפה) – תחתית לפי תגית הרצפה הקרובה (-0.31); חסרה כנראה קורה ב-K-21 (IFC); ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1613,9 +1767,11 @@
    "holesITM": [],
    "area_m2": 0.586,
    "thickness_m": 0.382,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1650,8 +1806,9 @@
    "holesITM": [],
    "area_m2": 0.496,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -1687,8 +1844,9 @@
    "holesITM": [],
    "area_m2": 0.471,
    "thickness_m": 0.205,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -1716,9 +1874,11 @@
    "holesITM": [],
    "area_m2": 0.42,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "קורה B-37 (30/60, O.K -0.15)",
    "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-37 (30/60, O.K -0.15) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W3); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1745,9 +1905,11 @@
    "holesITM": [],
    "area_m2": 0.35,
    "thickness_m": 0.22,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1782,9 +1944,11 @@
    "holesITM": [],
    "area_m2": 0.328,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1815,10 +1979,11 @@
    "holesITM": [],
    "area_m2": 0.312,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "קורה B-37 (30/60, O.K -0.15)",
    "status": "provisional",
-   "note": "ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ג)",
+   "note": "יושב על קורה הפוכה קורה B-37 (30/60, O.K -0.15) – מתחיל מראש הקורה; ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1853,10 +2018,11 @@
    "holesITM": [],
    "area_m2": 0.286,
    "thickness_m": 0.196,
-   "bottomRel": -0.47,
    "topRel": 3.45,
+   "bottomRel": -0.17,
+   "standsOn": "קורה B-53 (30/90, O.K -0.17)",
    "status": "provisional",
-   "note": "ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ג)",
+   "note": "יושב על קורה הפוכה קורה B-53 (30/90, O.K -0.17) – מתחיל מראש הקורה; ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W7); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1883,9 +2049,11 @@
    "holesITM": [],
    "area_m2": 0.276,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -1912,8 +2080,9 @@
    "holesITM": [],
    "area_m2": 0.244,
    "thickness_m": 0.25,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -1941,8 +2110,9 @@
    "holesITM": [],
    "area_m2": 0.221,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W8); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -1970,9 +2140,11 @@
    "holesITM": [],
    "area_m2": 0.195,
    "thickness_m": 0.22,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2011,8 +2183,9 @@
    "holesITM": [],
    "area_m2": 0.188,
    "thickness_m": 0.173,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W10); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2048,9 +2221,11 @@
    "holesITM": [],
    "area_m2": 0.167,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W4); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2081,9 +2256,11 @@
    "holesITM": [],
    "area_m2": 0.14,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W9); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2114,8 +2291,9 @@
    "holesITM": [],
    "area_m2": 0.137,
    "thickness_m": 0.25,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2143,8 +2321,9 @@
    "holesITM": [],
    "area_m2": 0.106,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2172,9 +2351,11 @@
    "holesITM": [],
    "area_m2": 0.102,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
-   "status": "source",
+   "bottomRel": -0.26,
+   "standsOn": null,
+   "status": "provisional",
+   "note": "אין במקורות אלמנט נושא מתחתיו (קורה / קיר מרתף / רצפה) – תחתית לפי תגית הרצפה הקרובה (-0.26); חסרה כנראה קורה ב-K-21 (IFC)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2201,9 +2382,11 @@
    "holesITM": [],
    "area_m2": 0.101,
    "thickness_m": 0.3,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2230,9 +2413,11 @@
    "holesITM": [],
    "area_m2": 0.081,
    "thickness_m": 0.22,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW3 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2263,10 +2448,11 @@
    "holesITM": [],
    "area_m2": 0.075,
    "thickness_m": 0.25,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "provisional",
-   "note": "ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ג)",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה); ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2293,9 +2479,11 @@
    "holesITM": [],
    "area_m2": 0.068,
    "thickness_m": 0.22,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW4 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2322,8 +2510,9 @@
    "holesITM": [],
    "area_m2": 0.063,
    "thickness_m": 0.25,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2351,9 +2540,11 @@
    "holesITM": [],
    "area_m2": 0.059,
    "thickness_m": 0.198,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה mamad",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2380,8 +2571,9 @@
    "holesITM": [],
    "area_m2": 0.057,
    "thickness_m": 0.2,
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   }
@@ -2451,8 +2643,9 @@
     20,
     50
    ],
-   "bottomRel": -0.15,
    "topRel": 3.5,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2520,9 +2713,11 @@
     20,
     50
    ],
-   "bottomRel": -0.47,
    "topRel": 3.5,
+   "bottomRel": -0.17,
+   "standsOn": "קורה B-49 (25/90, O.K -0.17)",
    "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-49 (25/90, O.K -0.17) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2609,9 +2804,11 @@
     30,
     35
    ],
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "קורה B-38 (25/60, O.K -0.15)",
    "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-38 (25/60, O.K -0.15) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2694,8 +2891,9 @@
     20,
     80
    ],
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
@@ -2834,9 +3032,11 @@
    "tagSize_cm": [
     65
    ],
-   "bottomRel": -0.31,
    "topRel": 3.45,
+   "bottomRel": 0.2,
+   "standsOn": "קורה B-45 (20/60, O.K +0.20)",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה); יושב על קורה הפוכה קורה B-45 (20/60, O.K +0.20) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2915,9 +3115,11 @@
     20,
     50
    ],
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "קורה B-39 (30/60, O.K -0.15)",
    "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-39 (30/60, O.K -0.15) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -3000,9 +3202,11 @@
     20,
     50
    ],
-   "bottomRel": -0.15,
    "topRel": 3.45,
+   "bottomRel": -0.15,
+   "standsOn": "רצפה house",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -3077,12 +3281,235 @@
     20,
     50
    ],
-   "bottomRel": -0.31,
    "topRel": 3.45,
+   "bottomRel": 0.2,
+   "standsOn": "קורה B-45 (20/60, O.K +0.20)",
    "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה); יושב על קורה הפוכה קורה B-45 (20/60, O.K +0.20) – מתחיל מראש הקורה",
    "source": "sources/structure/k-21.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   }
  ],
+ "basementWallCaps": [
+  {
+   "footprintITM": [
+    [
+     179597.276,
+     576234.458
+    ],
+    [
+     179597.163,
+     576234.18
+    ],
+    [
+     179596.931,
+     576234.274
+    ],
+    [
+     179596.004,
+     576234.648
+    ],
+    [
+     179596.116,
+     576234.926
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.375,
+   "bottomRel": -0.4,
+   "topRel": -0.15,
+   "wall": "BW1",
+   "status": "provisional",
+   "note": "קיר מרתף שמסתיים במפלס הקרקע (מילוי אפור ב-K-21 = 'מפסיק'): ממשיך מראש BW1 (-0.40) עד מפלס הרצפה הצמודה (-0.15). גובה מדויק – IFC.",
+   "source": "sources/structure/k-21.dxf HATCH IfcWall SOLID (קיר מפסיק); sources/structure/k-11.dxf (קיר המרתף)"
+  },
+  {
+   "footprintITM": [
+    [
+     179595.539,
+     576234.454
+    ],
+    [
+     179595.354,
+     576234.529
+    ],
+    [
+     179595.238,
+     576234.576
+    ],
+    [
+     179594.242,
+     576234.978
+    ],
+    [
+     179593.702,
+     576235.196
+    ],
+    [
+     179593.517,
+     576235.271
+    ],
+    [
+     179593.519,
+     576235.276
+    ],
+    [
+     179593.704,
+     576235.201
+    ],
+    [
+     179593.709,
+     576235.199
+    ],
+    [
+     179593.782,
+     576235.38
+    ],
+    [
+     179595.429,
+     576234.715
+    ],
+    [
+     179595.486,
+     576234.857
+    ],
+    [
+     179595.672,
+     576234.782
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.427,
+   "bottomRel": -0.4,
+   "topRel": -0.15,
+   "wall": "BW1",
+   "status": "provisional",
+   "note": "קיר מרתף שמסתיים במפלס הקרקע (מילוי אפור ב-K-21 = 'מפסיק'): ממשיך מראש BW1 (-0.40) עד מפלס הרצפה הצמודה (-0.15). גובה מדויק – IFC.",
+   "source": "sources/structure/k-21.dxf HATCH IfcWall SOLID (קיר מפסיק); sources/structure/k-11.dxf (קיר המרתף)"
+  },
+  {
+   "footprintITM": [
+    [
+     179588.181,
+     576238.111
+    ],
+    [
+     179588.116,
+     576237.921
+    ],
+    [
+     179587.889,
+     576238.013
+    ],
+    [
+     179587.353,
+     576238.229
+    ],
+    [
+     179587.168,
+     576238.304
+    ],
+    [
+     179591.542,
+     576249.138
+    ],
+    [
+     179591.7,
+     576249.074
+    ],
+    [
+     179591.626,
+     576248.889
+    ],
+    [
+     179591.653,
+     576248.878
+    ],
+    [
+     179590.703,
+     576246.527
+    ],
+    [
+     179591.288,
+     576246.29
+    ],
+    [
+     179591.207,
+     576246.088
+    ],
+    [
+     179590.628,
+     576246.322
+    ],
+    [
+     179590.626,
+     576246.322
+    ],
+    [
+     179590.622,
+     576246.324
+    ],
+    [
+     179590.627,
+     576246.32
+    ],
+    [
+     179590.621,
+     576246.323
+    ],
+    [
+     179589.363,
+     576243.208
+    ],
+    [
+     179590.126,
+     576242.9
+    ],
+    [
+     179590.043,
+     576242.696
+    ],
+    [
+     179589.817,
+     576242.787
+    ],
+    [
+     179589.281,
+     576243.004
+    ],
+    [
+     179587.428,
+     576238.415
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 2.811,
+   "bottomRel": -0.4,
+   "topRel": -0.15,
+   "wall": "BW1",
+   "status": "provisional",
+   "note": "קיר מרתף שמסתיים במפלס הקרקע (מילוי אפור ב-K-21 = 'מפסיק'): ממשיך מראש BW1 (-0.40) עד מפלס הרצפה הצמודה (-0.15). גובה מדויק – IFC.",
+   "source": "sources/structure/k-21.dxf HATCH IfcWall SOLID (קיר מפסיק); sources/structure/k-11.dxf (קיר המרתף)"
+  }
+ ],
+ "beamZones": {
+  "B-40": "terrace",
+  "B-39": "house",
+  "B-37": "house",
+  "B-53": "house",
+  "B-47": "house",
+  "B-49": "house",
+  "B-48": "house",
+  "B-45": "house",
+  "B-43": "house",
+  "B-54": "parking",
+  "B-51": "parking",
+  "B-38": "house",
+  "B-42": "southYard",
+  "B-41": "westYard",
+  "B-52": "parking",
+  "B-56": "southYard"
+ },
+ "unsupportedCount": 2,
  "stoppingWalls": {
   "count": 1,
   "note": "קירות \"מפסיקים\" במפלס הקרקע (מילוי אפור ב-K-21: ראשי קירות המרתף / החצרות האנגליות) – שייכים למרתף, לא שורטטו כאן."

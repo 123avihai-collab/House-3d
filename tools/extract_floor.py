@@ -17,7 +17,7 @@ from shapely.geometry import Polygon, LineString, Point, box, MultiPoint
 from shapely.ops import unary_union, voronoi_diagram, split
 
 ROOT = F.ROOT; r3 = F.r3
-K21, K31 = F.K21, 'sources/structure/k-31.dxf'
+K21, K31, K11 = F.K21, 'sources/structure/k-31.dxf', F.K11
 K31P = "sources/structure/K-31-תוכנית קומה א' - גיאומטריה.pdf"
 K31P_CLIP = (650, 100, 1850, 1200)
 PLOT = 'data/site/plot-5187.json'
@@ -345,19 +345,48 @@ def main():
     cols = hatches(m21, 'IfcColumn', to)
     ctags = tag_texts(m21, 'Structural Column Tags', to)
 
+    # what a wall / column stands on (construction order: basement walls up to the slab underside -> ground beams + slab
+    # poured over them -> walls and columns from the top of the beam / slab under them)
+    beam_polys = [(LineString(x['axisITM']).buffer(x['width_m'] / 2, cap_style=2), x) for x in FR['groundBeams']
+                  if x['sheet'] == 'K-21' and x.get('axisITM')]
+    bw_polys = [(Polygon(w['footprintITM'], w['holesITM']).buffer(0), w) for w in FR['basementWalls']]
+    bands = []          # slab strips under walls standing over a basement wall (the slab runs on over the wall top)
+    unsupported = []
+
     def vertical(q, kind):
-        c = q.centroid
-        bot = level_at(panels21, q)
+        q = q.buffer(0); c = q.centroid
+        frac = lambda P: q.intersection(P).area / q.area
+        slab_u = unary_union([p['poly'] for p in panels21] + [x['poly'] for x in bands])
+        unc = q.difference(slab_u)
+        sup, notes, st = [], [], 'source'
+        # over a basement wall but outside the drawn slab faces: the slab continues over the wall (same level as the
+        # house slab next to it) – add that strip to the slab
+        if unc.area > 0.25 * q.area:
+            bw = [w for P, w in bw_polys if unc.intersection(P).area > 0.5 * unc.area]
+            near = [p for p in panels21 if p['zone'] in ('house', 'mamad', 'entry') and p['poly'].distance(q) < 0.6]
+            if bw and near:
+                p0 = min(near, key=lambda p: p['poly'].distance(q))
+                bands.append({'poly': unc, 'top': p0['top'], 'D': p0['D'], 'zone': p0['zone'], 'over': bw[0]['id']})
+                notes.append(f"עומד מעל קיר המרתף {bw[0]['id']} – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה)")
+        for p in panels21 + bands:
+            if frac(p['poly']) > 0.25: sup.append((p['top'], f"רצפה {p['zone']}"))
+        for P, x in beam_polys:
+            if frac(P) > 0.25: sup.append((x['topRel'], f"קורה {x['id']} ({round(x['width_m'] * 100)}/{round(x['depth_m'] * 100)}, O.K {x['topRel']:+.2f})"))
         top = level_at(panels31, q)
-        rec = {'bottomRel': bot[0] if bot else None, 'topRel': r3(top[0] - top[1]) if top else None}
-        st, notes = 'source', []
-        if bot is None:
+        rec = {'topRel': r3(top[0] - top[1]) if top else None}
+        if sup:
+            b0 = max(sup, key=lambda t: t[0])
+            rec['bottomRel'] = b0[0]; rec['standsOn'] = b0[1]
+            if b0[1].startswith('קורה') and b0[0] > max([t[0] for t in sup if t[1].startswith('רצפה')] or [-9]) + 0.01:
+                notes.append(f'יושב על קורה הפוכה {b0[1]} – מתחיל מראש הקורה')
+        else:
             near = min(tags21, key=lambda tg: c.distance(Point(tg['itm'])))
-            rec['bottomRel'] = near['top']; st = 'provisional'; notes.append(f'תחתית: לא על רצפת הקרקע – לפי תגית הרצפה הקרובה ({near["top"]:+.2f})')
+            rec['bottomRel'] = near['top']; rec['standsOn'] = None; st = 'provisional'; unsupported.append(c)
+            notes.append(f'אין במקורות אלמנט נושא מתחתיו (קורה / קיר מרתף / רצפה) – תחתית לפי תגית הרצפה הקרובה ({near["top"]:+.2f}); חסרה כנראה קורה ב-K-21 (IFC)')
         if top is None:
             main = max(panels31, key=lambda p: p['poly'].area)
             rec['topRel'] = r3(main['top'] - main['D']); st = 'provisional'
-            notes.append('ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ג)')
+            notes.append('ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)')
         rec.update(status=st)
         if notes: rec['note'] = '; '.join(notes)
         return rec
@@ -394,6 +423,30 @@ def main():
         rec['source'] = f'{K21} HATCH IfcColumn + Structural Column Tags; מפלסים: {K21}/{K31} Floor Tags'
         col_out.append(rec)
 
+    # the strips over the basement walls join the house slab next to them (one pour)
+    for bd in bands:
+        tgt = min([p for p in panels21 if p['zone'] == bd['zone'] and (p['top'], p['D']) == (bd['top'], bd['D'])],
+                  key=lambda p: p['poly'].distance(bd['poly']))
+        g = unary_union([tgt['poly'].buffer(0.01, join_style=2), bd['poly'].buffer(0.01, join_style=2)]).buffer(-0.01, join_style=2)
+        tgt['poly'] = max(polys(g), key=lambda x: x.area) if polys(g) else tgt['poly']
+        tgt['bands'] = tgt.get('bands', 0) + 1
+    for p in panels21:
+        if p.get('bands'): p['note'] = (p['note'] + f" כולל {p['bands']} רצועות מעל קירות המרתף שמתחת לקירות הקרקע.").strip()
+    # walls that stop at the ground level (grey fill in K-21 = tops of the basement / light-well walls): the basement wall
+    # rises to the level of the ground slab next to it
+    caps = []
+    for g in polys(grey):
+        if g.area < 0.05 or pool_zone.contains(g.representative_point()): continue
+        bw = [w for P, w in bw_polys if g.intersection(P).area > 0.3 * g.area]
+        adj = [p for p in panels21 if p['poly'].distance(g) < 0.3]
+        if not bw or not adj: continue
+        topc = max(p['top'] for p in adj)
+        if topc <= bw[0]['topRel'] + 0.005: continue
+        caps.append({'footprintITM': ring(g), 'holesITM': holes(g), 'area_m2': r3(g.area), 'bottomRel': bw[0]['topRel'], 'topRel': topc,
+                     'wall': bw[0]['id'], 'status': 'provisional',
+                     'note': f"קיר מרתף שמסתיים במפלס הקרקע (מילוי אפור ב-K-21 = 'מפסיק'): ממשיך מראש {bw[0]['id']} ({bw[0]['topRel']:+.2f}) עד מפלס הרצפה הצמודה ({topc:+.2f}). גובה מדויק – IFC.",
+                     'source': f'{K21} HATCH IfcWall SOLID (קיר מפסיק); {K11} (קיר המרתף)'})
+
     # ---- K-31 beams: tags + edge lines in the K-31 PDF ----
     H, V = pdf_lines(K31P, K31P_CLIP, t31p)
     H, V = merge_collinear(H), merge_collinear(V)
@@ -427,6 +480,14 @@ def main():
                        'footprintITM': ring(o['poly']), 'area_m2': r3(o['poly'].area), 'source': f"{K21} (קווים); {ZN['source']}"} for o in open21],
         'unclassifiedFaces': [{'footprintITM': ring(q), 'area_m2': r3(q.area)} for q in unclassified],
         'walls': wall_out, 'columns': col_out,
+        'basementWallCaps': caps,
+        # K-21 beam -> zone of the slab it carries (most of its length under that zone): beams of the outdoor slabs are cast
+        # with them (construction step "outdoorSlabs"), not with the house slab
+        # a beam that carries a house wall / column is cast with the house, whatever slab is next to it
+        'beamZones': {x['id']: ('house' if any((e.get('standsOn') or '').startswith(f"קורה {x['id']} ") for e in wall_out + col_out)
+                                else max(panels21, key=lambda p: p['poly'].intersection(P.buffer(0.3)).area)['zone'])
+                      for P, x in beam_polys if max(p['poly'].intersection(P.buffer(0.3)).area for p in panels21) > 0.05},
+        'unsupportedCount': len(unsupported),
         'stoppingWalls': {'count': len(stopping), 'note': 'קירות "מפסיקים" במפלס הקרקע (מילוי אפור ב-K-21: ראשי קירות המרתף / החצרות האנגליות) – שייכים למרתף, לא שורטטו כאן.'},
         'perimeterWallsPending': {'count': len(perimeter), 'note': 'חומות היקפיות (חלקי IfcWall לאורך גבול המגרש ב-k-21) – ייבנו בצעד "חומות" אחרי אישור שלד הקרקע.'},
         'ceiling': {

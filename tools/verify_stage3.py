@@ -45,6 +45,13 @@ from shapely.geometry import Polygon as _P
 opn = [_P(o['footprintITM']) for o in G['openZones']]
 hit = [(s['id'], o_['label']) for s in G['slab'] for o_, og in zip(G['openZones'], opn) if _P(s['footprintITM']).intersection(og).area > 0.01]
 out += ['', f"**בדיקה:** רצפה שחותכת חצר אנגלית / מדרגות / גינה: {hit or 'אין ✓'}. פאות לא מסווגות: {len(G['unclassifiedFaces'])}.", '']
+out += ['## 4ב. חיבור: על מה עומד כל עמוד וקיר', '', '| אלמנט | תחתית | יושב על |', '|---|---|---|']
+for e in G['columns'] + G['walls']:
+    out.append(f"| {e['id']}{' ' + e['tag'] if e.get('tag') else ''} | {e['bottomRel']:+.2f} | {e.get('standsOn') or '**— אין אלמנט נושא במקורות**'} |")
+out += ['', f"ללא אלמנט נושא: {G.get('unsupportedCount', 0)} (מסומנים זמניים – חסרה קורה ב-K-21 / IFC). "
+        f"ראשי קירות מרתף עד מפלס הקרקע (מילוי אפור ב-K-21): {len(G.get('basementWallCaps', []))}.", '',
+        'סדר הביצוע במודל: קירות מרתף עד תחתית הרצפה (‎-0.40) → קורות K-21 + רצפת הבית מעליהם (‎-0.40…‎-0.15) → עמודים וקירות מראש הקורה / הרצפה שמתחתם '
+        '(על קורה הפוכה B-45, O.K +0.20 – מראש הקורה) → תקרה +3.70 → חומות → רצפות חוץ (משטח צפוני, חצרות, חניה) וקורותיהן.', '']
 C = G['ceiling']
 out += ['## 5. תקרת קומת הקרקע (K-31, +3.70)', '', '| תקרה | O.K | D | שטח |', '|---|---|---|---|']
 for s in C['slab']:

@@ -33,7 +33,7 @@ export function buildFloorSkeleton(ctx, F) {
   const L = (k) => `${floor}${k}`;   // layer ids: groundSlab, groundWalls, groundColumns, groundCeiling, groundCeilingBeams
 
   // floor slab – one panel per drawn face of K-21, each in its zone (house / entry / mamad / terraces / yards / parking)
-  const OUTDOOR = new Set(['terrace', 'eastYard', 'southYard', 'westYard', 'parking']);
+  const OUTDOOR = new Set(ctx.data.tags.outdoorZones || []);   // cast after the house shell (step outdoorSlabs)
   for (const s of F.slab) {
     const ghost = s.zone === 'mamad';
     const mat = ghost ? new THREE.MeshBasicMaterial({ color: D.ownerChangeColor, transparent: true, opacity: D.ownerChangeZoneOpacity * 2, depthWrite: false }) : conc;
@@ -42,7 +42,7 @@ export function buildFloorSkeleton(ctx, F) {
     g.add(label(`${s.zoneLabel} · O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
     if (!ghost) stats.slab_m3 += s.area_m2 * s.thickness_m;
     const layer = s.zone === 'mamad' ? L('Mamad') : OUTDOOR.has(s.zone) ? L('OutdoorSlabs') : L('Slab');
-    registry.add(g, { floor, system: 'structure', stage: 'slab', layer }, {
+    registry.add(g, { floor, system: 'structure', stage: 'slab', layer, ...(OUTDOOR.has(s.zone) ? { step: 'outdoorSlabs' } : {}) }, {
       name: `${s.zoneLabel} – רצפה ${s.id}`, status: s.status,
       rows: [['אזור', s.zoneLabel], ['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
@@ -60,6 +60,16 @@ export function buildFloorSkeleton(ctx, F) {
     registry.add(g, { floor, system: 'structure', stage: 'slab', layer: L('OpenZones') }, { name: `${o.label} (${o.area_m2.toFixed(1)} מ"ר)`, pickable: false, note: o.note, source: o.source });
     scene.add(g);
   }
+  // tops of the basement / light-well walls that stop at the ground level (grey fill in K-21): cast with the basement walls
+  for (const c of F.basementWallCaps || []) {
+    const m = prism(c.footprintITM, c.holesITM, H(c.bottomRel), H(c.topRel), conc);
+    const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
+    registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
+      name: `ראש קיר מרתף (${c.wall}) עד מפלס הקרקע`, status: c.status,
+      rows: [['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`]], note: c.note, source: c.source,
+    });
+    scene.add(g);
+  }
   // walls rising from the floor
   const wg = new THREE.Group(); const wNotes = new Set();
   for (const w of F.walls) {
@@ -69,9 +79,9 @@ export function buildFloorSkeleton(ctx, F) {
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls') }, {
       name: `קיר ${w.tag || w.id} – קומת קרקע`, status: w.status,
-      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
-      note: w.note || 'תחתית = רצפת הקרקע במקום; ראש = תחתית תקרת K-31 במקום.', source: w.source,
+      note: w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', source: w.source,
     });
     if (w.note) wNotes.add(w.note);
     scene.add(g);
@@ -83,7 +93,7 @@ export function buildFloorSkeleton(ctx, F) {
     stats.columns_m3 += new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()).y * c.size_cm[0] * c.size_cm[1] / 1e4;
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Columns') }, {
       name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, status: c.status,
-      rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`]],
+      rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`], ['יושב על', c.standsOn || '— (חסר במקורות)']],
       note: c.note || '', source: c.source,
     });
     scene.add(g);

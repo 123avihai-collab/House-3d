@@ -74,6 +74,12 @@ if 'ownerChanges' in D:
     for c in D['ownerChanges']['changes']:
         for k in ('id', 'date', 'title', 'description', 'source', 'status', 'approvals'):
             if k not in c: errors.append(f'owner change {c.get("id")} missing {k}')
+if 'ownerChangesGeometry' in D:
+    for cid, g in D['ownerChangesGeometry']['changes'].items():
+        for k, w in g.get('wallPieces', {}).items():
+            if 'source' not in w: errors.append(f'{cid} wall piece {k} without source')
+        sp = g.get('slabSplit')
+        if sp and abs(sp['check']['sumArea_m2'] - sp['check']['original_m2']) > 0.01: errors.append(f'{cid} slab split area mismatch')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

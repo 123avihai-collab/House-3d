@@ -73,11 +73,11 @@ def main():
     oc = json.load(open(os.path.join(ROOT, 'data/changes/owner-changes.json'), encoding='utf-8'))['changes']
     for c in chambers:
         for ch in oc:
-            sid = (ch.get('replaceSlab') or {}).get('remove')
-            sl = next((s for s in fr['slabs'] if s['id'] == sid), None)
+            geo = json.load(open(os.path.join(ROOT, 'data/changes/owner-changes-geometry.json'), encoding='utf-8'))['changes'].get(ch['id'], {})
+            sp = geo.get('slabSplit'); sl = sp and sp[sp['lowered']]
             if sl and Polygon(sl['outlineITM']).distance(Point(c['E'], c['N'])) < 2.0:  # the chamber drains that courtyard area
                 c['affectedBy'] = ch['id']
-                c['note'] = f"התא תוכנן לניקוז החצר האנגלית במפלס ‎-1.50. {ch['id']} משנה את האזור – לבדוק מחדש מול יועץ האינסטלציה."
+                c['note'] = f"התא תוכנן לניקוז החצרות האנגליות (‎-1.50). {ch['id']} מוריד את החצר הדרומית – לבדוק מחדש מול יועץ האינסטלציה."
     out = {'placement': {'martefToK11_cm': [r3(v) for v in t], 'inlierFraction': r3(sc), 'medianResidual_cm': r3(med),
                          'method': 'ICP על קווי הקירות (A-WALL/S-STRS של הבלוק martef מול IfcWall של k-11.dxf)'},
            'chambers': chambers, 'pipeCrossings': crossings, 'source': SRC}

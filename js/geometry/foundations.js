@@ -34,33 +34,70 @@ export function buildFoundations(ctx) {
   const conc = materials.get('concrete');
   const stats = { walls_m3: 0, slabs_m3: 0, beams_m3: 0, beamsCount: 0, beamsMissing: [] };
 
-  // basement walls
+  // basement walls (+ owner-change variants: a wall with an opening is replaced by its pieces while the change is on)
+  const OCG = data.ownerChangesGeometry?.changes || {};
+  const OC = data.ownerChanges?.changes || [];
+  const wallList = [];
   for (const w of F.basementWalls) {
+    const ch = OC.find(c => (OCG[c.id]?.wallsChanged || []).some(x => x.replaces === w.id));
+    if (!ch) { wallList.push(w); continue; }
+    wallList.push({ ...w, variant: { change: ch.id, show: 'original' } });
+    const wc = OCG[ch.id].wallsChanged.find(x => x.replaces === w.id);
+    wc.pieces.forEach((p, i) => wallList.push({ ...w, id: `${w.id}·${ch.id}-${i + 1}`, footprintITM: p.footprintITM, holesITM: p.holesITM,
+      area_m2: null, variant: { change: ch.id, show: 'changed' }, note: `${w.note} | ${ch.id}: בלי קיר ${ch.openWall.piece} (פתח מעבר)` }));
+  }
+  for (const w of wallList) {
     const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
     const g = new THREE.Group(); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor));
-    stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
+    if (w.area_m2 != null && w.variant?.show !== 'changed') stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
-      name: `קירות מרתף (${w.id})`, status: w.status,
-      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['שטח חתך אופקי', `${w.area_m2.toFixed(2)} מ"ר`],
-        ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
+      name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,
+      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`]].concat(w.area_m2 != null ? [['שטח חתך אופקי', `${w.area_m2.toFixed(2)} מ"ר`],
+        ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]] : []),
       note: w.note, source: w.source,
     });
     scene.add(g);
   }
+  // owner-change wall marks: opening (red ghost, dashed) and new door (purple frame) – only with the change on
+  for (const ch of OC) {
+    const G = OCG[ch.id]; if (!G) continue;
+    const w0 = F.basementWalls[0];
+    const mark = (key, kind) => {
+      const piece = G.wallPieces[key]; if (!piece) return;
+      const g = new THREE.Group();
+      for (const o of piece.outlinesITM) {
+        const mat = kind === 'open' ? new THREE.MeshBasicMaterial({ color: D.ownerChangeRemovedColor, transparent: true, opacity: D.ownerChangeRemovedOpacity, depthWrite: false })
+          : new THREE.MeshBasicMaterial({ color: D.ownerChangeColor, transparent: true, opacity: D.ownerChangeZoneOpacity * 2, depthWrite: false });
+        const m = prism(o, [], H(w0.bottomRel), H(w0.topRel) + (kind === 'door' ? 0.01 : 0), mat); m.castShadow = false; m.renderOrder = 5; g.add(m);
+        const lm = kind === 'open' ? new THREE.LineDashedMaterial({ color: D.ownerChangeRemovedColor, dashSize: 0.15, gapSize: 0.1 }) : new THREE.LineBasicMaterial({ color: D.ownerChangeColor });
+        const ls = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), lm); ls.computeLineDistances(); g.add(ls);
+      }
+      const c = piece.outlinesITM.flat().reduce((a, p, _, arr) => [a[0] + p[0] / arr.length, a[1] + p[1] / arr.length], [0, 0]);
+      const note = kind === 'open' ? ch.openWall.note : ch.doorWall.note;
+      g.add(label(`${ch.id} · קיר ${key}: ${note}`, c[0], c[1], H(w0.topRel) + 0.3, kind === 'open' ? 'lbl removed' : 'lbl change'));
+      registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'ownerChanges' }, {
+        name: `${ch.id} – קיר ${key}: ${note}`, status: 'owner-change', variant: { change: ch.id, show: 'changed' },
+        note: ch.description, source: piece.source,
+      });
+      scene.add(g);
+    };
+    if (ch.openWall) mark(ch.openWall.piece, 'open');
+    if (ch.doorWall) mark(ch.doorWall.piece, 'door');
+  }
   // slabs
   // owner changes (data/changes/owner-changes.json): a slab may be replaced by another level/outline
-  const changes = (data.ownerChanges?.changes || []).filter(c => c.replaceSlab);
-  const byId = Object.fromEntries(F.slabs.map(s => [s.id, s]));
   // both variants are built; the registry shows one of them by state.ownerChanges[id] (meta.variant)
   const slabs = [];
   for (const s0 of F.slabs) {
-    const c = changes.find(c => c.replaceSlab.remove === s0.id);
+    const c = OC.find(c => c.slab?.split === s0.id && OCG[c.id]?.slabSplit);
     if (!c) { slabs.push(s0); continue; }
+    const sp = OCG[c.id].slabSplit, keep = sp.lowered === 'south' ? 'north' : 'south';
     slabs.push({ ...s0, variant: { change: c.id, show: 'original' } });
-    const from = byId[c.replaceSlab.levelFrom], out = byId[c.replaceSlab.outlineFrom];
-    slabs.push({ ...out, id: `${s0.id}→${c.id}`, top: from.top, thickness_m: from.thickness_m, status: 'owner-change', change: c, replaced: s0,
-      variant: { change: c.id, show: 'changed' }, source: `${c.source}; קו: ${out.source}; מפלס ועובי כמו ${from.id}: ${from.source}` });
-    slabs.push({ ...s0, id: `${s0.id} (מבוטל)`, removedBy: c, variant: { change: c.id, show: 'changed' } });
+    slabs.push({ ...s0, id: `${s0.id}-${keep}`, outlineITM: sp[keep].outlineITM, holesITM: [], area_m2: sp[keep].area_m2, variant: { change: c.id, show: 'changed' } });
+    const low = sp[sp.lowered];
+    slabs.push({ ...s0, id: `${s0.id}-${sp.lowered}→${c.id}`, outlineITM: low.outlineITM, holesITM: [], area_m2: low.area_m2, top: sp.newTop, thickness_m: sp.newThickness_m,
+      status: 'owner-change', change: c, replaced: s0, variant: { change: c.id, show: 'changed' }, source: sp.newSource });
+    slabs.push({ ...s0, id: `${s0.id}-${sp.lowered} (מבוטל)`, outlineITM: low.outlineITM, holesITM: [], area_m2: low.area_m2, removedBy: c, variant: { change: c.id, show: 'changed' } });
   }
   for (const s of slabs) {
     if (s.top == null) { stats.beamsMissing.push(s.id); continue; }
@@ -72,9 +109,9 @@ export function buildFoundations(ctx) {
       const g = new THREE.Group(); g.add(m);
       const ls = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineDashedMaterial({ color: D.ownerChangeRemovedColor, dashSize: 0.15, gapSize: 0.1 }));
       ls.computeLineDistances(); g.add(ls);
-      g.add(label(`${s.removedBy.id} · ${s.removedBy.removedLabel}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl removed'));
+      g.add(label(`${s.removedBy.id} · מבוטל: רצפה ${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl removed'));
       registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'ownerChanges' }, {
-        name: `${s.removedBy.id} – מבוטל: ${s.removedBy.removedLabel}`, status: 'owner-change', variant: s.variant, pickable: false,
+        name: `${s.removedBy.id} – מבוטל: רצפה ${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)} (${s.id})`, status: 'owner-change', variant: s.variant, pickable: false,
         note: s.removedBy.description, source: s.source,
       });
       scene.add(g); continue;
@@ -151,7 +188,8 @@ export function buildOwnerChangeZones(ctx) {
   const D = display.framing;
   for (const c of (data.ownerChanges?.changes || [])) {
     if (!c.zone) continue;
-    const s = data.framing.slabs.find(x => x.id === c.zone.outlineFrom); if (!s) continue;
+    const sp = data.ownerChangesGeometry?.changes?.[c.id]?.slabSplit; if (!sp) continue;
+    const s = sp[c.zone.slabPart];
     const toV = ([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); };
     const g0 = new THREE.ExtrudeGeometry(new THREE.Shape(s.outlineITM.map(toV)), { depth: c.zone.toRel - c.zone.fromRel, bevelEnabled: false });
     g0.rotateX(-Math.PI / 2); g0.translate(0, c.zone.fromRel, 0);

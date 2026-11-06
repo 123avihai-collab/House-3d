@@ -68,6 +68,8 @@
   "piles": {
     "radialSegments": 28,
     "labelLift_m": 0.35,
-    "overloadTint": "#ff8a65"
+    "overloadTint": "#ff8a65",
+    "ghostColor": "#90caf9",
+    "ghostOpacity": 0.28
   }
 }

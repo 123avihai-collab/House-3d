@@ -7,6 +7,8 @@ export function buildPiles(ctx) {
   const P = display.piles;
   const mat = materials.get('concrete');
   const over = materials.get('concrete').clone(); over.color.set(P.overloadTint);
+  // "x-ray" copy drawn on top of the soil, so piles hidden under the ground stay visible
+  const ghost = new THREE.MeshBasicMaterial({ color: P.ghostColor, transparent: true, opacity: P.ghostOpacity, depthTest: false, depthWrite: false });
   const stats = { count: 0, drill_m: 0, concrete_m3: 0, byType: {} };
   for (const p of data.piles.piles) {
     const headAbs = coords.H0 + p.headRel, tipAbs = coords.H0 + p.tipRel;
@@ -18,6 +20,7 @@ export function buildPiles(ctx) {
     m.position.copy(coords.toLocal(p.E, p.N, (headAbs + tipAbs) / 2));
     m.castShadow = true; m.receiveShadow = true;
     const g = new THREE.Group(); g.add(m);
+    const gm = new THREE.Mesh(geo, ghost); gm.position.copy(m.position); gm.renderOrder = 5; gm.raycast = () => {}; g.add(gm);
     const div = document.createElement('div');
     div.className = 'lbl pile' + (p.overAllowed ? ' over' : '');
     div.textContent = p.id;

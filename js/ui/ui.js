@@ -250,14 +250,14 @@ export class UI {
         ...Object.entries(P.byType).sort().map(([k, v]) => tr(k, `${v} יח'`)),
         tr('מטר קידוח כולל', `${P.drill_m.toFixed(0)} מ'`),
         tr('נפח בטון תיאורטי', `${P.concrete_m3.toFixed(2)} מ"ק`),
-        tr('מעל העומס המותר', over.length ? over.join(', ') : '—')) : h('p', { class: 'muted' }, '—'),
+        tr('מעל המותר – לבדיקה מול הקונסטרוקטור', over.length ? over.join(', ') : '—')) : h('p', { class: 'muted' }, '—'),
       h('h4', {}, 'חפירה ליחידת הדיור'),
       X ? h('table', { class: 'kv' },
         tr('נפח חפירה (מול קרקע 2025)', `${X.volume_m3.toFixed(1)} מ"ק`),
         tr('שטח תחתית', `${X.bottomArea_m2.toFixed(1)} מ"ר`),
         tr('מפלס תחתית', app.coords.fmtH(app.data.excavation.bottomAbs)),
         tr('עומק מקסימלי', `${X.maxDepth_m.toFixed(2)} מ'`),
-        tr('דיפון נדרש בגבול המגרש', `${X.shoringLength_m.toFixed(1)} מ' · גובה עד ${X.shoringMaxHeight_m.toFixed(2)} מ'`)) : h('p', { class: 'muted' }, '—'),
+        tr('דיפון (זמני – חסר תכנון)', `${X.shoringLength_m.toFixed(1)} מ' · גובה עד ${X.shoringMaxHeight_m.toFixed(2)} מ' · ${X.shoringArea_m2.toFixed(1)} מ"ר`)) : h('p', { class: 'muted' }, '—'),
       h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
   }
 

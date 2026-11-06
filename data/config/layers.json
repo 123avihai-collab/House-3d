@@ -114,6 +114,11 @@
           "visible": true
         },
         {
+          "id": "shoring",
+          "label": "קיר דיפון (זמני)",
+          "visible": true
+        },
+        {
           "id": "groundBeams",
           "label": "קורות יסוד",
           "implemented": false

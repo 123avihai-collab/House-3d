@@ -36,7 +36,7 @@ export function buildPiles(ctx) {
         ['עומס מותר (דוח קרקע 6.4)', x ? `${x.allowed} טון · ניצול ${util.toFixed(0)}%` : '—'],
         ['הצלבה מול טבלת הכלונסאות', x ? (x.match ? '✔ תואם' : '✘ לא תואם') : 'לא בטבלה'],
       ],
-      note: p.overAllowed ? 'עומס תכנוני מעל המותר לפי דוח הקרקע – לברר עם המהנדס (ראו open-issues)' : p.tipNote,
+      note: p.overAllowed ? `מבוצע כמו בתוכנית K-400 (N=${p.designLoad_t} ט'). עומס תכנוני מעל המותר בדוח הקרקע (${x?.allowed} ט') – לבדיקה מול הקונסטרוקטור (open-issues #17)` : p.tipNote,
       source: p.source,
     });
     scene.add(g);

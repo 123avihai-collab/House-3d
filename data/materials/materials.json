@@ -75,6 +75,13 @@
       "tint": "#b9a38a",
       "roughness": 1.0,
       "envMapIntensity": 0.6
+    },
+    "shoring": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 2.0,
+      "tint": "#e8a46a",
+      "roughness": 0.95,
+      "envMapIntensity": 0.8
     }
   }
 }

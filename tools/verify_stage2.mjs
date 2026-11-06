@@ -3,7 +3,7 @@
 // Writes docs/verification/stage-2.md.   Run: node tools/verify_stage2.mjs
 import fs from 'fs';
 import path from 'path';
-import { makeInterpolator, pointInRing, distToRing, ringArea, densifyRing } from '../js/geometry/tin.js';
+import { makeInterpolator, pointInRing, distToRing, distToPolyline, nearestOnRing, ringArea } from '../js/geometry/tin.js';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const J = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
@@ -95,8 +95,13 @@ summary.push(['קו מרתף מול גרמושקה (גאורפרנס עצמאי)
 // 5. excavation levels and quantities (same formula as js/geometry/excavation.js)
 const pts = survey.survey2025.points.map(p => ({ x: p.E, y: p.N, z: p.z }));
 const existing = makeInterpolator(pts);
-const bottom = X.bottomOutlineITM, zb = X.bottomAbs;
-const pitZ = (E, N) => { const d = pointInRing(E, N, bottom) ? 0 : distToRing(E, N, bottom); return Math.min(existing(E, N), zb + Math.max(0, d - X.workingSpace_m) / X.sideSlope_HperV); };
+const bottom = X.bottomOutlineITM, floor = X.floorOutlineITM, runs = X.shoredRunsITM, zb = X.bottomAbs;
+const pitZ = (E, N) => {
+  if (pointInRing(E, N, floor)) return zb;
+  const q = nearestOnRing(E, N, floor);
+  if (runs.some(r => distToPolyline(q.x, q.y, r) <= display.excavation.shoringMatchTol_m)) return existing(E, N);
+  return Math.min(existing(E, N), zb + q.dist / X.sideSlope_HperV);
+};
 const gs = display.excavation.volumeGrid_m;
 let vol = 0, maxD = 0;
 const xs = lot.map(p => p[0]), ys = lot.map(p => p[1]);
@@ -104,12 +109,15 @@ for (let x = Math.min(...xs) + gs / 2; x < Math.max(...xs); x += gs) for (let y 
   if (!pointInRing(x, y, lot)) continue;
   const dz = existing(x, y) - pitZ(x, y); if (dz > 0) { vol += dz * gs * gs; maxD = Math.max(maxD, dz); }
 }
-const edge = densifyRing(lot, 0.2);
-let shL = 0, shH = 0, prev = null;
-for (const [x, y] of edge.concat([edge[0]])) {
-  const c = existing(x, y) - pitZ(x, y);
-  if (c > display.excavation.shoringMinCut_m) { if (prev) shL += Math.hypot(x - prev[0], y - prev[1]); prev = [x, y]; shH = Math.max(shH, c); } else prev = null;
+let shL = 0, shH = 0, shA = 0;
+for (const r of runs) for (let i = 1; i < r.length; i++) {
+  const ds = Math.hypot(r[i][0] - r[i - 1][0], r[i][1] - r[i - 1][1]);
+  const h1 = existing(...r[i]) - zb, h0 = existing(...r[i - 1]) - zb;
+  shL += ds; shA += Math.max(0, (h0 + h1) / 2) * ds; shH = Math.max(shH, h0, h1);
 }
+// open slopes must stay inside the lot: largest distance of an open-slope top point outside the lot
+let maxOut = 0;
+for (const [x, y] of lot) { const z = pitZ(x, y), e = existing(x, y); if (e - z > 0.05) maxOut = Math.max(maxOut, e - z); }
 const bu = X.bottomBuildUp;
 const beam = bu.find(b => b.rel != null)?.rel;
 const below = bu.filter(b => b.thickness_m).reduce((s, b) => s + b.thickness_m, 0);
@@ -118,14 +126,15 @@ out.push('## 5. חפירה – מפלסים וכמויות', '',
 for (const b of bu) out.push(`| ${b.item} | ${b.rel != null ? f(b.rel, 2) : f(b.thickness_m, 2) + " מ'"}${b.status ? ' (זמני)' : ''} | ${b.source} |`);
 out.push(`| **תחתית חפירה** | **${f(X.bottomRel, 2)} (${f(zb, 2)} מוחלט)** | ${f(beam, 2)} − ${f(below, 2)} = ${f(beam - below, 2)} ${Math.abs(beam - below - X.bottomRel) < 1e-6 ? '✓' : '✗'} |`,
   `| שיפוע דפנות | 1:${X.sideSlope_HperV} (אנכי:אופקי) | ${X.sideSlopeSource} |`,
-  `| מרווח עבודה בתחתית | ${X.workingSpace_m} מ' (זמני) | ${X.workingSpaceNote} |`, '',
+  `| מרווח עבודה בתחתית | ${X.workingSpace_m} מ' (${X.workingSpaceStatus === 'approved' ? 'אושר' : 'זמני'}) | ${X.workingSpaceNote} |`, '',
   '| כמות | מודל (חישוב חוזר) | הערה |', '|---|---|---|',
   `| נפח חפירה מול קרקע 2025 | ${f(vol, 1)} מ"ק | רשת ${gs} מ', חפירה בתוך מגרש 5187 בלבד |`,
-  `| שטח תחתית | ${f(Math.abs(ringArea(bottom)), 1)} מ"ר | קו מרתף ∪ דיסקיות כלונסאות המרתף |`,
+  `| שטח תחתית חפירה (כולל מרווח עבודה) | ${f(Math.abs(ringArea(floor)), 1)} מ"ר | קו מרתף ∪ דיסקיות כלונסאות המרתף, + ${X.workingSpace_m} מ' |`,
   `| עומק מקסימלי | ${f(maxD, 2)} מ' | |`,
-  `| אורך גבול מגרש הדורש דיפון | ${f(shL, 1)} מ' (חתך עד ${f(shH, 2)} מ') | ${X.shoringRule} |`, '');
+  `| דיפון (זמני – קו מחושב) | ${f(shL, 1)} מ', חתך עד ${f(shH, 2)} מ', שטח דופן ${f(shA, 1)} מ"ר | ${X.shoringRule} |`,
+  `| חפירה פתוחה בפינות המגרש (בדיקה שהשיפוע לא חורג מהמגרש) | ${maxOut > 0.05 ? 'חריגה ' + f(maxOut, 2) + " מ'" : 'אין חתך בפינות ✓'} | |`, '', X.shoringNote, '');
 summary.push(['תחתית חפירה', `${f(X.bottomRel, 2)} (${f(zb, 2)}) = ${f(beam, 2)} − ${f(below, 2)}`]);
-summary.push(['נפח חפירה / דיפון', `${f(vol, 1)} מ"ק · ${f(shL, 1)} מ' עד ${f(shH, 2)} מ'`]);
+summary.push(['נפח חפירה / דיפון (זמני)', `${f(vol, 1)} מ"ק · ${f(shL, 1)} מ' עד ${f(shH, 2)} מ' · ${f(shA, 1)} מ"ר`]);
 
 // 6. overloaded piles
 const over = P.piles.filter(p => p.overAllowed);

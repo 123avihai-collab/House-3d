@@ -86,6 +86,23 @@ export function distToRing(x, y, ring) {
   }
   return best;
 }
+export function nearestOnRing(x, y, ring) {
+  let best = { dist: Infinity, x, y };
+  for (let i = 0; i < ring.length; i++) {
+    const [ax, ay] = ring[i], [bx, by] = ring[(i + 1) % ring.length];
+    const r = nearestOnSegment(ax, ay, bx, by, x, y);
+    if (r.dist < best.dist) best = r;
+  }
+  return best;
+}
+export function distToPolyline(x, y, line) {
+  let best = Infinity;
+  for (let i = 1; i < line.length; i++) {
+    const a = { x: line[i - 1][0], y: line[i - 1][1] }, b = { x: line[i][0], y: line[i][1] };
+    best = Math.min(best, projSeg(a, b, x, y).dist);
+  }
+  return best;
+}
 export function densifyRing(ring, step) {
   const out = [];
   for (let i = 0; i < ring.length; i++) {

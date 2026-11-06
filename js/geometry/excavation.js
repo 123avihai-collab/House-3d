@@ -4,12 +4,14 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { regionMesh } from './terrain.js';
-import { pointInRing, distToRing, densifyRing, ringArea } from './tin.js';
+import { pointInRing, distToPolyline, nearestOnRing, densifyRing, ringArea } from './tin.js';
 
 // Excavation for the dwelling unit (basement), from data/structure/excavation.json:
-// pit surface z(x) = min( existing ground 2025 , bottom + max(0, d - workingSpace) / slope ),
-// d = horizontal distance outside the bottom outline. Clipped to lot 5187; where the pit is below the
-// existing ground on the lot line, shoring is required (soil report §10.2) and the line is flagged.
+// floor = bottom outline + working space (floorOutlineITM) at bottomAbs.
+// Open stretches: z = min(existing 2025, bottom + d / slope), d = distance outside the floor outline.
+// Shored stretches (shoredRunsITM, decided in tools/extract_structure.py where the 1:2 slope would not
+// reach existing ground inside the lot – soil report 4.3 / 10.2): vertical cut at the floor outline,
+// drawn as a provisional shoring wall from existing ground down to the bottom.
 export function buildExcavation(ctx) {
   const { data, coords, registry, scene, materials, display, ground, lineMats } = ctx;
   const ex = data.excavation;
@@ -17,15 +19,27 @@ export function buildExcavation(ctx) {
   const existing = ground.regions.find(r => r.id === 'lot-257-existing')?.interp;
   if (!existing) { console.warn('no existing ground for excavation'); return null; }
   const bottom = ex.bottomOutlineITM;
+  const floor = ex.floorOutlineITM;
+  const runs = ex.shoredRunsITM || [];
   const zb = ex.bottomAbs;
+  // a point outside the floor is behind a shoring wall when its nearest floor-outline point lies on a shored run
   const pitZ = (E, N) => {
-    const d = pointInRing(E, N, bottom) ? 0 : distToRing(E, N, bottom);
-    return Math.min(existing(E, N), zb + Math.max(0, d - ex.workingSpace_m) / ex.sideSlope_HperV);
+    if (pointInRing(E, N, floor)) return zb;
+    const q = nearestOnRing(E, N, floor);
+    if (runs.some(r => distToPolyline(q.x, q.y, r) <= D.shoringMatchTol_m)) return existing(E, N);
+    return Math.min(existing(E, N), zb + q.dist / ex.sideSlope_HperV);
   };
-  pitZ.kind = 'excavation';
   const lot = data.plot.ring;
   const T = { ...display.terrain, sampleSpacing_m: D.sampleSpacing_m, boundaryDensify_m: D.sampleSpacing_m };
-  const ctrl = densifyRing(bottom, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
+  const ctrl = densifyRing(floor, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
+  // crisp vertical cut at shored stretches: control points just inside / outside the floor outline
+  const off = D.shoringCtrlOffset_m;
+  for (const r of runs) for (let i = 1; i < r.length; i++) {
+    const [x1, y1] = r[i - 1], [x2, y2] = r[i]; const L = Math.hypot(x2 - x1, y2 - y1) || 1;
+    const nx = (y2 - y1) / L, ny = -(x2 - x1) / L; // one of the two normals; the inside one is chosen by test
+    const inside = pointInRing(x1 + nx * off, y1 + ny * off, floor) ? 1 : -1;
+    for (const s of [inside, -inside]) ctrl.push({ x: x1 + nx * off * s, y: y1 + ny * off * s, z: 0 });
+  }
   const mesh = regionMesh(lot, pitZ, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrl);
 
   // volume (cut below existing ground 2025) on a regular grid
@@ -51,27 +65,44 @@ export function buildExcavation(ctx) {
   };
   group.add(fat(bottom.concat([bottom[0]]).map(([x, y]) => coords.toLocal(x, y, zb + 0.02)), D.bottomLineColor, 2, true));
 
-  // shoring: lot-line stretches where the pit surface is below existing ground
-  const edge = densifyRing(lot, 0.2);
-  const runs = []; let cur = null;
-  for (const [x, y] of edge.concat([edge[0]])) {
-    const cut = existing(x, y) - pitZ(x, y);
-    if (cut > D.shoringMinCut_m) { (cur ||= []).push([x, y, cut]); } else if (cur) { runs.push(cur); cur = null; }
-  }
-  if (cur) runs.push(cur);
-  let shoringLen = 0, shoringMaxH = 0;
+  // shoring wall (provisional): vertical panel along each shored run, existing ground -> bottom
+  let shoringLen = 0, shoringMaxH = 0, shoringArea = 0;
+  const shoringMeshes = [];
   for (const r of runs) {
-    if (r.length < 2) continue;
-    group.add(fat(r.map(([x, y]) => coords.toLocal(x, y, existing(x, y) + 0.05)), D.shoringColor, 4));
-    for (let i = 1; i < r.length; i++) shoringLen += Math.hypot(r[i][0] - r[i - 1][0], r[i][1] - r[i - 1][1]);
-    shoringMaxH = Math.max(shoringMaxH, ...r.map(p => p[2]));
+    const pos = [], uv = [], idx = []; let s0 = 0;
+    // panel pulled a few cm into the pit so it is drawn in front of the terrain's vertical cut
+    const inner = r.map(([x, y], i) => {
+      const [ax, ay] = r[Math.max(0, i - 1)], [bx, by] = r[Math.min(r.length - 1, i + 1)];
+      const L = Math.hypot(bx - ax, by - ay) || 1; let nx = (by - ay) / L, ny = -(bx - ax) / L;
+      if (!pointInRing(x + nx * 0.5, y + ny * 0.5, floor)) { nx = -nx; ny = -ny; }
+      return [x + nx * D.shoringPanelInset_m, y + ny * D.shoringPanelInset_m];
+    });
+    r.forEach(([x0, y0], i) => {
+      const [x, y] = inner[i];
+      if (i) { const ds = Math.hypot(x0 - r[i - 1][0], y0 - r[i - 1][1]); s0 += ds;
+        const h = ((existing(x0, y0) - zb) + (existing(r[i - 1][0], r[i - 1][1]) - zb)) / 2; shoringArea += Math.max(0, h) * ds; }
+      shoringMaxH = Math.max(shoringMaxH, existing(x0, y0) - zb);
+      const top = existing(x, y);
+      const a = coords.toLocal(x, y, top), b2 = coords.toLocal(x, y, zb);
+      pos.push(a.x, a.y, a.z, b2.x, b2.y, b2.z); uv.push(s0, top - coords.H0, s0, zb - coords.H0);
+      if (i) { const k = i * 2; idx.push(k - 2, k - 1, k, k - 1, k + 1, k); }
+    });
+    shoringLen += s0;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    geo.setIndex(idx); geo.computeVertexNormals();
+    const m = materials.get('shoring').clone(); m.side = THREE.DoubleSide;
+    const wall = new THREE.Mesh(geo, m); wall.castShadow = wall.receiveShadow = true;
+    shoringMeshes.push(wall);
+    group.add(fat(r.map(([x, y]) => coords.toLocal(x, y, existing(x, y) + 0.03)), D.shoringColor, 4));
   }
   if (runs.length) {
-    const longest = runs.reduce((a, b) => (b.length > a.length ? b : a));
+    const longest = runs.reduce((p, q) => (q.length > p.length ? q : p));
     const m = longest[Math.floor(longest.length / 2)];
     const div = document.createElement('div'); div.className = 'lbl shoring';
-    div.textContent = `נדרש דיפון · ${shoringLen.toFixed(1)} מ' · עד ${shoringMaxH.toFixed(2)} מ'`;
-    div.title = ex.shoringRule;
+    div.textContent = `דיפון (זמני) · ${shoringLen.toFixed(1)} מ' · עד ${shoringMaxH.toFixed(2)} מ'`;
+    div.title = ex.shoringNote;
     const o = new CSS2DObject(div); o.position.copy(coords.toLocal(m[0], m[1], existing(m[0], m[1]) + 1)); group.add(o);
   }
   const lbl = document.createElement('div'); lbl.className = 'lbl h h-zero';
@@ -79,7 +110,7 @@ export function buildExcavation(ctx) {
   const c = bottom.reduce((a, p) => [a[0] + p[0] / bottom.length, a[1] + p[1] / bottom.length], [0, 0]);
   const lo = new CSS2DObject(lbl); lo.position.copy(coords.toLocal(c[0], c[1], zb + 0.4)); group.add(lo);
 
-  const stats = { volume_m3: vol, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(bottom)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH };
+  const stats = { volume_m3: vol, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(floor)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH, shoringArea_m2: shoringArea };
   registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'ceiling', layer: 'excavation' }, {
     name: 'חפירה ליחידת הדיור (מרתף)', kind: 'terrain', role: 'excavation', ring: lot,
     hMin: zb, hMax: mesh.userData.hMax, area: stats.bottomArea_m2,
@@ -90,12 +121,22 @@ export function buildExcavation(ctx) {
       ['נפח חפירה (מול קרקע 2025)', `${vol.toFixed(1)} מ"ק`],
       ['עומק חפירה מקסימלי', `${maxDepth.toFixed(2)} מ'`],
       ['שטח תחתית', `${stats.bottomArea_m2.toFixed(1)} מ"ר`],
-      ['דיפון נדרש לאורך גבול המגרש', `${shoringLen.toFixed(1)} מ' (גובה חתך עד ${shoringMaxH.toFixed(2)} מ')`],
+      ['שטח תחתית קורות/מרתף', `${Math.abs(ringArea(bottom)).toFixed(1)} מ"ר`],
+      ['דיפון (זמני)', `${shoringLen.toFixed(1)} מ' · גובה חתך עד ${shoringMaxH.toFixed(2)} מ' · ${shoringArea.toFixed(1)} מ"ר`],
     ],
-    note: `מרווח עבודה ${ex.workingSpace_m} מ'${ex.workingSpaceStatus === 'provisional' ? ' – זמני, לאישור' : ''}. ${ex.shoringRule}`,
+    note: `מרווח עבודה ${ex.workingSpace_m} מ'${ex.workingSpaceStatus === 'provisional' ? ' – זמני, לאישור' : ''}. ${ex.shoringNote}`, status: ex.shoringStatus,
     source: ex.source,
   });
   scene.add(group);
+  for (const w of shoringMeshes) {
+    registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stageTo: 'ceiling', layer: 'shoring' }, {
+      name: 'קיר דיפון (זמני – חסר תכנון)', status: 'provisional',
+      rows: [['אורך כולל', `${shoringLen.toFixed(1)} מ'`], ['גובה חתך מקסימלי', `${shoringMaxH.toFixed(2)} מ'`], ['שטח דופן', `${shoringArea.toFixed(1)} מ"ר`],
+        ['כלונסאות דיפון', 'ø50 לפחות (דוח קרקע 5.6); מרווח/עומק/עוגנים – חסר']],
+      note: ex.shoringNote, source: ex.shoringRule,
+    });
+    scene.add(w);
+  }
   ground.add(lot, pitZ, 'excavation', 'lot-257-excavation');
   return stats;
 }

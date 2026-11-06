@@ -60,7 +60,10 @@
     "volumeGrid_m": 0.25,
     "bottomLineColor": "#ffee58",
     "shoringColor": "#e53935",
-    "shoringMinCut_m": 0.05
+    "shoringMinCut_m": 0.05,
+    "shoringCtrlOffset_m": 0.01,
+    "shoringMatchTol_m": 0.02,
+    "shoringPanelInset_m": 0.03
   },
   "piles": {
     "radialSegments": 28,

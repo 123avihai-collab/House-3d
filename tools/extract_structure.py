@@ -257,10 +257,11 @@ def main():
         'sideSlope_HperV': 2.0, 'sideSlopeSource': f'{SOIL} סעיף 10.1: חפירה זמנית בשיפוע 1V:2H',
         'workingSpace_m': 1.0, 'workingSpaceStatus': 'approved',
         'workingSpaceNote': 'לא מופיע במקורות. הנחיית אביחי 06.11.2026: המקובל 0.80–1.00 מ\' בתחתית, מהפנים החיצוניים של הקיר עד דופן החפירה (טפסות, איטום ביריעות ביטומניות, לוח הגנה, צינור ניקוז, מילוי והידוק); מינימום 0.60. נלקח 1.00 (הערך העליון).',
-        'shoringRule': f'{SOIL} סעיף 10.2: חפירה החודרת למגרש שכן/פיתוח מחייבת כלונסאות דיפון',
+        'shoringRule': f'{SOIL} סעיף 4.3: כשלא ניתן לחפור חפירה פתוחה בשיפוע המותר (פרק 10) – קירות דיפון בהיקף החפירה; סעיף 10.2: חפירה החודרת למגרש שכן/פיתוח – כלונסאות דיפון לפני החפירה; פרק 5: כלונסאות ø50 לפחות, עומק/זיון/עוגנים לפי חישוב הקונסטרוקטור',
         'clipToPlot': True,
         'source': f'{K11} + {K400} + {SOIL}',
     }
+    excavation.update(classify_shoring(bottom_poly, excavation, H0))
 
     os.makedirs(OUT, exist_ok=True)
     def dump(name, obj):
@@ -272,6 +273,70 @@ def main():
                         'requirements': 'K-400: ניסיון קידוח בשיטה יבשה, בדיקות סוניות בכל הכלונסאות לאחר 7 ימים, בטון ב-30, לפי דוח קרקע 214140/5187'})
     dump('basement.json', basement)
     dump('excavation.json', excavation)
+
+
+
+def classify_shoring(bottom_poly, ex, H0):
+    """Where may the excavation be open (1:2 slope, soil report 10.1) and where must it be shored?
+    Along the excavation floor outline W (bottom outline + working space), walk outward along the normal:
+    if the slope reaches the existing ground (survey 2025) before the lot line -> open, otherwise -> shored
+    (soil report 4.3 / 10.2). Shored stretches become a vertical cut at W. Runs shorter than MIN_RUN are
+    merged into their neighbours so the result does not flicker."""
+    from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
+    from shapely.geometry import LineString
+    STEP, DS, MIN_RUN = 0.1, 0.25, 1.0
+    sv = jload('data/site/survey-existing.json')['survey2025']['points']
+    xy = np.array([[q['E'], q['N']] for q in sv]); zz = np.array([q['z'] for q in sv])
+    lin, near = LinearNDInterpolator(xy, zz), NearestNDInterpolator(xy, zz)
+    def existing(x, y):
+        v = lin(x, y); return float(v) if np.isfinite(v) else float(near(x, y))
+    lot = Polygon(jload('data/site/plot-5187.json')['ring'])
+    zb, ws, k = ex['bottomAbs'], ex['workingSpace_m'], ex['sideSlope_HperV']
+    W = bottom_poly.buffer(ws, 32)
+    ring = W.exterior; L = ring.length; n = max(8, int(L / DS))
+    pts, flags = [], []
+    for i in range(n):
+        p = ring.interpolate(i * L / n); x, y = p.x, p.y
+        q = bottom_poly.exterior.interpolate(bottom_poly.exterior.project(p))
+        nx, ny = x - q.x, y - q.y; nn = math.hypot(nx, ny) or 1.0; nx, ny = nx / nn, ny / nn
+        far = LineString([(x, y), (x + nx * 30, y + ny * 30)]).intersection(lot.exterior)
+        t_lot = 0.0 if not lot.contains(p) else (Point(x, y).distance(far) if not far.is_empty else 30.0)
+        open_ = False; t = 0.0
+        while t <= t_lot + 1e-9:
+            if zb + t / k >= existing(x + nx * t, y + ny * t): open_ = True; break
+            t += STEP
+        pts.append((x, y)); flags.append(not open_)
+    # merge short runs (cyclic)
+    for _ in range(3):
+        runs = []; i0 = 0
+        for i in range(1, n + 1):
+            if i == n or flags[i] != flags[i0]: runs.append((i0, i)); i0 = i
+        if len(runs) > 1 and flags[0] == flags[-1]:
+            a, b = runs.pop(0), runs.pop(-1); runs.append((b[0], a[1] + n))
+        changed = False
+        for a, b in runs:
+            if (b - a) * L / n < MIN_RUN and len(runs) > 1:
+                for j in range(a, b): flags[j % n] = not flags[j % n]
+                changed = True
+        if not changed: break
+    shored = []; cur = []
+    start = next((i for i in range(n) if not flags[i]), None)
+    if start is None:
+        shored = [[[r3(x), r3(y)] for x, y in pts + [pts[0]]]]
+    else:
+        for j in range(start, start + n + 1):
+            i = j % n
+            if flags[i]: cur.append(pts[i])
+            elif cur:
+                # extend the run by half a step on both sides to the open neighbours
+                cur = [pts[(j - len(cur) - 1) % n]] + cur + [pts[i]]
+                shored.append([[r3(x), r3(y)] for x, y in cur]); cur = []
+    return {
+        'floorOutlineITM': [[r3(x), r3(y)] for x, y in list(W.exterior.coords)[:-1]],
+        'shoredRunsITM': shored,
+        'shoringStatus': 'provisional',
+        'shoringNote': 'קו הדיפון נקבע בקוד: בכל מקום שבו שיפוע 1:2 מרגל מרווח העבודה לא מגיע לקרקע הקיימת (מדידה 2025) לפני גבול המגרש – דופן אנכית בקו מרווח העבודה. סוג הדיפון, קוטר/מרווח/עומק הכלונסאות ועוגנים – חסרים: לפי חישוב הקונסטרוקטור (דוח קרקע פרק 5). מוצג כמשטח בלבד מפני הקרקע עד תחתית החפירה.',
+    }
 
 
 if __name__ == '__main__':

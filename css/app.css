@@ -82,7 +82,7 @@ button.x { background: transparent; border-color: transparent; }
 #toolbar { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 5; }
 #toolbar button { width: 40px; height: 40px; padding: 0; font-size: 18px; background: rgba(30, 34, 40, .88); }
 #toolbar button.on { background: var(--accent); }
-#minimap { position: absolute; bottom: 10px; left: 10px; border-radius: 10px; border: 1px solid var(--line); z-index: 5; cursor: crosshair; }
+#minimap { position: absolute; bottom: 10px; right: 10px; border-radius: 10px; border: 1px solid var(--line); z-index: 5; cursor: crosshair; }
 #compass { position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; border-radius: 50%; background: rgba(30, 34, 40, .88); border: 1px solid var(--line); display: grid; place-items: center; color: #ef5350; font-size: 14px; z-index: 5; }
 #compass span { position: absolute; bottom: 4px; font-size: 10px; color: var(--fg); }
 #info { position: absolute; top: 64px; right: 10px; width: min(360px, calc(100% - 70px)); max-height: 60%; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; z-index: 6; font-size: 13px; }
@@ -95,7 +95,7 @@ button.x { background: transparent; border-color: transparent; }
 .hidden { display: none !important; }
 #loading { position: absolute; inset: 0; display: grid; place-items: center; background: var(--bg); font-size: 18px; z-index: 30; }
 body:not(.loading) #loading { display: none; }
-#joy { display: none; position: absolute; bottom: 30px; right: 30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .3); touch-action: none; z-index: 7; }
+#joy { display: none; position: absolute; bottom: 30px; left: 30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .3); touch-action: none; z-index: 7; }
 #joy i { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, .5); }
 body.walking #joy { display: block; }
 .toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: #263238; border: 1px solid var(--line); padding: 8px 16px; border-radius: 20px; z-index: 50; transition: opacity .4s; }

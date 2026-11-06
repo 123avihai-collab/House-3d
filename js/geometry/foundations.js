@@ -315,6 +315,10 @@ export function buildPool(ctx) {
     if (PL.channel.floor != null) wg.add(prism(PL.channel.outerITM, PL.channel.bottom, PL.channel.floor));   // channel floor slab (section B)
     wg.add(lbl('תעלת כיסוי הבריכה', PL.channel.outerITM, PL.channel.top + 0.4));
   }
+  // entry steps + lounge platform at the west end (solid concrete on the pool floor)
+  for (const st of P.steps || []) wg.add(prism(st.ringITM, P.floorFinish, st.top));
+  if (P.platform) { wg.add(prism(P.platform.ringITM, P.floorFinish, P.platform.top)); wg.add(lbl(`משטח רביצה ${P.platform.top.toFixed(2)}`, P.platform.ringITM, P.platform.top + 0.3)); }
+  if (P.steps?.length) wg.add(lbl(`מדרגות ${P.steps.length} × 28`, P.steps[2].ringITM, P.steps[2].top + 0.3));
   const G = PL.gutter;
   if (G) {   // overflow gutter: trough floor (pool wall -> outer lip) + outer lip wall, all round the pool
     wg.add(prism(G.ringOuterITM, G.bottom, G.floor, P.outerITM));
@@ -325,7 +329,7 @@ export function buildPool(ctx) {
   registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה, תעלת הגלישה, תעלת הכיסוי וחדר המכונות (זמני)', status: 'provisional',
     rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)], ['תעלת גלישה – רוחב / רצפה', G ? `${Math.round(G.width_m * 100)} ס"מ · ${coords.fmtH(G.floor)}` : '—'],
       ['תעלת כיסוי – רצפה / תחתית', PL.channel ? `${coords.fmtH(PL.channel.floor)} · ${coords.fmtH(PL.channel.bottom)}` : '—'], ['חדר מכונות – תחתית', coords.fmtH(T.slabUnderside)]],
-    note: `${P.note} ${G?.note || ''} ${T.note} ${T.joinedToPool || ''} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
+    note: `${P.note} ${P.stepsNote || ''} ${G?.note || ''} ${T.note} ${T.joinedToPool || ''} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
   scene.add(wg);
   return { poolArea_m2: P.area_m2, tankArea_m2: T.area_m2 };
 }

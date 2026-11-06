@@ -24,6 +24,14 @@ POOL_WALL_BOTTOM = 278.13 # section A draws both pool walls down to 278.13 – c
 DECK_SLAB_TOP = 280.33    # deck slab top (finish 280.48)
 GUTTER_W, LIP_W, GUTTER_FLOOR, GUTTER_BOT = 0.25, 0.20, 280.13, 280.05   # overflow gutter (תעלת גלישה): width K-400 (0.247) / section A (0.24-0.25); levels section A
 CHANNEL_FLOOR, CHANNEL_BOTTOM = 280.05, 279.90               # cover-shutter pit (section B), slab 15 cm
+PLAN = 'sources/structure/pool-walls/בריכה מבט על קמה קנמ 1-10.pdf'
+PT = 56.6929   # pt/m at 1:50 – verified: west zone 317.0→413.3 pt = 1.699 m vs written "170"; treads 16.05 pt = 0.283 m vs "28"
+# pool plan (1:50): west wall inner face x=317.0 pt; riser lines (x) and the N-S split; section B (deck marker tip y=478.6 = 280.48): tread tops
+STEP_RISERS_PT = [317.0, 332.5, 348.6, 364.6, 380.6, 396.6, 413.3]          # wall face, 5 inner risers, zone edge ("170")
+STEP_TOPS_SEC_Y = [491.1, 500.6, 510.2, 519.7, 529.3, 538.9]              # section B, tread top lines from the wall eastwards
+PLAN_N_INNER, PLAN_PLATFORM_S, PLAN_STAIRS_N = 325.2, 438.6, 444.6          # plan y: north inner face, platform edge, stairs edge (rail between)
+PLATFORM_TOP = 279.97      # "משטח רביצה 0.53- / 279.97" written on section B
+SEC_B_DECK_Y = 478.6
 ring = lambda g: [[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]]
 
 
@@ -78,12 +86,32 @@ def main():
         if wv0 - v0 < 0.05 and wu1 - wu0 < 0.4: under_gutter.append(rect(wu0, wu1, 0.0, GUTTER_W))
     tank_walls = tank_walls + extra
     tank_check = {'k21_offsetFromPool_m': r3(v0), 'expected_m': GUTTER_W + LIP_W, 'eastEnd_vs_poolEnd_m': r3(min(abs(u0), abs(u1 - 8.40), abs(u1), abs(u0 - 8.40)))}
+    # pool steps + lounge platform (west end): pool plan + section B, placed in the pool's long-axis frame
+    E = [list(pool_outer.exterior.coords[k]) for k in range(4)]
+    edges = sorted([(E[k], E[(k + 1) % 4]) for k in range(4)], key=lambda e: -np.hypot(e[1][0] - e[0][0], e[1][1] - e[0][1]))
+    longs, shorts = edges[:2], edges[2:]
+    w_edge = min(shorts, key=lambda e: e[0][0] + e[1][0]); n_edge = max(longs, key=lambda e: e[0][1] + e[1][1])
+    wa = np.array(min(w_edge, key=lambda q: -q[1]))                       # NW outer corner
+    ax = np.array(max(n_edge, key=lambda q: q[0])) - wa; ax /= np.linalg.norm(ax)   # eastwards along the long axis
+    cr = np.array([ax[1], -ax[0]])                                          # southwards across
+    if np.dot(np.array(pool_outer.centroid.coords[0]) - wa, cr) < 0: cr = -cr
+    WALL = 0.20
+    pr = lambda s0, s1, t0, t1: Polygon([tuple(wa + a_ * ax + b_ * cr) for a_, b_ in ((s0, t0), (s1, t0), (s1, t1), (s0, t1))])
+    t_n = WALL; t_s = (np.linalg.norm(np.array(w_edge[1]) - np.array(w_edge[0]))) - WALL
+    sx = [WALL + (x - STEP_RISERS_PT[0]) / PT for x in STEP_RISERS_PT]
+    lvl = lambda y: round(DECK - (y - SEC_B_DECK_Y) / PT, 3)
+    t_stairs = t_n + (PLAN_STAIRS_N - PLAN_N_INNER) / PT; t_plat = t_n + (PLAN_PLATFORM_S - PLAN_N_INNER) / PT
+    steps = [{'ringITM': ring(pr(sx[i], sx[i + 1], t_stairs, t_s)), 'top': lvl(STEP_TOPS_SEC_Y[i]), 'tread_m': r3(sx[i + 1] - sx[i])} for i in range(6)]
+    platform = {'ringITM': ring(pr(sx[0], sx[-1], t_n, t_plat)), 'top': PLATFORM_TOP, 'width_m': r3(sx[-1] - sx[0]), 'depth_m': r3(t_plat - t_n)}
     west = [P[k]['headRel'] + H0 for k in ('28', '30')]; east = [P[k]['headRel'] + H0 for k in ('29', '31')]
     out = {
         'pool': {'outerITM': ring(pool_outer), 'area_m2': r3(pool_outer.area), 'wallsITM': [ring(q) for q in pool_walls],
                  'deck': DECK, 'floorFinish': FLOOR, 'stepsLevel': STEPS,
                  'finishLayer_m': POOL_FINISH_LAYER, 'slabTop': POOL_SLAB_TOP, 'slabUndersideWest': POOL_SLAB_BOT_W, 'slabUndersideEast': POOL_SLAB_BOT_E,
                  'wallBottom': POOL_WALL_BOTTOM, 'deckSlabTop': DECK_SLAB_TOP,
+                 'steps': steps, 'stairsWidth_m': r3(t_s - t_stairs), 'platform': platform,
+                 'stepsNote': 'מדרגות כניסה: 6 שלבים × 28 ס"מ (תוכנית הבריכה 1:50), רומי השלבים מחתך ב (280.26→279.42, רום ~17 ס"מ); משטח רביצה 279.97 (כתוב) ברוחב 1.70. מעקה בטיחות בין המשטח למדרגות (ת"י 1142) – לא משורטט. "מדרך רגל 1.20" לאורך הקירות – אין מידות, לא משורטט.',
+                 'stepsSource': f'{PLAN} (מדרגות, משטח); {SEC} (חתך ב – רומים)',
                  'pileHeads': {'west_28_30': r3(min(west)), 'east_29_31': r3(min(east))},
                  'status': 'provisional',
                  'note': 'מחתכי הבריכה (קנ"מ 1:50 אומת): סיפון 280.48 (משטח בטון 280.33), רצפה 279.30 בעומק 1.20 ("118"), שכבת גמר 27 ס"מ, רצפת בטון 279.03–278.83 (20 ס"מ, משופעת 4.9% – בצד הרדוד גבוהה בכ-20 ס"מ), קירות 20 ס"מ יורדים עד 278.13. תעלת גלישה ברוחב 24 ס"מ מסביב (רצפה 280.13). ראשי כלונסאות 28–31 (279.30/279.00) נכנסים לקירות. מצע מתחת לרצפה – לא כתוב.',

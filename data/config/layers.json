@@ -194,6 +194,26 @@
      "visible": true
     },
     {
+     "id": "firstWalls",
+     "label": "קירות קומה א' (K-31)",
+     "visible": true
+    },
+    {
+     "id": "firstCeiling",
+     "label": "תקרת הגג +6.90 (K-41)",
+     "visible": true
+    },
+    {
+     "id": "roofWalls",
+     "label": "קירות מעל הגג עד +8.00 (K-41)",
+     "visible": true
+    },
+    {
+     "id": "roofCeilingBeams",
+     "label": "קורות גג ופרגולות (K-41)",
+     "visible": true
+    },
+    {
      "id": "ownerChanges",
      "label": "שינויים של אביחי (סימון אזור)",
      "visible": true

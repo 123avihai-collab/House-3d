@@ -79,6 +79,17 @@ out += ['## 6. עמודי קומה א\' (K-31 → K-41)', '', '| עמוד | חת
 for c in FF['columns']:
     out.append(f"| {c['id']} | {c['size_cm'][0]}/{c['size_cm'][1]} | {'/'.join(map(str, c['tagSize_cm'])) or '—'} | {c['bottomRel']:+.2f} | {c['topRel']:+.2f} | {c.get('standsOn') or '—'} | {c['status']} |")
 out += ['', f"ראש העמודים = תחתית תקרת הגג K-41 (O.K {FF['roofLevels'][0]['topRel']:+.2f}, D={round(FF['roofLevels'][0]['thickness_m'] * 100)}).", '']
+FR_ = J('data/structure/floor-roof.json')
+out += ['## 7. קומה א\' וגג (K-31, K-41)', '', f"קירות קומה א': {len(FF['walls'])} (מ-+3.70 / ראש קורה עד +6.65). קירות מעל הגג: {len(FR_['walls'])} (עד +8.00, לפי מפלסי הנקודה '+8.00 / +6.65' ב-K-41).", '',
+        '| קורה (K-41) | חתך | O.K | אורך | פרגולה |', '|---|---|---|---|---|']
+for b in FR_['ceiling']['beams']:
+    out.append(f"| {b['id']} | {round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)} | {b['topRel']:+.2f} | {b.get('length_m') or '—'} | {'כן' if b.get('pergola') else '—'} |")
+rr = [LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2) for b in FR_['ceiling']['beams'] if b.get('axisITM')]
+fr2 = unary_union([Polygon(s_['footprintITM']) for s_ in FF['ceiling']['slab']] + rr + [Polygon(w['footprintITM']) for w in FR_['walls']])
+x0_, y0_, x1_, y1_ = affinity.rotate(fr2, -theta, origin=(0, 0), use_radians=True).bounds
+out += ['', '**בדיקה בלתי תלויה – מידות כוללות של הגג (תקרה + קורות + קירות) מול K-41:**', '', '| מידה | מודל | כתוב | סטייה |', '|---|---|---|---|',
+        f"| אורך | {x1_ - x0_:.3f} | 15.79 (\"1579\") | {abs(x1_ - x0_ - 15.79) * 100:.1f} ס\"מ |",
+        f"| רוחב | {y1_ - y0_:.3f} | 14.97 (\"1497\") | {abs(y1_ - y0_ - 14.97) * 100:.1f} ס\"מ |", '']
 missing = [b['id'] for b in C['beams'] if b['status'] == 'missing']
 out += [f"קורות בלי גיאומטריה (לא שורטטו): {', '.join(missing) or '—'}.", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)

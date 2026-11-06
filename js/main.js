@@ -38,7 +38,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof) };
   buildOwnerChangeZones(ctx);
 
   const pc = centroid(data.plot.ring);

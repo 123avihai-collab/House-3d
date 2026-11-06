@@ -1756,11 +1756,11 @@
    "holesITM": [],
    "area_m2": 0.921,
    "thickness_m": 0.3,
-   "topRel": 3.45,
+   "topRel": 6.65,
    "bottomRel": -0.31,
    "standsOn": null,
    "status": "provisional",
-   "note": "אין במקורות אלמנט נושא מתחתיו (קורה / קיר מרתף / רצפה) – תחתית לפי תגית הרצפה הקרובה (-0.31); חסרה כנראה קורה ב-K-21 (IFC); ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
+   "note": "אין במקורות אלמנט נושא מתחתיו (קורה / קיר מרתף / רצפה) – תחתית לפי תגית הרצפה הקרובה (-0.31); חסרה כנראה קורה ב-K-21 (IFC); ראש: בחלל הכפול – עד תחתית תקרת הגג K-41 (+6.65)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2015,11 +2015,11 @@
    "holesITM": [],
    "area_m2": 0.312,
    "thickness_m": 0.3,
-   "topRel": 3.45,
+   "topRel": 6.65,
    "bottomRel": -0.15,
    "standsOn": "קורה B-37 (30/60, O.K -0.15)",
-   "status": "provisional",
-   "note": "יושב על קורה הפוכה קורה B-37 (30/60, O.K -0.15) – מתחיל מראש הקורה; ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
+   "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-37 (30/60, O.K -0.15) – מתחיל מראש הקורה; ראש: בחלל הכפול – עד תחתית תקרת הגג K-41 (+6.65)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2054,11 +2054,11 @@
    "holesITM": [],
    "area_m2": 0.286,
    "thickness_m": 0.196,
-   "topRel": 3.45,
+   "topRel": 6.65,
    "bottomRel": -0.17,
    "standsOn": "קורה B-53 (30/90, O.K -0.17)",
-   "status": "provisional",
-   "note": "יושב על קורה הפוכה קורה B-53 (30/90, O.K -0.17) – מתחיל מראש הקורה; ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
+   "status": "source",
+   "note": "יושב על קורה הפוכה קורה B-53 (30/90, O.K -0.17) – מתחיל מראש הקורה; ראש: בחלל הכפול – עד תחתית תקרת הגג K-41 (+6.65)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall (תווית W7); מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -2484,11 +2484,11 @@
    "holesITM": [],
    "area_m2": 0.075,
    "thickness_m": 0.25,
-   "topRel": 3.45,
+   "topRel": 6.65,
    "bottomRel": -0.15,
    "standsOn": "רצפה house",
-   "status": "provisional",
-   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה); ראש: אין תקרת K-31 מעל (חלל כפול / חוץ) – זמנית בתחתית תקרת +3.70; הגובה האמיתי לפי K-41 (שלב 3ד)",
+   "status": "source",
+   "note": "עומד מעל קיר המרתף BW1 – רצפת הקרקע ממשיכה מעליו (רצועה בעובי הרצפה נוספה); ראש: בחלל הכפול – עד תחתית תקרת הגג K-41 (+6.65)",
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags"
   },
   {
@@ -3561,10 +3561,6 @@
     "id": "FS1",
     "footprintITM": [
      [
-      179591.235,
-      576243.842
-     ],
-     [
       179591.608,
       576244.767
      ],
@@ -3633,6 +3629,10 @@
       576234.782
      ],
      [
+      179595.509,
+      576234.848
+     ],
+     [
       179595.486,
       576234.857
      ],
@@ -3645,32 +3645,12 @@
       576235.524
      ],
      [
-      179593.709,
-      576235.199
+      179593.839,
+      576235.522
      ],
      [
-      179593.707,
-      576235.194
-     ],
-     [
-      179593.707,
-      576235.194
-     ],
-     [
-      179593.707,
-      576235.194
-     ],
-     [
-      179593.151,
-      576235.419
-     ],
-     [
-      179593.151,
-      576235.419
-     ],
-     [
-      179593.151,
-      576235.419
+      179593.283,
+      576235.747
      ],
      [
       179593.284,
@@ -3691,10 +3671,14 @@
      [
       179591.235,
       576243.842
+     ],
+     [
+      179591.235,
+      576243.842
      ]
     ],
     "holesITM": [],
-    "area_m2": 133.436,
+    "area_m2": 133.224,
     "topRel": 3.7,
     "thickness_m": 0.25,
     "bottomRel": 3.45,
@@ -3704,10 +3688,6 @@
    {
     "id": "FS2",
     "footprintITM": [
-     [
-      179600.015,
-      576234.625
-     ],
      [
       179598.116,
       576235.392
@@ -3775,6 +3755,10 @@
      [
       179600.016,
       576234.646
+     ],
+     [
+      179600.015,
+      576234.625
      ]
     ],
     "holesITM": [],
@@ -3838,7 +3822,8 @@
     ],
     "length_m": 0.981,
     "tagDistance_pt": 20.361,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-18",
@@ -3864,7 +3849,8 @@
     ],
     "length_m": 7.28,
     "tagDistance_pt": 1.775,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-17",
@@ -3890,7 +3876,8 @@
     ],
     "length_m": 5.129,
     "tagDistance_pt": 0.112,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-16",
@@ -3916,7 +3903,8 @@
     ],
     "length_m": 0.455,
     "tagDistance_pt": 16.784,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-21",
@@ -3942,7 +3930,8 @@
     ],
     "length_m": 0.901,
     "tagDistance_pt": 1.06,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-29",
@@ -3968,7 +3957,8 @@
     ],
     "length_m": 3.1,
     "tagDistance_pt": 2.323,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-10",
@@ -3994,7 +3984,8 @@
     ],
     "length_m": 10.221,
     "tagDistance_pt": 0.029,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-11",
@@ -4020,7 +4011,8 @@
     ],
     "length_m": 2.865,
     "tagDistance_pt": 2.632,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-12",
@@ -4046,7 +4038,8 @@
     ],
     "length_m": 0.74,
     "tagDistance_pt": 16.72,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-13",
@@ -4072,7 +4065,8 @@
     ],
     "length_m": 2.753,
     "tagDistance_pt": 0.163,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "קורה ללא מספר 30/70",
@@ -4098,7 +4092,8 @@
     ],
     "length_m": 0.947,
     "tagDistance_pt": 10.317,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-27",
@@ -4124,7 +4119,8 @@
     ],
     "length_m": 8.25,
     "tagDistance_pt": 0.168,
-    "status": "source"
+    "status": "source",
+    "pergola": true
    },
    {
     "id": "B-26",
@@ -4150,7 +4146,8 @@
     ],
     "length_m": 2.607,
     "tagDistance_pt": 1.453,
-    "status": "source"
+    "status": "source",
+    "pergola": true
    },
    {
     "id": "B-25",
@@ -4176,7 +4173,8 @@
     ],
     "length_m": 1.71,
     "tagDistance_pt": 15.734,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-24",
@@ -4202,7 +4200,8 @@
     ],
     "length_m": 2.541,
     "tagDistance_pt": 1.198,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-23",
@@ -4228,7 +4227,8 @@
     ],
     "length_m": 2.238,
     "tagDistance_pt": 13.964,
-    "status": "source"
+    "status": "source",
+    "pergola": true
    },
    {
     "id": "B-30",
@@ -4254,7 +4254,8 @@
     ],
     "length_m": 6.198,
     "tagDistance_pt": 15.874,
-    "status": "source"
+    "status": "source",
+    "pergola": true
    },
    {
     "id": "B-28",
@@ -4280,7 +4281,8 @@
     ],
     "length_m": 7.58,
     "tagDistance_pt": 2.937,
-    "status": "source"
+    "status": "source",
+    "pergola": true
    },
    {
     "id": "B-9",
@@ -4306,7 +4308,8 @@
     ],
     "length_m": 7.09,
     "tagDistance_pt": 0.481,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "קורה ללא מספר 30/60",
@@ -4332,7 +4335,8 @@
     ],
     "length_m": 3.553,
     "tagDistance_pt": 14.303,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "קורה ללא מספר 25/60",
@@ -4358,7 +4362,8 @@
     ],
     "length_m": 3.352,
     "tagDistance_pt": 1.252,
-    "status": "source"
+    "status": "source",
+    "pergola": false
    },
    {
     "id": "B-61",

@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 3א – שלד קומת הקרקע (K-21) ותקרתה (K-31)** (ממתין לאישור; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3א](docs/verification/stage-3.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 3 – שלד: קומת הקרקע (K-21), תקרה +3.70 (K-31), קומה א', תקרת הגג +6.90, מעקות ופרגולות עד +8.00 (K-41)** (ממתין לאישור; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3א](docs/verification/stage-3.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 
@@ -50,7 +50,7 @@ js/
 data/
   manifest.json            רשימת קובצי הנתונים
   site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
-  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד קומת הקרקע (tools/extract_floor.py → floor-ground.json)
+  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json)
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   materials/               הגדרות חומרים
 assets/                    טקסטורות PBR ו-HDRI (Poly Haven, CC0 – assets/CREDITS.json)

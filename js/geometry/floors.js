@@ -78,7 +78,7 @@ export function buildFloorSkeleton(ctx, F) {
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls') }, {
-      name: `קיר ${w.tag || w.id} – קומת קרקע`, status: w.status,
+      name: `קיר ${w.tag || w.id} – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
       note: w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', source: w.source,
@@ -104,10 +104,10 @@ export function buildFloorSkeleton(ctx, F) {
     for (const s of C.slab) {
       const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), conc);
       const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, D.provisionalEdgeColor));
-      if (s.area_m2 > 2) g.add(label(`תקרה O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
+      if (s.area_m2 > 2) g.add(label(`${F.ceilingLabel || 'תקרה'} O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
       stats.ceiling_m3 += s.area_m2 * s.thickness_m;
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('Ceiling') }, {
-        name: `תקרת קומת הקרקע ${s.id}`, status: s.status,
+        name: `${F.ceilingLabel || 'תקרת קומת הקרקע'} ${s.id}`, status: s.status,
         rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`]],
         note: (C.mamad?.length ? `כולל תקרת הממ"ד (${C.mamad.map(o => o.area_m2.toFixed(1)).join(', ')} מ"ר) – עובי ומפלס לפי תוכנית הג"א (חסרה). ` : '') + 'האזור המזרחי בלי תקרה ב-+3.70 – חלל כפול (סימון אלכסונים ב-K-31).', source: s.source,
       });
@@ -120,13 +120,13 @@ export function buildFloorSkeleton(ctx, F) {
       const ring = [[E1 - uy * hw, N1 + ux * hw], [E2 - uy * hw, N2 + ux * hw], [E2 + uy * hw, N2 - ux * hw], [E1 + uy * hw, N1 - ux * hw]];
       const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
       const g = new THREE.Group(); g.add(m);
-      g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, ring, H(b.topRel) + D.labelLift_m));
+      g.add(label(`${b.pergola ? 'פרגולה · ' : ''}${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, ring, H(b.topRel) + D.labelLift_m));
       stats.beams_m3 += len * b.width_m * b.depth_m;
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('CeilingBeams') }, {
-        name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – תקרת הקרקע`, status: b.status,
+        name: `${b.pergola ? 'קורת פרגולה' : 'קורה'} ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – ${F.ceilingLabel || 'תקרת הקרקע'}`, status: b.status,
         rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
           ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך', `${len.toFixed(2)} מ'`]],
-        note: b.topRel > (C.slab[0]?.topRel ?? 0) + 0.01 ? 'קורה הפוכה – בולטת מעל פני התקרה.' : '', source: b.source,
+        note: [b.pergola ? 'פרגולה: אין תקרה משני צידי הקורה – מסגרת פתוחה.' : '', C.slab.length && b.topRel > C.slab[0].topRel + 0.01 ? 'קורה הפוכה – בולטת מעל פני התקרה.' : '', b.note || ''].filter(Boolean).join(' '), source: b.source,
       });
       scene.add(g);
     }

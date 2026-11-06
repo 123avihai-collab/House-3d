@@ -1,7 +1,634 @@
 {
  "floor": "first",
  "slab": [],
- "walls": [],
+ "walls": [
+  {
+   "id": "FW1",
+   "tag": "W6",
+   "footprintITM": [
+    [
+     179594.682,
+     576242.74
+    ],
+    [
+     179594.914,
+     576242.646
+    ],
+    [
+     179594.249,
+     576240.998
+    ],
+    [
+     179590.67,
+     576242.443
+    ],
+    [
+     179591.235,
+     576243.842
+    ],
+    [
+     179591.513,
+     576243.73
+    ],
+    [
+     179591.041,
+     576242.562
+    ],
+    [
+     179594.11,
+     576241.323
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 1.724,
+   "thickness_m": 0.25,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W6); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW2",
+   "tag": null,
+   "footprintITM": [
+    [
+     179597.847,
+     576246.059
+    ],
+    [
+     179595.586,
+     576240.458
+    ],
+    [
+     179595.401,
+     576240.533
+    ],
+    [
+     179597.662,
+     576246.134
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 1.208,
+   "thickness_m": 0.2,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW3",
+   "tag": null,
+   "footprintITM": [
+    [
+     179605.675,
+     576239.242
+    ],
+    [
+     179606.824,
+     576242.089
+    ],
+    [
+     179606.936,
+     576242.367
+    ],
+    [
+     179607.215,
+     576242.254
+    ],
+    [
+     179605.953,
+     576239.129
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 1.011,
+   "thickness_m": 0.3,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "standsOn": "קורה B-27 (30/60, O.K +4.05)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW4",
+   "tag": null,
+   "footprintITM": [
+    [
+     179592.296,
+     576245.67
+    ],
+    [
+     179592.371,
+     576245.856
+    ],
+    [
+     179595.672,
+     576244.523
+    ],
+    [
+     179595.215,
+     576243.393
+    ],
+    [
+     179594.984,
+     576243.486
+    ],
+    [
+     179595.365,
+     576244.431
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.967,
+   "thickness_m": 0.202,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW5",
+   "tag": null,
+   "footprintITM": [
+    [
+     179597.489,
+     576234.372
+    ],
+    [
+     179598.578,
+     576237.071
+    ],
+    [
+     179598.764,
+     576236.996
+    ],
+    [
+     179598.2,
+     576235.598
+    ],
+    [
+     179597.562,
+     576234.019
+    ],
+    [
+     179597.163,
+     576234.18
+    ],
+    [
+     179597.276,
+     576234.458
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.711,
+   "thickness_m": 0.43,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": null,
+   "status": "provisional",
+   "note": "אין במקורות אלמנט נושא מתחתיו – תחתית במפלס תקרת הקרקע",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW6",
+   "tag": null,
+   "footprintITM": [
+    [
+     179596.734,
+     576237.947
+    ],
+    [
+     179596.92,
+     576237.873
+    ],
+    [
+     179595.784,
+     576235.061
+    ],
+    [
+     179595.599,
+     576235.135
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.607,
+   "thickness_m": 0.2,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW7",
+   "tag": "W8",
+   "footprintITM": [
+    [
+     179594.603,
+     576247.327
+    ],
+    [
+     179594.602,
+     576247.324
+    ],
+    [
+     179594.597,
+     576247.312
+    ],
+    [
+     179594.497,
+     576247.065
+    ],
+    [
+     179592.811,
+     576247.746
+    ],
+    [
+     179592.923,
+     576248.024
+    ],
+    [
+     179594.61,
+     576247.344
+    ],
+    [
+     179594.604,
+     576247.33
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.546,
+   "thickness_m": 0.3,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W8); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW8",
+   "tag": "W5",
+   "footprintITM": [
+    [
+     179594.574,
+     576239.28
+    ],
+    [
+     179595.891,
+     576238.748
+    ],
+    [
+     179595.779,
+     576238.47
+    ],
+    [
+     179594.462,
+     576239.002
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.426,
+   "thickness_m": 0.3,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W5); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW9",
+   "tag": null,
+   "footprintITM": [
+    [
+     179592.296,
+     576245.67
+    ],
+    [
+     179591.886,
+     576244.655
+    ],
+    [
+     179591.608,
+     576244.767
+    ],
+    [
+     179592.018,
+     576245.783
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.328,
+   "thickness_m": 0.3,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW10",
+   "tag": "W12",
+   "footprintITM": [
+    [
+     179601.372,
+     576244.29
+    ],
+    [
+     179600.444,
+     576244.664
+    ],
+    [
+     179600.557,
+     576244.942
+    ],
+    [
+     179601.484,
+     576244.568
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.3,
+   "thickness_m": 0.3,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "standsOn": "קורה B-28 (30/60, O.K +4.05)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W12); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW11",
+   "tag": "W7",
+   "footprintITM": [
+    [
+     179603.923,
+     576234.902
+    ],
+    [
+     179604.05,
+     576235.217
+    ],
+    [
+     179604.328,
+     576235.105
+    ],
+    [
+     179604.126,
+     576234.604
+    ],
+    [
+     179603.273,
+     576234.949
+    ],
+    [
+     179603.348,
+     576235.134
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.286,
+   "thickness_m": 0.196,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "standsOn": "קורה B-27 (30/60, O.K +4.05)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W7); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW12",
+   "tag": null,
+   "footprintITM": [
+    [
+     179606.824,
+     576242.089
+    ],
+    [
+     179606.138,
+     576242.366
+    ],
+    [
+     179606.25,
+     576242.644
+    ],
+    [
+     179606.936,
+     576242.367
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.222,
+   "thickness_m": 0.3,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "standsOn": "קורה B-28 (30/60, O.K +4.05)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW13",
+   "tag": "W10",
+   "footprintITM": [
+    [
+     179595.045,
+     576239.385
+    ],
+    [
+     179596.179,
+     576238.927
+    ],
+    [
+     179596.123,
+     576238.788
+    ],
+    [
+     179595.937,
+     576238.862
+    ],
+    [
+     179594.988,
+     576239.246
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.183,
+   "thickness_m": 0.15,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W10); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW14",
+   "tag": null,
+   "footprintITM": [
+    [
+     179592.093,
+     576245.968
+    ],
+    [
+     179592.018,
+     576245.783
+    ],
+    [
+     179591.214,
+     576246.107
+    ],
+    [
+     179591.289,
+     576246.293
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.173,
+   "thickness_m": 0.2,
+   "bottomRel": 4.15,
+   "topRel": 6.65,
+   "standsOn": "קורה קורה ללא מספר 30/70 (30/70, O.K +4.15)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW15",
+   "tag": "W4",
+   "footprintITM": [
+    [
+     179596.116,
+     576234.926
+    ],
+    [
+     179596.004,
+     576234.648
+    ],
+    [
+     179595.486,
+     576234.857
+    ],
+    [
+     179595.541,
+     576234.994
+    ],
+    [
+     179595.599,
+     576235.135
+    ],
+    [
+     179595.74,
+     576235.078
+    ],
+    [
+     179595.781,
+     576235.062
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.167,
+   "thickness_m": 0.3,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "standsOn": "קורה B-23 (30/60, O.K +4.05)",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W4); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW16",
+   "tag": "W9",
+   "footprintITM": [
+    [
+     179592.779,
+     576249.393
+    ],
+    [
+     179592.517,
+     576248.745
+    ],
+    [
+     179592.331,
+     576248.819
+    ],
+    [
+     179592.593,
+     576249.468
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.14,
+   "thickness_m": 0.2,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "provisional",
+   "note": "אין תקרת גג (K-41) מעליו – ראש זמני בתחתית תקרת הגג",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W9); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW17",
+   "tag": null,
+   "footprintITM": [
+    [
+     179592.371,
+     576245.856
+    ],
+    [
+     179592.296,
+     576245.67
+    ],
+    [
+     179592.018,
+     576245.783
+    ],
+    [
+     179592.093,
+     576245.968
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.06,
+   "thickness_m": 0.2,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  },
+  {
+   "id": "FW18",
+   "tag": null,
+   "footprintITM": [
+    [
+     179595.891,
+     576238.748
+    ],
+    [
+     179596.077,
+     576238.674
+    ],
+    [
+     179595.968,
+     576238.406
+    ],
+    [
+     179595.964,
+     576238.395
+    ],
+    [
+     179595.779,
+     576238.47
+    ]
+   ],
+   "holesITM": [],
+   "area_m2": 0.06,
+   "thickness_m": 0.2,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+  }
+ ],
  "columns": [
   {
    "id": "C5",
@@ -279,12 +906,13 @@
     60,
     65
    ],
-   "bottomRel": 3.7,
-   "topRel": 6.65,
-   "standsOn": "תקרת הקרקע +3.70",
-   "status": "provisional",
-   "note": "אין תקרת K-41 מעליו – ראש זמני בתחתית תקרת הגג הראשית; משורטט 44/60 (חלקו מוסתר בקיר) מול תווית 60/65 – לפי התווית, רציף עם C9 שמתחתיו",
-   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "bottomRel": 3.45,
+   "topRel": 7.45,
+   "standsOn": "עמוד C9 של קומת הקרקע (רציף)",
+   "status": "source",
+   "note": "משורטט 44/60 (חלקו מוסתר בקיר) מול תווית 60/65 – לפי התווית, רציף עם C9 שמתחתיו; נושא את קורה B-7 – ראש העמוד בתחתית הקורה (+7.45)",
+   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "carries": "B-7"
   },
   {
    "id": "C1",
@@ -381,7 +1009,288 @@
    "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
   }
  ],
- "ceiling": null,
+ "ceiling": {
+  "slab": [
+   {
+    "id": "RS1",
+    "footprintITM": [
+     [
+      179590.763,
+      576242.673
+     ],
+     [
+      179591.235,
+      576243.842
+     ],
+     [
+      179591.439,
+      576243.76
+     ],
+     [
+      179591.812,
+      576244.685
+     ],
+     [
+      179591.608,
+      576244.767
+     ],
+     [
+      179592.018,
+      576245.783
+     ],
+     [
+      179591.665,
+      576245.925
+     ],
+     [
+      179591.74,
+      576246.111
+     ],
+     [
+      179592.111,
+      576245.961
+     ],
+     [
+      179592.155,
+      576246.067
+     ],
+     [
+      179592.34,
+      576245.992
+     ],
+     [
+      179593.015,
+      576247.664
+     ],
+     [
+      179592.811,
+      576247.746
+     ],
+     [
+      179592.923,
+      576248.024
+     ],
+     [
+      179594.61,
+      576247.344
+     ],
+     [
+      179594.492,
+      576247.068
+     ],
+     [
+      179597.542,
+      576245.836
+     ],
+     [
+      179597.662,
+      576246.134
+     ],
+     [
+      179597.847,
+      576246.059
+     ],
+     [
+      179597.727,
+      576245.761
+     ],
+     [
+      179600.444,
+      576244.664
+     ],
+     [
+      179600.557,
+      576244.942
+     ],
+     [
+      179601.484,
+      576244.568
+     ],
+     [
+      179601.372,
+      576244.29
+     ],
+     [
+      179606.138,
+      576242.366
+     ],
+     [
+      179606.25,
+      576242.644
+     ],
+     [
+      179606.931,
+      576242.369
+     ],
+     [
+      179606.936,
+      576242.367
+     ],
+     [
+      179607.214,
+      576242.254
+     ],
+     [
+      179605.952,
+      576239.129
+     ],
+     [
+      179605.675,
+      576239.242
+     ],
+     [
+      179604.05,
+      576235.217
+     ],
+     [
+      179604.328,
+      576235.105
+     ],
+     [
+      179604.125,
+      576234.604
+     ],
+     [
+      179603.273,
+      576234.949
+     ],
+     [
+      179603.352,
+      576235.143
+     ],
+     [
+      179601.398,
+      576235.932
+     ],
+     [
+      179601.323,
+      576235.747
+     ],
+     [
+      179600.86,
+      576235.935
+     ],
+     [
+      179600.339,
+      576234.644
+     ],
+     [
+      179600.555,
+      576234.644
+     ],
+     [
+      179600.48,
+      576234.459
+     ],
+     [
+      179600.016,
+      576234.646
+     ],
+     [
+      179600.091,
+      576234.832
+     ],
+     [
+      179598.199,
+      576235.595
+     ],
+     [
+      179597.562,
+      576234.019
+     ],
+     [
+      179597.163,
+      576234.18
+     ],
+     [
+      179597.276,
+      576234.458
+     ],
+     [
+      179596.116,
+      576234.927
+     ],
+     [
+      179596.004,
+      576234.648
+     ],
+     [
+      179595.486,
+      576234.857
+     ],
+     [
+      179595.541,
+      576234.994
+     ],
+     [
+      179595.599,
+      576235.135
+     ],
+     [
+      179596.894,
+      576238.344
+     ],
+     [
+      179596.067,
+      576238.677
+     ],
+     [
+      179595.964,
+      576238.395
+     ],
+     [
+      179595.779,
+      576238.47
+     ],
+     [
+      179594.462,
+      576239.002
+     ],
+     [
+      179594.574,
+      576239.28
+     ],
+     [
+      179592.178,
+      576240.248
+     ],
+     [
+      179591.68,
+      576239.014
+     ],
+     [
+      179589.621,
+      576239.846
+     ],
+     [
+      179590.763,
+      576242.673
+     ]
+    ],
+    "holesITM": [],
+    "area_m2": 128.815,
+    "topRel": 6.9,
+    "thickness_m": 0.25,
+    "bottomRel": 6.65,
+    "status": "source",
+    "source": "sources/structure/k-41.dxf IfcSlab + קווי קירות/עמודים; Floor Tag O.K=+6.90 D=25"
+   }
+  ],
+  "openings": [],
+  "mamad": [],
+  "beams": [],
+  "placement": {
+   "K41pdf": {
+    "translation_pt": [
+     2994.039,
+     177.44
+    ],
+    "inlierFraction": 0.243,
+    "medianResidual_pt": 0.057
+   }
+  }
+ },
+ "ceilingLabel": "תקרת הגג",
  "roofLevels": [
   {
    "topRel": 6.9,

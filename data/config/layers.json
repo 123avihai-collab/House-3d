@@ -120,7 +120,12 @@
         },
         {
           "id": "groundBeams",
-          "label": "קורות יסוד (זמני – מ-PDF)",
+          "label": "קורות יסוד (מיקום בקירוב – מ-PDF)",
+          "visible": true
+        },
+        {
+          "id": "ceilingBeams",
+          "label": "קורות תקרת המרתף (מיקום בקירוב – מ-PDF)",
           "visible": true
         },
         {

@@ -104,11 +104,11 @@ export function buildFoundations(ctx) {
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
     g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
     stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;
-    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: 'groundBeams' }, {
+    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.stage === 'ceiling' ? 'ceilingBeams' : 'groundBeams' }, {
       name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
       rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
         ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך (בקירוב)', `${L.toFixed(2)} מ'`], ['גיליון', b.sheet]],
-      note: 'מיקום ואורך בקירוב – לפי פס הבטון בתכנית K-400 (PDF). חתך ומפלס – מתווית הקורה. יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,
+      note: (b.stage === 'ceiling' ? 'קורה של תקרת הקרקע מעל המרתף – יושבת על קיר המרתף (לא קורת יסוד). ' : '') + 'חתך ומפלס – מדויקים, מתווית הקורה. מיקום ואורך – בקירוב, לפי פס הבטון בתכנית K-400 (PDF). יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,
     });
     scene.add(g);
   }

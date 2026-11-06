@@ -138,3 +138,5 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 }
 
 .lbl.beam { background: rgba(255,152,0,0.85); color: #1a1a1a; font-size: 10px; }
+.lbl.change { background: rgba(171,71,188,0.92); color: #fff; font-size: 11px; }
+.oc { border-inline-start: 3px solid #ab47bc; padding: 4px 8px; margin: 6px 0; }

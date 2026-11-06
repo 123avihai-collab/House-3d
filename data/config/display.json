@@ -74,6 +74,7 @@
   },
   "framing": {
     "labelLift_m": 0.3,
-    "provisionalEdgeColor": "#ff9800"
+    "provisionalEdgeColor": "#ff9800",
+    "ownerChangeColor": "#ab47bc"
   }
 }

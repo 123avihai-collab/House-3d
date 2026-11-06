@@ -70,6 +70,10 @@ if 'framing' in D:
         for r in D['framing'][k]:
             if 'source' not in r: errors.append(f'framing {k} {r.get("id")} without source')
             if r.get('status') not in ('source', 'provisional', 'missing'): errors.append(f'framing {k} {r.get("id")} bad status')
+if 'ownerChanges' in D:
+    for c in D['ownerChanges']['changes']:
+        for k in ('id', 'date', 'title', 'description', 'source', 'status', 'approvals'):
+            if k not in c: errors.append(f'owner change {c.get("id")} missing {k}')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

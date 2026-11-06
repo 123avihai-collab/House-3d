@@ -24,6 +24,7 @@
     "piles": "data/structure/piles.json",
     "basement": "data/structure/basement.json",
     "excavation": "data/structure/excavation.json",
-    "framing": "data/structure/framing.json"
+    "framing": "data/structure/framing.json",
+    "ownerChanges": "data/changes/owner-changes.json"
   }
 }

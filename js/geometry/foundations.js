@@ -48,18 +48,31 @@ export function buildFoundations(ctx) {
     scene.add(g);
   }
   // slabs
-  for (const s of F.slabs) {
+  // owner changes (data/changes/owner-changes.json): a slab may be replaced by another level/outline
+  const changes = (data.ownerChanges?.changes || []).filter(c => c.replaceSlab);
+  const byId = Object.fromEntries(F.slabs.map(s => [s.id, s]));
+  const slabs = F.slabs.map(s => {
+    const c = changes.find(c => c.replaceSlab.remove === s.id);
+    if (!c) return s;
+    const from = byId[c.replaceSlab.levelFrom], out = byId[c.replaceSlab.outlineFrom];
+    return { ...out, id: `${s.id}→${c.id}`, top: from.top, thickness_m: from.thickness_m, status: 'owner-change', change: c, replaced: s,
+      source: `${c.source}; קו: ${out.source}; מפלס ועובי כמו ${from.id}: ${from.source}` };
+  });
+  for (const s of slabs) {
     if (s.top == null) { stats.beamsMissing.push(s.id); continue; }
     const m = prism(s.outlineITM, s.holesITM || [], H(s.top - s.thickness_m), H(s.top), conc);
     const g = new THREE.Group(); g.add(m);
     const c = s.outlineITM.reduce((a, p) => [a[0] + p[0] / s.outlineITM.length, a[1] + p[1] / s.outlineITM.length], [0, 0]);
-    g.add(label(`רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl beam'));
+    if (s.change) {
+      g.add(edges(m, D.ownerChangeColor));
+      g.add(label(`${s.change.id} · שינוי אביחי: רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)} (במקום ${s.replaced.top.toFixed(2)})`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl change'));
+    } else g.add(label(`רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl beam'));
     stats.slabs_m3 += s.area_m2 * s.thickness_m;
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'slabs' }, {
-      name: `רצפת מרתף ${s.id} (תלויה)`, status: s.status,
+      name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)`, status: s.status,
       rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.top))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
-      note: s.note || 'רצפה תלויה על ארגזי פוליביד 25 ס"מ (דוח קרקע 9.1)', source: s.source,
+      note: s.change ? `${s.change.description} ממתין לאישור: ${s.change.approvals.map(a => a.who).join(', ')}.` : (s.note || 'רצפה תלויה על ארגזי פוליביד 25 ס"מ (דוח קרקע 9.1)'), source: s.source,
     });
     scene.add(g);
   }

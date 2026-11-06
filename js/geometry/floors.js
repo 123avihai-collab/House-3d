@@ -35,10 +35,10 @@ export function buildFloorSkeleton(ctx, F) {
   // floor slab – one panel per drawn face of K-21, each in its zone (house / entry / mamad / terraces / yards / parking)
   const OUTDOOR = new Set(ctx.data.tags.outdoorZones || []);   // cast after the house shell (step outdoorSlabs)
   for (const s of F.slab) {
-    const ghost = s.zone === 'mamad';
-    const mat = ghost ? new THREE.MeshBasicMaterial({ color: D.ownerChangeColor, transparent: true, opacity: D.ownerChangeZoneOpacity * 2, depthWrite: false }) : conc;
-    const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), mat); if (ghost) m.castShadow = false;
-    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, ghost ? D.ownerChangeColor : D.provisionalEdgeColor));
+    const mamad = s.zone === 'mamad';   // concrete like the house slab; purple edge = per the (missing) shelter plan
+    const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), conc);
+    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, mamad ? D.ownerChangeColor : D.provisionalEdgeColor));
+    const ghost = false;
     g.add(label(`${s.zoneLabel} · O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
     if (!ghost) stats.slab_m3 += s.area_m2 * s.thickness_m;
     const layer = s.zone === 'mamad' ? L('Mamad') : OUTDOOR.has(s.zone) ? L('OutdoorSlabs') : L('Slab');
@@ -92,7 +92,7 @@ export function buildFloorSkeleton(ctx, F) {
     g.add(label(`${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, c.footprintITM, H(c.topRel) + D.labelLift_m));
     stats.columns_m3 += new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()).y * c.size_cm[0] * c.size_cm[1] / 1e4;
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Columns') }, {
-      name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, status: c.status,
+      name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}${floor === 'first' ? " – קומה א'" : ''}`, status: c.status,
       rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`], ['יושב על', c.standsOn || '— (חסר במקורות)']],
       note: c.note || '', source: c.source,
     });

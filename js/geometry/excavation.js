@@ -93,6 +93,39 @@ export function buildExcavation(ctx) {
   const meshA = regionMesh(lot, pitA, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrl);
   const mesh = regionMesh(lot, pitZ2, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrl);
 
+  // backfill after the basement walls (construction order): the soil around the basement and the pool is filled and levelled
+  //  - under every ground-floor slab (house, outdoor slabs, mamad): formation = slab underside − build-up below it
+  //    (lean concrete + void formers, the same build-up as under the beams: excavation.json bottomBuildUp)
+  //  - garden / strips without a slab: the planned lot surface (topoPlanned, מפה למשתכן)
+  //  - basement, English courtyards, stairs down, pool / tank: stay open (pit level – the structure fills them)
+  //  - trenches of the K-21 beams are dug into the backfill before the ground-floor pour
+  const FG = data.floorGround;
+  const planned = ground.regions.find(r => r.kind === 'final')?.interp;
+  const bsmRing = data.basement?.outlineITM;
+  const slabs = (FG?.slab || []).map(s => ({ ring: s.footprintITM, holes: s.holesITM || [], z: coords.H0 + s.bottomRel - below }));
+  const openRings = (FG?.openZones || []).filter(o => o.zone !== 'garden').map(o => o.footprintITM);
+  const inPoly = (E, N, s) => pointInRing(E, N, s.ring) && !s.holes.some(h => pointInRing(E, N, h));
+  const backfill = (E, N) => {
+    const open = pitA(E, N);
+    if (bsmRing && pointInRing(E, N, bsmRing)) return open;
+    if (openRings.some(r => pointInRing(E, N, r))) return open;
+    if (poolZ(E, N) < Infinity) return open;
+    const sl = slabs.find(s => inPoly(E, N, s));
+    const z = sl ? sl.z : (planned ? planned(E, N) : open);
+    return Math.min(z, trenchZ(E, N));
+  };
+  backfill.kind = 'backfill';
+  // crisp steps at the slab / opening outlines: control points just inside and outside every ring
+  const ctrlB = ctrl.slice();
+  const edgePts = (r) => { const out = []; const pts = densifyRing(r, D.sampleSpacing_m / 2);
+    for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; const L = Math.hypot(x2 - x1, y2 - y1) || 1;
+      const nx = (y2 - y1) / L, ny = -(x2 - x1) / L; for (const s of [-1, 1]) out.push({ x: x1 + nx * off * s, y: y1 + ny * off * s, z: 0 }); }
+    return out; };
+  for (const s of slabs) ctrlB.push(...edgePts(s.ring));
+  for (const r of openRings) ctrlB.push(...edgePts(r));
+  if (bsmRing) ctrlB.push(...edgePts(bsmRing));
+  const meshC = regionMesh(lot, backfill, coords, materials.get('soilPit'), materials.get('soilCut'), T, ctrlB.filter(p => pointInRing(p.x, p.y, lot)));
+
   // volume (cut below existing ground 2025) on a regular grid
   const g = D.volumeGrid_m;
   let vol = 0, maxDepth = 0;
@@ -185,14 +218,17 @@ const exMeta = {
     note: `מרווח עבודה ${ex.workingSpace_m} מ'${ex.workingSpaceStatus === 'provisional' ? ' – זמני, לאישור' : ''}. ${ex.shoringNote}`, status: ex.shoringStatus,
     source: ex.source,
   };
-  registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stepTo: 'skeletonEnd', layer: 'excavation' }, { ...exMeta, kind: 'marks', pickable: false });
+  registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'walls', layer: 'excavation' }, { ...exMeta, kind: 'marks', pickable: false });
   const gA = new THREE.Group(); gA.add(meshA); scene.add(gA);
   registry.add(gA, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'walls', layer: 'excavation' }, exMeta);
-  const gB = new THREE.Group(); gB.add(mesh); scene.add(gB);
-  registry.add(gB, { floor: 'unit', system: 'site', stage: 'ceiling', stepTo: 'skeletonEnd', layer: 'excavation' }, { ...exMeta, note: `${exMeta.note} כולל תעלות לקורות קומת הקרקע (נחפרות לפני היציקה).` });
+  const gC = new THREE.Group(); gC.add(meshC); scene.add(gC);
+  registry.add(gC, { floor: 'unit', system: 'site', stage: 'ceiling', stepTo: 'skeletonEnd', layer: 'excavation' }, { ...exMeta,
+    name: 'מילוי חוזר ויישור סביב המרתף והבריכה', rows: [['מתחת לרצפות הקרקע', `תחתית הרצפה − ${below.toFixed(2)} מ' (בטון רזה + ארגזי הפרדה)`], ['גינה / רצועות', 'פני הקרקע המתוכננים (מפה למשתכן)'], ['פתוח', 'מרתף, חצרות אנגליות, מדרגות למרתף, בריכה']],
+    note: 'אחרי קירות המרתף והבריכה: מילוי חוזר ויישור. מתחת לרצפות – עד תחתית הרצפה פחות שכבות הביסוס; בגינה – עד פני הקרקע המתוכננים. תעלות קורות K-21 נחפרות במילוי לפני היציקה. גובה המילוי בפועל ושכבות המצע – לפי יועץ הקרקע.',
+    status: 'provisional', source: `${ex.source}; data/structure/floor-ground.json (רצפות); data/site/planned-heights.json (פני קרקע מתוכננים)` });
   scene.add(group);
   for (const w of shoringMeshes) {
-    registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stepTo: 'skeletonEnd', layer: 'shoring' }, {
+    registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stageTo: 'walls', layer: 'shoring' }, {
       name: 'קיר דיפון (זמני – חסר תכנון)', status: 'provisional',
       rows: [['אורך כולל', `${shoringLen.toFixed(1)} מ'`], ['גובה חתך מקסימלי', `${shoringMaxH.toFixed(2)} מ'`], ['שטח דופן', `${shoringArea.toFixed(1)} מ"ר`],
         ['כלונסאות דיפון', 'ø50 לפחות (דוח קרקע 5.6); מרווח/עומק/עוגנים – חסר']],

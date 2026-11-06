@@ -189,6 +189,11 @@
      "visible": true
     },
     {
+     "id": "firstColumns",
+     "label": "עמודי קומה א' (K-31)",
+     "visible": true
+    },
+    {
      "id": "ownerChanges",
      "label": "שינויים של אביחי (סימון אזור)",
      "visible": true

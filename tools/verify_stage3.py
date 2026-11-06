@@ -74,6 +74,11 @@ out += ['', '**בדיקה בלתי תלויה – מידות כוללות של �
         '| מידה | מודל | כתוב ב-K-31 | סטייה |', '|---|---|---|---|',
         f"| אורך כולל (ציר הבניין) | {x1 - x0:.3f} מ' | 17.02 (\"1702\") | {abs(x1 - x0 - 17.02) * 100:.1f} ס\"מ |",
         f"| רוחב כולל | {y1 - y0:.3f} מ' | 14.65 (\"1465\") | {abs(y1 - y0 - 14.65) * 100:.1f} ס\"מ |", '']
+FF = J('data/structure/floor-first.json')
+out += ['## 6. עמודי קומה א\' (K-31 → K-41)', '', '| עמוד | חתך | תווית | תחתית | ראש | יושב על | מעמד |', '|---|---|---|---|---|---|---|']
+for c in FF['columns']:
+    out.append(f"| {c['id']} | {c['size_cm'][0]}/{c['size_cm'][1]} | {'/'.join(map(str, c['tagSize_cm'])) or '—'} | {c['bottomRel']:+.2f} | {c['topRel']:+.2f} | {c.get('standsOn') or '—'} | {c['status']} |")
+out += ['', f"ראש העמודים = תחתית תקרת הגג K-41 (O.K {FF['roofLevels'][0]['topRel']:+.2f}, D={round(FF['roofLevels'][0]['thickness_m'] * 100)}).", '']
 missing = [b['id'] for b in C['beams'] if b['status'] == 'missing']
 out += [f"קורות בלי גיאומטריה (לא שורטטו): {', '.join(missing) or '—'}.", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)

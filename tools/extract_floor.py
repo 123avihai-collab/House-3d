@@ -17,7 +17,7 @@ from shapely.geometry import Polygon, LineString, Point, box, MultiPoint
 from shapely.ops import unary_union, voronoi_diagram, split
 
 ROOT = F.ROOT; r3 = F.r3
-K21, K31, K11 = F.K21, 'sources/structure/k-31.dxf', F.K11
+K21, K31, K11, K41 = F.K21, 'sources/structure/k-31.dxf', F.K11, 'sources/structure/k-41.dxf'
 K31P = "sources/structure/K-31-תוכנית קומה א' - גיאומטריה.pdf"
 K31P_CLIP = (650, 100, 1850, 1200)
 PLOT = 'data/site/plot-5187.json'
@@ -163,6 +163,43 @@ def merge_collinear(L, gap=2.0):
             if a <= cur[1] + gap: cur[1] = max(cur[1], b)
             else: out.append((c, *cur)); cur = [a, b]
         out.append((c, *cur))
+    return out
+
+
+def col_tag(q, ctags):
+    """column tag = "<no>" over "<w>" "/" "<h>" as separate texts: the nearest number below 15 is the column no.; the
+    section = the two numbers from 15 up nearest to that number text (the tag is a compact group around it)"""
+    c = (q.centroid.x, q.centroid.y)
+    num = [(x[0], int(x[1])) for x in ctags if re.match(r'^\d+$', x[1])]
+    nos = sorted((math.dist(p, c), p, n) for p, n in num if n < 15)
+    if not nos: return None, []
+    _, p0, no = nos[0]
+    sz = [n for d, n in sorted((math.dist(p, p0), n) for p, n in num if n >= 15)[:2]]
+    return no, sorted(sz)
+
+
+def beam_tags_all(path, t):
+    """every beam section tag "w/h; O.K=±x.xx" of the sheet, with the beam number next to it when there is one
+    (some beams of K-31 – around the mamad and the stair hall – carry a section tag without a number)"""
+    p = pymupdf.open(os.path.join(ROOT, path))[0]; L = []
+    for b in p.get_text('dict')['blocks']:
+        for l in b.get('lines', []):
+            L.append((''.join(sp['text'] for sp in l['spans']).strip(), l['bbox']))
+    ids = [(txt, bb) for txt, bb in L if re.match(r'^B-\d+$', txt)]
+    out, used = [], set()
+    for txt, bb in L:
+        m = re.match(r'^(\d+)/(\d+); O\.K=([+-]\d\.\d+)', txt)
+        if not m: continue
+        vert = (bb[3] - bb[1]) > (bb[2] - bb[0])
+        cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+        near = sorted((math.dist(((i[1][0] + i[1][2]) / 2, (i[1][1] + i[1][3]) / 2), (cx, cy)), k) for k, i in enumerate(ids) if k not in used)
+        if near and near[0][0] < 45:
+            k = near[0][1]; used.add(k); name = ids[k][0]; ib = ids[k][1]
+            cx, cy = (cx + (ib[0] + ib[2]) / 2) / 2, (cy + (ib[1] + ib[3]) / 2) / 2
+        else:
+            name = f"B-?{m[1]}/{m[2]}@{round(cx)},{round(cy)}"
+        out.append({'id': name, 'w_cm': int(m[1]), 'h_cm': int(m[2]), 'top': float(m[3]), 'tagSheetXY': (cx + t[0], cy + t[1]),
+                    'axis': 'v' if vert else 'h', 'numbered': not name.startswith('B-?')})
     return out
 
 
@@ -412,13 +449,9 @@ def main():
     for q in cols:
         mr = q.minimum_rotated_rectangle; xy = list(mr.exterior.coords)
         a_, b_ = sorted([math.dist(xy[0], xy[1]), math.dist(xy[1], xy[2])])
-        near = sorted(ctags, key=lambda tt: math.dist(tt[0], (q.centroid.x, q.centroid.y)))[:4]
-        nums = [x[1] for x in near if re.match(r'^\d+$', x[1])]
-        # tag = "<no>" + "<w>" "/" "<h>": the two size numbers are the ones matching the hatch, the remaining one is the column no.
         size = (round(a_ * 100), round(b_ * 100))
-        no = next((n for n in nums if int(n) not in size), None)
-        rec = {'id': f'C{no}' if no else f'C?{len(col_out) + 1}', 'footprintITM': ring(q), 'size_cm': list(size),
-               'tagSize_cm': sorted(int(n) for n in nums if int(n) in size)[:2]}
+        no, tsz = col_tag(q, ctags)
+        rec = {'id': f'C{no}' if no else f'C?{len(col_out) + 1}', 'footprintITM': ring(q), 'size_cm': list(size), 'tagSize_cm': tsz}
         rec.update(vertical(q, 'column'))
         rec['source'] = f'{K21} HATCH IfcColumn + Structural Column Tags; מפלסים: {K21}/{K31} Floor Tags'
         col_out.append(rec)
@@ -432,6 +465,16 @@ def main():
         tgt['bands'] = tgt.get('bands', 0) + 1
     for p in panels21:
         if p.get('bands'): p['note'] = (p['note'] + f" כולל {p['bands']} רצועות מעל קירות המרתף שמתחת לקירות הקרקע.").strip()
+    # strips left between the house panels (over the basement walls below, where no ground wall stands): the slab is one
+    # pour over the whole house – close gaps up to 0.6 m, never into courtyards / stairs down / outdoor slabs / the mamad
+    keep_out = unary_union([o['poly'] for o in open21] + [p['poly'] for p in panels21 if p['zone'] != 'house'] + [pool_zone])
+    for p in [p for p in panels21 if p['zone'] == 'house']:
+        mam = unary_union([x['poly'] for x in panels21 if x['zone'] == 'mamad'])
+        g = unary_union([p['poly'], mam]).buffer(0.3, join_style=2).buffer(-0.3, join_style=2).difference(keep_out)
+        g = max(polys(g), key=lambda x: x.area)
+        added = g.area - p['poly'].area
+        p['poly'] = Polygon(g.exterior, [r for r in g.interiors if 2 * Polygon(r).area / Polygon(r).length > 0.3])
+        if added > 0.05: p['note'] = (p['note'] + f' רצועות בין חלקי הרצפה (מעל קירות המרתף) מולאו – {added:.1f} מ"ר.').strip()
     # walls that stop at the ground level (grey fill in K-21 = tops of the basement / light-well walls): the basement wall
     # rises to the level of the ground slab next to it
     caps = []
@@ -450,11 +493,13 @@ def main():
     # ---- K-31 beams: tags + edge lines in the K-31 PDF ----
     H, V = pdf_lines(K31P, K31P_CLIP, t31p)
     H, V = merge_collinear(H), merge_collinear(V)
-    btags = F.pdf_beam_tags(K31P, t31p)
+    btags = beam_tags_all(K31P, t31p)
+    Hd, Vd = merge_collinear(pdf_lines(K31P, K31P_CLIP, t31p)[0], gap=8.0), merge_collinear(pdf_lines(K31P, K31P_CLIP, t31p)[1], gap=8.0)
     beams = []
     for bt in btags:
-        g = beam_geometry(bt, H, V, F.S_CM)
-        rec = {'id': bt['id'], 'width_m': bt['w_cm'] / 100, 'depth_m': bt['h_cm'] / 100, 'topRel': bt['top'],
+        # flush / hidden beams are drawn dashed: retry with dashes joined
+        g = beam_geometry(bt, H, V, F.S_CM) or beam_geometry(bt, Hd, Vd, F.S_CM)
+        rec = {'id': bt['id'] if bt['numbered'] else f"קורה ללא מספר {bt['w_cm']}/{bt['h_cm']}", 'numbered': bt['numbered'], 'width_m': bt['w_cm'] / 100, 'depth_m': bt['h_cm'] / 100, 'topRel': bt['top'],
                'bottomRel': r3(bt['top'] - bt['h_cm'] / 100), 'tagITM': [r3(v) for v in F.sheet2itm(*bt['tagSheetXY'])],
                'source': f"{K31P} תווית {bt['id']} ({bt['w_cm']}/{bt['h_cm']}; O.K={bt['top']:+.2f}) + שני קווי השפה של הקורה"}
         if g:
@@ -505,6 +550,49 @@ def main():
         'source': f'{K21}; {K31}; {K31P}',
     }
     json.dump(out, open(os.path.join(ROOT, 'data/structure/floor-ground.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+
+    # ---- first floor: columns rising from the K-31 slab (hatched in k-31 = cut above the level) up to the K-41 roof slab ----
+    m41 = F.read_dxf(K41)
+    tags41 = F.floor_tags(m41, sheet)
+    panels41 = fill_thin(close(tagged_panels(slab_faces(m41, to), tags41)))
+    cols31 = hatches(m31, 'IfcColumn', to); ctags31 = tag_texts(m31, 'Structural Column Tags', to)
+    beam31 = [(LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2), b) for b in beams if b.get('axisITM')]
+    first_cols = []
+    for q in cols31:
+        mr = q.minimum_rotated_rectangle; xy = list(mr.exterior.coords)
+        size = tuple(round(v * 100) for v in sorted([math.dist(xy[0], xy[1]), math.dist(xy[1], xy[2])]))
+        no, tag_size = col_tag(q, ctags31)
+        sup = [(p['top'], f"תקרת הקרקע +{p['top']:.2f}") for p in panels31 if q.intersection(p['poly']).area > 0.25 * q.area]
+        # a column standing on a ground-floor column runs on through the slab: continuous from the column below
+        sup += [(c['topRel'], f"עמוד {c['id']} של קומת הקרקע (רציף)") for c in col_out if q.intersection(Polygon(c['footprintITM'])).area > 0.25 * q.area]
+        sup += [(b['topRel'], f"קורה {b['id']} ({round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)}, O.K {b['topRel']:+.2f})")
+                for P, b in beam31 if q.intersection(P).area > 0.25 * q.area]
+        top = level_at(panels41, q)
+        notes, st = [], 'source'
+        if sup: bot, on = max(sup, key=lambda x: x[0])
+        else:
+            bot, on, st = max(panels31, key=lambda p: p['poly'].area)['top'], None, 'provisional'
+            notes.append('אין במקורות אלמנט נושא מתחתיו – תחתית במפלס תקרת הקרקע')
+        if top is None:
+            main = max(panels41, key=lambda p: p['poly'].area); top = (main['top'], main['D']); st = 'provisional'
+            notes.append('אין תקרת K-41 מעליו – ראש זמני בתחתית תקרת הגג הראשית')
+        fp = q
+        if tag_size and sorted(tag_size) != sorted(size):
+            below = [c for c in col_out if q.intersection(Polygon(c['footprintITM'])).area > 0.25 * q.area and sorted(c['size_cm']) == sorted(tag_size)]
+            if below:
+                fp = Polygon(below[0]['footprintITM']); st = 'approx' if st == 'source' else st
+                notes.append(f"משורטט {size[0]}/{size[1]} (חלקו מוסתר בקיר) מול תווית {'/'.join(map(str, tag_size))} – לפי התווית, רציף עם {below[0]['id']} שמתחתיו")
+                size = tuple(sorted(tag_size))
+            else: notes.append(f'חתך משורטט {size[0]}/{size[1]} מול תווית {"/".join(map(str, tag_size))} – לפי השרטוט')
+        first_cols.append({'id': f'C{no}' if no else f'C?{len(first_cols) + 1}', 'footprintITM': ring(fp), 'size_cm': list(size), 'tagSize_cm': tag_size,
+                           'bottomRel': bot, 'topRel': r3(top[0] - top[1]), 'standsOn': on, 'status': st, **({'note': '; '.join(notes)} if notes else {}),
+                           'source': f'{K31} HATCH IfcColumn + Structural Column Tags; מפלסים: {K31}/{K41} Floor Tags'})
+    first = {'floor': 'first', 'slab': [], 'walls': [], 'columns': first_cols, 'ceiling': None,
+             'roofLevels': [{'topRel': t_['top'], 'thickness_m': t_['thickness_m']} for t_ in tags41],
+             'note': 'קומה א\': עמודים בלבד בשלב זה (בקשת אביחי). קירות קומה א\' ותקרת הגג – בהמשך (שלב 3ג/3ד).',
+             'source': f'{K31}; {K41}'}
+    json.dump(first, open(os.path.join(ROOT, 'data/structure/floor-first.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('first-floor columns', [(c['id'], c['size_cm'], c['tagSize_cm'], c['bottomRel'], c['topRel'], c['standsOn'], c['status']) for c in first_cols])
     print('k31 vs k21 columns', [r3(v) for v in same_coords], 'K31pdf', [r3(v) for v in t31p], r3(tp[0]), r3(tp[2]))
     print('ground slab', [(s['id'], s['topRel'], s['area_m2'], s['status']) for s in out['slab']])
     print('walls', [(w['id'], w['tag'], w['thickness_m'], w['bottomRel'], w['topRel'], w['status']) for w in wall_out])

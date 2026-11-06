@@ -3,7 +3,7 @@
   "project": {
     "name": "מגרש 5187 · שכונת רקפות · באר שבע",
     "stage": "3א",
-    "stageLabel": "שלב 3א – שלד קומת הקרקע (K-21) ותקרתה (K-31)"
+    "stageLabel": "שלב 3א – שלד קומת הקרקע, תקרתה ועמודי קומה א' (K-21, K-31)"
   },
   "files": {
     "origin": "data/site/origin.json",
@@ -29,6 +29,7 @@
     "plumbingFoundations": "data/systems/plumbing-foundations.json",
     "ownerChangesGeometry": "data/changes/owner-changes-geometry.json",
     "pool": "data/structure/pool.json",
-    "floorGround": "data/structure/floor-ground.json"
+    "floorGround": "data/structure/floor-ground.json",
+    "floorFirst": "data/structure/floor-first.json"
   }
 }

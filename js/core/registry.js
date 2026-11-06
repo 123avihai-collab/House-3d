@@ -53,18 +53,25 @@ export class Registry {
     this.listeners.forEach(f => f());
   }
   applyOpacity(it, opacity) {
+    // materials are shared between components of all floors (one concrete for every wall/slab): a floor's transparency
+    // must not leak to the others, so a component gets its own copy of a material the first time it is made transparent
     it.object.traverse(o => {
-      const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
-      for (const m of mats) {
-        if (m.userData.baseOpacity === undefined) {
-          m.userData.baseOpacity = m.opacity;
-          m.userData.baseTransparent = m.transparent;
-        }
-        const op = m.userData.baseOpacity * opacity;
-        m.opacity = op;
-        m.transparent = m.userData.baseTransparent || op < 0.999;
-        m.depthWrite = !m.transparent || m.userData.baseTransparent === false;
+      if (!o.material) return;
+      if (opacity < 0.999 && !o.userData.ownMat) {
+        o.userData.sharedMat = o.material;
+        o.material = Array.isArray(o.material) ? o.material.map(m => m.clone()) : o.material.clone();
+        o.userData.ownMat = true;
       }
+      if (!o.userData.ownMat) return;   // fully opaque and never changed: keep the shared material untouched
+      const base = Array.isArray(o.userData.sharedMat) ? o.userData.sharedMat : [o.userData.sharedMat];
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach((m, i) => {
+        const b = base[i] || base[0];
+        m.opacity = b.opacity * opacity;
+        m.transparent = b.transparent || m.opacity < 0.999;
+        m.depthWrite = b.transparent ? b.depthWrite : !m.transparent;
+        m.needsUpdate = true;
+      });
     });
   }
   pickables() {

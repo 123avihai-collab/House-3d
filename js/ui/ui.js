@@ -48,6 +48,12 @@ export class UI {
         app.store.set({ ownerChanges: Object.fromEntries(Object.keys(cur).map(k => [k, !anyOn])) }, { label: 'ownerChanges' });
         this.toast(anyOn ? 'מוצג לפי התוכניות (שינויים כבויים)' : 'מוצגים השינויים של אביחי');
       } }, '')),
+      // floors made see-through in the "קומות" tab (saved in the browser): shown here, one click restores
+      (this.opBadge = h('button', { class: 'oc-badge op-badge', title: 'יש קומה שקופה (לשונית "קומות"). לחיצה – החזרת כל הקומות לאטומות', onclick: () => {
+        const f = app.store.get().floors;
+        app.store.set({ floors: Object.fromEntries(Object.entries(f).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' });
+        this.toast('כל הקומות אטומות');
+      } }, '')),
       h('div', { class: 'actions' },
         btn('↶', 'ביטול (Ctrl+Z)', () => app.store.undo(), 'undo'),
         btn('↷', 'חזרה (Ctrl+Y)', () => app.store.redo(), 'redo'),
@@ -55,7 +61,7 @@ export class UI {
         btn('⤒', 'ייבוא הגדרות', () => fileIn.click()),
         btn('📷', 'צילום מסך (PNG)', () => { const a = h('a', { href: app.viewer.screenshot(), download: `house3d-5187-${Date.now()}.png` }); a.click(); }),
         btn('🔗', 'העתק קישור לתצוגה הנוכחית', () => { navigator.clipboard?.writeText(app.viewLink()); this.toast('הקישור הועתק'); }),
-        btn('☰', 'פאנל', () => document.body.classList.toggle('panel-open'), 'panelToggle'),
+        btn('☰', 'פאנל: פתיחה / סגירה', () => this.togglePanel(), 'panelToggle'),
         fileIn));
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -72,6 +78,11 @@ export class UI {
       this.ocBadge.classList.toggle('off', !on);
     }
     const s = this.app.store.get();
+    if (this.opBadge) {
+      const see = this.app.data.tags.floors.filter(f => (s.floors[f.id]?.opacity ?? 1) < 0.999);
+      this.opBadge.style.display = see.length ? '' : 'none';
+      this.opBadge.textContent = `שקיפות: ${see.map(f => f.label).join(', ')} · איפוס`;
+    }
     document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === s.mode));
     this.$('undo').disabled = !this.app.store.canUndo();
     this.$('redo').disabled = !this.app.store.canRedo();
@@ -108,13 +119,31 @@ export class UI {
     ];
     this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
     this.body = h('div', { class: 'panel-body' });
-    p.append(this.tabBar, this.body);
+    this.wideBtn = h('button', { class: 'small', title: 'הרחבה / כיווץ של הפאנל', onclick: () => this.setPanel(this.panelOpen(), !document.body.classList.contains('panel-wide')) }, '⇤');
+    const head = h('div', { class: 'panel-head' }, h('b', {}, 'פאנל'), this.wideBtn,
+      h('button', { class: 'small', title: 'סגירת הפאנל', onclick: () => this.setPanel(false) }, '✕'));
+    p.append(head, this.tabBar, this.body);
+    let saved = {}; try { saved = JSON.parse(localStorage.getItem('panelState') || '{}'); } catch {}
+    this.isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+    this.setPanel(this.isMobile() ? false : saved.open !== false, !!saved.wide, false);
     this.openTab(this.tab, false);
+  }
+  panelOpen() { return this.isMobile() ? document.body.classList.contains('panel-open') : !document.body.classList.contains('panel-closed'); }
+  togglePanel() { this.setPanel(!this.panelOpen()); }
+  setPanel(open, wide = document.body.classList.contains('panel-wide'), persist = true) {
+    const b = document.body.classList;
+    b.toggle('panel-open', open); b.toggle('panel-closed', !open); b.toggle('panel-wide', wide);
+    this.wideBtn.textContent = wide ? '⇥' : '⇤';
+    this.wideBtn.title = wide ? 'כיווץ הפאנל' : 'הרחבת הפאנל';
+    this.$('panelToggle')?.classList.toggle('on', open);
+    if (persist) try { localStorage.setItem('panelState', JSON.stringify({ open, wide })); } catch {}
+    const rs = () => window.dispatchEvent(new Event('resize'));
+    requestAnimationFrame(rs); setTimeout(rs, 260);
   }
   openTab(id, show = true) {
     this.tab = id;
     this.tabBar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
-    if (show) document.body.classList.add('panel-open');
+    if (show && !this.panelOpen()) this.setPanel(true);
     this.refreshPanel();
   }
   refreshPanel(only) {
@@ -153,7 +182,8 @@ export class UI {
 
   panel_floors() {
     const { app } = this; const s = app.store.get();
-    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הצגה, הסתרה ושקיפות לכל קומה. בשלב 1 יש רכיבים רק ב"מגרש וסביבה".'));
+    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הצגה, הסתרה ושקיפות לכל קומה (נשמר בדפדפן).'),
+      h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות')));
     for (const f of app.data.tags.floors) {
       const st = s.floors[f.id];
       const count = app.registry.items.filter(i => i.tags.floor === f.id).length;

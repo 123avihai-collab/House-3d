@@ -137,6 +137,11 @@
           "id": "columns",
           "label": "עמודים",
           "implemented": false
+        },
+        {
+          "id": "ownerChanges",
+          "label": "שינויים של אביחי (סימון אזור)",
+          "visible": true
         }
       ]
     },
@@ -176,15 +181,22 @@
       "id": "drainage",
       "label": "ניקוז",
       "system": "drainage",
-      "implemented": false,
+      "implemented": true,
       "layers": [
         {
+          "id": "drainChambers",
+          "label": "תאי ביוב/שאיבה (מתוכנית האינסטלציה)",
+          "visible": true
+        },
+        {
           "id": "drainPipes",
-          "label": "צנרת"
+          "label": "צנרת",
+          "implemented": false
         },
         {
           "id": "drainChannels",
-          "label": "תעלות"
+          "label": "תעלות",
+          "implemented": false
         }
       ]
     },

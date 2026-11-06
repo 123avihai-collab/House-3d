@@ -96,3 +96,52 @@ export function buildFoundations(ctx) {
   }
   return stats;
 }
+
+// Plumbing items that belong to the foundations stage (data/systems/plumbing-foundations.json): chambers.
+export function buildPlumbingFoundations(ctx) {
+  const { data, coords, registry, scene, materials, display } = ctx;
+  const P = data.plumbingFoundations; if (!P) return null;
+  const D = display.plumbing;
+  for (const c of P.chambers) {
+    const r = c.diameter_m / 2, h = c.TL - c.IL;
+    const geo = new THREE.CylinderGeometry(r, r, h, D.radialSegments, 1, true);
+    const mat = new THREE.MeshStandardMaterial({ color: D.chamberColor, roughness: 0.6, side: THREE.DoubleSide });
+    const m = new THREE.Mesh(geo, mat); m.position.copy(coords.toLocal(c.E, c.N, (c.TL + c.IL) / 2)); m.castShadow = true;
+    const g = new THREE.Group(); g.add(m);
+    const d = document.createElement('div'); d.className = 'lbl ' + (c.affectedBy ? 'change' : 'beam');
+    d.textContent = `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}${c.affectedBy ? ' · מושפע מ-' + c.affectedBy : ''}`;
+    const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.4)); g.add(o);
+    registry.add(g, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, {
+      name: `${c.id} – ${c.title}`, status: c.affectedBy ? 'owner-change' : c.status,
+      rows: [['קוטר', `${Math.round(c.diameter_m * 100)} ס"מ`], ['T.L. (מכסה)', coords.fmtH(c.TL)], ['I.L. (תחתית)', coords.fmtH(c.IL)], ['עומק', `${c.H_m.toFixed(2)} מ'`],
+        ['ITM', `${c.E.toFixed(3)} / ${c.N.toFixed(3)}`]],
+      note: c.note || null, source: c.source,
+    });
+    scene.add(g);
+  }
+  return { chambers: P.chambers.length };
+}
+
+// Owner-change zones (data/changes/owner-changes.json → zone): a translucent purple box over the changed area.
+export function buildOwnerChangeZones(ctx) {
+  const { data, coords, registry, scene, display } = ctx;
+  const D = display.framing;
+  for (const c of (data.ownerChanges?.changes || [])) {
+    if (!c.zone) continue;
+    const s = data.framing.slabs.find(x => x.id === c.zone.outlineFrom); if (!s) continue;
+    const toV = ([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); };
+    const g0 = new THREE.ExtrudeGeometry(new THREE.Shape(s.outlineITM.map(toV)), { depth: c.zone.toRel - c.zone.fromRel, bevelEnabled: false });
+    g0.rotateX(-Math.PI / 2); g0.translate(0, c.zone.fromRel, 0);
+    const mat = new THREE.MeshBasicMaterial({ color: D.ownerChangeColor, transparent: true, opacity: D.ownerChangeZoneOpacity, depthWrite: false });
+    const m = new THREE.Mesh(g0, mat); m.renderOrder = 4;
+    const g = new THREE.Group(); g.add(m);
+    g.add(new THREE.LineSegments(new THREE.EdgesGeometry(g0), new THREE.LineBasicMaterial({ color: D.ownerChangeColor })));
+    const d = document.createElement('div'); d.className = 'lbl change'; d.textContent = `${c.id} · אזור משתנה (שינוי אביחי)`;
+    const cen = s.outlineITM.reduce((a, p) => [a[0] + p[0] / s.outlineITM.length, a[1] + p[1] / s.outlineITM.length], [0, 0]);
+    const o = new CSS2DObject(d); o.position.copy(coords.toLocal(cen[0], cen[1], coords.H0 + c.zone.toRel + 0.3)); g.add(o);
+    registry.add(g, { floor: 'unit', system: 'structure', stage: 'excavation', layer: 'ownerChanges' }, {
+      name: `${c.id} – ${c.title}`, status: 'owner-change', note: `${c.description} ${c.zone.note}`, source: c.source,
+    });
+    scene.add(g);
+  }
+}

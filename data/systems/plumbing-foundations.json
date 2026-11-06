@@ -1,0 +1,30 @@
+{
+ "placement": {
+  "martefToK11_cm": [
+   -21571.501,
+   1896.69
+  ],
+  "inlierFraction": 0.268,
+  "medianResidual_cm": 0.01,
+  "method": "ICP על קווי הקירות (A-WALL/S-STRS של הבלוק martef מול IfcWall של k-11.dxf)"
+ },
+ "chambers": [
+  {
+   "id": "PC-1",
+   "kind": "pumpChamber",
+   "title": "תא שאיבה לניקוז חצרות אנגליים",
+   "E": 179589.156,
+   "N": 576241.782,
+   "diameter_m": 0.6,
+   "TL": 277.88,
+   "IL": 276.68,
+   "H_m": 1.2,
+   "status": "source",
+   "affectedBy": "OC-1",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD (TL=277.88, IL=276.68, H=1.20, D=%%C60) + סמל MH D1000",
+   "note": "התא תוכנן לניקוז החצר האנגלית במפלס ‎-1.50. OC-1 משנה את האזור – לבדוק מחדש מול יועץ האינסטלציה."
+  }
+ ],
+ "pipeCrossings": [],
+ "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf"
+}

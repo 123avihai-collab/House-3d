@@ -5,7 +5,7 @@
   "description": "3D model of lot 5187, Rakafot, Be'er Sheva — static Three.js site",
   "scripts": {
     "test": "python3 tools/validate_data.py && node tests/smoke.mjs",
-    "extract": "python3 tools/extract_site.py && python3 tools/derive_site.py && python3 tools/extract_structure.py && python3 tools/extract_framing.py",
+    "extract": "python3 tools/extract_site.py && python3 tools/derive_site.py && python3 tools/extract_structure.py && python3 tools/extract_framing.py && python3 tools/extract_plumbing.py",
     "serve": "python3 -m http.server 8080"
   }
 }

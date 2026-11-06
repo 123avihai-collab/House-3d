@@ -25,6 +25,7 @@
     "basement": "data/structure/basement.json",
     "excavation": "data/structure/excavation.json",
     "framing": "data/structure/framing.json",
-    "ownerChanges": "data/changes/owner-changes.json"
+    "ownerChanges": "data/changes/owner-changes.json",
+    "plumbingFoundations": "data/systems/plumbing-foundations.json"
   }
 }

@@ -45,11 +45,17 @@ export function buildExcavation(ctx) {
     return z;
   };
   const pitOnly = pitZ;
-  const pitZ2 = (E, N) => Math.min(pitOnly(E, N), trenchZ(E, N));
+  // local pits for chambers below the excavation bottom (plumbing plan: I.L. of the chamber)
+  const chambers = (data.plumbingFoundations?.chambers || []).filter(c => c.IL < zb);
+  const chamberZ = (E, N) => { let z = Infinity; for (const c of chambers) if (Math.hypot(E - c.E, N - c.N) <= c.diameter_m / 2) z = Math.min(z, c.IL); return z; };
+  const pitZ2 = (E, N) => Math.min(pitOnly(E, N), trenchZ(E, N), chamberZ(E, N));
   pitZ2.kind = 'excavation';
   const lot = data.plot.ring;
   const T = { ...display.terrain, sampleSpacing_m: D.sampleSpacing_m, boundaryDensify_m: D.sampleSpacing_m };
   const ctrl = densifyRing(floor, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
+  for (const c of chambers) for (const k of [0.98, 1.02]) for (let i = 0; i < 16; i++) {
+    const a = i / 16 * 2 * Math.PI; ctrl.push({ x: c.E + Math.cos(a) * c.diameter_m / 2 * k, y: c.N + Math.sin(a) * c.diameter_m / 2 * k, z: 0 });
+  }
   // crisp trench walls: control points just inside / outside every trench edge
   for (const t of trenches) for (const off of [-1, 1]) for (const k of [0.999, 1.001]) {
     const n = Math.max(2, Math.ceil(t.L / D.sampleSpacing_m));
@@ -141,7 +147,8 @@ export function buildExcavation(ctx) {
   const c = bottom.reduce((a, p) => [a[0] + p[0] / bottom.length, a[1] + p[1] / bottom.length], [0, 0]);
   const lo = new CSS2DObject(lbl); lo.position.copy(coords.toLocal(c[0], c[1], zb + 0.4)); group.add(lo);
 
-  const stats = { volume_m3: vol + trenchVol, pitVolume_m3: vol, trenchVolume_m3: trenchVol, trenchCount: trenches.length, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(floor)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH, shoringArea_m2: shoringArea };
+  const chamberVol = chambers.reduce((a, c) => a + Math.PI * (c.diameter_m / 2) ** 2 * Math.max(0, zb - c.IL), 0);
+  const stats = { chamberPitVolume_m3: chamberVol, volume_m3: vol + trenchVol + chamberVol, pitVolume_m3: vol, trenchVolume_m3: trenchVol, trenchCount: trenches.length, maxDepth_m: maxDepth, bottomArea_m2: Math.abs(ringArea(floor)), shoringLength_m: shoringLen, shoringMaxHeight_m: shoringMaxH, shoringArea_m2: shoringArea };
   registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'ceiling', layer: 'excavation' }, {
     name: 'חפירה ליחידת הדיור (מרתף)', kind: 'terrain', role: 'excavation', ring: lot,
     hMin: zb, hMax: mesh.userData.hMax, area: stats.bottomArea_m2,

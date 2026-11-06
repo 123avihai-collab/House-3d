@@ -75,6 +75,11 @@
   "framing": {
     "labelLift_m": 0.3,
     "provisionalEdgeColor": "#ff9800",
-    "ownerChangeColor": "#ab47bc"
+    "ownerChangeColor": "#ab47bc",
+    "ownerChangeZoneOpacity": 0.18
+  },
+  "plumbing": {
+    "chamberColor": "#26a69a",
+    "radialSegments": 24
   }
 }

@@ -309,8 +309,10 @@ export function buildPool(ctx) {
   const wg = new THREE.Group();
   for (const w of P.wallsITM) wg.add(prism(w, poolBottom, P.deck));
   for (const w of T.wallsITM) wg.add(prism(w, T.slabUnderside, T.top));
+  for (const w of T.underGutterWallsITM || []) wg.add(prism(w, T.slabUnderside, T.underGutterWallsTop));   // under the gutter – stop at its underside
   if (PL.channel) {
     for (const w of PL.channel.wallsITM) wg.add(prism(w, PL.channel.bottom, PL.channel.top));
+    if (PL.channel.floor != null) wg.add(prism(PL.channel.outerITM, PL.channel.bottom, PL.channel.floor));   // channel floor slab (section B)
     wg.add(lbl('תעלת כיסוי הבריכה', PL.channel.outerITM, PL.channel.top + 0.4));
   }
   const G = PL.gutter;

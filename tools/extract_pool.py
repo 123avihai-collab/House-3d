@@ -72,9 +72,10 @@ def main():
     extra = [rect(u0, u1, GUTTER_W, GUTTER_W + LIP_W),   # north wall = gutter lip
              rect(u0, u1, v1 - TANK_WALL, v1)]             # south wall continuous in K-400 (k-21 shows it cut by an opening above the floor)
     tank_pit = rect(u0, u1, 0.0, v1)                       # walls on both sides of the strip under the gutter reach the machine-room bottom
+    under_gutter = []   # side walls continued under the gutter: they stop at the gutter's underside so the gutter stays open
     for w in tank_walls:
         wu0, wu1, wv0, wv1 = lb(w)
-        if wv0 - v0 < 0.05 and wu1 - wu0 < 0.4: extra.append(rect(wu0, wu1, 0.0, GUTTER_W))
+        if wv0 - v0 < 0.05 and wu1 - wu0 < 0.4: under_gutter.append(rect(wu0, wu1, 0.0, GUTTER_W))
     tank_walls = tank_walls + extra
     tank_check = {'k21_offsetFromPool_m': r3(v0), 'expected_m': GUTTER_W + LIP_W, 'eastEnd_vs_poolEnd_m': r3(min(abs(u0), abs(u1 - 8.40), abs(u1), abs(u0 - 8.40)))}
     west = [P[k]['headRel'] + H0 for k in ('28', '30')]; east = [P[k]['headRel'] + H0 for k in ('29', '31')]
@@ -95,7 +96,7 @@ def main():
                     'floor': CHANNEL_FLOOR, 'bottom': CHANNEL_BOTTOM, 'status': 'source',
                     'note': 'תעלת תריס כיסוי הבריכה (בצד המזרחי, מעבר לתעלת הגלישה; K-400/K-21). רוחב פנים 45 ס"מ, רצפה 280.05, תחתית 279.90 – נמדדו בחתך ב (קנ"מ 1:50 מאומת).',
                     'source': f'{F.K21} (IfcWall); tools/pool-pieces.json; {F.K400}'},
-        'tank': {'outerITM': ring(tank_outer), 'pitITM': ring(tank_pit), 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
+        'tank': {'outerITM': ring(tank_outer), 'pitITM': ring(tank_pit), 'underGutterWallsITM': [ring(q) for q in under_gutter], 'underGutterWallsTop': GUTTER_BOT, 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
                  'top': DECK_SLAB_TOP, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),
                  'joinedToPool': 'צמוד לבריכה (K-400, חתך א): הקיר הצפוני = שפת תעלת הגלישה (0.25–0.45 מ מהבריכה), קירות הצד ממשיכים מתחת לתעלה עד קיר הבריכה',
                  'check': tank_check, 'wallBottom': r3(TANK_FLOOR - TANK_SLAB),

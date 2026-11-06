@@ -282,5 +282,65 @@
   "status": "owner",
   "source": "A_1 גרסה 18 §7: גובה פנימי עד 2.60 מ' + תקרה 0.10 מ' (החלטת אביחי 06.11.2026); תמל/1016 §4.1.2: מבנה חניה עד 30 מ\"ר, מותר בקו בניין צדדי 0",
   "why": "2.60 פנים + 0.10 תקרה"
+ },
+ "details": {
+  "_doc": "Display rules for the detailed neighbourhood. Values marked (rule) come from the named document; the rest are illustrative (window layout, spacing of street trees and lamps).",
+  "house": {
+   "cell_m": 0.5,
+   "smooth_m": 2.0,
+   "floor_m": 3.5,
+   "minWall_m": 2.4,
+   "windowPitch_m": 3.0,
+   "windowEdge_m": 0.8,
+   "windowWidth_m": 1.4,
+   "sill_m": 0.9,
+   "head_m": 2.4,
+   "doorWidth_m": 1.2,
+   "doorHeight_m": 2.4,
+   "upperSetback_m": 2.0
+  },
+  "fence": {
+   "frontHeight_m": 1.8,
+   "frontHeight_why": "(rule) A_1 §14.2.1: מינימום 1.80 ממפלס המדרכה, מקסימום 2.40",
+   "neighbourHeight_m": 1.6,
+   "neighbourHeight_why": "(rule) A_1 §14.5: עד 1.60 ממפלס המגרש הגבוה",
+   "stepLength_m": 4.0,
+   "step_why": "(rule) A_1 §14.3: לא פחות מ-4 מ' בין דירוג לדירוג",
+   "stepRound_m": 0.2,
+   "minAboveYard_m": 1.0,
+   "thickness_m": 0.25,
+   "thickness_why": "(rule) נספח 009 פרט 5.1: קיר 25",
+   "copingWidth_m": 0.3,
+   "copingThick_m": 0.045,
+   "claddingHeight_m": 0.65,
+   "cladding_why": "(rule) נספח 009 פרט 5.1: חיפוי אריח לגובה מקסימלי 65 ס\"מ, מעליו טיח",
+   "footing_m": 0.3,
+   "pedGateWidth_m": 1.2,
+   "pedGateMaxDist_m": 1.5,
+   "carGateMaxDist_m": 2.0
+  },
+  "yard": {
+   "pathWidth_m": 1.2,
+   "houseApron_m": 0.6,
+   "treeEvery_m": 8.0,
+   "treeInset_m": 1.5,
+   "treeClear_m": 1.2,
+   "treeHeight_m": 4.5,
+   "treeCrown_m": 3.0
+  },
+  "street": {
+   "curbHeight_m": 0.15,
+   "curbWidth_m": 0.17,
+   "curb_why": "(rule) נספח 003 פרט 13: אבן שפה 17/25/100 (בולטת 15 ס\"מ – המחשה)",
+   "bayLength_m": 6.0,
+   "treeHeight_m": 6.0,
+   "treeCrown_m": 3.6,
+   "islandEvery_m": 12.0,
+   "islandRadius_m": 1.4,
+   "lampEvery_m": 22.0,
+   "lampInset_m": 0.6,
+   "lampMinGap_m": 12.0,
+   "lampHeight_m": 6.0
+  }
  }
 }

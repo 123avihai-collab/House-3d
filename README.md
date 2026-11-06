@@ -15,6 +15,7 @@ node tools/verify_stage1.mjs   # טבלת אימות שלב 1
 node tools/verify_stage2.mjs   # טבלת אימות שלב 2 (חפירה + כלונסאות)
 python3 tools/environment/extract_environment.py   # סביבה: מגרשים שכנים, רחובות, מעטפות -> data/environment/
 python3 tools/environment/extract_sheet04.py       # גיליון 04 סרוק: בית/חניה/כניסה לכל שכן -> data/environment/sheet04.json (אחריו להריץ שוב extract_environment)
+python3 tools/environment/derive_details.py        # בינוי ופיתוח מפורטים -> data/environment/details.json
 python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 ```
 
@@ -52,6 +53,7 @@ src/environment/           סביבה (שכונה): מחליף את משטחי �
   streets.js               רחוב משולב (13.0 מ'), תעלה, איים, אבני גן; רחובות ללא גבהים מסומנים בכתום
   envelopes.js             מעטפות מקסימליות (תמל/1016) – נפח ניטרלי, מטיל צל
   sheet04.js               בתי השכנים, מבני חניה וכניסות ראשיות לפי גיליון 04 (סרוק)
+  details.js               בינוי מפורט: בתים (חלונות, דלת, חיפוי עץ), חומות עם חיפוי אבן ושערים, חצרות, עצים, תאורה, אבני שפה
   controls.js              הצגה/הסתרה של השכנים, שקיפות מעטפות, מבט על השכונה
 data/
   manifest.json            רשימת קובצי הנתונים

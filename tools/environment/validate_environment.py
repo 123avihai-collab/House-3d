@@ -61,6 +61,18 @@ for x in S['surfaces']:
     if x['heights'] == 'derived' and x.get('heightStatus') != 'provisional': err.append('derived street height not flagged provisional')
 if any(x['heights'] == 'derived' for x in S['surfaces']) and S['derivedHeightControl']['check']['afterBias_meanAbs_m'] > 0.35:
     err.append('derived street levels deviate > 0.35 m from the DWG inside the frame')
+# detailed neighbourhood (illustration)
+Dp = os.path.join(ROOT, 'data', 'environment', 'details.json')
+if os.path.exists(Dp):
+    DD = json.load(open(Dp, encoding='utf-8')); F = DD['config']['fence']
+    envs = {l['parcel']: Polygon(l['envelope']['ring']).buffer(0.05) for l in L['lots']}
+    for h in DD['houses']:
+        if not envs[h['parcel']].contains(Polygon(h['ring'])): err.append(f"detail house {h['lot']} outside its building lines")
+        if abs(h['top'] - (h['pm0'] + 8.0)) > 0.01: err.append(f"detail house {h['lot']} top != ±0.00 + 8.00")
+    for f in DD['fences']:
+        if f['top'] <= f['base']: err.append('fence with top <= base')
+    for t in DD['trees'] + DD['lamps']:
+        if 'status' not in t: err.append('tree/lamp without status')
 if err:
     print('\n'.join('ENV ERROR: ' + e for e in err)); sys.exit(1)
 print(f"environment data OK: {len(L['lots'])} lots, {sum(1 for l in L['lots'] if l['envelope']['build'])} envelopes, {len(S['surfaces'])} street surfaces")

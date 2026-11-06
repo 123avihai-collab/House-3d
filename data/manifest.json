@@ -28,6 +28,7 @@
     "envStreets": "data/environment/streets.json",
     "envDisplay": "data/environment/display.json",
     "envMaterials": "data/environment/materials.json",
-    "envSheet04": "data/environment/sheet04.json"
+    "envSheet04": "data/environment/sheet04.json",
+    "envDetails": "data/environment/details.json"
   }
 }

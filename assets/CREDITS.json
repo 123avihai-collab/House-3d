@@ -65,5 +65,77 @@
   "authors": {
    "Greg Zaal": "All"
   }
+ },
+ "white_plaster_02": {
+  "name": "White Plaster 02",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/white_plaster_02",
+  "dimensions_mm": [
+   1000,
+   1000
+  ]
+ },
+ "white_sandstone_blocks_02": {
+  "name": "White Sandstone Blocks 02",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/white_sandstone_blocks_02",
+  "dimensions_mm": [
+   2000,
+   2000
+  ]
+ },
+ "wood_planks_grey": {
+  "name": "Wood Planks Grey",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/wood_planks_grey",
+  "dimensions_mm": [
+   1500,
+   1500.0001192092896
+  ]
+ },
+ "leafy_grass": {
+  "name": "Leafy Grass",
+  "authors": {
+   "Charlotte Baglioni": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/leafy_grass",
+  "dimensions_mm": [
+   2000,
+   2000
+  ]
+ },
+ "rectangular_paving": {
+  "name": "Rectangular Paving",
+  "authors": {
+   "Dimitrios Savva": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/rectangular_paving",
+  "dimensions_mm": [
+   2000,
+   2000
+  ]
+ },
+ "bark_brown_02": {
+  "name": "Bark Brown 02",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/bark_brown_02",
+  "dimensions_mm": [
+   999.9990463256836,
+   999.998927116394
+  ]
  }
 }

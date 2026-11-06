@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { makeInterpolator, ringArea } from '../../js/geometry/tin.js';
 import { regionMesh } from '../../js/geometry/terrain.js';
-import { ENV_TAGS, fatLine, label, drape, flatPolygon, centroid } from './common.js';
+import { ENV_TAGS, fatLine, drape } from './common.js';
 
 // Streets around lot 5187 from data/environment/streets.json.
 // Inside the buyer-map frame the surface follows the planned street contours (DWG). Outside it the
@@ -12,6 +12,9 @@ export function buildStreets(ctx, mats) {
   const S = data.envStreets, D = data.envDisplay;
   const ctrl = S.heightControl.points.map(p => ({ x: p.E, y: p.N, z: p.z }));
   const interp = makeInterpolator(ctrl);
+  // outside the buyer-map frame: lot-front levels (heights plan) + the DWG street levels, flagged provisional
+  const dCtrl = (S.derivedHeightControl?.points || []).map(p => ({ x: p.E, y: p.N, z: p.z })).concat(ctrl);
+  const dInterp = dCtrl.length >= 3 ? makeInterpolator(dCtrl) : null;
   const sec = S.integratedStreet.typicalSection;
   const sectionRows = [
     ['חתך טיפוסי', `${sec.name}: ${sec.zones.map(z => `${z.label} ${z.width_m.toFixed(1)}`).join(' | ')} = ${sec.total_m.toFixed(1)} מ'`],
@@ -36,21 +39,25 @@ export function buildStreets(ctx, mats) {
       });
       scene.add(mesh);
       ground.add(s.ring, interp, 'env', `env-street-${i}`);
-    } else {
-      const z = ground.contextZ + D.noDataLift_m;
-      const g = new THREE.Group();
-      g.add(flatPolygon(coords, s.ring, z, mats.get(ZMAT[s.zone] || 'envStreetNoData')));
-      g.add(fatLine(ctx, s.ring.concat([s.ring[0]]).map(([E, N]) => coords.toLocal(E, N, z + 0.01)), D.missingOutlineColor, 1.6, { dashed: true }));
-      if (s.area_m2 > 150) {
-        const c = centroid(s.ring);
-        g.add(label(`${integ ? 'רחוב משולב' : 'רחוב'} (חלקה ${s.parcel}) · אין גבהים במקור`, 'nodata', coords.toLocal(c[0], c[1], z + 0.4), s.note));
-      }
-      registry.add(g, ENV_TAGS('street'), {
-        name: `${nm} – ללא נתוני גובה`, kind: 'street-nodata', parcel: s.parcel, ring: s.ring,
-        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה', `אין במקורות – מוצג על משטח הייחוס (${z.toFixed(2)})`], ...(integ ? sectionRows : zoneRows)],
-        note: s.note, source: s.source,
+    } else if (s.heights === 'derived' && dInterp) {
+      const mesh = regionMesh(s.ring, dInterp, coords, mats.get(ZMAT[s.zone] || 'envStreet'), mats.get('envSide'), display.terrain, dCtrl);
+      const hAt2 = (E, N) => dInterp(E, N);
+      const outline = new THREE.Group();
+      outline.add(fatLine(ctx, drape(coords, s.ring.concat([s.ring[0]]), hAt2, 0.03, 0.6), D.missingOutlineColor, 1.4, { dashed: true }));
+      registry.add(outline, ENV_TAGS('street'), { name: `${nm} – גבול אזור עם גובה משוער`, kind: 'lines', pickable: false });
+      scene.add(outline);
+      const chk = S.derivedHeightControl.check;
+      registry.add(mesh, ENV_TAGS('street'), {
+        name: `${nm} – גובה משוער`, kind: 'terrain', role: 'street', parcel: s.parcel, ring: s.ring, provisional: true,
+        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה מינ׳/מקס׳', `${coords.fmtH(mesh.userData.hMin)} / ${coords.fmtH(mesh.userData.hMax)}`],
+          ['שיטת הגובה', 'אינטרפולציה בין גבהי קצות המגרשים משני צידי הרחוב'],
+          ['בדיקה מול המפה למשתכן', `ממוצע ${chk.mean_m >= 0 ? '+' : ''}${chk.mean_m.toFixed(2)} מ', ממוצע מוחלט ${chk.meanAbs_m.toFixed(2)} מ' (${chk.points} נק')`],
+          ...(integ ? sectionRows : zoneRows)],
+        controlCount: dInterp.count, interp: dInterp.kind,
+        note: s.note, source: `${s.source}; גבהים: ${s.heightSource}`,
       });
-      scene.add(g);
+      scene.add(mesh);
+      ground.add(s.ring, dInterp, 'env', `env-street-${i}`);
     }
   });
 

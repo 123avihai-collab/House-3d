@@ -43,6 +43,7 @@ export function buildSheet04(ctx, mats, lots) {
           ['גובה', `${lot.envelope.height_m.toFixed(2)} מ' מעל ±0.00 → ${top.toFixed(2)} (אותו כלל כמו המעטפת)`],
           ['כניסה ראשית מ', r.entranceFrom ? r.entranceFrom.across : '—'],
           ...(r.buildingTo5187_m != null ? [['מרחק מגבול 5187', `${r.buildingTo5187_m.toFixed(2)} מ'`]] : []),
+          ...(r.clippedToBuildingLines?.removed_m2 > 0.05 ? [['נחתך לקווי הבניין', `${r.clippedToBuildingLines.removed_m2.toFixed(1)} מ"ר (חרג עד ${r.clippedToBuildingLines.maxBeyondLine_m.toFixed(2)} מ')`]] : []),
         ],
         note: georefNote, source: `${S.source} (לבן – מבנה); ${lot.envelope.source}`,
       });
@@ -54,9 +55,9 @@ export function buildSheet04(ctx, mats, lots) {
       const mat = mats.get('envParking').clone(); mat.depthWrite = false;
       const { g } = prism(ring, base, base + P.height_m, mat);
       registry.add(g, ENV_TAGS('neighborParking'), {
-        name: `${name} – מבנה חניה (גיליון 04)`, kind: 'parking', parcel: lot.parcel, footprint: ring, base, height: P.height_m, provisional: true,
-        rows: [['שטח', `${r.parkingArea_m2.toFixed(1)} מ"ר (תמל/1016: עד 30 מ"ר)`], ['גובה', `${P.height_m.toFixed(2)} מ' – גובה פנימי מרבי (A_1 §7)`]],
-        note: `זמני: ${P.why}. ${georefNote}`, source: `${S.source} (סגול – "מבנה חניה"); ${P.source}`,
+        name: `${name} – מבנה חניה (גיליון 04)`, kind: 'parking', parcel: lot.parcel, footprint: ring, base, height: P.height_m,
+        rows: [['שטח', `${r.parkingArea_m2.toFixed(1)} מ"ר (תמל/1016: עד 30 מ"ר)`], ['גובה', `${P.height_m.toFixed(2)} מ' (${P.why})`]],
+        note: georefNote, source: `${S.source} (סגול – "מבנה חניה"); ${P.source}`,
       });
       scene.add(g);
       items.push({ group: g, material: mat });

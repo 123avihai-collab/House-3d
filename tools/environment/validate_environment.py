@@ -56,7 +56,11 @@ if os.path.exists(S4p):
                 if not lp.contains(Polygon(ring)): err.append(f"sheet04 {r['lot']} {kind} outside the lot")
         if not r['building']: err.append(f"sheet04 {r['lot']}: no building found")
         if r['parkingArea_m2'] > 40: err.append(f"sheet04 {r['lot']}: parking {r['parkingArea_m2']} m2 > 40")
-if L.get('parking', {}).get('status') != 'provisional': err.append('parking height must stay flagged provisional')
+if L.get('parking', {}).get('status') not in ('provisional', 'owner') or not L['parking'].get('source'): err.append('parking height needs a status and a source')
+for x in S['surfaces']:
+    if x['heights'] == 'derived' and x.get('heightStatus') != 'provisional': err.append('derived street height not flagged provisional')
+if any(x['heights'] == 'derived' for x in S['surfaces']) and S['derivedHeightControl']['check']['afterBias_meanAbs_m'] > 0.35:
+    err.append('derived street levels deviate > 0.35 m from the DWG inside the frame')
 if err:
     print('\n'.join('ENV ERROR: ' + e for e in err)); sys.exit(1)
 print(f"environment data OK: {len(L['lots'])} lots, {sum(1 for l in L['lots'] if l['envelope']['build'])} envelopes, {len(S['surfaces'])} street surfaces")

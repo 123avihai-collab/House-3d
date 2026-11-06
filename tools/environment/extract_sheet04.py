@@ -127,8 +127,8 @@ def ring(pg):
 
 
 lots_out = []
-targets = [(l['parcel'], l['lot'], l['ring'], l['edges']) for l in L['lots']] + [('257', '5187', plot['ring'], None)]
-for parcel, lot, lr, edges in targets:
+targets = [(l['parcel'], l['lot'], l['ring'], l['edges'], l['envelope']['ring']) for l in L['lots']] + [('257', '5187', plot['ring'], None, None)]
+for parcel, lot, lr, edges, env_ring in targets:
     lp = Polygon(lr)
     lpx = {k: to_px(np.array(lp.buffer(-d).exterior.coords)) for k, d in cfg['lotInset_m'].items()}
     M = cfg['morph_m']
@@ -140,7 +140,13 @@ for parcel, lot, lr, edges in targets:
         bu = bu.difference(unary_union(pk + en).buffer(cfg['separation_m']))
         bu = bu.buffer(-cfg['minWidth_m'] / 2, join_style='mitre').buffer(cfg['minWidth_m'] / 2, join_style='mitre')
         bu = None if bu.is_empty else bu
-    rec = {'parcel': parcel, 'lot': lot,
+    clipped = None
+    if bu is not None and env_ring and cfg.get('clipToBuildingLines', {}).get('use'):
+        before = bu
+        bu = bu.intersection(Polygon(env_ring))
+        bu = None if bu.is_empty else (max(bu.geoms, key=lambda g: g.area) if bu.geom_type != 'Polygon' else bu)
+        clipped = {'removed_m2': r3(before.area - (bu.area if bu else 0)), 'maxBeyondLine_m': r3(max(Polygon(env_ring).exterior.distance(Point(c)) for c in before.exterior.coords if not Polygon(env_ring).contains(Point(c))) if not Polygon(env_ring).contains(before) else 0)}
+    rec = {'parcel': parcel, 'lot': lot, 'clippedToBuildingLines': clipped,
            'building': [ring(g) for g in (bu.geoms if bu is not None and bu.geom_type == 'MultiPolygon' else [bu] if bu else [])],
            'parking': [ring(g) for g in pk], 'entrance': [ring(g) for g in en]}
     rec['buildingArea_m2'] = r3(bu.area) if bu else 0
@@ -154,6 +160,7 @@ for parcel, lot, lr, edges in targets:
                                'distance_m': r3(LineString(f['pts']).distance(ref))}
     # distances of the drawn building from each lot edge (vs the setbacks of TAMAL/1016)
     if edges and bu:
+        rec['buildingToEdgesBeforeClip'] = [{'across': e['across'], 'setback_m': e['setback_m'], 'drawn_m': r3(LineString(e['pts']).distance(before if clipped else bu))} for e in edges] if clipped else None
         rec['buildingToEdges'] = [{'across': e['across'], 'setback_m': e['setback_m'], 'drawn_m': r3(LineString(e['pts']).distance(bu))} for e in edges]
     if parcel != '257' and bu:
         rec['buildingTo5187_m'] = r3(bu.distance(Polygon(plot['ring'])))

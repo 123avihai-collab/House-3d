@@ -1,0 +1,7 @@
+{
+  "name": "house3d-dwg2json",
+  "private": true,
+  "type": "module",
+  "description": "Converts source DWG files to JSON (entities, blocks, header) for the extraction pipeline.",
+  "dependencies": { "@mlightcad/libredwg-web": "0.8.4" }
+}

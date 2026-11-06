@@ -1,0 +1,9 @@
+# Pipeline caches / deps (sources/ IS tracked – uploaded by the owner to this repo)
+tools/cache/
+tools/dwg2json/node_modules/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+# Permit sheet (file contains the owners' names) – not uploaded by the owner; kept local only
+sources/permit/

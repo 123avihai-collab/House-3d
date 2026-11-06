@@ -1,0 +1,69 @@
+{
+ "asphalt_02": {
+  "name": "Asphalt 02",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/asphalt_02",
+  "dimensions_mm": [
+   3000.000238418579,
+   3000
+  ]
+ },
+ "interlocking_concrete_pavers": {
+  "name": "Interlocking Concrete Pavers",
+  "authors": {
+   "Amal Kumar": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/interlocking_concrete_pavers",
+  "dimensions_mm": [
+   1800.0000715255737,
+   1800.0000715255737
+  ]
+ },
+ "concrete_floor_01": {
+  "name": "Concrete Floor 01",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/concrete_floor_01",
+  "dimensions_mm": [
+   2000,
+   2000
+  ]
+ },
+ "dry_ground_01": {
+  "name": "Dry Ground 01",
+  "authors": {
+   "Rob Tuytel": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/dry_ground_01",
+  "dimensions_mm": [
+   4000,
+   4000
+  ]
+ },
+ "excavated_soil_wall": {
+  "name": "Excavated Soil Wall",
+  "authors": {
+   "Amal Kumar": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/excavated_soil_wall",
+  "dimensions_mm": [
+   1999.9996423721313,
+   1999.9996423721313
+  ]
+ },
+ "kloofendal_43d_clear_puresky": {
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/kloofendal_43d_clear_puresky",
+  "authors": {
+   "Greg Zaal": "All"
+  }
+ }
+}

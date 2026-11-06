@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>מגרש 5187 – רקפות</title>
+  <meta name="description" content="מודל תלת-ממדי של מגרש 5187, שכונת רקפות, באר שבע – שלב 1: מגרש, טופוגרפיה וסביבה">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="loading">
+  <header id="topbar"></header>
+  <main id="viewport">
+    <div id="toolbar"></div>
+    <canvas id="minimap" title="מפה קטנה – לחיצה לקפיצה"></canvas>
+    <div id="compass" title="צפון">▲<span>צ</span></div>
+    <div id="info" class="hidden"></div>
+    <div id="hint" class="hidden"></div>
+    <div id="joy"><i></i></div>
+    <div id="loading">טוען את המודל…</div>
+  </main>
+  <aside id="panel"></aside>
+  <footer id="stagebar"></footer>
+  <div id="status">רחף מעל המודל כדי לראות קואורדינטות ITM וגובה</div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

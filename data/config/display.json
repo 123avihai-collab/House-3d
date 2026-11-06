@@ -89,6 +89,9 @@
     "flowArrowColor": "#1565c0",
     "sleeveColor": "#e53935",
     "unknownDiameter_m": 0.11,
-    "labelMinLength_m": 2.0
+    "labelMinLength_m": 2.0,
+    "ghostOpacity": 0.45,
+    "coverRatio": 0.85,
+    "coverThickness_m": 0.06
   }
 }

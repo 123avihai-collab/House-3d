@@ -157,13 +157,27 @@ export function buildPlumbingFoundations(ctx) {
   const { data, coords, registry, scene, materials, display } = ctx;
   const P = data.plumbingFoundations; if (!P) return null;
   const D = display.plumbing;
+  // "x-ray" copy drawn on top of the soil (chambers and pipes are underground) – same tags, not pickable
+  const ghost = (g0, geos, pos, color, tags, quat) => {
+    const gg = new THREE.Group();
+    for (const geo of geos) {
+      const gm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: D.ghostOpacity, depthTest: false, depthWrite: false }));
+      gm.position.copy(pos); if (quat) gm.quaternion.copy(quat); gm.renderOrder = 6; gm.raycast = () => {}; gg.add(gm);
+    }
+    scene.add(gg); registry.add(gg, { ...tags, stageTo: 'ceiling' }, { name: 'שיקוף', kind: 'ghost', pickable: false });
+  };
   for (const c of P.chambers) {
     const r = c.diameter_m / 2, h = c.TL - c.IL;
-    const geo = new THREE.CylinderGeometry(r, r, h, D.radialSegments, 1, true);
     const sewer = c.kind === 'sewerManhole';
-    const mat = new THREE.MeshStandardMaterial({ color: sewer ? D.sewerColor : D.chamberColor, roughness: 0.6, side: THREE.DoubleSide });
-    const m = new THREE.Mesh(geo, mat); m.position.copy(coords.toLocal(c.E, c.N, (c.TL + c.IL) / 2)); m.castShadow = true;
-    const g = new THREE.Group(); g.add(m);
+    // concrete chamber: closed cylinder of the drawn diameter from I.L to T.L, with a cover disk at T.L
+    const geo = new THREE.CylinderGeometry(r, r, h, D.radialSegments, 1, false);
+    const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2 * Math.PI * r, uv.getY(i) * h);
+    const m = new THREE.Mesh(geo, materials.get('concrete')); m.position.copy(coords.toLocal(c.E, c.N, (c.TL + c.IL) / 2)); m.castShadow = m.receiveShadow = true;
+    const cover = new THREE.Mesh(new THREE.CylinderGeometry(r * D.coverRatio, r * D.coverRatio, D.coverThickness_m, D.radialSegments),
+      new THREE.MeshStandardMaterial({ color: sewer ? D.sewerColor : D.chamberColor, roughness: 0.5, metalness: 0.3 }));
+    cover.position.copy(coords.toLocal(c.E, c.N, c.TL + D.coverThickness_m / 2));
+    const g = new THREE.Group(); g.add(m, cover);
+    ghost(g, [m.geometry], m.position, sewer ? D.sewerColor : D.chamberColor, sewer ? { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewageManholes' } : { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' });
     const d = document.createElement('div'); d.className = 'lbl beam';
     d.textContent = sewer ? `שוחה ${c.number} · ø${Math.round(c.diameter_m * 100)} · T.L ${c.TL.toFixed(2)} · I.L ${c.IL.toFixed(2)}` : `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}`;
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.4)); g.add(o);
@@ -194,6 +208,7 @@ export function buildPlumbingFoundations(ctx) {
     const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 }));
     m.position.copy(a); m.lookAt(b); m.castShadow = true;
     const g = new THREE.Group(); g.add(m);
+    ghost(g, [geo], a, col, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, m.quaternion);
     if (q.ILfrom != null) {   // flow arrow at mid-length, pointing downstream
       const cone = new THREE.Mesh(new THREE.ConeGeometry(r * 1.8, r * 4, 12), new THREE.MeshBasicMaterial({ color: D.flowArrowColor }));
       cone.position.copy(a.clone().lerp(b, 0.5)); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); g.add(cone);

@@ -22,6 +22,7 @@ export class Navigation {
       { id: 'top', label: 'מבט על (צפון למעלה)', target: c, offset: new THREE.Vector3(0, 70, 0.01) },
       { id: 'street', label: 'מהרחוב (דרום-מערב)', target: c, offset: new THREE.Vector3(-14, 4, 26) },
       { id: 'foundations', label: 'יסודות ומרתף', target: c.clone().add(new THREE.Vector3(2, -2, -1)), offset: new THREE.Vector3(0, 15, 23), stage: 'walls' },
+      { id: 'sewer', label: 'ביוב: שוחות וצנרת', target: c.clone().add(new THREE.Vector3(-4, -1.5, 8)), offset: new THREE.Vector3(1, 8.5, 11), stage: 'walls' },
       { id: 'pit', label: 'חפירה וכלונסאות', target: c.clone().add(new THREE.Vector3(0, -3, 0)), offset: new THREE.Vector3(-16, 13, 18), stage: 'piles' },
     ];
     for (const [name, p] of Object.entries(data.plot.points)) {

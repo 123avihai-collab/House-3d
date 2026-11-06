@@ -54,6 +54,7 @@ export function buildExcavation(ctx) {
   const poolZ = (E, N) => {
     if (!PL) return Infinity;
     if (pointInRing(E, N, PL.tank.outerITM)) return PL.tank.slabUnderside;
+    if (PL.channel && pointInRing(E, N, PL.channel.outerITM)) return PL.channel.bottom;
     if (pointInRing(E, N, PL.pool.outerITM)) {
       const r = PL.pool.outerITM, xs = r.map(p => p[0]); const t = (E - Math.min(...xs)) / (Math.max(...xs) - Math.min(...xs));
       return PL.pool.slabUndersideWest + (PL.pool.slabUndersideEast - PL.pool.slabUndersideWest) * Math.min(1, Math.max(0, t));
@@ -66,7 +67,7 @@ export function buildExcavation(ctx) {
   const lot = data.plot.ring;
   const T = { ...display.terrain, sampleSpacing_m: D.sampleSpacing_m, boundaryDensify_m: D.sampleSpacing_m };
   const ctrl = densifyRing(floor, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
-  if (PL) for (const r of [PL.pool.outerITM, PL.tank.outerITM]) for (const [x, y] of densifyRing(r, D.sampleSpacing_m / 2)) {
+  if (PL) for (const r of [PL.pool.outerITM, PL.tank.outerITM, PL.channel?.outerITM].filter(Boolean)) for (const [x, y] of densifyRing(r, D.sampleSpacing_m / 2)) {
     // crisp vertical walls of the pool / tank pit
     const cx = r.reduce((a, p) => a + p[0] / r.length, 0), cy = r.reduce((a, p) => a + p[1] / r.length, 0);
     for (const k of [0.995, 1.005]) ctrl.push({ x: cx + (x - cx) * k, y: cy + (y - cy) * k, z: 0 });

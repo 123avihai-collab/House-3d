@@ -1,0 +1,7 @@
+{
+ "_doc": "Manual, documented selection of the k-21.dxf IfcWall pieces (by a point inside each piece, ITM) that make up the pool, the pool-cover channel and the machine room / balance tank. Chosen visually on K-400 / K-21 (pool between piles 28-31; cover channel = the narrow box on the pool's east side; machine room + balance tank = the two cells south of the pool around pile 32). Used by tools/extract_pool.py.",
+ "source": "sources/structure/k-21.dxf (IfcWall HATCH); verified against sources/structure/K-400-תכנית יסודות.pdf",
+ "pool":    [[179606.58, 576249.90], [179609.69, 576246.65], [179605.18, 576246.70], [179602.13, 576249.81]],
+ "channel": [[179611.36, 576248.45], [179610.59, 576245.93], [179609.16, 576244.13], [179609.37, 576243.79]],
+ "tank":    [[179608.51, 576243.72], [179607.84, 576243.06], [179606.38, 576243.64], [179605.91, 576244.88], [179607.23, 576244.34]]
+}

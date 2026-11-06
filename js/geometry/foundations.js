@@ -308,8 +308,13 @@ export function buildPool(ctx) {
   const wg = new THREE.Group();
   for (const w of P.wallsITM) wg.add(prism(w, poolBottom, P.deck));
   for (const w of T.wallsITM) wg.add(prism(w, T.slabUnderside, T.top));
-  registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה וחדר המכונות (זמני)', status: 'provisional',
-    rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)]], note: `${P.note} ${T.note}`, source: `${P.source}; ${T.source}` });
+  if (PL.channel) {
+    for (const w of PL.channel.wallsITM) wg.add(prism(w, PL.channel.bottom, PL.channel.top));
+    wg.add(lbl('תעלת כיסוי הבריכה', PL.channel.outerITM, PL.channel.top + 0.4));
+  }
+  registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה, תעלת הכיסוי וחדר המכונות (זמני)', status: 'provisional',
+    rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)], ['תעלת כיסוי – תחתית (הונח)', PL.channel ? coords.fmtH(PL.channel.bottom) : '—']],
+    note: `${P.note} ${T.note} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
   scene.add(wg);
   return { poolArea_m2: P.area_m2, tankArea_m2: T.area_m2 };
 }

@@ -37,17 +37,15 @@ def main():
     P = {p['id']: p for p in json.load(open(os.path.join(ROOT, 'data/structure/piles.json'), encoding='utf-8'))['piles']}
     H0 = json.load(open(os.path.join(ROOT, 'data/site/origin.json'), encoding='utf-8'))['H0']
     hs = hatches()
-    pile_zone = MultiPoint([(P[k]['E'], P[k]['N']) for k in ('28', '29', '30', '31')]).convex_hull.buffer(0.3)
-    pool_walls = [q for q in hs if q.intersects(pile_zone) and q.area < 2.0]   # the 4 pool walls around piles 28-31
-    # rectangular basins: outer outline = minimum rotated rectangle of their walls
-    pool_outer = unary_union(pool_walls).minimum_rotated_rectangle
-    pool_walls = [q for q in hs if pool_outer.buffer(0.05).contains(q)]               # all wall pieces of the basin
+    sel = json.load(open(os.path.join(ROOT, 'tools/pool-pieces.json'), encoding='utf-8'))
     from shapely.geometry import Point as _P
-    # machine room + balance tank: the walls between pile 32 and the pool's south wall (centroid within 2 m of the block centre)
-    south = min(pool_walls, key=lambda q: q.centroid.y)
-    cen = _P((P['32']['E'] + south.centroid.x) / 2 + 0.6, (P['32']['N'] + south.centroid.y) / 2 - 0.9)
-    tank_walls = [q for q in hs if q.centroid.distance(cen) < 2.4 and q.area < 0.6 and not pool_outer.buffer(0.05).contains(q) and q.centroid.distance(_P(P['106']['E'], P['106']['N'])) > 1.0]  # (pieces at pile 106 belong to the perimeter wall)
-    tank_outer = unary_union(tank_walls).minimum_rotated_rectangle
+    pick = lambda pts: [next(q for q in hs if q.buffer(0.02).contains(_P(x, y))) for x, y in pts]
+    pool_walls, ch_walls, tank_walls = pick(sel['pool']), pick(sel['channel']), pick(sel['tank'])
+    pool_outer = unary_union(pool_walls).minimum_rotated_rectangle
+    ch_outer = unary_union(ch_walls).minimum_rotated_rectangle.difference(pool_outer).buffer(0)
+    ch_outer = max(getattr(ch_outer, 'geoms', [ch_outer]), key=lambda g: g.area)
+    tank_outer = unary_union(tank_walls).minimum_rotated_rectangle.difference(pool_outer).buffer(0)
+    tank_outer = max(getattr(tank_outer, 'geoms', [tank_outer]), key=lambda g: g.area)
     west = [P[k]['headRel'] + H0 for k in ('28', '30')]; east = [P[k]['headRel'] + H0 for k in ('29', '31')]
     out = {
         'pool': {'outerITM': ring(pool_outer), 'area_m2': r3(pool_outer.area), 'wallsITM': [ring(q) for q in pool_walls],
@@ -56,6 +54,10 @@ def main():
                  'status': 'provisional',
                  'note': 'מפלסי גמר (סיפון 280.48, רצפה 279.30 בעומק 1.20, מדרגות 279.97, שיפוע 4.9%) – מחתכי הבריכה. תחתית רצפת הבריכה = ראשי הכלונסאות שמתחתיה (K-400: 28/30 ‎-1.20 במערב, 29/31 ‎-1.50 במזרח). עובי רצפה/קירות ומצע – חסרים (תוכנית הבריכה של הקונסטרוקטור).',
                  'source': f'{F.K21} (קירות הבריכה, IfcWall); {SEC} (מפלסים); {F.K400} (ראשי כלונסאות 28–31)'},
+        'channel': {'outerITM': ring(ch_outer), 'area_m2': r3(ch_outer.area), 'wallsITM': [ring(q) for q in ch_walls], 'top': DECK,
+                    'bottom': r3(min(east)), 'status': 'provisional',
+                    'note': 'תעלת כיסוי הבריכה (הקופסה הצרה בצד המזרחי של הבריכה, K-400/K-21). מפלס תחתית לא נמצא במקורות – הונח כתחתית רצפת הבריכה בצד המזרחי (ראשי כלונסאות 29/31).',
+                    'source': f'{F.K21} (IfcWall); tools/pool-pieces.json; {F.K400}'},
         'tank': {'outerITM': ring(tank_outer), 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
                  'top': DECK, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),
                  'pile32Head': r3(P['32']['headRel'] + H0), 'status': 'provisional',
@@ -65,7 +67,7 @@ def main():
     }
     json.dump(out, open(os.path.join(ROOT, 'data/structure/pool.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('pool walls', len(pool_walls), 'area', r3(pool_outer.area), [r3(v) for v in pool_outer.bounds], 'west', west, 'east', east)
-    print('tank walls', len(tank_walls), 'area', r3(tank_outer.area), [r3(v) for v in tank_outer.bounds])
+    print('tank walls', len(tank_walls), 'area', r3(tank_outer.area)); print('channel', len(ch_walls), 'area', r3(ch_outer.area))
 
 
 if __name__ == '__main__':

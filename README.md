@@ -98,4 +98,4 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 
 ## צפייה אונליין
 
-הקובץ `.github/workflows/pages.yml` מפרסם את האתר ל-GitHub Pages. נדרשת הפעלה חד-פעמית: **Settings → Pages → Source: GitHub Actions**. אחרי ההפעלה הכתובת תהיה https://123avihai-collab.github.io/House-3d/
+המודל מתפרסם **רק כארטיפקט** ב-claude.ai (אתר מרובה קבצים: `index.html` + `css/`, `js/`, `data/`, `assets/`, `vendor/`). אין פרסום ל-GitHub Pages.

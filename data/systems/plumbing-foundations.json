@@ -1,0 +1,1006 @@
+{
+ "placement": {
+  "martefToK11_cm": [
+   -21571.501,
+   1896.69
+  ],
+  "inlierFraction": 0.268,
+  "medianResidual_cm": 0.01,
+  "method": "ICP על קווי הקירות (A-WALL/S-STRS של הבלוק martef מול IfcWall של k-11.dxf)",
+  "ground": {
+   "pituahToK21_cm": [
+    -25660.725,
+    1840.46
+   ],
+   "inlierFraction": 0.115,
+   "medianResidual_cm": 0.142,
+   "pdf": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf",
+   "pdfFit": "דמיון לפי 6 השוחות",
+   "pdfMaxResidual_m": 0.005
+  }
+ },
+ "chambers": [
+  {
+   "id": "PC-1",
+   "kind": "pumpChamber",
+   "title": "תא שאיבה לניקוז חצרות אנגליים",
+   "E": 179589.156,
+   "N": 576241.782,
+   "diameter_m": 0.6,
+   "TL": 277.88,
+   "IL": 276.68,
+   "H_m": 1.2,
+   "status": "source",
+   "affectedBy": "OC-1",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD (TL=277.88, IL=276.68, H=1.20, D=%%C60) + סמל MH D1000",
+   "note": "התא תוכנן לניקוז החצרות האנגליות (‎-1.50). OC-1 מוריד את החצר הדרומית – לבדוק מחדש מול יועץ האינסטלציה."
+  },
+  {
+   "id": "S-0",
+   "number": 0,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 0",
+   "E": 179585.038,
+   "N": 576227.59,
+   "diameter_m": 1.0,
+   "TL": 279.29,
+   "IL": 277.09,
+   "H_m": 2.2,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #0 (TL=279.29, IL=277.09, H=2.20, D=%%C100) + סמל MH D1000"
+  },
+  {
+   "id": "S-5",
+   "number": 5,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 5",
+   "E": 179606.312,
+   "N": 576233.842,
+   "diameter_m": 0.6,
+   "TL": 280.13,
+   "IL": 279.48,
+   "H_m": 0.65,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #5 (TL=280.13, IL=279.48, H=0.65, D=%%C60) + סמל MH D1000"
+  },
+  {
+   "id": "S-4",
+   "number": 4,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 4",
+   "E": 179594.664,
+   "N": 576232.545,
+   "diameter_m": 0.8,
+   "TL": 280.25,
+   "IL": 279.25,
+   "H_m": 1.0,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #4 (TL=280.25, IL=279.25, H=1.00, D=%%C80) + סמל MH D1000"
+  },
+  {
+   "id": "S-1",
+   "number": 1,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 1",
+   "E": 179588.955,
+   "N": 576234.849,
+   "diameter_m": 1.0,
+   "TL": 280.2,
+   "IL": 278.2,
+   "H_m": 2.0,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #1 (TL=280.20, IL=278.20, H=2.00, D=%%C100) + סמל MH D1000"
+  },
+  {
+   "id": "S-3",
+   "number": 3,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 3",
+   "E": 179589.237,
+   "N": 576247.017,
+   "diameter_m": 0.8,
+   "TL": 280.3,
+   "IL": 279.5,
+   "H_m": 0.8,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #3 (TL=280.30, IL=279.50, H=0.80, D=%%C80) + סמל MH D1000"
+  },
+  {
+   "id": "S-2",
+   "number": 2,
+   "kind": "sewerManhole",
+   "title": "שוחת ביוב 2",
+   "E": 179586.35,
+   "N": 576239.39,
+   "diameter_m": 0.8,
+   "TL": 280.3,
+   "IL": 279.3,
+   "H_m": 1.0,
+   "status": "source",
+   "affectedBy": null,
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD #2 (TL=280.30, IL=279.30, H=1.00, D=%%C80) + סמל MH D1000"
+  }
+ ],
+ "pipes": [
+  {
+   "id": "P-1",
+   "lengthM": 8.249,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179588.955,
+    576234.849
+   ],
+   "toITM": [
+    179585.038,
+    576227.59
+   ],
+   "ILfrom": 278.2,
+   "ILto": 277.09,
+   "slope": 0.135,
+   "dropAtEnd_m": 0.0,
+   "levels": "source (IL השוחות)",
+   "between": [
+    "S-1",
+    "S-0"
+   ],
+   "status": "source"
+  },
+  {
+   "id": "P-2",
+   "lengthM": 2.283,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179591.352,
+    576246.146
+   ],
+   "toITM": [
+    179589.237,
+    576247.017
+   ],
+   "ILfrom": 279.546,
+   "ILto": 279.5,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-3"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-3",
+   "lengthM": 8.154,
+   "diameter_m": 0.16,
+   "material": "PVC SN-8",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179589.237,
+    576247.017
+   ],
+   "toITM": [
+    179586.35,
+    576239.39
+   ],
+   "ILfrom": 279.5,
+   "ILto": 279.3,
+   "slope": 0.0245,
+   "dropAtEnd_m": 0.0,
+   "levels": "source",
+   "between": [
+    "S-3",
+    "S-2"
+   ],
+   "status": "source"
+  },
+  {
+   "id": "P-4",
+   "lengthM": 3.258,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179595.883,
+    576235.561
+   ],
+   "toITM": [
+    179594.664,
+    576232.545
+   ],
+   "ILfrom": 279.315,
+   "ILto": 279.25,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-4"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-5",
+   "lengthM": 3.074,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179588.491,
+    576237.884
+   ],
+   "toITM": [
+    179588.955,
+    576234.849
+   ],
+   "ILfrom": 278.261,
+   "ILto": 278.2,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-1"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-6",
+   "lengthM": 6.155,
+   "diameter_m": 0.16,
+   "material": "PVC SN-8",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179594.664,
+    576232.545
+   ],
+   "toITM": [
+    179588.955,
+    576234.849
+   ],
+   "ILfrom": 279.25,
+   "ILto": 279.127,
+   "slope": 0.02,
+   "dropAtEnd_m": 0.927,
+   "levels": "source",
+   "between": [
+    "S-4",
+    "S-1"
+   ],
+   "status": "source"
+  },
+  {
+   "id": "P-7",
+   "lengthM": 5.234,
+   "diameter_m": 0.16,
+   "material": "PVC SN-8",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179586.35,
+    576239.39
+   ],
+   "toITM": [
+    179588.955,
+    576234.849
+   ],
+   "ILfrom": 279.3,
+   "ILto": 279.195,
+   "slope": 0.02,
+   "dropAtEnd_m": 0.995,
+   "levels": "source",
+   "between": [
+    "S-2",
+    "S-1"
+   ],
+   "status": "source"
+  },
+  {
+   "id": "P-8",
+   "lengthM": 11.727,
+   "diameter_m": 0.16,
+   "material": "PVC SN-8",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179606.312,
+    576233.842
+   ],
+   "toITM": [
+    179594.664,
+    576232.545
+   ],
+   "ILfrom": 279.48,
+   "ILto": 279.25,
+   "slope": 0.0196,
+   "dropAtEnd_m": 0.0,
+   "levels": "source",
+   "between": [
+    "S-5",
+    "S-4"
+   ],
+   "status": "source"
+  },
+  {
+   "id": "P-9",
+   "lengthM": 5.443,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179605.837,
+    576239.261
+   ],
+   "toITM": [
+    179606.312,
+    576233.842
+   ],
+   "ILfrom": 279.589,
+   "ILto": 279.48,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-5"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-10",
+   "lengthM": 5.244,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179608.406,
+    576238.526
+   ],
+   "toITM": [
+    179606.312,
+    576233.842
+   ],
+   "ILfrom": 279.585,
+   "ILto": 279.48,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-5"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-11",
+   "lengthM": 9.16,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179608.028,
+    576242.977
+   ],
+   "toITM": [
+    179606.312,
+    576233.842
+   ],
+   "ILfrom": 279.663,
+   "ILto": 279.48,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-5"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-12",
+   "lengthM": 7.103,
+   "diameter_m": 0.11,
+   "material": "HDPE",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179599.25,
+    576241.92
+   ],
+   "toITM": [
+    179605.837,
+    576239.261
+   ],
+   "ILfrom": 279.731,
+   "ILto": 279.589,
+   "slope": 0.02,
+   "status": "provisional",
+   "note": "מפלס נגזר מהצינור P-9 שאליו הוא מתחבר, בשיפוע 2.0%",
+   "between": [
+    null,
+    "P-9"
+   ]
+  },
+  {
+   "id": "P-13",
+   "lengthM": 0.768,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179588.778,
+    576238.595
+   ],
+   "toITM": [
+    179588.491,
+    576237.884
+   ],
+   "ILfrom": 278.276,
+   "ILto": 278.261,
+   "slope": 0.02,
+   "status": "provisional",
+   "note": "מפלס נגזר מהצינור P-5 שאליו הוא מתחבר, בשיפוע 2.0%",
+   "between": [
+    null,
+    "P-5"
+   ]
+  },
+  {
+   "id": "P-14",
+   "lengthM": 0.581,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179590.429,
+    576238.138
+   ],
+   "toITM": [
+    179589.891,
+    576238.355
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-15",
+   "lengthM": 1.095,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179590.511,
+    576238.054
+   ],
+   "toITM": [
+    179590.939,
+    576237.046
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-16",
+   "lengthM": 1.067,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179589.841,
+    576238.303
+   ],
+   "toITM": [
+    179590.258,
+    576237.321
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-17",
+   "lengthM": 0.721,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179588.913,
+    576238.75
+   ],
+   "toITM": [
+    179589.581,
+    576238.48
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-18",
+   "lengthM": 0.908,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179589.329,
+    576240.245
+   ],
+   "toITM": [
+    179590.171,
+    576239.905
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-19",
+   "lengthM": 0.788,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179589.168,
+    576239.561
+   ],
+   "toITM": [
+    179588.873,
+    576238.831
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  },
+  {
+   "id": "P-20",
+   "lengthM": 0.948,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179595.938,
+    576236.857
+   ],
+   "toITM": [
+    179595.584,
+    576235.978
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.4
+  },
+  {
+   "id": "P-21",
+   "lengthM": 0.254,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179596.237,
+    576236.794
+   ],
+   "toITM": [
+    179596.002,
+    576236.889
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.4
+  },
+  {
+   "id": "P-22",
+   "lengthM": 1.208,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179591.804,
+    576247.266
+   ],
+   "toITM": [
+    179591.352,
+    576246.146
+   ],
+   "ILfrom": 279.57,
+   "ILto": 279.546,
+   "slope": 0.02,
+   "status": "provisional",
+   "note": "מפלס נגזר מהצינור P-2 שאליו הוא מתחבר, בשיפוע 2.0%",
+   "between": [
+    null,
+    "P-2"
+   ]
+  },
+  {
+   "id": "P-23",
+   "lengthM": 0.441,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179592.929,
+    576246.308
+   ],
+   "toITM": [
+    179592.52,
+    576246.473
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.51
+  },
+  {
+   "id": "P-24",
+   "lengthM": 0.651,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179593.017,
+    576246.222
+   ],
+   "toITM": [
+    179593.271,
+    576245.623
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.51
+  },
+  {
+   "id": "P-25",
+   "lengthM": 0.935,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179592.255,
+    576246.53
+   ],
+   "toITM": [
+    179591.395,
+    576246.164
+   ],
+   "ILfrom": 279.565,
+   "ILto": 279.546,
+   "slope": 0.02,
+   "status": "provisional",
+   "note": "מפלס נגזר מהצינור P-2 שאליו הוא מתחבר, בשיפוע 2.0%",
+   "between": [
+    null,
+    "P-2"
+   ]
+  },
+  {
+   "id": "P-26",
+   "lengthM": 0.547,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179592.248,
+    576245.942
+   ],
+   "toITM": [
+    179592.453,
+    576246.45
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.51
+  },
+  {
+   "id": "P-27",
+   "lengthM": 0.347,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179592.019,
+    576247.799
+   ],
+   "toITM": [
+    179592.149,
+    576248.121
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.51
+  },
+  {
+   "id": "P-28",
+   "lengthM": 2.227,
+   "diameter_m": 0.16,
+   "material": "PVC SN-8",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179586.763,
+    576241.576
+   ],
+   "toITM": [
+    179586.35,
+    576239.39
+   ],
+   "ILfrom": 279.345,
+   "ILto": 279.3,
+   "slope": 0.02,
+   "between": [
+    null,
+    "S-2"
+   ],
+   "status": "derived",
+   "note": "מפלס בכניסה לשוחה = I.L של השוחה; עולה לפי השיפוע הכתוב."
+  },
+  {
+   "id": "P-29",
+   "lengthM": 1.968,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179588.758,
+    576241.541
+   ],
+   "toITM": [
+    179586.793,
+    576241.65
+   ],
+   "ILfrom": 279.384,
+   "ILto": 279.345,
+   "slope": 0.02,
+   "status": "provisional",
+   "note": "מפלס נגזר מהצינור P-28 שאליו הוא מתחבר, בשיפוע 2.0%",
+   "between": [
+    null,
+    "P-28"
+   ]
+  },
+  {
+   "id": "P-30",
+   "lengthM": 1.462,
+   "diameter_m": null,
+   "material": null,
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf (קו ירוק – קו מרכז הצינור), התאמה לשוחות: שארית 0.005 מ'; קוטר/שיפוע: sources/plumbing/אינסטלציה חתכים הכל.dxf טקסט BIUV",
+   "fromITM": [
+    179590.196,
+    576239.859
+   ],
+   "toITM": [
+    179589.648,
+    576238.503
+   ],
+   "ILfrom": null,
+   "ILto": null,
+   "slope": 0.02,
+   "status": "missing",
+   "note": "קטע צנרת בתוך הבית – מפלס לא כתוב במקורות. מוצג במפלס תחתית רצפת הקרקע (לסימון מיקום בלבד).",
+   "displayLevelRel": -0.56
+  }
+ ],
+ "pipeCrossings": [
+  {
+   "pipe": "P-2",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179590.916,
+   "N": 576246.326,
+   "length_m": 0.944
+  },
+  {
+   "pipe": "P-4",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179595.667,
+   "N": 576235.026,
+   "length_m": 1.155
+  },
+  {
+   "pipe": "P-5",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179588.5,
+   "N": 576237.823,
+   "length_m": 0.123
+  },
+  {
+   "pipe": "P-5",
+   "element": "B-45",
+   "kind": "beam",
+   "E": 179588.497,
+   "N": 576237.844,
+   "length_m": 0.08,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-6",
+   "element": "B-56",
+   "kind": "beam",
+   "E": 179592.909,
+   "N": 576233.253,
+   "length_m": 0.25,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-6",
+   "element": "B-34",
+   "kind": "beam",
+   "E": 179592.741,
+   "N": 576233.321,
+   "length_m": 0.2,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-7",
+   "element": "B-42",
+   "kind": "beam",
+   "E": 179587.806,
+   "N": 576236.852,
+   "length_m": 0.318,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-7",
+   "element": "B-41",
+   "kind": "beam",
+   "E": 179586.814,
+   "N": 576238.581,
+   "length_m": 0.404,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-8",
+   "element": "B-54",
+   "kind": "beam",
+   "E": 179603.559,
+   "N": 576233.535,
+   "length_m": 0.341,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-8",
+   "element": "B-51",
+   "kind": "beam",
+   "E": 179599.784,
+   "N": 576233.115,
+   "length_m": 0.364,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-8",
+   "element": "B-52",
+   "kind": "beam",
+   "E": 179606.166,
+   "N": 576233.826,
+   "length_m": 0.293,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-9",
+   "element": "B-53",
+   "kind": "beam",
+   "E": 179605.862,
+   "N": 576238.974,
+   "length_m": 0.225,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-9",
+   "element": "B-52",
+   "kind": "beam",
+   "E": 179606.307,
+   "N": 576233.904,
+   "length_m": 0.124,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-10",
+   "element": "B-52",
+   "kind": "beam",
+   "E": 179606.335,
+   "N": 576233.893,
+   "length_m": 0.111,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-11",
+   "element": "B-52",
+   "kind": "beam",
+   "E": 179606.322,
+   "N": 576233.897,
+   "length_m": 0.113,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-13",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179588.509,
+   "N": 576237.928,
+   "length_m": 0.095
+  },
+  {
+   "pipe": "P-13",
+   "element": "B-45",
+   "kind": "beam",
+   "E": 179588.515,
+   "N": 576237.945,
+   "length_m": 0.131,
+   "note": "מיקום הקורה בקירוב (PDF) – לבדיקה מול ה-IFC"
+  },
+  {
+   "pipe": "P-22",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179591.539,
+   "N": 576246.61,
+   "length_m": 1.0
+  },
+  {
+   "pipe": "P-25",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179591.445,
+   "N": 576246.185,
+   "length_m": 0.109
+  },
+  {
+   "pipe": "P-27",
+   "element": "BW3",
+   "kind": "basementWall",
+   "E": 179592.054,
+   "N": 576247.886,
+   "length_m": 0.188
+  },
+  {
+   "pipe": "P-29",
+   "element": "BW1",
+   "kind": "basementWall",
+   "E": 179588.586,
+   "N": 576241.551,
+   "length_m": 0.211
+  }
+ ],
+ "checks": {
+  "municipalManhole_vs_MIG_m": 0.022,
+  "connectionIL_vs_MIG_nipple_m": 0.0,
+  "pdfFitMaxResidual_m": 0.005
+ },
+ "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf"
+}

@@ -1,10 +1,11 @@
 // Component registry. Every model component is registered with tags
 // {floor, system, stage, stageTo?, layer} and metadata (name, source, ...).
-// Visibility = layer on  AND  floor visible  AND  stage reached  AND  system passes filter.
+// Visibility = layer on  AND  floor visible  AND  stage reached  AND  system passes filter  AND  owner-change variant matches.
 export class Registry {
   constructor(tagsConfig) {
     this.items = [];
     this.stages = tagsConfig.stages.map(s => s.id);
+    this.steps = tagsConfig.sequence;            // construction-step slider (data/config/tags.json)
     this.listeners = [];
   }
   add(object3d, tags, meta = {}) {
@@ -18,17 +19,35 @@ export class Registry {
     return item;
   }
   stageIndex(id) { return this.stages.indexOf(id); }
+  stepById(id) {
+    if (id === 'skeletonEnd') return this.steps.findIndex(s => s.id === 'finishes') - 1;
+    return this.steps.findIndex(s => s.id === id);
+  }
+  // step of a {floor, stage} pair: an include naming the floor wins over a stage-only include
+  stepIndex(stage, floor) {
+    const exact = this.steps.findIndex(s => s.includes.some(x => x.stage === stage && x.floor === floor));
+    return exact >= 0 ? exact : this.steps.findIndex(s => s.includes.some(x => x.stage === stage && !x.floor));
+  }
+  range(t) {
+    const from = t.step ? this.stepById(t.step) : this.stepIndex(t.stage, t.floor);
+    const to = t.stepTo ? this.stepById(t.stepTo) : t.stageTo ? this.stepIndex(t.stageTo, t.floor) : this.steps.length - 1;
+    return [from, to];
+  }
   apply(state) {
-    const si = state.stageIndex;
+    const si = state.stageIndex;   // index into the step sequence
     for (const it of this.items) {
       const t = it.tags;
-      const from = this.stageIndex(t.stage);
-      const to = t.stageTo ? this.stageIndex(t.stageTo) : this.stages.length - 1;
+      const [from, to] = this.range(t);
       const layerOn = state.layers[t.layer] !== false;
       const floor = state.floors[t.floor] || { visible: true, opacity: 1 };
       const sysOn = !state.systemFilter || state.systemFilter.includes(t.system);
-      const visible = layerOn && floor.visible && sysOn && si >= from && si <= to;
+      // owner-change variants: "original" shows while the change is off, "changed" while it is on
+      const v = it.meta.variant;
+      const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
+      const visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       it.object.visible = visible;
+      // per-layer label switch: hide only the labels and marking lines (userData.annotation) of the layer, keep the objects
+      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.isCSS2DObject || o.userData.annotation) o.visible = !lo; }); }
       if (visible) this.applyOpacity(it, floor.opacity);
     }
     this.listeners.forEach(f => f());

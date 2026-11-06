@@ -5,7 +5,14 @@
   "bandOffsetFromPlotLine_m": 0.1,
   "maxLineResidual_m": 0.0001529695168639711,
   "equations": 8,
-  "unknowns": 4
+  "unknowns": 4,
+  "sheetToItm": {
+   "theta_rad": -0.38372725844915634,
+   "tx": 179542.47008698518,
+   "ty": 576279.6522450697,
+   "ptPerM": 56.69291338582678,
+   "formula": "X=x/ptPerM, Y=-y/ptPerM; E=tx+X cos(theta)-Y sin(theta); N=ty+X sin(theta)+Y cos(theta) (x,y = K-400 sheet pt)"
+  }
  },
  "scaleCheck": [
   {

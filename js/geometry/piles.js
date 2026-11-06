@@ -20,7 +20,10 @@ export function buildPiles(ctx) {
     m.position.copy(coords.toLocal(p.E, p.N, (headAbs + tipAbs) / 2));
     m.castShadow = true; m.receiveShadow = true;
     const g = new THREE.Group(); g.add(m);
-    const gm = new THREE.Mesh(geo, ghost); gm.position.copy(m.position); gm.renderOrder = 5; gm.raycast = () => {}; g.add(gm);
+    // x-ray copy only while looking at the piles stage (later stages show beams / slabs in front of the piles)
+    const gm = new THREE.Mesh(geo, ghost); gm.position.copy(m.position); gm.renderOrder = 5; gm.raycast = () => {};
+    const gg = new THREE.Group(); gg.add(gm); scene.add(gg);
+    registry.add(gg, { floor: p.zone === 'basement' ? 'unit' : 'ground', system: 'structure', stage: 'piles', stageTo: 'piles', layer: 'piles' }, { name: `כלונס ${p.id} (שיקוף)`, kind: 'ghost', pickable: false });
     const div = document.createElement('div');
     div.className = 'lbl pile' + (p.overAllowed ? ' over' : '');
     div.textContent = p.id;

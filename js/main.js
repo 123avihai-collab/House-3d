@@ -10,7 +10,7 @@ import { buildSite, centroid } from './geometry/site.js';
 import { buildNeighbors } from './geometry/neighbors.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
-import { buildFoundations, buildPlumbingFoundations, buildOwnerChangeZones } from './geometry/foundations.js';
+import { buildFoundations, buildPlumbingFoundations, buildOwnerChangeZones, buildPool } from './geometry/foundations.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -37,7 +37,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx) };
   buildOwnerChangeZones(ctx);
 
   const pc = centroid(data.plot.ring);
@@ -58,7 +58,7 @@ async function main() {
     stageIndex: data.tags.stages.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
-    notes: [], bookmarks: [],
+    notes: [], bookmarks: [], labelsOff: {},
     ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).map(c => [c.id, true])),
     quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0 },
   };

@@ -48,12 +48,29 @@ export function buildExcavation(ctx) {
   // local pits for chambers below the excavation bottom (plumbing plan: I.L. of the chamber)
   const chambers = (data.plumbingFoundations?.chambers || []).filter(c => c.IL < existing(c.E, c.N));
   const chamberZ = (E, N) => { let z = Infinity; for (const c of chambers) if (Math.hypot(E - c.E, N - c.N) <= c.diameter_m / 2) z = Math.min(z, c.IL); return z; };
-  const pitA = (E, N) => Math.min(pitOnly(E, N), chamberZ(E, N));          // pit + chamber pits (until the basement walls)
+  // pool + machine room / balance tank: cast with the basement -> dug in the same general excavation
+  // (vertical sides; bottom = slab underside: pool – pile heads west/east interpolated along the pool's long axis; tank – floor − slab)
+  const PL = data.pool;
+  const poolZ = (E, N) => {
+    if (!PL) return Infinity;
+    if (pointInRing(E, N, PL.tank.outerITM)) return PL.tank.slabUnderside;
+    if (pointInRing(E, N, PL.pool.outerITM)) {
+      const r = PL.pool.outerITM, xs = r.map(p => p[0]); const t = (E - Math.min(...xs)) / (Math.max(...xs) - Math.min(...xs));
+      return PL.pool.slabUndersideWest + (PL.pool.slabUndersideEast - PL.pool.slabUndersideWest) * Math.min(1, Math.max(0, t));
+    }
+    return Infinity;
+  };
+  const pitA = (E, N) => Math.min(pitOnly(E, N), chamberZ(E, N), poolZ(E, N));          // pit + chamber pits (until the basement walls)
   const pitZ2 = (E, N) => Math.min(pitA(E, N), trenchZ(E, N));               // + trenches of the ground-floor beams (dug before that pour)
   pitZ2.kind = 'excavation';
   const lot = data.plot.ring;
   const T = { ...display.terrain, sampleSpacing_m: D.sampleSpacing_m, boundaryDensify_m: D.sampleSpacing_m };
   const ctrl = densifyRing(floor, D.sampleSpacing_m).filter(([x, y]) => pointInRing(x, y, lot)).map(([x, y]) => ({ x, y, z: zb }));
+  if (PL) for (const r of [PL.pool.outerITM, PL.tank.outerITM]) for (const [x, y] of densifyRing(r, D.sampleSpacing_m / 2)) {
+    // crisp vertical walls of the pool / tank pit
+    const cx = r.reduce((a, p) => a + p[0] / r.length, 0), cy = r.reduce((a, p) => a + p[1] / r.length, 0);
+    for (const k of [0.995, 1.005]) ctrl.push({ x: cx + (x - cx) * k, y: cy + (y - cy) * k, z: 0 });
+  }
   for (const c of chambers) for (const k of [0.98, 1.02]) for (let i = 0; i < 16; i++) {
     const a = i / 16 * 2 * Math.PI; ctrl.push({ x: c.E + Math.cos(a) * c.diameter_m / 2 * k, y: c.N + Math.sin(a) * c.diameter_m / 2 * k, z: 0 });
   }
@@ -99,7 +116,7 @@ export function buildExcavation(ctx) {
     const lg = new LineGeometry(); lg.setPositions(pts.flatMap(v => [v.x, v.y, v.z]));
     const m = new LineMaterial({ color, linewidth: width, dashed, dashSize: 0.5, gapSize: 0.3 });
     m.resolution.copy(ctx.viewer.resolution); lineMats.push(m);
-    const l = new Line2(lg, m); l.computeLineDistances(); l.renderOrder = 6; return l;
+    const l = new Line2(lg, m); l.computeLineDistances(); l.renderOrder = 6; l.userData.annotation = true; return l;
   };
   group.add(fat(bottom.concat([bottom[0]]).map(([x, y]) => coords.toLocal(x, y, zb + 0.02)), D.bottomLineColor, 2, true));
 

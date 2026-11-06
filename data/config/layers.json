@@ -139,6 +139,11 @@
           "visible": true
         },
         {
+          "id": "pool",
+          "label": "בריכה + חדר מכונות/בור איזון (זמני – ממתין לתוכנית הבריכה)",
+          "visible": true
+        },
+        {
           "id": "slabs",
           "label": "רצפות ותקרות",
           "visible": true

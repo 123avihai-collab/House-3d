@@ -80,6 +80,15 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return on.changed > 0 && on.original === 0 && off.changed === 0 && off.original > 0 ? 'ok' : JSON.stringify({ on, off });
     });
     if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('owner-change toggle: ' + info.ownerChange);
+    // per-layer label switch: piles stay visible, their labels hide
+    info.labelsOff = await page.evaluate(() => {
+      const a = window.__app; a.store.set({ stageIndex: a.data.tags.stages.findIndex(s => s.id === 'piles'), labelsOff: { piles: true } });
+      const it = a.registry.items.filter(i => i.tags.layer === 'piles' && i.meta.kind === 'pile');
+      let lab = 0; it.forEach(i => i.object.traverse(o => { if (o.isCSS2DObject && o.visible) lab++; }));
+      const vis = it.filter(i => i.object.visible).length; a.store.undo();
+      return vis > 0 && lab === 0 ? 'ok' : JSON.stringify({ vis, lab });
+    });
+    if (info.labelsOff !== 'ok') errors.push('labels switch: ' + info.labelsOff);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

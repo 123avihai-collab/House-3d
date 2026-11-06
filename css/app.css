@@ -147,3 +147,7 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 .oc-badge { border: 1px solid #ab47bc; color: #ce93d8; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: transparent; cursor: pointer; }
 .oc-badge.off { border-color: #777; color: #aaa; }
 .lbl.pipe { background: rgba(141,110,99,0.92); color: #fff; font-size: 10px; }
+.lrow { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.lrow > label { display: flex; align-items: center; gap: 6px; flex: 1; }
+.tagbtn { background: transparent; border: 1px solid #555; border-radius: 6px; padding: 0 6px; font-size: 13px; cursor: pointer; opacity: 1; }
+.tagbtn.off { opacity: 0.35; text-decoration: line-through; }

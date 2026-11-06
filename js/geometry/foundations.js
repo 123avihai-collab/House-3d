@@ -275,3 +275,41 @@ export function buildOwnerChangeZones(ctx) {
     scene.add(g);
   }
 }
+
+// Pool + machine room / balance tank (data/structure/pool.json): cast with the basement (slab / walls stages). PROVISIONAL.
+export function buildPool(ctx) {
+  const { data, coords, registry, scene, materials, display } = ctx;
+  const PL = data.pool; if (!PL) return null;
+  const D = display.framing; const conc = materials.get('concrete');
+  const toV = ([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); };
+  const prism = (ring, z0, z1) => {
+    const g = new THREE.ExtrudeGeometry(new THREE.Shape(ring.map(toV)), { depth: z1 - z0, bevelEnabled: false });
+    g.rotateX(-Math.PI / 2); g.translate(0, z0 - coords.H0, 0);
+    const p = g.attributes.position, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) + p.getY(i), p.getZ(i) + p.getY(i));
+    const m = new THREE.Mesh(g, conc); m.castShadow = m.receiveShadow = true;
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 30), new THREE.LineBasicMaterial({ color: D.provisionalEdgeColor }));
+    const grp = new THREE.Group(); grp.add(m, e); return grp;
+  };
+  const lbl = (text, ring, z) => { const c = ring.reduce((a, p) => [a[0] + p[0] / ring.length, a[1] + p[1] / ring.length], [0, 0]);
+    const d = document.createElement('div'); d.className = 'lbl beam'; d.textContent = text; const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c[0], c[1], z)); return o; };
+  const P = PL.pool, T = PL.tank;
+  const poolBottom = Math.min(P.slabUndersideWest, P.slabUndersideEast);
+  // slabs
+  const ps = prism(P.outerITM, poolBottom, P.floorFinish); ps.add(lbl(`בריכה · רצפה ${P.floorFinish.toFixed(2)} · תחתית ${P.slabUndersideWest.toFixed(2)}/${P.slabUndersideEast.toFixed(2)}`, P.outerITM, P.floorFinish + 0.4));
+  registry.add(ps, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'pool' }, { name: 'רצפת הבריכה (זמני)', status: 'provisional',
+    rows: [['מפלס רצפה (גמר)', coords.fmtH(P.floorFinish)], ['תחתית (ראשי כלונסאות)', `${coords.fmtH(P.slabUndersideWest)} מערב · ${coords.fmtH(P.slabUndersideEast)} מזרח`],
+      ['מפלס סיפון', coords.fmtH(P.deck)], ['שטח חוץ', `${P.area_m2.toFixed(2)} מ"ר`]], note: P.note, source: P.source });
+  scene.add(ps);
+  const ts = prism(T.outerITM, T.slabUnderside, T.floorFinish); ts.add(lbl(`חדר מכונות / בור איזון · רצפה ${T.floorFinish.toFixed(2)}`, T.outerITM, T.floorFinish + 0.4));
+  registry.add(ts, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'pool' }, { name: 'רצפת חדר מכונות / בור איזון (זמני)', status: 'provisional',
+    rows: [['רצפה (גמר)', coords.fmtH(T.floorFinish)], ['עובי רצפה', `${Math.round(T.slabThickness_m * 100)} ס"מ`], ['ראש כלונס 32', coords.fmtH(T.pile32Head)]], note: T.note, source: T.source });
+  scene.add(ts);
+  // walls (from the slab underside up to the deck)
+  const wg = new THREE.Group();
+  for (const w of P.wallsITM) wg.add(prism(w, poolBottom, P.deck));
+  for (const w of T.wallsITM) wg.add(prism(w, T.slabUnderside, T.top));
+  registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה וחדר המכונות (זמני)', status: 'provisional',
+    rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)]], note: `${P.note} ${T.note}`, source: `${P.source}; ${T.source}` });
+  scene.add(wg);
+  return { poolArea_m2: P.area_m2, tankArea_m2: T.area_m2 };
+}

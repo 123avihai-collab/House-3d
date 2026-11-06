@@ -27,6 +27,7 @@
     "framing": "data/structure/framing.json",
     "ownerChanges": "data/changes/owner-changes.json",
     "plumbingFoundations": "data/systems/plumbing-foundations.json",
-    "ownerChangesGeometry": "data/changes/owner-changes-geometry.json"
+    "ownerChangesGeometry": "data/changes/owner-changes-geometry.json",
+    "pool": "data/structure/pool.json"
   }
 }

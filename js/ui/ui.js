@@ -127,7 +127,7 @@ export class UI {
 
   panel_layers() {
     const { app } = this; const s = app.store.get();
-    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הדלקה וכיבוי לכל שכבה. מערכות שעוד אין להן נתונים מסומנות "בקרוב".'));
+    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הדלקה וכיבוי לכל שכבה. 🏷 = הסתרת התוויות וקווי הסימון של השכבה בלבד (למשל הקו האדום של הדיפון) – הרכיבים נשארים. מערכות שעוד אין להן נתונים מסומנות "בקרוב".'));
     const colors = Object.fromEntries(app.data.tags.systems.map(x => [x.id, x.color]));
     for (const g of app.data.layers.groups) {
       const sw = h('i', { class: 'sw', style: `background:${colors[g.system]}` });
@@ -135,15 +135,19 @@ export class UI {
       for (const l of g.layers) {
         const impl = g.implemented && l.implemented !== false;
         const on = s.layers[l.id] !== false;
-        box.append(h('label', { class: 'row' + (impl ? '' : ' na') },
-          h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
-            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()));
+        const lblOff = !!(s.labelsOff || {})[l.id];
+        box.append(h('div', { class: 'row lrow' + (impl ? '' : ' na') },
+          h('label', {}, h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
+            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()),
+          impl ? h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
+            onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
       }
       wrap.append(box);
     }
     wrap.append(h('div', { class: 'btns' },
       h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, true])) }, { label: 'layers' }) }, 'הצג הכול'),
-      h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל')));
+      h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל'),
+      h('button', { onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')));
     return wrap;
   }
 

@@ -32,6 +32,8 @@ export class Registry {
       const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
       const visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       it.object.visible = visible;
+      // per-layer label switch: hide only the labels and marking lines (userData.annotation) of the layer, keep the objects
+      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.isCSS2DObject || o.userData.annotation) o.visible = !lo; }); }
       if (visible) this.applyOpacity(it, floor.opacity);
     }
     this.listeners.forEach(f => f());

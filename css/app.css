@@ -114,6 +114,9 @@ body.walking #joy { display: block; }
 .lbl.north { background: #c62828; font-weight: 700; direction: rtl; }
 .lbl.grid { background: rgba(69, 90, 100, .7); }
 .lbl.measure { background: #00838f; font-size: 12px; text-align: center; }
+.lbl.pile { background: rgba(120,120,120,.85); font-size: 10px; padding: 0 4px; }
+.lbl.pile.over { background: #e64a19; }
+.lbl.shoring { background: #c62828; font-weight: 700; direction: rtl; }
 .lbl.note-pin { background: #e53935; border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; font-weight: 700; padding: 0; }
 .lbl.note-pin.done { background: #43a047; }
 body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }

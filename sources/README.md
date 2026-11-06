@@ -2,7 +2,7 @@
 
 כל מידה, מיקום וגובה במודל נגזרים רק מהקבצים כאן (ראו CLAUDE.md §1).
 
-> **פרטיות:** המאגר ב-GitHub **ציבורי**. קבצי המקור (גרמושקה, מדידה, תוכניות עם שמות בעלים) **לא נשמרים ב-git**. ראו `.gitignore`. כדי לשחזר את התיקייה מורידים את הקבצים מהדרייב לפי המזהים בטבלה, לאותם נתיבים. ההחלטה אם להעלות אותם למאגר (או להפוך אותו לפרטי) ממתינה לאישור אביחי (docs/open-issues.md).
+> **פרטיות:** המאגר ב-GitHub **ציבורי**. אביחי העלה בעצמו את תוכניות השלד, דוח הקרקע, המדידה ותוכניות הפיתוח (06.11.2026), ולכן `sources/` נשמר ב-git. **חריג:** `sources/permit/` (הגרמושקה, שם הקובץ והתוכן כוללים שמות בעלים) נשאר מחוץ ל-git עד אישור. משחזרים אותו מהדרייב לפי המזהה בטבלה.
 
 ## קבצים בשימוש בשלב 1
 
@@ -18,6 +18,19 @@
 | `neighborhood/types-diagram-north-with-requests.pdf` | תרשים טיפוסים - חלק צפוני עם מספרי בקשה.pdf | `1YmzBHLBc-oIrcpB10QUxWgwDHhvrSH58` | מקרא טיפוסים (A1/A2…) |
 | `neighborhood/type-A1-elevations-sections-ed108.pdf` | תכנית חזיתות וחתכים טיפוס A1 מהדורה 108.pdf | `1mV_AQiWaw6psQ_dG8eGz9MSlvbK5kew4` | נבדק – אין גובה מבנה מקסימלי במטרים |
 | `neighborhood/analytic-map-rakafot.pdf` | מפה אנליטית שכונת רקפות … .pdf | `1AzhGDTFu8Fvqiy_ih4gFO7RVR3z5BIz6` | נבדק – הקואורדינטות ב-PDF מעוגלות ל-0.83 מ', לא שמיש לגיאומטריה |
+
+## קבצים בשימוש בשלב 2 (הועלו למאגר ע"י אביחי)
+
+| נתיב | שימוש |
+|---|---|
+| `structure/K-400-תכנית יסודות.pdf` | **תכנית יסודות וכלונסאות** (PDF וקטורי, 1:50): מיקום, קוטר, L, מפלס ראש ועומס לכל כלונס; פרט בטון רזה 3÷5 ס"מ. DXF יגיע בהמשך ויגבר |
+| `structure/k-11.dxf` | מרתף – גיאומטריה (Revit, ס"מ, קואורדינטות מקומיות): קו חוץ של קירות המרתף (IfcWall), תגיות תקרה O.K/D |
+| `structure/k-21.dxf`, `k-31.dxf`, `k-41.dxf`, `K-1x…K-4x.pdf`, `dwg/*.dwg` | שלד קומות – לשלבים הבאים |
+| `geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf` | דוח קרקע: 6.5 (L בקרקע טבעית), 9.1 (ארגזי הפרדה 25 ס"מ), 10.1 (חפירה זמנית 1V:2H), 10.2 (דיפון) |
+| `development/תוכנית גבהים בגוש שלי.pdf` | תוכנית גבהי פיתוח (וקטורי) – טרם עובדה (שאלה 6) |
+| `development/תוכנית נוף.pdf` | תוכנית נוף (סרוקה) – טרם עובדה |
+| `survey/survey-5187-tzachi-abitan.pdf` | זהה למדידה מהדרייב (שלב 1) |
+| טבלת כלונסאות - רקפות 5187.xlsx (דרייב `1VcIJbWPN0Aa3Sr50dFFp0ZadDpeWVkIg`) | תועתקה ל-`tools/pile-table-xlsx.json` – **להצלבה בלבד** מול K-400 |
 
 ## קבצים שלא ניתן היה להוריד (מעל 10MB – מגבלת הכלי)
 
@@ -35,6 +48,9 @@
 | מפה למשתכן – תרשים 1:5000 | התאמת דמיון ל-8 נקודות גבול | ‏9e-11 מ' (העתק מוקטן מדויק ×5) |
 | גרמושקה – בלוק "מפת מדידה" | התאמת דמיון ל-5 נקודות | 0.008 מ' |
 | מדידה סרוקה 2025 | אפינית ל-5 נקודות גבול (300dpi, סיבוב לצפון) | 0.06–0.14 מ' – גבהים קיימים בלבד |
+| K-400 (PDF) | קנ"מ 1:50 אומת מול שרשרת מידות (≤1.1 ס"מ); דמיון (סיבוב −21.986°) מותאם ל-4 קווי מגרש עם היסט אחיד של פס הקיר | 0.15 מ"מ (8 משוואות / 4 נעלמים) |
+| K-11 (DXF) → K-400 | ICP, הזזה בלבד בקנ"מ 0.5669 pt/ס"מ | חציון 0.64 מ"מ (בקנ"מ PDF) |
+| בדיקה עצמאית: קו מרתף מול קירות הגרמושקה | — | חציון 1.4 ס"מ |
 
 ## צינור החילוץ
 
@@ -44,5 +60,7 @@ node tools/dwg2json/convert.mjs sources/permit/permit-sheet1-gramushka.dwg tools
 python3 tools/extract_site.py      # -> data/site/*.json
 python3 tools/derive_site.py       # -> terrain-regions.json, neighbors.json
 node tools/verify_stage1.mjs       # -> docs/verification/stage-1.md
+python3 tools/extract_structure.py # -> data/structure/{piles,basement,excavation}.json (K-400, k-11.dxf, דוח קרקע)
+node tools/verify_stage2.mjs       # -> docs/verification/stage-2.md
 ```
-קריאות ידניות (מתועדות, עם מקור): `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.
+קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.

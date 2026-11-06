@@ -11,9 +11,10 @@
   "floorsBelowEntrance": 1,
   "maxHeightAboveEntrance_m": {
    "value": 8.05,
-   "status": "provisional",
+   "status": "approved",
    "why": "TAMAL/1016 limits floors (2) but no height in metres was found in the sources. Placeholder = top of parapet of lot 5187 per its own permit sections (+8.05). Awaiting user decision — see docs/open-issues.md",
-   "source": "sources/permit/permit-sheet1-gramushka.dwg (section texts '+8.05')"
+   "source": "sources/permit/permit-sheet1-gramushka.dwg (section texts '+8.05')",
+   "approved": "אושר ע\"י אביחי 06.11.2026"
   },
   "entranceLevel": {
    "rule": "mean of the planned lot heights of that lot (buyer's map)",
@@ -114,7 +115,7 @@
    "entranceLevel": 279.525,
    "entranceLevelStatus": "provisional",
    "height_m": 8.05,
-   "heightStatus": "provisional",
+   "heightStatus": "approved",
    "floors": 2
   },
   {
@@ -435,7 +436,7 @@
    "entranceLevel": 281.2,
    "entranceLevelStatus": "provisional",
    "height_m": 8.05,
-   "heightStatus": "provisional",
+   "heightStatus": "approved",
    "floors": 2
   },
   {
@@ -539,7 +540,7 @@
    "entranceLevel": 281.075,
    "entranceLevelStatus": "provisional",
    "height_m": 8.05,
-   "heightStatus": "provisional",
+   "heightStatus": "approved",
    "floors": 2
   },
   {
@@ -1001,7 +1002,7 @@
    "entranceLevel": 282.4,
    "entranceLevelStatus": "provisional",
    "height_m": 8.05,
-   "heightStatus": "provisional",
+   "heightStatus": "approved",
    "floors": 2
   },
   {
@@ -1124,7 +1125,7 @@
    "entranceLevel": 279.45,
    "entranceLevelStatus": "provisional",
    "height_m": 8.05,
-   "heightStatus": "provisional",
+   "heightStatus": "approved",
    "floors": 2
   }
  ],

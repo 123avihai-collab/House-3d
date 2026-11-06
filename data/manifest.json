@@ -1,6 +1,10 @@
 {
   "_doc": "All data files loaded by the viewer. Key -> path. Stage 1 = site & environment.",
-  "project": { "name": "מגרש 5187 · שכונת רקפות · באר שבע", "stage": 1, "stageLabel": "שלב 1 – מגרש וסביבה" },
+  "project": {
+    "name": "מגרש 5187 · שכונת רקפות · באר שבע",
+    "stage": 2,
+    "stageLabel": "שלב 2 – חפירה ליחידת הדיור וכלונסאות"
+  },
   "files": {
     "origin": "data/site/origin.json",
     "controlPoints": "data/site/control-points.json",
@@ -16,6 +20,9 @@
     "layers": "data/config/layers.json",
     "display": "data/config/display.json",
     "materials": "data/materials/materials.json",
-    "tools": "data/config/tools.json"
+    "tools": "data/config/tools.json",
+    "piles": "data/structure/piles.json",
+    "basement": "data/structure/basement.json",
+    "excavation": "data/structure/excavation.json"
   }
 }

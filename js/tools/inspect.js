@@ -24,7 +24,8 @@ export class InspectTool {
     const m = comp?.meta || {};
     rows.push(['נקודה (ITM)', coords.fmtEN(P.E, P.N)]);
     rows.push(['גובה', coords.fmtH(P.H)]);
-    if (m.area != null) rows.push(['שטח', `${Number(m.area).toFixed(2)} מ"ר`]);
+    if (m.rows) rows.push(...m.rows);
+    if (m.area != null && !m.rows) rows.push(['שטח', `${Number(m.area).toFixed(2)} מ"ר`]);
     if (m.hMin != null) rows.push(['גובה מינ׳/מקס׳', `${coords.fmtH(m.hMin)} / ${coords.fmtH(m.hMax)}`]);
     if (m.height != null) rows.push(['גובה מעטפת', `${m.height} מ'${m.provisional ? ' (זמני)' : ''}`]);
     if (m.base != null) rows.push(['מפלס בסיס', coords.fmtH(m.base)]);

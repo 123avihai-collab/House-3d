@@ -21,6 +21,7 @@ export class Navigation {
       { id: 'overview', label: 'מבט כללי על המגרש', target: c, offset: new THREE.Vector3(-30, 28, 34) },
       { id: 'top', label: 'מבט על (צפון למעלה)', target: c, offset: new THREE.Vector3(0, 70, 0.01) },
       { id: 'street', label: 'מהרחוב (דרום-מערב)', target: c, offset: new THREE.Vector3(-14, 4, 26) },
+      { id: 'pit', label: 'חפירה וכלונסאות', target: c.clone().add(new THREE.Vector3(0, -3, 0)), offset: new THREE.Vector3(-16, 13, 18), stage: 'piles' },
     ];
     for (const [name, p] of Object.entries(data.plot.points)) {
       const t = coords.toLocal(p.E, p.N, ground.heightAt(p.E, p.N));
@@ -30,6 +31,7 @@ export class Navigation {
   }
   goTo(vp) {
     this.stopWalk();
+    if (vp.stage) { const i = this.app.data.tags.stages.findIndex(s => s.id === vp.stage); if (i >= 0) this.app.store.set({ stageIndex: i }, { label: 'stage' }); }
     this.app.viewer.flyTo(vp.target.clone(), vp.target.clone().add(vp.offset));
   }
   // ----- walk -----

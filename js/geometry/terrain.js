@@ -42,7 +42,7 @@ export function buildTerrain(ctx) {
     const interp25 = makeInterpolator(pts);
     const lot = data.plot.ring;
     const m = regionMesh(lot, interp25, coords, materials.get('soilPlot'), materials.get('soilCut'), T, []);
-    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stageTo: 'ceiling', layer: 'topoExisting2025' }, {
+    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stageTo: 'existing', layer: 'topoExisting2025' }, {
       name: 'מגרש 5187 – קרקע קיימת (מדידה 25.09.2025)', kind: 'terrain', role: 'plotExisting', ring: lot,
       area: Math.abs(ringArea(lot)), hMin: m.userData.hMin, hMax: m.userData.hMax, interp: interp25.kind, controlCount: interp25.count,
       source: s25.source, note: `נקודות הגובה הועתקו מסריקה; דיוק מיקום ±${s25.positionAccuracy_m} מ'`,
@@ -60,13 +60,19 @@ export function buildTerrain(ctx) {
     scene.add(ov);
   }
 
-  // neutral context ground (no height data) below everything, with hole-free large plane
+  // neutral context ground (no height data) below the modelled surfaces, with a hole at lot 5187
+  // (the lot is always fully modelled; the hole keeps the plane out of the excavation pit)
   const allZ = built.flatMap(b => [b.mesh.userData.hMin]);
   const zMin = Math.min(...allZ) - T.contextGroundBelowMin_m;
-  const size = T.contextGroundMargin_m * 2;
-  const g = new THREE.PlaneGeometry(size, size, 1, 1);
-  g.rotateX(-Math.PI / 2);
-  const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * size, uv.getY(i) * size);
+  const half = T.contextGroundMargin_m;
+  const c0 = coords.xz(data.plot.ring[0][0], data.plot.ring[0][1]);
+  const outer = new THREE.Shape([[-half, -half], [half, -half], [half, half], [-half, half]].map(([a, b]) => new THREE.Vector2(c0[0] + a, -c0[1] + b)));
+  const holeRing = data.plot.ring.map(([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); });
+  outer.holes.push(new THREE.Path(holeRing));
+  const g = new THREE.ShapeGeometry(outer);
+  g.rotateX(-Math.PI / 2); // shape (x, -z) -> scene (x, z)
+  const uv = g.attributes.uv, ps = g.attributes.position;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, ps.getX(i), -ps.getZ(i));
   const plane = new THREE.Mesh(g, materials.get('context'));
   plane.position.y = zMin - coords.H0;
   plane.receiveShadow = true;

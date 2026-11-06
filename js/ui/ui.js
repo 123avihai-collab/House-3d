@@ -93,7 +93,7 @@ export class UI {
     const p = this.$('panel');
     this.tabs = [
       ['layers', 'שכבות'], ['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
-      ['nav', 'ניווט'], ['notes', 'הערות'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
+      ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
     ];
     this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
     this.body = h('div', { class: 'panel-body' });
@@ -122,10 +122,11 @@ export class UI {
       const sw = h('i', { class: 'sw', style: `background:${colors[g.system]}` });
       const box = h('details', { class: 'grp', open: g.implemented }, h('summary', {}, sw, g.label, g.implemented ? '' : soon()));
       for (const l of g.layers) {
+        const impl = g.implemented && l.implemented !== false;
         const on = s.layers[l.id] !== false;
-        box.append(h('label', { class: 'row' + (g.implemented ? '' : ' na') },
-          h('input', { type: 'checkbox', checked: g.implemented && on, disabled: !g.implemented,
-            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label));
+        box.append(h('label', { class: 'row' + (impl ? '' : ' na') },
+          h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
+            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()));
       }
       wrap.append(box);
     }
@@ -235,6 +236,29 @@ export class UI {
           h('button', { class: 'small', onclick: () => app.store.set({ notes: s.notes.map((x, j) => j === i ? { ...x, done: !x.done } : x) }, { label: 'note' }) }, n.done ? 'פתח מחדש' : 'סמן כבוצע'),
           h('button', { class: 'small', onclick: () => { const t = prompt('עריכת הערה:', n.text); if (t != null) app.store.set({ notes: s.notes.map((x, j) => j === i ? { ...x, text: t } : x) }, { label: 'note' }); } }, 'ערוך'),
           h('button', { class: 'small x', onclick: () => app.store.set({ notes: s.notes.filter((_, j) => j !== i) }, { label: 'note' }) }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין הערות עדיין.'));
+  }
+
+  panel_quantities() {
+    const { app } = this; const q = app.quantities || {}; const P = q.piles, X = q.excavation;
+    const piles = app.data.piles.piles;
+    const over = piles.filter(p => p.overAllowed).map(p => p.id);
+    return h('div', {},
+      h('p', { class: 'muted' }, 'כמויות מחושבות מהגיאומטריה במודל (נפחים תיאורטיים, ללא פחת).'),
+      h('h4', {}, 'כלונסאות (K-400)'),
+      P ? h('table', { class: 'kv' },
+        tr('מספר כלונסאות', String(P.count)),
+        ...Object.entries(P.byType).sort().map(([k, v]) => tr(k, `${v} יח'`)),
+        tr('מטר קידוח כולל', `${P.drill_m.toFixed(0)} מ'`),
+        tr('נפח בטון תיאורטי', `${P.concrete_m3.toFixed(2)} מ"ק`),
+        tr('מעל העומס המותר', over.length ? over.join(', ') : '—')) : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, 'חפירה ליחידת הדיור'),
+      X ? h('table', { class: 'kv' },
+        tr('נפח חפירה (מול קרקע 2025)', `${X.volume_m3.toFixed(1)} מ"ק`),
+        tr('שטח תחתית', `${X.bottomArea_m2.toFixed(1)} מ"ר`),
+        tr('מפלס תחתית', app.coords.fmtH(app.data.excavation.bottomAbs)),
+        tr('עומק מקסימלי', `${X.maxDepth_m.toFixed(2)} מ'`),
+        tr('דיפון נדרש בגבול המגרש', `${X.shoringLength_m.toFixed(1)} מ' · גובה עד ${X.shoringMaxHeight_m.toFixed(2)} מ'`)) : h('p', { class: 'muted' }, '—'),
+      h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
   }
 
   panel_electric() {

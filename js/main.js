@@ -8,6 +8,8 @@ import { MaterialLibrary } from './core/materials.js';
 import { buildTerrain } from './geometry/terrain.js';
 import { buildSite, centroid } from './geometry/site.js';
 import { buildNeighbors } from './geometry/neighbors.js';
+import { buildExcavation } from './geometry/excavation.js';
+import { buildPiles } from './geometry/piles.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -34,6 +36,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx) };
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));
@@ -45,7 +48,7 @@ async function main() {
 
   // ---------- default settings ----------
   const layers = {};
-  for (const g of data.layers.groups) for (const l of g.layers) layers[l.id] = g.implemented ? l.visible !== false : false;
+  for (const g of data.layers.groups) for (const l of g.layers) layers[l.id] = g.implemented && l.implemented !== false ? l.visible !== false : false;
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: data.origin.timezone });
   const defaults = {
     version: 1, mode: 'view', layers,
@@ -59,7 +62,7 @@ async function main() {
   const store = new StateStore(defaults);
 
   const app = {
-    data, coords, viewer, registry, store, display, defaults, plotCenter, ground: ctx.ground, tools: {}, activeTool: 'inspect',
+    data, coords, viewer, registry, store, display, defaults, plotCenter, ground: ctx.ground, tools: {}, activeTool: 'inspect', quantities,
     sun: new SunController(viewer, coords, display, data.origin.timezone),
   };
   app.sun.center.copy(plotCenter);

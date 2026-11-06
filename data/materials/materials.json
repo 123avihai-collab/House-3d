@@ -1,14 +1,80 @@
 {
   "_doc": "PBR materials. Textures from Poly Haven (CC0), see assets/CREDITS.json. 'size_m' = real-world size of one texture tile (from Poly Haven asset dimensions), used for world-space UVs. Final finish choices will come from the design-decisions document (materials/colours only).",
   "materials": {
-    "asphalt":   { "texture": "assets/textures/asphalt_02",                   "size_m": 3.0, "tint": "#ffffff", "roughness": 1.0, "envMapIntensity": 0.8 },
-    "pavers":    { "texture": "assets/textures/interlocking_concrete_pavers", "size_m": 1.8, "tint": "#e8e2d8", "roughness": 1.0, "envMapIntensity": 0.8 },
-    "curb":      { "texture": "assets/textures/concrete_floor_01",            "size_m": 2.0, "tint": "#f2f0ea", "roughness": 1.0, "envMapIntensity": 0.8 },
-    "soilPlot":  { "texture": "assets/textures/dry_ground_01",                "size_m": 4.0, "tint": "#ffffff", "roughness": 1.0, "envMapIntensity": 0.7 },
-    "soilLot":   { "texture": "assets/textures/dry_ground_01",                "size_m": 4.0, "tint": "#d9cfc0", "roughness": 1.0, "envMapIntensity": 0.7 },
-    "soilCut":   { "texture": "assets/textures/excavated_soil_wall",          "size_m": 2.0, "tint": "#ffffff", "roughness": 1.0, "envMapIntensity": 0.6 },
-    "context":   { "color": "#c9c2b4", "roughness": 1.0, "envMapIntensity": 0.6 },
-    "envelope":  { "color": "#d7ccc8", "roughness": 0.9, "transparent": true, "opacity": 0.55, "envMapIntensity": 0.8 },
-    "existing":  { "color": "#4fc3f7", "roughness": 0.6, "transparent": true, "opacity": 0.45, "envMapIntensity": 0.5 }
+    "asphalt": {
+      "texture": "assets/textures/asphalt_02",
+      "size_m": 3.0,
+      "tint": "#ffffff",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8
+    },
+    "pavers": {
+      "texture": "assets/textures/interlocking_concrete_pavers",
+      "size_m": 1.8,
+      "tint": "#e8e2d8",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8
+    },
+    "curb": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 2.0,
+      "tint": "#f2f0ea",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8
+    },
+    "soilPlot": {
+      "texture": "assets/textures/dry_ground_01",
+      "size_m": 4.0,
+      "tint": "#ffffff",
+      "roughness": 1.0,
+      "envMapIntensity": 0.7
+    },
+    "soilLot": {
+      "texture": "assets/textures/dry_ground_01",
+      "size_m": 4.0,
+      "tint": "#d9cfc0",
+      "roughness": 1.0,
+      "envMapIntensity": 0.7
+    },
+    "soilCut": {
+      "texture": "assets/textures/excavated_soil_wall",
+      "size_m": 2.0,
+      "tint": "#ffffff",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6
+    },
+    "context": {
+      "color": "#c9c2b4",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6
+    },
+    "envelope": {
+      "color": "#d7ccc8",
+      "roughness": 0.9,
+      "transparent": true,
+      "opacity": 0.55,
+      "envMapIntensity": 0.8
+    },
+    "existing": {
+      "color": "#4fc3f7",
+      "roughness": 0.6,
+      "transparent": true,
+      "opacity": 0.45,
+      "envMapIntensity": 0.5
+    },
+    "concrete": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 2.0,
+      "tint": "#d6d3cc",
+      "roughness": 0.95,
+      "envMapIntensity": 0.8
+    },
+    "soilPit": {
+      "texture": "assets/textures/dry_ground_01",
+      "size_m": 4.0,
+      "tint": "#b9a38a",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6
+    }
   }
 }

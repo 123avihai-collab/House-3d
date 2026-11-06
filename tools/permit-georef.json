@@ -1,0 +1,24 @@
+{
+ "_doc": "Georeference of the permit sheet (sources/permit/permit-sheet1-gramushka.dwg). The embedded survey block (PDF import, cm) was fitted to the 5 boundary points (max residual 0.008 m); the site-plan view is that block inserted at INSERT below. permit local -> block local = inverse INSERT; block -> ITM = similarity s,ma,mb (complex form: ITM = mb + s*(q - ma)).",
+ "block": "מפת מדידה_dwg-896485-מפת מדידה",
+ "s": [
+  0.009997948065468639,
+  -0.00011250055444624091
+ ],
+ "ma": [
+  31760.040222593198,
+  24612.353646093383
+ ],
+ "mb": [
+  179599.65,
+  576244.2819999999
+ ],
+ "maxResidual_m": 0.0084,
+ "insert": {
+  "name": "מפת מדידה_dwg-896485-קרקע פיתוח",
+  "x": 20685.31520471898,
+  "y": -36535.7565977941,
+  "scale": 0.9999999999999999,
+  "rotation": 0.3723276157723617
+ }
+}

@@ -1,0 +1,24 @@
+{
+  "_doc": "Values as WRITTEN in the source documents (read visually), used only by tools/verify_stage1.mjs to compare against the model.",
+  "surveyTable": {
+    "source": "sources/survey/survey-5187-tzachi-abitan.pdf – טבלת 'נקודות גבול מגרש או חלקה', שטח רשום 498 מ\"ר, מידות צלעות כתובות",
+    "points": {
+      "2403": { "E": 179612.21, "N": 576249.31 },
+      "2420": { "E": 179605.30, "N": 576226.81 },
+      "2424": { "E": 179603.65, "N": 576251.94 },
+      "2447": { "E": 179592.54, "N": 576257.20 },
+      "2457": { "E": 179584.55, "N": 576236.15 }
+    },
+    "area_m2": 498,
+    "edges": { "2403-2420": 23.54, "2420-2457": 22.75, "2457-2447": 22.52, "2447-2424": 12.29, "2424-2403": 8.96 }
+  },
+  "marketingMap": { "source": "sources/survey/INDEX_F02628-25-SHIVUK-MIG-5187.pdf (מפת שיווק, 0.498 דונם)" },
+  "permitZero": 280.50,
+  "permitLotHeights": [
+    { "label": "(280.60) לפי המשתכן", "where": "ליד 2447", "E": 179593.07, "N": 576256.55, "z": 280.60, "source": "sources/permit/permit-sheet1-gramushka.dwg G-ANNO-TEXT" },
+    { "label": "(281.40) לפי המשתכן", "where": "ליד 2403", "E": 179610.08, "N": 576249.72, "z": 281.40, "source": "sources/permit/permit-sheet1-gramushka.dwg G-ANNO-TEXT" },
+    { "label": "(280.00) לפי המשתכן", "where": "ליד 2457", "E": 179586.98, "N": 576235.80, "z": 280.00, "source": "sources/permit/permit-sheet1-gramushka.dwg G-ANNO-TEXT" },
+    { "label": "(280.00) לפי המשתכן", "where": "שער כניסה", "E": 179599.71, "N": 576229.67, "z": 280.00, "source": "sources/permit/permit-sheet1-gramushka.dwg G-ANNO-TEXT" }
+  ],
+  "scanGeoref": { "source": "tools/survey-2025-georef.json", "residuals_m": { "2447": 0.113, "2424": 0.137, "2403": 0.061, "2420": 0.062, "2457": 0.063 } }
+}

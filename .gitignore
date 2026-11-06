@@ -1,0 +1,10 @@
+# Source documents are private (repo is public) – see sources/README.md
+sources/*
+!sources/README.md
+# Pipeline caches / deps
+tools/cache/
+tools/dwg2json/node_modules/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store

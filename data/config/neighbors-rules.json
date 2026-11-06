@@ -1,0 +1,22 @@
+{
+  "_doc": "Maximum building envelope for neighbouring lots (מגורים א', טיפוס A) per TAMAL/1016 §4.1.2. Used by tools/derive_site.py.",
+  "source": "sources/zoning/tamal-1016-instructions.pdf p.23 §4.1.2 (OCR, verified visually); table 5 in sources/zoning/tamal-1016-proposed-state-residential-A.pdf",
+  "setbacks_m": { "front": 3.0, "side": 3.0, "rear": 5.0 },
+  "floorsAboveEntrance": 2,
+  "floorsBelowEntrance": 1,
+  "maxHeightAboveEntrance_m": {
+    "value": 8.05,
+    "status": "provisional",
+    "why": "TAMAL/1016 limits floors (2) but no height in metres was found in the sources. Placeholder = top of parapet of lot 5187 per its own permit sections (+8.05). Awaiting user decision — see docs/open-issues.md",
+    "source": "sources/permit/permit-sheet1-gramushka.dwg (section texts '+8.05')"
+  },
+  "entranceLevel": {
+    "rule": "mean of the planned lot heights of that lot (buyer's map)",
+    "status": "provisional",
+    "why": "The planned ±0.00 of neighbouring houses is not in the sources."
+  },
+  "lots": ["256", "258", "228", "229", "222"],
+  "excluded": [
+    { "parcel": "226/227", "why": "dividing line between 226 and 227 missing in the source inset — lot geometry unknown" }
+  ]
+}

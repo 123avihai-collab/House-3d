@@ -1,0 +1,14 @@
+{
+  "_doc": "שיוך גבהים לקווי הגובה המתוכננים (HW-CONT-*) במפה למשתכן F02628-36. הקווים ב-DWG שמורים ללא Z. שלוש תוויות קיימות בשכבה HW-CONT-10: ‏279.2, ‏279.4, ‏279.6. כל תווית יושבת בתוך מרווח בקו שלה. הקו בשכבה HW-CONT-100 הוא קו ראשי (מטר שלם, 280.0), ומרווח הקווים 0.20 מ'. האימות: נקודות הגובה 279.39 (ליד 2457) ו-280.01 (ליד 2420) בשכבה Road Elevations יושבות בין הקווים המתאימים.",
+  "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg",
+  "levels": {
+    "133751": { "z": 279.2, "basis": "label 279.2 at gap (179580.11,576229.73)" },
+    "133754": { "z": 279.2, "basis": "second segment of the same contour, other side of the label gap" },
+    "133755": { "z": 279.4, "basis": "label 279.4 at gap (179590.43,576224.53)" },
+    "133757": { "z": 279.4, "basis": "second segment of the same contour, other side of the label gap" },
+    "133758": { "z": 279.6, "basis": "label 279.6 at (179598.82,576221.50)" },
+    "13375B": { "z": 279.8, "basis": "unlabeled, between 279.6 and the 280.0 major contour (0.20 interval)" },
+    "13375E": { "z": 280.0, "basis": "major contour (layer HW-CONT-100)" },
+    "133761": { "z": 280.2, "basis": "unlabeled, next contour after 280.0 (0.20 interval)" }
+  }
+}

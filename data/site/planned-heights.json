@@ -1,0 +1,289 @@
+{
+ "houseZero": {
+  "z": 280.5,
+  "at": [
+   100028.293,
+   99939.397
+  ],
+  "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg block aumiflas11_10 attr LEVEL1 (legend: גובה 0.0 מתוכנן מבנה)"
+ },
+ "lotCorners": [
+  {
+   "z": 280.0,
+   "parcel": "257",
+   "labelCentre": [
+    179600.164,
+    576229.285
+   ],
+   "at": [
+    179600.065,
+    576229.059
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179600.074,
+    576229.055
+   ],
+   "distToNearestCorner_m": 0.01,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 1178D1 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 280.0,
+   "parcel": "257",
+   "labelCentre": [
+    179586.243,
+    576236.293
+   ],
+   "at": [
+    179585.875,
+    576235.519
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179586.266,
+    576235.333
+   ],
+   "distToNearestCorner_m": 0.433,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 1178D2 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 280.6,
+   "parcel": "257",
+   "labelCentre": [
+    179592.903,
+    576255.724
+   ],
+   "at": [
+    179592.096,
+    576256.03
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179592.541,
+    576257.203
+   ],
+   "distToNearestCorner_m": 1.255,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 1178D3 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 281.4,
+   "parcel": "257",
+   "labelCentre": [
+    179606.679,
+    576249.86
+   ],
+   "at": [
+    179607.003,
+    576250.913
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179603.646,
+    576251.944
+   ],
+   "distToNearestCorner_m": 3.512,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 1178D4 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 280.7,
+   "parcel": "226/227",
+   "labelCentre": [
+    179583.878,
+    576261.725
+   ],
+   "at": [
+    179583.765,
+    576261.496
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179588.71,
+    576259.077
+   ],
+   "distToNearestCorner_m": 5.504,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 117976 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 280.9,
+   "parcel": "228",
+   "labelCentre": [
+    179589.66,
+    576259.158
+   ],
+   "at": [
+    179589.444,
+    576258.718
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179588.71,
+    576259.077
+   ],
+   "distToNearestCorner_m": 0.818,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 117979 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 281.25,
+   "parcel": "228",
+   "labelCentre": [
+    179598.915,
+    576254.693
+   ],
+   "at": [
+    179598.718,
+    576254.278
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179603.646,
+    576251.944
+   ],
+   "distToNearestCorner_m": 5.453,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 11797A layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 282.4,
+   "parcel": "229",
+   "labelCentre": [
+    179604.953,
+    576251.945
+   ],
+   "at": [
+    179604.84,
+    576251.577
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179603.646,
+    576251.944
+   ],
+   "distToNearestCorner_m": 1.249,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 11797D layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 281.0,
+   "parcel": "258",
+   "labelCentre": [
+    179606.854,
+    576227.274
+   ],
+   "at": [
+    179606.454,
+    576226.323
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179607.06,
+    576226.068
+   ],
+   "distToNearestCorner_m": 0.658,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 11797F layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 281.4,
+   "parcel": "258",
+   "labelCentre": [
+    179612.47,
+    576247.975
+   ],
+   "at": [
+    179611.86,
+    576248.162
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179612.213,
+    576249.312
+   ],
+   "distToNearestCorner_m": 1.203,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 117980 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 279.35,
+   "parcel": "256",
+   "labelCentre": [
+    179579.623,
+    576238.602
+   ],
+   "at": [
+    179579.596,
+    576238.548
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179579.649,
+    576238.522
+   ],
+   "distToNearestCorner_m": 0.059,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 117981 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 279.7,
+   "parcel": "256",
+   "labelCentre": [
+    179586.71,
+    576258.751
+   ],
+   "at": [
+    179587.225,
+    576259.803
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179588.71,
+    576259.077
+   ],
+   "distToNearestCorner_m": 1.653,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 117984 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  },
+  {
+   "z": 279.45,
+   "parcel": "222",
+   "labelCentre": [
+    179579.703,
+    576222.875
+   ],
+   "at": [
+    179580.162,
+    576223.841
+   ],
+   "atRule": "label centre projected onto the lot boundary",
+   "nearestCorner": [
+    179580.62,
+    576223.623
+   ],
+   "distToNearestCorner_m": 0.507,
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 1179E1 layer \"L-00-ktse migrash\" (legend: גובה מתוכנן מגרש)"
+  }
+ ],
+ "streetSpots": [
+  {
+   "z": 279.39,
+   "at": [
+    179586.116,
+    576234.423
+   ],
+   "parcel": "9",
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 133012 layer \"Road Elevations\" (legend: גובה מתוכנן מדרכה)"
+  },
+  {
+   "z": 280.01,
+   "at": [
+    179604.322,
+    576226.34
+   ],
+   "parcel": "9",
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 133013 layer \"Road Elevations\" (legend: גובה מתוכנן מדרכה)"
+  },
+  {
+   "z": 279.26,
+   "at": [
+    179581.234,
+    576224.135
+   ],
+   "parcel": "20/28",
+   "source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg TEXT handle 133028 layer \"Road Elevations\" (legend: גובה מתוכנן מדרכה)"
+  }
+ ],
+ "note": "גבהים סופיים לפי המפה למשתכן (תוכנית פיתוח). תוויות גובה המגרש משויכות לחלקה לפי מיקום התווית, ומוצמדות לקודקוד הקרוב של החלקה."
+}

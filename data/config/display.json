@@ -1,0 +1,28 @@
+{
+  "_doc": "Display-only constants (not model dimensions). Changing these never changes geometry positions.",
+  "terrain": {
+    "sampleSpacing_m": 0.75,
+    "boundaryDensify_m": 0.5,
+    "skirtDepthBelowMin_m": 1.5,
+    "contextGroundMargin_m": 400,
+    "contextGroundBelowMin_m": 0.02
+  },
+  "lines": {
+    "plotBoundaryWidth_px": 4,
+    "plotBoundaryColor": "#ff3d00",
+    "plotBoundaryLift_m": 0.03,
+    "buildingLineColor": "#e040fb",
+    "contourColor": "#5d4037",
+    "curbColor": "#eceff1",
+    "parcelColor": "#ffb74d",
+    "contextParcelColor": "#b0a58f",
+    "lineLift_m": 0.02
+  },
+  "labels": { "pointMarkerRadius_m": 0.12 },
+  "neighbors": { "envelopeColor": "#d7ccc8", "envelopeOpacity": 0.55, "provisionalEdgeColor": "#ff9800" },
+  "existingTerrain": { "color": "#4fc3f7", "opacity": 0.45 },
+  "sun": { "intensity": 3.2, "shadowMapSize": 4096, "shadowRadius": 4, "shadowExtent_m": 70, "ambientEnvIntensity": 0.9 },
+  "camera": { "fov": 50, "near": 0.1, "far": 3000, "eyeHeight_m": 1.65, "walkSpeed_mps": 1.4 },
+  "ao": { "enabled": true, "radius": 1.2, "distanceFallOff": 1.0, "thickness": 1.0, "blendIntensity": 0.85 },
+  "minimap": { "size_px": 180, "extent_m": 90 }
+}

@@ -1,0 +1,60 @@
+{
+ "crs": "EPSG:2039 (Israeli TM Grid, ITM)",
+ "E0": 179599,
+ "N0": 576242,
+ "H0": 280.5,
+ "H0_meaning": "±0.00 של הבית = גובה 0.0 מתוכנן מבנה",
+ "H0_source": "sources/survey/INDEX_F02628-36-MIG-5187.dwg block aumiflas11_10 attr LEVEL1 (legend: גובה 0.0 מתוכנן מבנה); cross-checked in sources/permit/permit-sheet1-gramushka.dwg G-ANNO-DIMS \"280.50\"",
+ "axes": "x = E - E0 (east), y = H - H0 (up), z = -(N - N0) (south)",
+ "lotCentroid": {
+  "E": 179598.597,
+  "N": 576242.006,
+  "lat": 31.2771408,
+  "lon": 34.7858921
+ },
+ "meridianConvergence_deg": -0.21734,
+ "trueNorthGridAzimuth_deg": 0.21727,
+ "trueNorth_note": "כיוון הצפון האמיתי ברשת ITM: אזימוט רשת = trueNorthGridAzimuth_deg (נבדק בהמרה מספרית של נקודה 0.001° צפונה). אזימוט שמש ברשת = אזימוט אמיתי + trueNorthGridAzimuth_deg.",
+ "timezone": "Asia/Jerusalem",
+ "georeference": {
+  "inset": {
+   "scale": 4.999999999996782,
+   "rotationDeg": -1.9436979089211362e-11,
+   "maxResidual_m": 8.990436797400591e-11,
+   "pointsUsed": [
+    "2403",
+    "2410",
+    "2420",
+    "2424",
+    "2447",
+    "2452",
+    "2457",
+    "2470"
+   ]
+  }
+ },
+ "mapFrameITM": [
+  [
+   179575.122,
+   576219.715
+  ],
+  [
+   179622.036,
+   576219.194
+  ],
+  [
+   179622.542,
+   576264.761
+  ],
+  [
+   179575.628,
+   576265.282
+  ]
+ ],
+ "contextWindowITM": [
+  179530.0,
+  576170.0,
+  179680.0,
+  576310.0
+ ]
+}

@@ -1,0 +1,38 @@
+{
+  "_doc": "Layer tree for the layers/infrastructure panel. 'implemented': false = placeholder (shown as 'בקרוב'). Each layer id is referenced by geometry builders through component tags.",
+  "groups": [
+    {
+      "id": "site", "label": "מגרש וטופוגרפיה", "system": "site", "implemented": true,
+      "layers": [
+        { "id": "topoPlanned",      "label": "טופוגרפיה מתוכננת (סופית)", "visible": true },
+        { "id": "topoExisting2025", "label": "קרקע קיימת במגרש – מדידה 2025 (בשלב 'מצב קיים')", "visible": true },
+        { "id": "existingOverlay",  "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)", "visible": false },
+        { "id": "surveyPoints2025", "label": "נקודות גובה – מדידה 2025",   "visible": false },
+        { "id": "surveyPoints2023", "label": "נקודות גובה – מפה למשתכן 2023", "visible": false },
+        { "id": "plotBoundary",     "label": "גבול מגרש 5187 + נקודות",   "visible": true },
+        { "id": "buildingLines",    "label": "קווי בניין",                 "visible": true },
+        { "id": "plannedHeights",   "label": "תוויות גבהים מתוכננים",      "visible": true },
+        { "id": "contours",         "label": "קווי גובה מתוכננים (רחוב)",  "visible": true },
+        { "id": "pavedEntries",     "label": "משטחי כניסה מתוכננים",       "visible": true }
+      ]
+    },
+    {
+      "id": "environment", "label": "סביבה", "system": "environment", "implemented": true,
+      "layers": [
+        { "id": "street",           "label": "כביש, מדרכה ואבני שפה",  "visible": true },
+        { "id": "neighborLots",     "label": "מגרשי שכנים",            "visible": true },
+        { "id": "neighborEnvelopes","label": "מעטפות בתי שכנים (תב\"ע)", "visible": true },
+        { "id": "contextParcels",   "label": "חלקות בסביבה (קווי גבול)", "visible": true },
+        { "id": "northArrow",       "label": "חץ צפון",                 "visible": true },
+        { "id": "itmGrid",          "label": "רשת ITM",                  "visible": false }
+      ]
+    },
+    { "id": "structure",  "label": "שלד",       "system": "structure",  "implemented": false, "layers": [ { "id": "piles", "label": "כלונסאות" }, { "id": "groundBeams", "label": "קורות יסוד" }, { "id": "slabs", "label": "תקרות" }, { "id": "columns", "label": "עמודים" } ] },
+    { "id": "plumbing",   "label": "אינסטלציה", "system": "plumbing",   "implemented": false, "layers": [ { "id": "coldWater", "label": "מים קרים" }, { "id": "hotWater", "label": "מים חמים" } ] },
+    { "id": "sewage",     "label": "ביוב",      "system": "sewage",     "implemented": false, "layers": [ { "id": "sewagePipes", "label": "צנרת" }, { "id": "sewageManholes", "label": "שוחות" } ] },
+    { "id": "drainage",   "label": "ניקוז",     "system": "drainage",   "implemented": false, "layers": [ { "id": "drainPipes", "label": "צנרת" }, { "id": "drainChannels", "label": "תעלות" } ] },
+    { "id": "water",      "label": "מים",       "system": "water",      "implemented": false, "layers": [ { "id": "waterSupply", "label": "חיבור מים" } ] },
+    { "id": "electrical", "label": "חשמל",      "system": "electrical", "implemented": false, "layers": [ { "id": "sockets", "label": "שקעים" }, { "id": "switches", "label": "מפסקים" }, { "id": "lighting", "label": "תאורה" }, { "id": "comm", "label": "תקשורת" } ] },
+    { "id": "hvac",       "label": "מיזוג",     "system": "hvac",       "implemented": false, "layers": [ { "id": "hvacUnits", "label": "יחידות" }, { "id": "hvacDucts", "label": "תעלות" } ] }
+  ]
+}

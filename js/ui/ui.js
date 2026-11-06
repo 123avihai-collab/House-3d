@@ -252,7 +252,7 @@ export class UI {
           h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
           h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
         h('div', { class: 'muted' }, (s.ownerChanges?.[c.id] ?? true) ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
-        h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => { app.store.set({ stageIndex: app.data.tags.stages.findIndex(x => x.id === c.showStage) }, { label: 'stage' }); app.flyToPoint({ E: c.locationITM[0], N: c.locationITM[1], H: app.coords.H0 + c.locationRel }); } }, 'הצג')))),
+        h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => { app.store.set({ stageIndex: app.registry.stepIndex(c.showStage, 'unit') }, { label: 'stage' }); app.flyToPoint({ E: c.locationITM[0], N: c.locationITM[1], H: app.coords.H0 + c.locationRel }); } }, 'הצג')))),
       h('h4', {}, 'הערות ותיקונים'),
       s.notes.length ? h('ol', { class: 'notes' }, s.notes.map((n, i) => h('li', { class: n.done ? 'done' : '' },
         h('div', {}, n.text), h('small', {}, `${n.component || '—'} · ${app.coords.fmtH(n.H)}`),
@@ -290,6 +290,13 @@ export class UI {
         tr('רצפת מרתף (תלויה)', `${q.foundations.slabs_m3.toFixed(2)} מ"ק`),
         tr('קירות מרתף', `${q.foundations.walls_m3.toFixed(2)} מ"ק`),
         tr('חסרים (ללא מיקום/מפלס)', q.foundations.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, 'שלד קומת הקרקע (עד IFC)'),
+      q.groundFloor ? h('table', { class: 'kv' },
+        tr('רצפת הקרקע', `${q.groundFloor.slab_m3.toFixed(2)} מ"ק`),
+        tr('קירות קומת הקרקע', `${q.groundFloor.walls_m3.toFixed(2)} מ"ק`),
+        tr('תקרת הקרקע (+3.70)', `${q.groundFloor.ceiling_m3.toFixed(2)} מ"ק`),
+        tr('קורות התקרה', `${q.groundFloor.beams_m3.toFixed(2)} מ"ק`),
+        tr('קורות בלי גיאומטריה', q.groundFloor.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
       h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
   }
 
@@ -320,19 +327,19 @@ export class UI {
   // ---------------- stage bar ----------------
   buildStageBar() {
     const { app } = this; const bar = this.$('stagebar');
-    const st = app.data.tags.stages;
+    const st = app.data.tags.sequence;
     this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => { app.store.setCoalesced('stage', { stageIndex: +e.target.value }); this.hint(st[+e.target.value].hint || ''); clearTimeout(this._hintT); this._hintT = setTimeout(() => this.hint(''), 4000); } });
     this.stageLabel = h('b', {});
     const ticks = h('div', { class: 'ticks' }, st.map(s => h('span', {}, s.label)));
     bar.append(h('div', { class: 'stg-head' }, 'שלב בנייה: ', this.stageLabel,
       h('div', { class: 'btns' },
-        h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.findIndex(x => x.id === 'ceiling'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
+        h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: app.registry.stepById('skeletonEnd'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.length - 1, systemFilter: null }, { label: 'all' }) }, 'הכול'))),
       this.stageRange, ticks);
     this.syncStageBar();
   }
   syncStageBar() {
-    const s = this.app.store.get(); const st = this.app.data.tags.stages;
+    const s = this.app.store.get(); const st = this.app.data.tags.sequence;
     this.stageRange.value = s.stageIndex;
     this.stageLabel.textContent = st[s.stageIndex].label + (s.systemFilter ? ' · רק שלד' : '');
   }

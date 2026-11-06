@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 2ב – קורות יסוד, רצפת מרתף, קירות מרתף** (ממתין לאישור; קורות בקירוב עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 3א – שלד קומת הקרקע (K-21) ותקרתה (K-31)** (ממתין לאישור; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3א](docs/verification/stage-3.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 
@@ -37,7 +37,8 @@ js/
     neighbors.js           מעטפות מקסימליות לבתי השכנים
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
-    foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (מ-data/structure/framing.json)
+    foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
+    floors.js              שלד קומה: רצפה, קירות ועמודים שעולים ממנה, תקרה וקורות (floor-<קומה>.json)
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
     measure.js             מדידה חופשית בין שתי נקודות
@@ -49,7 +50,7 @@ js/
 data/
   manifest.json            רשימת קובצי הנתונים
   site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
-  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py)
+  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד קומת הקרקע (tools/extract_floor.py → floor-ground.json)
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   materials/               הגדרות חומרים
 assets/                    טקסטורות PBR ו-HDRI (Poly Haven, CC0 – assets/CREDITS.json)
@@ -63,6 +64,10 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 **תגיות:** כל רכיב רשום ב-`registry` עם `floor` (מגרש/יחידת דיור/קרקע/קומה א'/גג), `system` (שלד, קירות, גמרים, אינסטלציה, מים, ביוב, ניקוז, חשמל, מיזוג, פיתוח, סביבה), `stage` (מצב קיים → חפירה → כלונסאות → קורות יסוד → רצפה → קירות → תקרה → גמרים → ריהוט) ו-`layer`. הנראות של כל רכיב נגזרת מהתגיות ומההגדרות. הגדרות התגיות: `data/config/tags.json`.
 
 **קואורדינטות:** סצנה `x = E−E0`, `y = H−H0`, `z = −(N−N0)`. E0/N0 הם מרכז המגרש מעוגל, ו-H0 = ‏±0.00 = ‏280.50 (‏`data/site/origin.json`). צפון אמיתי = צפון רשת + 0.217°.
+
+### סרגל שלבי הבנייה
+
+הסרגל עובר על רצף צעדים לפי קומה (`data/config/tags.json` → `sequence`): קיים, חפירה, כלונסאות, קורות יסוד, רצפת מרתף, קירות מרתף, רצפת קרקע, קירות קרקע, חומות, תקרת קרקע, גמרים, ריהוט. רכיב מוצג מהצעד שמכיל את {קומה, שלב} שלו (הגדרה עם קומה גוברת על הגדרה כללית). התגיות עצמן לפי CLAUDE.md §3.
 
 ## הממשק
 

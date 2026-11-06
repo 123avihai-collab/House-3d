@@ -185,14 +185,14 @@ const exMeta = {
     note: `מרווח עבודה ${ex.workingSpace_m} מ'${ex.workingSpaceStatus === 'provisional' ? ' – זמני, לאישור' : ''}. ${ex.shoringNote}`, status: ex.shoringStatus,
     source: ex.source,
   };
-  registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'ceiling', layer: 'excavation' }, { ...exMeta, kind: 'marks', pickable: false });
+  registry.add(group, { floor: 'unit', system: 'site', stage: 'excavation', stepTo: 'skeletonEnd', layer: 'excavation' }, { ...exMeta, kind: 'marks', pickable: false });
   const gA = new THREE.Group(); gA.add(meshA); scene.add(gA);
   registry.add(gA, { floor: 'unit', system: 'site', stage: 'excavation', stageTo: 'walls', layer: 'excavation' }, exMeta);
   const gB = new THREE.Group(); gB.add(mesh); scene.add(gB);
-  registry.add(gB, { floor: 'unit', system: 'site', stage: 'ceiling', stageTo: 'ceiling', layer: 'excavation' }, { ...exMeta, note: `${exMeta.note} כולל תעלות לקורות קומת הקרקע (נחפרות לפני היציקה).` });
+  registry.add(gB, { floor: 'unit', system: 'site', stage: 'ceiling', stepTo: 'skeletonEnd', layer: 'excavation' }, { ...exMeta, note: `${exMeta.note} כולל תעלות לקורות קומת הקרקע (נחפרות לפני היציקה).` });
   scene.add(group);
   for (const w of shoringMeshes) {
-    registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stageTo: 'ceiling', layer: 'shoring' }, {
+    registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stepTo: 'skeletonEnd', layer: 'shoring' }, {
       name: 'קיר דיפון (זמני – חסר תכנון)', status: 'provisional',
       rows: [['אורך כולל', `${shoringLen.toFixed(1)} מ'`], ['גובה חתך מקסימלי', `${shoringMaxH.toFixed(2)} מ'`], ['שטח דופן', `${shoringArea.toFixed(1)} מ"ר`],
         ['כלונסאות דיפון', 'ø50 לפחות (דוח קרקע 5.6); מרווח/עומק/עוגנים – חסר']],

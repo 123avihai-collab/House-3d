@@ -2,8 +2,8 @@
   "_doc": "All data files loaded by the viewer. Key -> path. Stage 1 = site & environment.",
   "project": {
     "name": "מגרש 5187 · שכונת רקפות · באר שבע",
-    "stage": "2ב",
-    "stageLabel": "שלב 2ב – קורות יסוד, רצפת מרתף, קירות מרתף (קורות בקירוב)"
+    "stage": "3א",
+    "stageLabel": "שלב 3א – שלד קומת הקרקע (K-21) ותקרתה (K-31)"
   },
   "files": {
     "origin": "data/site/origin.json",
@@ -28,6 +28,7 @@
     "ownerChanges": "data/changes/owner-changes.json",
     "plumbingFoundations": "data/systems/plumbing-foundations.json",
     "ownerChangesGeometry": "data/changes/owner-changes-geometry.json",
-    "pool": "data/structure/pool.json"
+    "pool": "data/structure/pool.json",
+    "floorGround": "data/structure/floor-ground.json"
   }
 }

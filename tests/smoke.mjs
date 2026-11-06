@@ -72,7 +72,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     info.ownerChange = await page.evaluate(() => {
       const a = window.__app; const ids = Object.keys(a.store.get().ownerChanges || {}); if (!ids.length) return 'none';
       const vis = (show) => a.registry.items.filter(i => i.meta.variant?.show === show && i.object.visible).length;
-      a.store.set({ stageIndex: a.data.tags.stages.length - 1, ownerChanges: Object.fromEntries(ids.map(k => [k, true])) });
+      a.store.set({ stageIndex: a.data.tags.sequence.length - 1, ownerChanges: Object.fromEntries(ids.map(k => [k, true])) });
       const on = { changed: vis('changed'), original: vis('original') };
       a.store.set({ ownerChanges: Object.fromEntries(ids.map(k => [k, false])) });
       const off = { changed: vis('changed'), original: vis('original') };
@@ -82,13 +82,22 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('owner-change toggle: ' + info.ownerChange);
     // per-layer label switch: piles stay visible, their labels hide
     info.labelsOff = await page.evaluate(() => {
-      const a = window.__app; a.store.set({ stageIndex: a.data.tags.stages.findIndex(s => s.id === 'piles'), labelsOff: { piles: true } });
+      const a = window.__app; a.store.set({ stageIndex: a.data.tags.sequence.findIndex(s => s.id === 'piles'), labelsOff: { piles: true } });
       const it = a.registry.items.filter(i => i.tags.layer === 'piles' && i.meta.kind === 'pile');
       let lab = 0; it.forEach(i => i.object.traverse(o => { if (o.isCSS2DObject && o.visible) lab++; }));
       const vis = it.filter(i => i.object.visible).length; a.store.undo();
       return vis > 0 && lab === 0 ? 'ok' : JSON.stringify({ vis, lab });
     });
     if (info.labelsOff !== 'ok') errors.push('labels switch: ' + info.labelsOff);
+    // construction steps: ground-floor walls appear only after the ground-floor slab, the ceiling after the walls
+    info.sequence = await page.evaluate(() => {
+      const a = window.__app, seq = a.data.tags.sequence, idx = id => seq.findIndex(s => s.id === id);
+      const vis = (layer) => a.registry.items.filter(i => i.tags.layer === layer && i.object.visible).length;
+      const at = (id) => { a.store.set({ stageIndex: idx(id) }); return { slab: vis('groundSlab'), walls: vis('groundWalls'), ceil: vis('groundCeiling') }; };
+      const r = { slab: at('groundSlab'), walls: at('groundWalls'), ceil: at('groundCeiling') }; a.store.undo(); a.store.undo(); a.store.undo();
+      return r.slab.slab > 0 && r.slab.walls === 0 && r.walls.walls > 0 && r.walls.ceil === 0 && r.ceil.ceil > 0 ? 'ok' : JSON.stringify(r);
+    });
+    if (info.sequence !== 'ok') errors.push('construction sequence: ' + info.sequence);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

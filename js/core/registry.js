@@ -5,6 +5,7 @@ export class Registry {
   constructor(tagsConfig) {
     this.items = [];
     this.stages = tagsConfig.stages.map(s => s.id);
+    this.steps = tagsConfig.sequence;            // construction-step slider (data/config/tags.json)
     this.listeners = [];
   }
   add(object3d, tags, meta = {}) {
@@ -18,12 +19,25 @@ export class Registry {
     return item;
   }
   stageIndex(id) { return this.stages.indexOf(id); }
+  stepById(id) {
+    if (id === 'skeletonEnd') return this.steps.findIndex(s => s.id === 'finishes') - 1;
+    return this.steps.findIndex(s => s.id === id);
+  }
+  // step of a {floor, stage} pair: an include naming the floor wins over a stage-only include
+  stepIndex(stage, floor) {
+    const exact = this.steps.findIndex(s => s.includes.some(x => x.stage === stage && x.floor === floor));
+    return exact >= 0 ? exact : this.steps.findIndex(s => s.includes.some(x => x.stage === stage && !x.floor));
+  }
+  range(t) {
+    const from = t.step ? this.stepById(t.step) : this.stepIndex(t.stage, t.floor);
+    const to = t.stepTo ? this.stepById(t.stepTo) : t.stageTo ? this.stepIndex(t.stageTo, t.floor) : this.steps.length - 1;
+    return [from, to];
+  }
   apply(state) {
-    const si = state.stageIndex;
+    const si = state.stageIndex;   // index into the step sequence
     for (const it of this.items) {
       const t = it.tags;
-      const from = this.stageIndex(t.stage);
-      const to = t.stageTo ? this.stageIndex(t.stageTo) : this.stages.length - 1;
+      const [from, to] = this.range(t);
       const layerOn = state.layers[t.layer] !== false;
       const floor = state.floors[t.floor] || { visible: true, opacity: 1 };
       const sysOn = !state.systemFilter || state.systemFilter.includes(t.system);

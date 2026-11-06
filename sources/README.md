@@ -25,7 +25,7 @@
 |---|---|
 | `structure/K-400-תכנית יסודות.pdf` | **תכנית יסודות וכלונסאות** (PDF וקטורי, 1:50): מיקום, קוטר, L, מפלס ראש ועומס לכל כלונס; פרט בטון רזה 3÷5 ס"מ. DXF יגיע בהמשך ויגבר |
 | `structure/k-11.dxf` | מרתף – גיאומטריה (Revit, ס"מ, קואורדינטות מקומיות): קו חוץ של קירות המרתף (IfcWall), תגיות תקרה O.K/D |
-| `structure/k-21.dxf`, `k-31.dxf`, `k-41.dxf`, `K-1x…K-4x.pdf`, `dwg/*.dwg` | שלד קומות – לשלבים הבאים. K-21.pdf הוחלף בגרסת 06.11.2026 (זהה בתוכן, עם סימון "יש להגדיל קיר ב-10 ס\"מ" ליד W8 – open-issues #38) |
+| `structure/k-21.dxf`, `k-31.dxf`, `k-41.dxf`, `K-1x…K-4x.pdf`, `dwg/*.dwg` | שלד קומות. k-21/k-31 + K-31 PDF – בשימוש בשלב 3א. K-21.pdf הוחלף בגרסת 06.11.2026 (זהה בתוכן, עם סימון "יש להגדיל קיר ב-10 ס\"מ" ליד W8 – open-issues #38) |
 | `geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf` | דוח קרקע: 6.5 (L בקרקע טבעית), 9.1 (ארגזי הפרדה 25 ס"מ), 10.1 (חפירה זמנית 1V:2H), 10.2 (דיפון) |
 | `development/תוכנית גבהים בגוש שלי.pdf` | תוכנית גבהי פיתוח (וקטורי) – טרם עובדה (שאלה 6) |
 | `development/תוכנית נוף.pdf` | תוכנית נוף (סרוקה) – טרם עובדה |
@@ -87,5 +87,9 @@ python3 tools/derive_site.py       # -> terrain-regions.json, neighbors.json
 node tools/verify_stage1.mjs       # -> docs/verification/stage-1.md
 python3 tools/extract_structure.py # -> data/structure/{piles,basement,excavation}.json (K-400, k-11.dxf, דוח קרקע)
 node tools/verify_stage2.mjs       # -> docs/verification/stage-2.md
+python3 tools/extract_pool.py      # -> data/structure/pool.json (k-21 + חתכי/תוכנית הבריכה 1:50)
+python3 tools/extract_floor.py     # -> data/structure/floor-ground.json (k-21, k-31, K-31 PDF)
+python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 ```
+גאורפרנס שלב 3: k-31.dxf (וגם k-41.dxf) באותן קואורדינטות Revit כמו k-21.dxf – ההזזה של k-21 (framing.json) משמשת כמות שהיא (עמודים 4, 5 זהים עד 0.1 מ"מ). K-31 PDF מוצב על גיליון K-400 ב-ICP מול k-31.dxf (שארית חציונית 0.05 pt).
 קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.

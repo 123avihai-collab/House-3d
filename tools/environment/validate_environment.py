@@ -25,19 +25,38 @@ for l in L['lots']:
     pm = l['pm0']
     if pm['status'] == 'source' and pm['z'] is None: err.append(f'lot {k}: ±0.00 missing but status source')
     if pm.get('check') and not pm['check']['match']: err.append(f'lot {k}: ±0.00 differs from sheet 04 scan')
-    if pm['status'] == 'source' and l['cornerLevels'] and not (min(c['z'] for c in l['cornerLevels']) - 1.5 <= pm['z'] <= max(c['z'] for c in l['cornerLevels']) + 1.5):
+    if pm['status'] not in ('source', 'owner', 'suspect', 'missing'): err.append(f'lot {k}: unknown ±0.00 status')
+    if pm['status'] == 'owner' and not pm.get('source'): err.append(f'lot {k}: owner decision without reference')
+    if pm['status'] in ('source', 'owner') and l['cornerLevels'] and not (min(c['z'] for c in l['cornerLevels']) - 1.5 <= pm['z'] <= max(c['z'] for c in l['cornerLevels']) + 1.5):
         err.append(f'lot {k}: ±0.00 {pm["z"]} far from its corner levels and not flagged')
     e = l['envelope']
-    if e['build'] and pm['status'] != 'source': err.append(f'lot {k}: envelope built on a non-source ±0.00')
+    if e['build'] and pm['status'] not in ('source', 'owner'): err.append(f'lot {k}: envelope built on a non-source ±0.00')
     lot, env = Polygon(l['ring']), Polygon(e['ring'])
     if not lot.buffer(1e-6).contains(env): err.append(f'lot {k}: envelope outside the lot')
     for ed in l['edges']:
         d = LineString(ed['pts']).distance(env)
         if d < ed['setback_m'] - 0.005: err.append(f'lot {k}: envelope {d:.3f} m from edge across {ed["across"]} (setback {ed["setback_m"]})')
-    if l['cornerLot'] and l['frontStatus'] != 'assumption': err.append(f'lot {k}: corner lot front not flagged')
+    if l['cornerLot'] and l['frontStatus'] not in ('assumption', 'owner', 'sheet04'): err.append(f'lot {k}: corner lot front not flagged')
 for s in S['surfaces']:
     if 'source' not in s: err.append('street surface without source')
     if s['heights'] == 'missing' and not s.get('note'): err.append('street without heights not flagged')
+# sheet 04 (scanned building plan)
+S4p = os.path.join(ROOT, 'data', 'environment', 'sheet04.json')
+if os.path.exists(S4p):
+    S4 = json.load(open(S4p, encoding='utf-8'))
+    g4 = S4['georeference']
+    if g4['medianResidual_m'] > 0.15 or g4['pairs'] < 10: err.append('sheet 04 georeference weak')
+    for r in S4['lots']:
+        if r['parcel'] == '257': continue
+        lot = next((l for l in L['lots'] if l['parcel'] == r['parcel']), None)
+        if not lot: err.append(f"sheet04 lot {r['parcel']} not in lots.json"); continue
+        lp = Polygon(lot['ring']).buffer(0.01)
+        for kind in ('building', 'parking', 'entrance'):
+            for ring in r[kind]:
+                if not lp.contains(Polygon(ring)): err.append(f"sheet04 {r['lot']} {kind} outside the lot")
+        if not r['building']: err.append(f"sheet04 {r['lot']}: no building found")
+        if r['parkingArea_m2'] > 40: err.append(f"sheet04 {r['lot']}: parking {r['parkingArea_m2']} m2 > 40")
+if L.get('parking', {}).get('status') != 'provisional': err.append('parking height must stay flagged provisional')
 if err:
     print('\n'.join('ENV ERROR: ' + e for e in err)); sys.exit(1)
 print(f"environment data OK: {len(L['lots'])} lots, {sum(1 for l in L['lots'] if l['envelope']['build'])} envelopes, {len(S['surfaces'])} street surfaces")

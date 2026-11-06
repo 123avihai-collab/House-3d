@@ -9,3 +9,6 @@
 .env-ctl .env-slider { display: flex; flex-direction: column; align-items: stretch; gap: 2px; }
 .env-ctl .env-slider input { width: 100%; }
 .env-ctl .muted { font-size: 11px; margin: 4px 0 0; }
+.env-seg { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.env-seg button { flex: 1 1 auto; font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+.env-seg button.on { outline: 2px solid currentColor; font-weight: 700; }

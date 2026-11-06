@@ -161,15 +161,22 @@ print('lengths-map boundary points vs DWG vertices', bp_check)
 # =====================================================================================================
 # 3. Heights plan (vector PDF): georeference by ICP on lot corners, read ±0.00 and lot-corner levels
 # =====================================================================================================
-CACHE = P('tools', 'cache', 'heights-plan-window-v2.json')
+CACHE = P('tools', 'cache', 'heights-plan-window-v3.json')
+HSYM = cfg['heightsPlan']['zeroSymbolSize_pt']
 if os.path.exists(CACHE) and json.load(open(CACHE)).get('window') == cfg['heightsPlan']['pdfWindowRotated']:
     _c = json.load(open(CACHE)); ends = [[tuple(q) for q in e] for e in _c['ends']]; hann = [(tuple(a[0]), a[1]) for a in _c['annots']]
+    syms = [tuple(q) for q in _c['symbols']]
 else:
     hd = fitz.open(P(SRC_HGT)); hp = hd[0]; RM = hp.rotation_matrix
     hwin = fitz.Rect(*cfg['heightsPlan']['pdfWindowRotated'])
     blue = tuple(cfg['heightsPlan']['lotLineColor'])
-    ends, hann = [], []
+    ends, hann, syms = [], [], []
     for dr in hp.get_drawings():
+        rr = dr['rect'] * RM
+        # ±0.00 symbol ("מפלס כניסה קובעת"): small black circle drawn with curves
+        if rr.intersects(hwin) and dr.get('color') == (0.0, 0.0, 0.0) and dr['items'] and all(i[0] == 'c' for i in dr['items']) \
+                and HSYM[0] < rr.width < HSYM[1] and HSYM[0] < rr.height < HSYM[1]:
+            syms.append(((rr.x0 + rr.x1) / 2, (rr.y0 + rr.y1) / 2))
         if (dr['rect'] * RM).intersects(hwin) and dr.get('color') and all(abs(a - b) < 1e-3 for a, b in zip(dr['color'], blue)):
             for it in dr['items']:
                 if it[0] == 'l':
@@ -181,7 +188,7 @@ else:
         if r.intersects(hwin):
             hann.append((((r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2), (a.info.get('content') or '').strip()))
     os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-    json.dump({'window': cfg['heightsPlan']['pdfWindowRotated'], 'ends': ends, 'annots': hann}, open(CACHE, 'w'))
+    json.dump({'window': cfg['heightsPlan']['pdfWindowRotated'], 'ends': ends, 'annots': hann, 'symbols': syms}, open(CACHE, 'w'))
 def junctions(k):
     """Ring vertices of lot k where the parcel on the other side changes (true lot corners incl. arc ends)."""
     ring = list(polys[k].exterior.coords)[:-1]
@@ -221,6 +228,17 @@ georef_h = {'method': 'similarity (reflection, rotated page) by ICP of lot-line 
             'medianResidual_m': r3(np.median(res_h)), 'p95Residual_m': r3(np.percentile(res_h, 95)), 'maxResidual_m': r3(res_h.max()),
             'note': 'used only to attach the height labels to lots and corners; no geometry is taken from this sheet'}
 print('heights plan georef', georef_h)
+# ±0.00 symbol centres in ITM (merge the curve pieces of each symbol), with the ±0.00 value written next to it
+_sy = []
+for q in (Th(q) for q in syms):
+    if all(math.dist(q, m) > 0.6 for m in _sy):
+        _sy.append(q)
+_lab = [(Th(xy), float(t)) for xy, t in hann if re.fullmatch(r'\d{3}\.\d{1,2}', t)]
+pm0_symbols = []
+for q in _sy:
+    near_l = sorted(((math.dist(q, l[0]), l[1]) for l in _lab))
+    pm0_symbols.append({'E': r3(q[0]), 'N': r3(q[1]), 'z': near_l[0][1] if near_l and near_l[0][0] < 7.0 else None})
+print('±0.00 symbols', len(pm0_symbols))
 
 
 nums = [(Th(xy), float(t)) for xy, t in hann if re.fullmatch(r'\d{3}\.\d{1,2}', t)]
@@ -285,13 +303,20 @@ def edge_pieces(k):
     return pieces
 
 
+def corner_lot(pcs):
+    return len([p for p in pcs if p['across'] == 'street']) > 1
+
+
 def dotp(p, q):
     return p['outward'][0] * q['outward'][0] + p['outward'][1] * q['outward'][1]
 
 
+S04 = P('data', 'environment', 'sheet04.json')
+sheet04 = {l['parcel']: l for l in json.load(open(S04, encoding='utf-8'))['lots']} if os.path.exists(S04) else {}
 lots_out, env_check = [], None
 for k in cfg['lots'] + ['257']:
     ov = cfg.get('frontOverrides', {}).get(k)
+    s4 = sheet04.get(k, {}).get('entranceFrom') if cfg.get('frontFromSheet04', {}).get('use') else None
     pcs = edge_pieces(k)
     pub = [p for p in pcs if p['across'] == 'street']
     res = [p for p in pcs if p not in pub]
@@ -302,6 +327,8 @@ for k in cfg['lots'] + ['257']:
     if ov:
         rear = max((q for q in res if q['across'] == ov['rear']), key=lambda q: q['length'])
         front = min(pub, key=lambda p: dotp(p, rear))
+    elif s4 and len(pub) > 1 and pcs[s4['edgeIndex']] in pub:
+        front = pcs[s4['edgeIndex']]
     else:
         front = max(cand, key=lambda p: p['length'])
     for p in pcs:
@@ -332,21 +359,28 @@ for k in cfg['lots'] + ['257']:
     if zrule:
         z0_check = {'sheet04Scan': zrule['pm0'], 'match': z0 is not None and abs(zrule['pm0'] - z0) < 0.005}
     sus = cfg.get('suspectValues', {}).get(k)
+    dec = cfg.get('ownerDecisions', {}).get(k)
+    pm0 = {'z': z0, 'status': 'suspect' if sus else ('source' if z0 is not None else 'missing'),
+           'source': f'{SRC_HGT} symbol "מפלס כניסה קובעת" (annotation text)', 'check': z0_check, **({'note': sus['note']} if sus else {})}
+    if dec and 'pm0' in dec:
+        pm0 = {'z': dec['pm0'], 'status': 'owner', 'source': dec['why'], 'sourceValue': z0, 'check': z0_check}
+        z0, sus = dec['pm0'], None
+    front_rule = ov['why'] if ov else (cfg['frontFromSheet04']['why'] + ' (sheet 04)' if s4 and corner_lot(pcs) else
+                 'front = street frontage opposite a residential neighbour (rear); other street frontage of a corner lot = 3 m')
+    front_status = ov.get('status', 'assumption') if ov else ('sheet04' if s4 and corner_lot(pcs) else ('assumption' if corner_lot(pcs) else 'rule'))
     rec = {
         'parcel': k, 'lot': lot_no.get(k), 'gush': parcels[k].get('gush'), 'use': parcels[k]['use'],
         'ring': ring_of(polys[k]), 'area_m2': r3(polys[k].area),
         'ringSource': parcels[k]['source'],
         'lotNumberSource': f'{SRC_LEN} (label inside the lot, georeferenced map)',
-        'pm0': {'z': z0, 'status': 'suspect' if sus else ('source' if z0 is not None else 'missing'),
-                'source': f'{SRC_HGT} symbol "מפלס כניסה קובעת" (annotation text)',
-                'check': z0_check, **({'note': sus['note']} if sus else {})},
+        'pm0': pm0,
         'cornerLevels': [{**c, 'source': f'{SRC_HGT} lot-corner label (annotation text) – assigned to the nearest lot corner'} for c in corners],
         'cornerCount': len(J), 'cornersWithLevel': len(corners),
         'edges': [{'across': p['across'] if p['across'] != 'street' else (f"רחוב (חלקה {p['parcelAcross']})" if p['parcelAcross'] else 'רחוב (מחוץ לתרשים החלקות)'), 'kind': p['kind'], 'setback_m': dist[p['kind']], 'length_m': r3(p['length']),
                    'pts': [[r3(x), r3(y)] for x, y in p['pts']]} for p in pcs],
         'cornerLot': corner,
-        'frontRule': ov['why'] if ov else 'front = street frontage opposite a residential neighbour (rear); other street frontage of a corner lot = 3 m',
-        'frontStatus': ov.get('status', 'assumption') if ov else ('assumption' if corner else 'rule'),
+        'frontRule': front_rule,
+        'frontStatus': front_status,
         'envelope': {
             'ring': ring_of(env), 'area_m2': r3(env.area),
             'base': z0, 'height_m': rules['maxHeightAboveEntrance_m']['value'],
@@ -365,6 +399,8 @@ jdump('lots.json', {
             'setbacks and maximum envelope (TAMAL/1016). Generated by tools/environment/extract_environment.py – do not edit.',
     'georeference': {'lengthsMap': georef_len, 'heightsPlan': georef_h, 'boundaryPointCheck': bp_check},
     'splits': cfg['splits'],
+    'pm0Symbols': pm0_symbols,
+    'parking': cfg['parking'],
     'envelopeSelfCheck': env_check,
     'rules': {'setbacks_m': SB, 'source': rules['source'], 'height': rules['maxHeightAboveEntrance_m'],
               'floorsAboveEntrance': rules['floorsAboveEntrance'], 'floorsBelowEntrance': rules['floorsBelowEntrance']},
@@ -405,6 +441,76 @@ for k in street_parcels:
                             'heightSource': None, 'note': 'אין גבהי רחוב במקורות מחוץ למסגרת המפה למשתכן (docs/open-issues.md)',
                             'source': f"{parcels[k]['source']} (outside the buyer-map frame)"})
 
+# ---------- street zones by measured width (lot line to the lot opposite) ----------
+# 13 m = integrated street (960), 15 m = traffic-calming section (910, owner decision E5), other widths: no section
+SEC = cfg['streets']['sectionsByWidth']
+resid = {k: g for k, g in polys.items() if parcels[k]['use'] == 'residential' and g.distance(window) < 1}
+res_union = unary_union(list(resid.values()))
+street_area = unary_union([Polygon(s['ring']) for s in streets])
+zone_geoms = {}
+piece_widths = []
+others_cache = {}
+for k, g in resid.items():
+    if g.distance(street_area) > 0.1:
+        continue
+    others = unary_union([q for kk, q in resid.items() if kk != k and q.distance(g) > 0.05])
+    for pc in edge_pieces(k):
+        if pc['across'] != 'street' or pc['length'] < 1:
+            continue
+        line = LineString(pc['pts'])
+        n = max(1, int(line.length / cfg['streets']['sampleStep_m']))
+        for i in range(n):
+            a_ = line.interpolate(i / n, normalized=True); b_ = line.interpolate((i + 1) / n, normalized=True)
+            dx, dy = b_.x - a_.x, b_.y - a_.y; Ln = math.hypot(dx, dy) or 1
+            nx, ny = dy / Ln, -dx / Ln  # outward for a CCW ring
+            mx, my = (a_.x + b_.x) / 2, (a_.y + b_.y) / 2
+            hit = LineString([(mx + nx * 0.05, my + ny * 0.05), (mx + nx * 25, my + ny * 25)]).intersection(others)
+            if hit.is_empty:
+                continue
+            w = Point(mx, my).distance(hit)
+            sec_k = next((x for x in SEC if abs(w - x['width_m']) <= x['tol_m']), None)
+            piece_widths.append({'lot': k, 'at': [r3(mx), r3(my)], 'width_m': r3(w), 'section': sec_k['id'] if sec_k else None})
+            if not sec_k:
+                continue
+            seg = LineString([(a_.x, a_.y), (b_.x, b_.y)])
+            for band in sec_k['bands']:
+                zone_geoms.setdefault(band['zone'], []).append(seg.buffer(band['to_m'], cap_style='flat').buffer(0.02))
+            zone_geoms.setdefault('region-' + sec_k['id'], []).append(seg.buffer(w / 2 + 0.05, cap_style='flat').buffer(0.05))
+zones = {z: unary_union(g) for z, g in zone_geoms.items()}
+# bands are cumulative distances from the lot line: subtract the inner bands
+for sec_k in SEC:
+    prev = None
+    for band in sec_k['bands']:
+        z = band['zone']
+        if prev is not None:
+            zones[z] = zones[z].difference(zones[prev + '#acc'])
+        zones[z + '#acc'] = unary_union([zones[z]] + ([zones[prev + '#acc']] if prev else []))
+        prev = z
+zoned = []
+for s_ in streets:
+    q0 = Polygon(s_['ring'])
+    rest = q0
+    for sec_k in SEC:
+        reg = zones.get('region-' + sec_k['id'])
+        if reg is None:
+            continue
+        for band in sec_k['bands']:
+            part = rest.intersection(zones[band['zone']]).intersection(reg)
+            for g in (part.geoms if hasattr(part, 'geoms') else [part]):
+                if g.geom_type == 'Polygon' and g.area > 0.3:
+                    zoned.append({**s_, 'ring': ring_of(g), 'area_m2': r3(g.area), 'zone': band['zone'], 'zoneLabel': band['label'], 'section': sec_k['id']})
+            rest = rest.difference(part)
+        part = rest.intersection(reg)
+        for g in (part.geoms if hasattr(part, 'geoms') else [part]):
+            if g.geom_type == 'Polygon' and g.area > 0.3:
+                zoned.append({**s_, 'ring': ring_of(g), 'area_m2': r3(g.area), 'zone': sec_k['restZone'], 'zoneLabel': sec_k['restLabel'], 'section': sec_k['id']})
+        rest = rest.difference(part)
+    for g in (rest.geoms if hasattr(rest, 'geoms') else [rest]):
+        if g.geom_type == 'Polygon' and g.area > 0.3:
+            zoned.append({**s_, 'ring': ring_of(g), 'area_m2': r3(g.area), 'zone': 'street', 'zoneLabel': 'רחוב – ללא חתך', 'section': None})
+streets = zoned
+print('street zones', {z: round(sum(x['area_m2'] for x in streets if x['zone'] == z)) for z in set(x['zone'] for x in streets)})
+
 # measured street width (lot line to lot line) in front of 5187 vs the typical section
 front257 = next(e for e in edge_pieces('257') if e['across'] == 'street')
 width_meas = min(polys[q].distance(LineString(front257['pts'])) for q in cfg['streets']['oppositeLots'])
@@ -417,6 +523,8 @@ jdump('streets.json', {
     'parcels': street_parcels,
     'frameITM': origin['mapFrameITM'],
     'surfaces': streets,
+    'sections': SEC,
+    'frontageWidths': piece_widths,
     'heightControl': {'points': [{'E': r3(p['E']), 'N': r3(p['N']), 'z': p['z']} for p in ctrl_pts],
                       'source': f'{SRC_MIG} (planned street contours + Road Elevations, inside the map frame only)'},
     'integratedStreet': {

@@ -86,6 +86,21 @@
           "visible": true
         },
         {
+          "id": "neighborSheet04",
+          "label": "בתי השכנים לפי גיליון 04 (תכנית בינוי)",
+          "visible": false
+        },
+        {
+          "id": "neighborParking",
+          "label": "מבני חניה של השכנים (גיליון 04, 2.60 מ')",
+          "visible": true
+        },
+        {
+          "id": "neighborEntrances",
+          "label": "כניסות ראשיות של השכנים (גיליון 04)",
+          "visible": true
+        },
+        {
           "id": "neighborBuildingLines",
           "label": "קווי בניין של השכנים",
           "visible": true

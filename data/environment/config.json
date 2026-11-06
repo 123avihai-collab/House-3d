@@ -1,39 +1,261 @@
 {
  "_doc": "Input settings for tools/environment/extract_environment.py (which lots, PDF windows, matching tolerances). Not model dimensions.",
- "lots": ["255", "256", "258", "226", "227", "228", "229", "217", "218", "222", "223", "259", "262"],
+ "lots": [
+  "255",
+  "256",
+  "258",
+  "226",
+  "227",
+  "228",
+  "229",
+  "217",
+  "218",
+  "222",
+  "223",
+  "259",
+  "262"
+ ],
  "lotsWhy": "2 lots on each side along the row (255, 256 | 258 = corner on street 910), rear row (226–229), across the integrated street (217, 218, 222, 223) and across street 910 (259, 262)",
  "splits": [
-  {"merged": "226/227", "parts": ["226", "227"], "line": ["2463", "2479"],
-   "why": "the dividing line 226/227 is missing in the DWG inset (stage 1 open issue 8); taken from the lengths map"}
+  {
+   "merged": "226/227",
+   "parts": [
+    "226",
+    "227"
+   ],
+   "line": [
+    "2463",
+    "2479"
+   ],
+   "why": "the dividing line 226/227 is missing in the DWG inset (stage 1 open issue 8); taken from the lengths map"
+  }
  ],
- "lengthsMap": {"pdfWindow": [4600, 2600, 6200, 4200], "markerSize_pt": 5.6, "pointLabelMaxHeight_pt": 25, "lotLabelMinHeight_pt": 25, "labelMarkerMaxDist_pt": 14},
+ "lengthsMap": {
+  "pdfWindow": [
+   4600,
+   2600,
+   6200,
+   4200
+  ],
+  "markerSize_pt": 5.6,
+  "pointLabelMaxHeight_pt": 25,
+  "lotLabelMinHeight_pt": 25,
+  "labelMarkerMaxDist_pt": 14
+ },
  "heightsPlan": {
-  "pdfWindowRotated": [2700, 900, 4100, 2300],
-  "lotLineColor": [0.0, 0.24706000089645386, 1.0],
-  "icpTolerances_m": [3, 1.5, 1, 0.6, 0.4, 0.3, 0.3],
+  "pdfWindowRotated": [
+   2700,
+   900,
+   4100,
+   2300
+  ],
+  "lotLineColor": [
+   0.0,
+   0.24706000089645386,
+   1.0
+  ],
+  "icpTolerances_m": [
+   3,
+   1.5,
+   1,
+   0.6,
+   0.4,
+   0.3,
+   0.3
+  ],
   "zeroLabelMinDistFromBoundary_m": 3.5,
   "cornerLabelMaxDistFromBoundary_m": 3.0,
   "minSegment_pt": 6,
-  "lotLabelBoxHalf_pt": [40, 18]
+  "zeroSymbolSize_pt": [
+   3,
+   20
+  ],
+  "lotLabelBoxHalf_pt": [
+   40,
+   18
+  ]
  },
- "envelope": {"cornerSplitTurn_deg": 45},
+ "envelope": {
+  "cornerSplitTurn_deg": 45
+ },
  "frontOverrides": {
-  "258": {"rear": "229", "status": "assumption", "why": "מגרש פינתי (רחוב משולב + כביש 910). תמל/1016: במגרש פינתי קו הבניין המחייב בחזית אחת בלבד, ייקבע בהיתר. הונח: חזית לרחוב המשולב (כמו שאר השורה), אחורי 5 מ' כלפי 229, צדדי 3 מ' כלפי 5187 – המקרה המחמיר לצל על 5187"},
-  "223": {"rear": "221", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב המשולב (כמו שאר השורה 5141–5144), אחורי 5 מ' כלפי 221"},
-  "259": {"rear": "262", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב שמצפון (שורת 5189), אחורי 5 מ' כלפי 262"},
-  "262": {"rear": "259", "status": "assumption", "why": "מגרש פינתי. הונח: חזית לרחוב שמדרום (שורת 5192–5194), אחורי 5 מ' כלפי 259"},
-  "229": {"rear": "228", "status": "assumption", "why": "מגרש פינתי (כביש 910 + הרחוב שמצפון). הונח: חזית לכביש 910, אחורי 5 מ' כלפי 228, צדדי 3 מ' כלפי 5187 ו-5188 – המקרה המחמיר לצל על 5187"}
+  "258": {
+   "rear": "229",
+   "status": "owner",
+   "why": "מגרש פינתי. החלטת אביחי 06.11.2026 (E3): המקרה המחמיר לצל על 5187 – צדדי 3 מ' כלפי 5187, אחורי 5 מ' כלפי 229. (בגיליון 04 הכניסה והחניה מכביש 910.)"
+  },
+  "229": {
+   "rear": "228",
+   "status": "owner",
+   "why": "מגרש פינתי. החלטת אביחי 06.11.2026 (E3): המקרה המחמיר לצל על 5187 – צדדי 3 מ' כלפי 5187 ו-5188, אחורי 5 מ' כלפי 228. תואם לגיליון 04 (כניסה וחניה מכביש 910)."
+  }
  },
  "suspectValues": {
-  "262": {"note": "±0.00 = 292.40 בתוכנית הגבהים – כ-10 מ' מעל פינות המגרש (281.80–282.30). כנראה טעות הקלדה (282.40?). לא נבנתה מעטפת עד בירור."}
+  "262": {
+   "note": "±0.00 = 292.40 בתוכנית הגבהים – כ-10 מ' מעל פינות המגרש (281.80–282.30). כנראה טעות הקלדה (282.40?). לא נבנתה מעטפת עד בירור."
+  }
  },
  "lotTypes": {
-  "256": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
-  "258": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
-  "226": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
-  "227": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
-  "228": {"type": "A1", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"},
-  "229": {"type": "A3", "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"}
+  "256": {
+   "type": "A1",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  },
+  "258": {
+   "type": "A1",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  },
+  "226": {
+   "type": "A1",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  },
+  "227": {
+   "type": "A1",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  },
+  "228": {
+   "type": "A1",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  },
+  "229": {
+   "type": "A3",
+   "source": "sources/neighborhood/development-B1/תרשים טיפוסים חלק דרומי מהדורה 1 מתחם B1.pdf (docs/sources-inventory/neighborhood.md)"
+  }
  },
- "streets": {"parcels": "auto", "windowMargin_m": 3.0, "integratedParcels": ["9", "20/28"], "oppositeLots": ["222", "223"]}
+ "streets": {
+  "parcels": "auto",
+  "windowMargin_m": 3.0,
+  "integratedParcels": [
+   "9",
+   "20/28"
+  ],
+  "oppositeLots": [
+   "222",
+   "223"
+  ],
+  "sectionsByWidth": [
+   {
+    "id": "960",
+    "width_m": 13.0,
+    "tol_m": 0.15,
+    "name": "רחוב משולב 13.0 (כביש 960)",
+    "source": "תוכנית נוף – חתך 'רח' משולב' 13.0; רוחב נמדד 12.999 (DWG); נספח התנועה 605-0843136: כביש 960, קווי בניין 3/3",
+    "bands": [],
+    "restZone": "integrated",
+    "restLabel": "רחוב משולב – מפלס אחד, מרוצף"
+   },
+   {
+    "id": "910",
+    "width_m": 15.0,
+    "tol_m": 0.15,
+    "name": "רחוב מיתון תנועה 15.0 (כביש 910)",
+    "source": "תוכנית נוף – חתך 'רח' מיתון תנועה' 15.0 (החלטת אביחי E5); רוחב נמדד 14.993–15.000 (DWG); נספח התנועה 605-0843136 – רוזטה 910 / 3 / 3 / 15",
+    "bands": [
+     {
+      "zone": "sidewalk",
+      "to_m": 3.0,
+      "label": "מדרכה 3.0 (הולכי רגל)"
+     },
+     {
+      "zone": "parkingStrip",
+      "to_m": 5.0,
+      "label": "חניה / אזור שתילה 2.0"
+     }
+    ],
+    "restZone": "carriageway",
+    "restLabel": "מיסעה 5.0"
+   }
+  ],
+  "sampleStep_m": 1.0
+ },
+ "sheet04": {
+  "pdfClip": [
+   550,
+   2950,
+   1500,
+   4050
+  ],
+  "zoom": 4,
+  "templateCentre_pt": [
+   1080.75,
+   3436.75
+  ],
+  "templateHalf_px": 26,
+  "darkThreshold": 90,
+  "matchMin": 0.6,
+  "anchorITM": [
+   179598.13,
+   576241.773
+  ],
+  "scaleSearch_m_per_px": [
+   0.04,
+   0.052,
+   0.0005
+  ],
+  "icpTolerances_m": [
+   1.5,
+   0.8,
+   0.5,
+   0.4
+  ],
+  "blur_px": 7,
+  "colours": {
+   "purpleBminusG": 20,
+   "purpleRminusG": 8,
+   "orangeRmin": 215,
+   "orangeRminusB": 70,
+   "orangeGminusB": 40,
+   "dotDarkMax": 170,
+   "dotWindow_px": 25,
+   "dotDensityMax": 0.03,
+   "dotArea_px": [
+    2,
+    40
+   ],
+   "dotMaxSide_px": 8
+  },
+  "simplify_m": 0.3,
+  "lotInset_m": {
+   "building": 1.0,
+   "parking": 0.25,
+   "entrance": 0.25
+  },
+  "mergeGap_m": 0.4,
+  "minArea_m2": {
+   "building": 15,
+   "parking": 6,
+   "entrance": 1.5
+  },
+  "morph_m": {
+   "building": [
+    0.6,
+    1.2
+   ],
+   "parking": [
+    0.35,
+    0.35
+   ],
+   "entrance": [
+    0.25,
+    0.25
+   ]
+  },
+  "separation_m": 0.3,
+  "minWidth_m": 1.6
+ },
+ "frontFromSheet04": {
+  "use": true,
+  "why": "במגרש פינתי בלי החלטה אחרת: החזית = צלע הרחוב שמולה הכניסה הראשית (או מבנה החניה) בגיליון 04; האחורי (5 מ') = הצלע שמולה"
+ },
+ "ownerDecisions": {
+  "262": {
+   "pm0": 282.4,
+   "why": "בתוכנית הגבהים ובגיליון 04 כתוב 292.40 – טעות. החלטת אביחי 06.11.2026 (E2): 282.40"
+  }
+ },
+ "parking": {
+  "height_m": 2.6,
+  "status": "provisional",
+  "source": "A_1 גרסה 18 §7: גובה פנימי של חניה בנויה לכל היותר 2.6 מ'; תמל/1016 §4.1.2: מבנה חניה עד 30 מ\"ר, מותר בקו בניין צדדי 0 (החלטת אביחי E8: להוסיף)",
+  "why": "עובי תקרה לא ידוע – מוצג בגובה הפנימי המרבי"
+ }
 }

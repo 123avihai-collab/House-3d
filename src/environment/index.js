@@ -3,6 +3,7 @@ import { MaterialLibrary } from '../../js/core/materials.js';
 import { buildLots } from './lots.js';
 import { buildStreets } from './streets.js';
 import { buildEnvelopes } from './envelopes.js';
+import { buildSheet04 } from './sheet04.js';
 import { buildControls } from './controls.js';
 
 // Environment: neighbouring lots, streets and maximum neighbour envelopes (data/environment/*).
@@ -21,8 +22,10 @@ export function buildEnvironment(ctx) {
   const streets = buildStreets(ctx, mats);
   const lots = buildLots(ctx, mats);
   const envelopes = buildEnvelopes(ctx, mats, lots);
+  const sheet04 = buildSheet04(ctx, mats, lots);
   return {
-    lots, envelopes, streets,
+    lots, envelopes, sheet04, streets,
+    volumes: [...envelopes, ...sheet04], // transparency slider applies to all neighbour volumes
     // called from main.js once the app/store exist; returns the DOM for the "סביבה" group of the layers panel
     attach(app) { this.controls = buildControls(app, this); },
     panel() { return this.controls?.panel(); },

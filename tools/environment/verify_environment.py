@@ -95,5 +95,26 @@ hm = [s for s in S['surfaces'] if s['heights'] == 'missing']
 w(f"| שטח רחוב עם גבהים (בתוך מסגרת המפה למשתכן) | {sum(s['area_m2'] for s in hs):.0f} מ\"ר | DWG – קווי גובה מתוכננים | — |")
 w(f"| שטח רחוב **ללא** גבהים במקורות | {sum(s['area_m2'] for s in hm):.0f} מ\"ר | — | מוצג שטוח על משטח הייחוס, מסומן בכתום |")
 w('')
+S4p = os.path.join(ROOT, 'data', 'environment', 'sheet04.json')
+if os.path.exists(S4p):
+    S4 = json.load(open(S4p, encoding='utf-8')); g4 = S4['georeference']
+    w('## 7. גיליון 04 (סרוק): בית, מבנה חניה וכניסה ראשית')
+    w('')
+    w(f"גאורפרנס: אפיני, {g4['pairs']} סמלי ±0.00 בסריקה מול אותם סמלים בתוכנית הגבהים הווקטורית. שארית חציונית {g4['medianResidual_m']:.3f} מ', מקסימלית {g4['maxResidual_m']:.3f} מ'. "
+      f"הפרש קנ\"מ בין הצירים {g4['scaleDifference_pct']}% (עיוות הסריקה – נבלע באפיני).")
+    w('')
+    w('בדיקה: מרחק הבית שבגיליון מכל גבול, מול קו הבניין בתב"ע. ערך שלילי = הבית בגיליון חורג מקו הבניין (צפוי לכ-0.3 מ\' בגלל דיוק הסריקה והחילוץ).')
+    w('')
+    w('| מגרש | תכסית בית (מ"ר) | מבנה חניה (מ"ר) | כניסה מ | מרחק מינ\' בית–גבול מול קו בניין | מרחק מגבול 5187 |')
+    w('|---|---|---|---|---|---|')
+    for r in S4['lots']:
+        if r['parcel'] == '257': continue
+        be = r.get('buildingToEdges', [])
+        worst = min(be, key=lambda e: e['drawn_m'] - e['setback_m']) if be else None
+        ws = f"{worst['drawn_m']:.2f} מול {worst['setback_m']:.0f} ({worst['across'].replace('רחוב (חלקה ', 'רחוב ').rstrip(')')})" if worst else '—'
+        ef = r.get('entranceFrom', {}).get('across', '—').replace('רחוב (חלקה ', 'רחוב ').rstrip(')')
+        d57 = f"{r['buildingTo5187_m']:.2f}" if r.get('buildingTo5187_m') is not None else '—'
+        w(f"| {r['lot']} | {r['buildingArea_m2']:.1f} | {r['parkingArea_m2']:.1f} | {ef} | {ws} | {d57} |")
+    w('')
 open(os.path.join(ROOT, 'docs', 'verification', 'environment.md'), 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 print('\n'.join(out))

@@ -13,21 +13,24 @@ export function buildStreets(ctx, mats) {
   const ctrl = S.heightControl.points.map(p => ({ x: p.E, y: p.N, z: p.z }));
   const interp = makeInterpolator(ctrl);
   const sec = S.integratedStreet.typicalSection;
-  const isIntegrated = (p) => S.integratedStreet.parcels.includes(p);
   const sectionRows = [
     ['חתך טיפוסי', `${sec.name}: ${sec.zones.map(z => `${z.label} ${z.width_m.toFixed(1)}`).join(' | ')} = ${sec.total_m.toFixed(1)} מ'`],
     ['רוחב מדוד מול 5187', `${S.integratedStreet.widthCheck.measured_m.toFixed(3)} מ' (סטייה ${S.integratedStreet.widthCheck.deviation_m.toFixed(3)})`],
     ['שיפוע רוחבי', sec.crossSlope],
     ['ריצוף', S.integratedStreet.materials.paving],
   ];
+  const ZMAT = { integrated: 'envStreet', sidewalk: 'envSidewalk', parkingStrip: 'envPlantingStrip', carriageway: 'envAsphalt', street: 'envStreet' };
+  const secOf = Object.fromEntries((S.sections || []).map(x => [x.id, x]));
   S.surfaces.forEach((s, i) => {
-    const integ = isIntegrated(s.parcel);
-    const nm = `${integ ? 'רחוב משולב' : 'רחוב'} – חלקה ${s.parcel}`;
+    const integ = s.zone === 'integrated';
+    const sec2 = s.section ? secOf[s.section] : null;
+    const nm = `${s.zoneLabel || 'רחוב'} – חלקה ${s.parcel}`;
+    const zoneRows = sec2 && !integ ? [['חתך', sec2.name], ['מקור החתך', sec2.source]] : [];
     if (s.heights === 'source' && interp) {
-      const mesh = regionMesh(s.ring, interp, coords, mats.get('envStreet'), mats.get('envSide'), display.terrain, ctrl);
+      const mesh = regionMesh(s.ring, interp, coords, mats.get(ZMAT[s.zone] || 'envStreet'), mats.get('envSide'), display.terrain, ctrl);
       registry.add(mesh, ENV_TAGS('street'), {
         name: `${nm} (גבהים מהמפה למשתכן)`, kind: 'terrain', role: 'street', parcel: s.parcel, ring: s.ring,
-        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה מינ׳/מקס׳', `${coords.fmtH(mesh.userData.hMin)} / ${coords.fmtH(mesh.userData.hMax)}`], ...(integ ? sectionRows : [])],
+        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה מינ׳/מקס׳', `${coords.fmtH(mesh.userData.hMin)} / ${coords.fmtH(mesh.userData.hMax)}`], ...(integ ? sectionRows : zoneRows)],
         controlCount: interp.count, interp: interp.kind,
         source: `${s.source}; גבהים: ${s.heightSource}`,
       });
@@ -36,15 +39,15 @@ export function buildStreets(ctx, mats) {
     } else {
       const z = ground.contextZ + D.noDataLift_m;
       const g = new THREE.Group();
-      g.add(flatPolygon(coords, s.ring, z, mats.get('envStreetNoData')));
+      g.add(flatPolygon(coords, s.ring, z, mats.get(ZMAT[s.zone] || 'envStreetNoData')));
       g.add(fatLine(ctx, s.ring.concat([s.ring[0]]).map(([E, N]) => coords.toLocal(E, N, z + 0.01)), D.missingOutlineColor, 1.6, { dashed: true }));
-      if (s.area_m2 > 50) {
+      if (s.area_m2 > 150) {
         const c = centroid(s.ring);
         g.add(label(`${integ ? 'רחוב משולב' : 'רחוב'} (חלקה ${s.parcel}) · אין גבהים במקור`, 'nodata', coords.toLocal(c[0], c[1], z + 0.4), s.note));
       }
       registry.add(g, ENV_TAGS('street'), {
         name: `${nm} – ללא נתוני גובה`, kind: 'street-nodata', parcel: s.parcel, ring: s.ring,
-        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה', `אין במקורות – מוצג על משטח הייחוס (${z.toFixed(2)})`], ...(integ ? sectionRows : [])],
+        rows: [['שטח', `${s.area_m2.toFixed(2)} מ"ר`], ['גובה', `אין במקורות – מוצג על משטח הייחוס (${z.toFixed(2)})`], ...(integ ? sectionRows : zoneRows)],
         note: s.note, source: s.source,
       });
       scene.add(g);

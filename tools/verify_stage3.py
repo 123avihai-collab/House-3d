@@ -33,18 +33,24 @@ prov = [w['id'] for w in G['walls'] if w['status'] == 'provisional']
 out += ['', f"קירות זמניים (בלי תקרה +3.70 מעליהם – בחלל הכפול / בחוץ): {', '.join(prov) or '—'}. "
         f"קירות 'מפסיקים' (מילוי אפור – ראשי קירות המרתף/החצרות): {G['stoppingWalls']['count']} – לא שורטטו כאן. חומות היקפיות: {G['perimeterWallsPending']['count']} חלקים – בצעד 'חומות'.", '']
 
-out += ['## 4. רצפת הקרקע (K-21)', '', '| רצפה | O.K | D | שטח | מעמד |', '|---|---|---|---|---|']
+out += ['## 4. רצפת הקרקע (K-21) – לפי אזורים', '', '| רצפה | אזור | O.K | D | שטח | מעמד |', '|---|---|---|---|---|---|']
 for s in G['slab']:
-    out.append(f"| {s['id']} | {s['topRel']:+.2f} | {round(s['thickness_m'] * 100)} | {s['area_m2']:.1f} מ\"ר | {s['status']} |")
-out += ['', 'כל מפלס נלקח מתגית הרצפה (Floor Tag) שבתוך הפאנל. approx = פאנל עם שתי תגיות שגבולן לא שורטט – חולק בקירוב. '
-        'provisional = כולל את תקרת המרתף, שאין לה תגית משלה.', '']
-
+    out.append(f"| {s['id']} | {s['zoneLabel']} | {s['topRel']:+.2f} | {round(s['thickness_m'] * 100)} | {s['area_m2']:.1f} מ\"ר | {s['status']} |")
+out += ['', 'כל פאנל = פאה שמשורטטת ב-k-21 (קווי רצפה + קירות + עמודים), בלי איחוד בין אזורים. המפלס מתגית הרצפה שבתוך הפאנל. '
+        'זיהוי האזור (בית, כניסה, מרפסת, חצרות, חניה, חצר אנגלית, מדרגות, גינה) – מתוכנית האדריכלות "קומה קרקע – פיתוח היקפי" (זיהוי בלבד, `tools/ground-zones.json`).', '',
+        '**אזורים בלי רצפה:**', '', '| אזור | שטח |', '|---|---|']
+for o in G['openZones']:
+    out.append(f"| {o['label']} | {o['area_m2']:.1f} מ\"ר |")
+from shapely.geometry import Polygon as _P
+opn = [_P(o['footprintITM']) for o in G['openZones']]
+hit = [(s['id'], o_['label']) for s in G['slab'] for o_, og in zip(G['openZones'], opn) if _P(s['footprintITM']).intersection(og).area > 0.01]
+out += ['', f"**בדיקה:** רצפה שחותכת חצר אנגלית / מדרגות / גינה: {hit or 'אין ✓'}. פאות לא מסווגות: {len(G['unclassifiedFaces'])}.", '']
 C = G['ceiling']
 out += ['## 5. תקרת קומת הקרקע (K-31, +3.70)', '', '| תקרה | O.K | D | שטח |', '|---|---|---|---|']
 for s in C['slab']:
     out.append(f"| {s['id']} | {s['topRel']:+.2f} | {round(s['thickness_m'] * 100)} | {s['area_m2']:.1f} מ\"ר |")
-areas = ', '.join(f"{o['area_m2']:.2f}" for o in C['openings'])
-out += ['', f'פתח מדרגות: {areas} מ"ר.', '']
+areas = ', '.join(f"{o['area_m2']:.2f}" for o in C.get('mamad', []))
+out += ['', f'ממ"ד (ריבוע עם אלכסון, "ראה תכנית הג\"א מאושרת"): {areas} מ"ר – לא פתח; התקרה נשמרת, עובי/מפלס לפי תוכנית הג"א (חסרה).', '']
 out += ['| קורה | חתך | O.K | תחתית | אורך | מעמד |', '|---|---|---|---|---|---|']
 for b in C['beams']:
     out.append(f"| {b['id']} | {round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)} | {b['topRel']:+.2f} | {b['bottomRel']:+.2f} | "

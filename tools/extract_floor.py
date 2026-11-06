@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import extract_framing as F
 import pymupdf
 from shapely.geometry import Polygon, LineString, Point, box, MultiPoint
-from shapely.ops import unary_union, voronoi_diagram
+from shapely.ops import unary_union, voronoi_diagram, split
 
 ROOT = F.ROOT; r3 = F.r3
 K21, K31 = F.K21, 'sources/structure/k-31.dxf'
@@ -53,7 +53,7 @@ def tag_texts(m, layer, to):
     return [(to(e.dxf.insert.x, e.dxf.insert.y), e.plain_text().strip()) for e in m.query(f'MTEXT[layer=="{layer}"]')]
 
 
-def slab_faces(m, to, bridge=0.3):
+def slab_faces(m, to, bridge=0.3, extend=0.0, snap=1.2):
     """Slab panels: IfcSlab edges are broken where walls / columns sit on them, so the wall and column outlines are added
     as edges; remaining dangling ends closer than `bridge` are joined. Faces = holes of the buffered line work."""
     segs = []
@@ -69,15 +69,31 @@ def slab_faces(m, to, bridge=0.3):
     for d, i, j in sorted((math.dist(a, b), i, j) for i, a in enumerate(dang) for j, b in enumerate(dang) if i < j):
         if d > bridge or i in used or j in used: continue
         used |= {i, j}; add.append((dang[i], dang[j]))
-    U = unary_union([LineString(s).buffer(0.015, cap_style=2) for s in segs] + [LineString(s).buffer(0.015) for s in add])
-    H = [Polygon(r) for g in polys(U) for r in g.interiors]
-    out = []
-    # a face may contain islands (e.g. the pool inside the deck): remove the line work and the faces nested in it
-    for i, f in enumerate(H):
-        inner = [h for j, h in enumerate(H) if j != i and h.area < f.area and f.contains(h.representative_point())]
-        g = f.difference(U).difference(unary_union(inner)) if inner else f
-        out += [q.buffer(0.015, join_style=2) for q in polys(g) if q.area > 0.01]
-    return out
+    # a slab edge that stops short of the next line (T-junction hidden under a wall / tag): extend it along its own
+    # direction to the first line it meets, up to `extend` m
+    if extend:
+        allL = unary_union([LineString(s) for s in segs])
+        for a, b in [s for s in segs if k(s[0]) in set(dang) - {k(p) for i in used for p in [dang[i]]} or k(s[1]) in set(dang) - {k(p) for i in used for p in [dang[i]]}]:
+            for p, q in ((a, b), (b, a)):
+                if deg[k(p)] != 1 or any(k(p) == k(dang[i]) for i in used): continue
+                L = math.dist(p, q)
+                if L < 1e-6: continue
+                u = ((p[0] - q[0]) / L, (p[1] - q[1]) / L)
+                ray = LineString([(p[0] + u[0] * 1e-3, p[1] + u[1] * 1e-3), (p[0] + u[0] * extend, p[1] + u[1] * extend)])
+                hit = ray.intersection(allL)
+                if not hit.is_empty:
+                    pts = [g for g in getattr(hit, 'geoms', [hit])]
+                    d = min(Point(p).distance(g) for g in pts)
+                    add.append((p, (p[0] + u[0] * (d + 0.005), p[1] + u[1] * (d + 0.005)))); continue
+                # no line ahead: join the nearest corner of another edge (open slab end next to a corner)
+                cand = [v for v in deg if math.dist(v, p) < snap and k(v) != k(q) and k(v) != k(p)]
+                if cand: add.append((p, min(cand, key=lambda v: math.dist(v, p))))
+    U = unary_union([LineString(s).buffer(0.015) for s in segs + add])   # round caps: no hairline gaps at corners
+    # faces = every region enclosed by the line work (complement of the buffered lines, minus the outside region);
+    # islands (e.g. the pool inside the deck) are cut out automatically
+    bb = box(*U.bounds).buffer(1.0)
+    regions = polys(bb.difference(U))
+    return [q.buffer(0.015, join_style=2) for q in regions if q.area > 0.01 and not q.intersects(bb.exterior.buffer(0.5))]
 
 
 def tagged_panels(faces, tags, min_area=0.5):
@@ -101,6 +117,24 @@ def tagged_panels(faces, tags, min_area=0.5):
         for q in polys(unary_union([p['poly'].buffer(0.02, join_style=2) for p in grp]).buffer(-0.02, join_style=2)):
             merged.append({'poly': q, 'top': key[0], 'D': key[1], 'split': any(p['split'] and p['poly'].intersects(q) for p in grp)})
     return merged
+
+
+def close(panels, gap=0.15):
+    """merge same-level panels separated by thin strips (walls standing on one continuous slab)"""
+    out = []
+    for key in {(p['top'], p['D']) for p in panels}:
+        grp = [p for p in panels if (p['top'], p['D']) == key]
+        for q in polys(unary_union([p['poly'].buffer(gap, join_style=2) for p in grp]).buffer(-gap, join_style=2)):
+            out.append({'poly': q, 'top': key[0], 'D': key[1], 'split': any(p['split'] for p in grp if p['poly'].intersects(q))})
+    return out
+
+
+def fill_thin(panels):
+    """walls standing on a slab cut thin holes in its faces: the slab runs on under them"""
+    for p in panels:
+        q = p['poly']
+        p['poly'] = Polygon(q.exterior, [r for r in q.interiors if 2 * Polygon(r).area / Polygon(r).length > 0.35 or Polygon(r).area > 6])
+    return panels
 
 
 def num_near(c, texts, pat=r'^\d+$', k=4):
@@ -162,69 +196,108 @@ def main():
     shared = [min(a.centroid.distance(b.centroid) for b in c21) for a in c31]
     same_coords = sorted(shared)[:2]
 
-    # ---- ground-floor slab (k-21) ----
+    # ---- ground-floor slab (k-21): panels = faces of the drawn line work, one level each, sorted into zones ----
+    # (no merging across drawn lines, no guessed boundaries: house, terraces, yards, parking, courtyards stay apart)
     tags21 = F.floor_tags(m21, sheet)
-    faces21 = slab_faces(m21, to)
-    panels21 = tagged_panels(faces21, tags21)
-    # the slab over the basement (= basement ceiling) carries no floor tag of its own in K-21 (DXF and PDF alike):
-    # it takes the tag nearest the basement – the same assumption as the basement wall tops in framing.json (stage 2b)
+    faces21 = [f for f in slab_faces(m21, to) if f.area > 0.3]
+    ZN = json.load(open(os.path.join(ROOT, 'tools/ground-zones.json'), encoding='utf-8'))
+    FR = json.load(open(os.path.join(ROOT, 'data/structure/framing.json'), encoding='utf-8'))
+    beams21 = [b for b in FR['groundBeams'] if b['sheet'] == 'K-21' and b.get('axisITM')]
+    lvl = lambda f: {(t['top'], t['thickness_m']) for t in tags21 if f.contains(Point(t['itm']))}
+
+    def split_levels(f):
+        """a face holding two levels: the step between them is not drawn – it runs along a K-21 beam (framing.json);
+        split along the beam axis (extended across the face); untagged pieces go back to their longest neighbour"""
+        if len(lvl(f)) <= 1: return [(f, None)]
+        for b in beams21:
+            (x1, y1), (x2, y2) = b['axisITM']; L = math.dist((x1, y1), (x2, y2)); ux, uy = (x2 - x1) / L, (y2 - y1) / L
+            ext = LineString([(x1 - ux * 30, y1 - uy * 30), (x2 + ux * 30, y2 + uy * 30)])
+            pieces = polys(split(f, ext))
+            if len(pieces) < 2: continue
+            tagged = [q for q in pieces if lvl(q)]
+            if any(len(lvl(q)) > 1 for q in tagged) or len({frozenset(lvl(q)) for q in tagged}) < 2: continue
+            for q in [q for q in pieces if not lvl(q)]:
+                nb = max(tagged, key=lambda r: r.buffer(0.01).intersection(q.buffer(0.01)).area)
+                tagged[tagged.index(nb)] = nb.union(q.buffer(0.005)).buffer(-0.005)
+            return [(q, b['id']) for q in tagged]
+        return [(f, 'unsplit')]
+
+    pieces = [x for f in faces21 for x in split_levels(f)]
+    zone_of = lambda q: next((z for z, Z in ZN['zones'].items() if any(q.contains(Point(*pt)) for pt in Z['points'])), None)
+    # mamad (shelter): K-21 / K-31 draw it as a square crossed by one diagonal + "ראה תכנית הג\"א מאושרת"
+    K21P_T = FR['placement']['K21pdf']['translation_pt']
+    def diag_rects(pdf, clip, tt):
+        page = pymupdf.open(os.path.join(ROOT, pdf))[0]; out = []
+        for d in page.get_drawings():
+            for it in d['items']:
+                if it[0] != 'l': continue
+                a, b = it[1], it[2]
+                if not (clip[0] < a.x < clip[2] and clip[1] < a.y < clip[3]): continue
+                dx, dy = abs(a.x - b.x), abs(a.y - b.y)
+                if dx > 40 and dy > 40 and 0.6 < dx / dy < 1.6:
+                    r = box(min(a.x, b.x) + tt[0], min(a.y, b.y) + tt[1], max(a.x, b.x) + tt[0], max(a.y, b.y) + tt[1])
+                    g = Polygon([F.sheet2itm(x, y) for x, y in list(r.exterior.coords)[:-1]])
+                    if 4 < g.area < 30: out.append(g)
+        return out
+    mamad21 = [g for g in diag_rects(F.K21P, (1650, 150, 3100, 1700), K21P_T)
+               if any(zone_of(q) == 'house' and q.intersection(g).area > 0.5 * g.area for q, _ in pieces)]
     bsm = Polygon(json.load(open(os.path.join(ROOT, 'data/structure/basement.json'), encoding='utf-8'))['outlineITM'])
     near_b = min(tags21, key=lambda tg: bsm.centroid.distance(Point(tg['itm'])))
-    for f in faces21:
-        if f.area > 1 and not any(f.contains(Point(tg['itm'])) for tg in tags21) and bsm.buffer(0.3).contains(f.representative_point()) \
-                and f.intersection(bsm).area > 0.6 * f.area:
-            panels21.append({'poly': f, 'top': near_b['top'], 'D': near_b['thickness_m'], 'split': False, 'untagged': True})
-    # the slab runs on over the walls below (thin strips between panels of the same level): close gaps up to 0.30 m
-    def close(panels, gap=0.15):
-        out = []
-        for key in {(p['top'], p['D']) for p in panels}:
-            grp = [p for p in panels if (p['top'], p['D']) == key]
-            for q in polys(unary_union([p['poly'].buffer(gap, join_style=2) for p in grp]).buffer(-gap, join_style=2)):
-                src = [p for p in grp if p['poly'].intersects(q)]
-                out.append({'poly': q, 'top': key[0], 'D': key[1], 'split': any(p['split'] for p in src),
-                            'untagged': any(p.get('untagged') for p in src)})
-        return out
-    panels21 = close(panels21)
-    # walls standing on a slab cut thin holes in its faces: the slab runs on under them -> fill wall-shaped holes
-    def fill_thin(panels):
-        for p in panels:
-            q = p['poly']
-            keep = [r for r in q.interiors if 2 * Polygon(r).area / Polygon(r).length > 0.35 or Polygon(r).area > 6]
-            p['poly'] = Polygon(q.exterior, keep)
-        return panels
-    panels21 = fill_thin(panels21)
+    panels21, open21, unclassified = [], [], []
+    for q, how in pieces:
+        z = zone_of(q)
+        if z is None:
+            if q.area > 1 and not pool_zone.contains(q.representative_point()) and 2 * q.area / q.length > 0.35:
+                unclassified.append(q)
+            continue
+        Z = ZN['zones'][z]
+        if not Z['slab']: open21.append({'poly': q, 'zone': z}); continue
+        lv = lvl(q)
+        if len(lv) == 1:
+            top, D = lv.pop(); st = 'source'; note = ''
+        else:
+            top, D = near_b['top'], near_b['thickness_m']; st = 'provisional'
+            note = 'חלק מהרצפה בלי תגית מפלס ב-K-21 (DXF ו-PDF) – לפי התגית הקרובה למרתף (‎-0.15, כמו ראש קירות המרתף בשלב 2ב).'
+        if how not in (None, 'unsplit'):
+            note += f' הגבול בין המפלסים לא שורטט – לאורך ציר הקורה {how} (מיקום הקורה מ-K-400, בקירוב).'; st = 'approx' if st == 'source' else st
+        panels21.append({'poly': q, 'top': top, 'D': D, 'zone': z, 'status': st, 'note': note.strip()})
+    # house: the panels of the rooms meet at the walls standing on the slab – the slab runs on under them
+    house = [p for p in panels21 if p['zone'] == 'house']
+    rest = [p for p in panels21 if p['zone'] != 'house']
+    merged = []
+    for key in {(p['top'], p['D']) for p in house}:
+        grp = [p for p in house if (p['top'], p['D']) == key]
+        for q in polys(unary_union([p['poly'].buffer(0.15, join_style=2) for p in grp]).buffer(-0.15, join_style=2)):
+            src = [p for p in grp if p['poly'].intersects(q)]
+            q = Polygon(q.exterior, [r for r in q.interiors if 2 * Polygon(r).area / Polygon(r).length > 0.35 and Polygon(r).area > 0.3])
+            worst = 'provisional' if any(p['status'] == 'provisional' for p in src) else 'approx' if any(p['status'] == 'approx' for p in src) else 'source'
+            merged.append({'poly': q, 'top': key[0], 'D': key[1], 'zone': 'house', 'status': worst,
+                           'note': ' '.join(sorted({p['note'] for p in src if p['note']}))})
+    # mamad: its floor is per the approved shelter plan (missing) – cut out of the house slab, kept as its own panel
+    for g in mamad21:
+        for p in merged:
+            if p['poly'].intersects(g):
+                inside = p['poly'].intersection(g)
+                p['poly'] = polys(p['poly'].difference(g))[0] if len(polys(p['poly'].difference(g))) == 1 else max(polys(p['poly'].difference(g)), key=lambda x: x.area)
+                for q in polys(inside):
+                    if q.area > 1: rest.append({'poly': q, 'top': p['top'], 'D': p['D'], 'zone': 'mamad', 'status': 'provisional',
+                                                'note': 'ממ"ד – "ראה תכנית הג\"א מאושרת" (K-21). מפלס ועובי לפי תוכנית הג"א, שלא הועלתה – זמני כמו רצפת הבית.'})
+    panels21 = merged + rest
     # ---- first-floor slab = ground-floor ceiling (k-31) ----
     tags31 = F.floor_tags(m31, sheet)
     faces31 = slab_faces(m31, to)
     panels31 = fill_thin(close(tagged_panels(faces31, tags31)))
-    # stair opening: K-31 PDF draws it as a rectangle crossed by one diagonal (symbol); the face of the DXF line work
-    # stays open toward the landing, so the opening is taken from that diagonal (rectangle on the building axes)
+    # the square crossed by a diagonal with "ראה תכנית הג\"א מאושרת" is the mamad (shelter), not an opening: its ceiling
+    # (and floor) follow the approved shelter plan, which is missing – the slab is kept and the mamad is marked
     tp = F.icp(F.pdf_endpoints(K31P, K31P_CLIP), np.unique(np.round(np.array(
         [sheet(e.dxf.start.x, e.dxf.start.y) for e in m31.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')] +
         [sheet(e.dxf.end.x, e.dxf.end.y) for e in m31.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')]), 2), axis=0))
     t31p = tp[1]
-    page = pymupdf.open(os.path.join(ROOT, K31P))[0]
-    diag = []
-    for d in page.get_drawings():
-        for it in d['items']:
-            if it[0] != 'l': continue
-            a, b = it[1], it[2]
-            if not (K31P_CLIP[0] < a.x < K31P_CLIP[2] and K31P_CLIP[1] < a.y < K31P_CLIP[3]): continue
-            dx, dy = abs(a.x - b.x), abs(a.y - b.y)
-            if dx > 40 and dy > 40 and 0.6 < dx / dy < 1.6: diag.append(((a.x + t31p[0], a.y + t31p[1]), (b.x + t31p[0], b.y + t31p[1])))
-    openings = []
-    for (a, b) in diag:
-        rect = box(min(a[0], b[0]), min(a[1], b[1]), max(a[0], b[0]), max(a[1], b[1]))
-        g = Polygon([F.sheet2itm(x, y) for x, y in list(rect.exterior.coords)[:-1]])
-        hit = [p for p in panels31 if p['poly'].buffer(-0.05).contains(g.centroid)]
-        if hit and g.area < 30: openings.append(g)
-    cut = []
-    for p in panels31:
-        g_ = p['poly']
-        for g in openings:
-            if g_.contains(g.centroid): g_ = g_.difference(g)
-        cut += [dict(p, poly=q) for q in polys(g_) if q.area > 0.3]
-    panels31 = cut
+    mamad31 = [g for g in diag_rects(K31P, K31P_CLIP, t31p) if any(p['poly'].buffer(0.1).contains(g.centroid) for p in panels31)]
+    # the mamad square is open toward the landing in the DXF line work: fill it into the slab it sits in
+    for g in mamad31:
+        for p in panels31:
+            if p['poly'].buffer(0.1).contains(g.centroid): p['poly'] = polys(p['poly'].union(g).buffer(0.01, join_style=2).buffer(-0.01, join_style=2))[0]
 
     def level_at(panels, q, default=None):
         # walls / columns sit on the panel edges (the faces exclude their footprints): take the panel that overlaps most
@@ -345,14 +418,14 @@ def main():
         'floor': 'ground',
         'placement': {'k31dxf': 'k21dxf translation (same Revit coordinates)', 'k31_vs_k21_columns_m': [r3(v) for v in same_coords],
                       'K31pdf': {'translation_pt': [r3(v) for v in t31p], 'inlierFraction': r3(tp[0]), 'medianResidual_pt': r3(tp[2])}},
-        'slab': [{'id': f'GS{i + 1}', 'footprintITM': ring(p['poly']), 'holesITM': holes(p['poly']), 'area_m2': r3(p['poly'].area),
-                  'topRel': p['top'], 'thickness_m': p['D'], 'bottomRel': r3(p['top'] - p['D']),
-                  'status': 'provisional' if p.get('untagged') else 'approx' if p['split'] else 'source',
-                  'note': ' '.join(x for x in [
-                      'גבול בין מפלסים לא שורטט בקווי הרצפה – חולק בין התגיות (בקירוב).' if p['split'] else '',
-                      'החלק שמעל המרתף (תקרת המרתף) בלי תגית רצפה ב-K-21 – לפי התגית הקרובה (כמו ראש קירות המרתף בשלב 2ב).' if p.get('untagged') else ''] if x),
-                  'source': f"{K21} IfcSlab + קווי קירות/עמודים; Floor Tag O.K={p['top']:+.2f} D={round(p['D'] * 100)}"}
+        'slab': [{'id': f'GS{i + 1}', 'zone': p['zone'], 'zoneLabel': 'ממ"ד' if p['zone'] == 'mamad' else ZN['zones'][p['zone']]['label'],
+                  'footprintITM': ring(p['poly']), 'holesITM': holes(p['poly']), 'area_m2': r3(p['poly'].area),
+                  'topRel': p['top'], 'thickness_m': p['D'], 'bottomRel': r3(p['top'] - p['D']), 'status': p['status'], 'note': p['note'],
+                  'source': f"{K21} IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K={p['top']:+.2f} D={round(p['D'] * 100)}; אזור: {ZN['source']}"}
                  for i, p in enumerate(sorted(panels21, key=lambda p: -p['poly'].area))],
+        'openZones': [{'zone': o['zone'], 'label': ZN['zones'][o['zone']]['label'], 'note': ZN['zones'][o['zone']]['note'],
+                       'footprintITM': ring(o['poly']), 'area_m2': r3(o['poly'].area), 'source': f"{K21} (קווים); {ZN['source']}"} for o in open21],
+        'unclassifiedFaces': [{'footprintITM': ring(q), 'area_m2': r3(q.area)} for q in unclassified],
         'walls': wall_out, 'columns': col_out,
         'stoppingWalls': {'count': len(stopping), 'note': 'קירות "מפסיקים" במפלס הקרקע (מילוי אפור ב-K-21: ראשי קירות המרתף / החצרות האנגליות) – שייכים למרתף, לא שורטטו כאן.'},
         'perimeterWallsPending': {'count': len(perimeter), 'note': 'חומות היקפיות (חלקי IfcWall לאורך גבול המגרש ב-k-21) – ייבנו בצעד "חומות" אחרי אישור שלד הקרקע.'},
@@ -362,7 +435,10 @@ def main():
                       'status': 'approx' if p['split'] else 'source',
                       'source': f"{K31} IfcSlab + קווי קירות/עמודים; Floor Tag O.K={p['top']:+.2f} D={round(p['D'] * 100)}"}
                      for i, p in enumerate(sorted(panels31, key=lambda p: -p['poly'].area))],
-            'openings': [{'footprintITM': ring(g), 'area_m2': r3(g.area), 'kind': 'stair', 'source': f'{K31P} – מלבן עם אלכסון (סימון פתח)'} for g in openings],
+            'openings': [],
+            'mamad': [{'footprintITM': ring(g), 'area_m2': r3(g.area), 'status': 'missing',
+                       'note': 'ממ"ד – "ראה תכנית הג\"א מאושרת": עובי ומפלס התקרה לפי תוכנית הג"א (לא הועלתה). התקרה מוצגת כמו התקרה הסמוכה.',
+                       'source': f'{K31P} – ריבוע עם אלכסון + "ראה תכנית הג\"א מאושרת"'} for g in mamad31],
             'beams': beams,
         },
         'source': f'{K21}; {K31}; {K31P}',
@@ -373,7 +449,9 @@ def main():
     print('walls', [(w['id'], w['tag'], w['thickness_m'], w['bottomRel'], w['topRel'], w['status']) for w in wall_out])
     print('columns', [(c['id'], c['size_cm'], c['tagSize_cm'], c['bottomRel'], c['topRel'], c['status']) for c in col_out])
     print('perimeter pieces', len(perimeter))
-    print('ceiling slab', [(s['id'], s['topRel'], s['thickness_m'], s['area_m2']) for s in out['ceiling']['slab']], 'openings', [o['area_m2'] for o in out['ceiling']['openings']])
+    print('ceiling slab', [(s['id'], s['topRel'], s['thickness_m'], s['area_m2']) for s in out['ceiling']['slab']], 'mamad', [o['area_m2'] for o in out['ceiling']['mamad']])
+    print('zones', [(x['id'], x['zone'], x['topRel'], x['area_m2'], x['status']) for x in out['slab']])
+    print('open', [(o['zone'], o['area_m2']) for o in out['openZones']], 'unclassified', [u['area_m2'] for u in out['unclassifiedFaces']])
     print('beams', [(b['id'], b['width_m'], b['depth_m'], b['topRel'], b.get('length_m'), b['status']) for b in beams])
 
 

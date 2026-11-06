@@ -32,18 +32,32 @@ export function buildFloorSkeleton(ctx, F) {
   const stats = { slab_m3: 0, walls_m3: 0, columns_m3: 0, ceiling_m3: 0, beams_m3: 0, beamsMissing: [] };
   const L = (k) => `${floor}${k}`;   // layer ids: groundSlab, groundWalls, groundColumns, groundCeiling, groundCeilingBeams
 
-  // floor slab
+  // floor slab – one panel per drawn face of K-21, each in its zone (house / entry / mamad / terraces / yards / parking)
+  const OUTDOOR = new Set(['terrace', 'eastYard', 'southYard', 'westYard', 'parking']);
   for (const s of F.slab) {
-    const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, D.provisionalEdgeColor));
-    g.add(label(`רצפה O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
-    stats.slab_m3 += s.area_m2 * s.thickness_m;
-    registry.add(g, { floor, system: 'structure', stage: 'slab', layer: L('Slab') }, {
-      name: `רצפת קרקע ${s.id}`, status: s.status,
-      rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
+    const ghost = s.zone === 'mamad';
+    const mat = ghost ? new THREE.MeshBasicMaterial({ color: D.ownerChangeColor, transparent: true, opacity: D.ownerChangeZoneOpacity * 2, depthWrite: false }) : conc;
+    const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), mat); if (ghost) m.castShadow = false;
+    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, ghost ? D.ownerChangeColor : D.provisionalEdgeColor));
+    g.add(label(`${s.zoneLabel} · O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
+    if (!ghost) stats.slab_m3 += s.area_m2 * s.thickness_m;
+    const layer = s.zone === 'mamad' ? L('Mamad') : OUTDOOR.has(s.zone) ? L('OutdoorSlabs') : L('Slab');
+    registry.add(g, { floor, system: 'structure', stage: 'slab', layer }, {
+      name: `${s.zoneLabel} – רצפה ${s.id}`, status: s.status,
+      rows: [['אזור', s.zoneLabel], ['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
       note: s.note || '', source: s.source,
     });
+    scene.add(g);
+  }
+  // zones without a slab: English courtyards (open down to the basement), stairs down, garden – dashed outline + label
+  for (const o of F.openZones || []) {
+    const ring = o.footprintITM.concat([o.footprintITM[0]]);
+    const pts = ring.map(([E, N]) => coords.toLocal(E, N, H(F.slab[0]?.topRel ?? 0)));
+    const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: D.ownerChangeRemovedColor, dashSize: 0.2, gapSize: 0.12 }));
+    ln.computeLineDistances(); ln.userData.annotation = true;
+    const g = new THREE.Group(); g.add(ln); g.add(label(`${o.label} – בלי רצפה`, o.footprintITM, H(F.slab[0]?.topRel ?? 0) + D.labelLift_m, 'lbl removed'));
+    registry.add(g, { floor, system: 'structure', stage: 'slab', layer: L('OpenZones') }, { name: `${o.label} (${o.area_m2.toFixed(1)} מ"ר)`, pickable: false, note: o.note, source: o.source });
     scene.add(g);
   }
   // walls rising from the floor
@@ -85,7 +99,7 @@ export function buildFloorSkeleton(ctx, F) {
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('Ceiling') }, {
         name: `תקרת קומת הקרקע ${s.id}`, status: s.status,
         rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`]],
-        note: (C.openings?.length ? `פתח מדרגות ${C.openings.map(o => o.area_m2.toFixed(1)).join(', ')} מ"ר (K-31). ` : '') + 'האזור המזרחי בלי תקרה ב-+3.70 – חלל כפול (סימון אלכסונים ב-K-31).', source: s.source,
+        note: (C.mamad?.length ? `כולל תקרת הממ"ד (${C.mamad.map(o => o.area_m2.toFixed(1)).join(', ')} מ"ר) – עובי ומפלס לפי תוכנית הג"א (חסרה). ` : '') + 'האזור המזרחי בלי תקרה ב-+3.70 – חלל כפול (סימון אלכסונים ב-K-31).', source: s.source,
       });
       scene.add(g);
     }

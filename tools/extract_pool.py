@@ -16,8 +16,14 @@ ROOT = F.ROOT; r3 = F.r3
 SEC = 'sources/structure/pool-walls/בריכה חתך א+ב.pdf'
 # levels written on the section sheet (absolute, m)
 DECK, FLOOR, STEPS, TANK_FLOOR, TANK_SLAB = 280.48, 279.30, 279.97, 278.33, 0.20
-POOL_SLAB = 0.27          # dimension "27" under the pool floor (section A); section scale verified 1:50 (280.48→279.30 = 67 pt = 1.18 m = written "118")
-CHANNEL_BOTTOM = 279.75   # cover-shutter pit (section B, right): bottom of its slab measured at the verified 1:50 scale from the 280.48 level line
+# measured on the sections at the verified 1:50 scale (level-marker tips: 280.48→279.30 = 67 pt = 1.18 m = written "118"):
+TANK_WALL = 0.20          # K-400: 530.8→542.2 pt = 0.20 m
+POOL_FINISH_LAYER = 0.27  # "27": floor finish 279.30 -> structural slab top 279.03 (section A)
+POOL_SLAB_TOP, POOL_SLAB_BOT_E, POOL_SLAB_BOT_W = 279.03, 278.83, 279.03   # 20 cm slab; sloped 4.9% (section B) -> ~0.20 m higher at the shallow end
+POOL_WALL_BOTTOM = 278.13 # section A draws both pool walls down to 278.13 – conflicts with K-400 pile heads 279.30/279.00 (open-issues); model: south wall (shared with the machine room) only
+DECK_SLAB_TOP = 280.33    # deck slab top (finish 280.48)
+GUTTER_W, LIP_W, GUTTER_FLOOR, GUTTER_BOT = 0.25, 0.20, 280.13, 280.05   # overflow gutter (תעלת גלישה): width K-400 (0.247) / section A (0.24-0.25); levels section A
+CHANNEL_FLOOR, CHANNEL_BOTTOM = 280.05, 279.90               # cover-shutter pit (section B), slab 15 cm
 ring = lambda g: [[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]]
 
 
@@ -46,23 +52,53 @@ def main():
     pool_outer = unary_union(pool_walls).minimum_rotated_rectangle
     ch_outer = unary_union(ch_walls).minimum_rotated_rectangle.difference(pool_outer).buffer(0)
     ch_outer = max(getattr(ch_outer, 'geoms', [ch_outer]), key=lambda g: g.area)
-    tank_outer = unary_union(tank_walls).minimum_rotated_rectangle.difference(pool_outer).buffer(0)
-    tank_outer = max(getattr(tank_outer, 'geoms', [tank_outer]), key=lambda g: g.area)
+    # pool-local frame on the pool side that faces the machine room: u along the side, v outward (m)
+    import numpy as np
+    from shapely.geometry import LineString
+    C = np.array(pool_outer.exterior.coords[:4]); tc = unary_union(tank_walls).centroid
+    i = min(range(4), key=lambda k: LineString([C[k], C[(k + 1) % 4]]).distance(tc))
+    a, b = C[i], C[(i + 1) % 4]; u = (b - a) / np.linalg.norm(b - a); n = np.array([u[1], -u[0]])
+    if np.dot(np.array(pool_outer.centroid.coords[0]) - a, n) > 0: n = -n
+    loc = lambda g: [(float(np.dot(np.array(q) - a, u)), float(np.dot(np.array(q) - a, n))) for q in g.exterior.coords]
+    rect = lambda u0, u1, v0, v1: Polygon([tuple(a + s_ * u + t_ * n) for s_, t_ in ((u0, v0), (u1, v0), (u1, v1), (u0, v1))])
+    lb = lambda g: (min(p[0] for p in loc(g)), max(p[0] for p in loc(g)), min(p[1] for p in loc(g)), max(p[1] for p in loc(g)))
+    # overflow gutter ring: K-400 – gutter 14.0 pt = 0.25 m + outer lip wall 11.4 pt = 0.20 m (outer ring 25.5 pt = 0.45 m from the pool, all sides)
+    gut_in = pool_outer.buffer(GUTTER_W, join_style=2); gut = pool_outer.buffer(GUTTER_W + LIP_W, join_style=2)
+    gutter_floor = gut.difference(pool_outer).buffer(0); lip = gut.difference(gut_in).buffer(0)
+    # machine room (K-400): box from the gutter lip to its south wall; the k-21 walls start at the lip's outer face (0.45 m),
+    # the lip itself is its north wall, and its side walls run through under the gutter to the pool wall.
+    u0, u1, v0, v1 = lb(unary_union(tank_walls).minimum_rotated_rectangle)
+    tank_outer = rect(u0, u1, GUTTER_W, v1)
+    extra = [rect(u0, u1, GUTTER_W, GUTTER_W + LIP_W),   # north wall = gutter lip
+             rect(u0, u1, v1 - TANK_WALL, v1)]             # south wall continuous in K-400 (k-21 shows it cut by an opening above the floor)
+    tank_pit = rect(u0, u1, 0.0, v1)                       # walls on both sides of the strip under the gutter reach the machine-room bottom
+    for w in tank_walls:
+        wu0, wu1, wv0, wv1 = lb(w)
+        if wv0 - v0 < 0.05 and wu1 - wu0 < 0.4: extra.append(rect(wu0, wu1, 0.0, GUTTER_W))
+    tank_walls = tank_walls + extra
+    tank_check = {'k21_offsetFromPool_m': r3(v0), 'expected_m': GUTTER_W + LIP_W, 'eastEnd_vs_poolEnd_m': r3(min(abs(u0), abs(u1 - 8.40), abs(u1), abs(u0 - 8.40)))}
     west = [P[k]['headRel'] + H0 for k in ('28', '30')]; east = [P[k]['headRel'] + H0 for k in ('29', '31')]
     out = {
         'pool': {'outerITM': ring(pool_outer), 'area_m2': r3(pool_outer.area), 'wallsITM': [ring(q) for q in pool_walls],
                  'deck': DECK, 'floorFinish': FLOOR, 'stepsLevel': STEPS,
-                 'slabThickness_m': POOL_SLAB, 'slabUndersideWest': r3(min(west)), 'slabUndersideEast': r3(FLOOR - POOL_SLAB),
-                 'checkDeepEnd': {'fromSection': r3(FLOOR - POOL_SLAB), 'pileHeads29_31': r3(min(east))},
+                 'finishLayer_m': POOL_FINISH_LAYER, 'slabTop': POOL_SLAB_TOP, 'slabUndersideWest': POOL_SLAB_BOT_W, 'slabUndersideEast': POOL_SLAB_BOT_E,
+                 'wallBottom': POOL_WALL_BOTTOM, 'deckSlabTop': DECK_SLAB_TOP,
+                 'pileHeads': {'west_28_30': r3(min(west)), 'east_29_31': r3(min(east))},
                  'status': 'provisional',
-                 'note': 'מחתכי הבריכה (קנ"מ 1:50 אומת מול המפלסים הכתובים): סיפון 280.48, רצפה 279.30 בעומק 1.20 ("118"), עובי רצפה 27 ס"מ → תחתית 279.03 בצד העמוק (מול ראשי כלונסאות 29/31: 279.00 – הפרש 3 ס"מ). מדרגות 279.97, שיפוע 4.9%. בצד הרדוד – תחתית לפי ראשי כלונסאות 28/30 (279.30). מצע מתחת לרצפה – לא כתוב.',
+                 'note': 'מחתכי הבריכה (קנ"מ 1:50 אומת): סיפון 280.48 (משטח בטון 280.33), רצפה 279.30 בעומק 1.20 ("118"), שכבת גמר 27 ס"מ, רצפת בטון 279.03–278.83 (20 ס"מ, משופעת 4.9% – בצד הרדוד גבוהה בכ-20 ס"מ), קירות 20 ס"מ יורדים עד 278.13. תעלת גלישה ברוחב 24 ס"מ מסביב (רצפה 280.13). ראשי כלונסאות 28–31 (279.30/279.00) נכנסים לקירות. מצע מתחת לרצפה – לא כתוב.',
                  'source': f'{F.K21} (קירות הבריכה, IfcWall); {SEC} (מפלסים); {F.K400} (ראשי כלונסאות 28–31)'},
+        'gutter': {'ringOuterITM': ring(gut), 'ringInnerITM': ring(gut_in), 'width_m': GUTTER_W, 'lipWidth_m': LIP_W,
+                   'floor': GUTTER_FLOOR, 'bottom': GUTTER_BOT, 'lipTop': DECK_SLAB_TOP, 'status': 'source',
+                   'note': 'תעלת גלישה סביב הבריכה: רוחב 25 ס"מ + שפה חיצונית 20 ס"מ (K-400: טבעת 45 ס"מ סביב הבריכה; חתך א). רצפת התעלה 280.13–280.05, ראש השפה 280.33. במזרח השפה היא הקיר המערבי של תעלת הכיסוי; בדרום – הקיר הצפוני של חדר המכונות.',
+                   'source': f'{F.K400}; {SEC}'},
         'channel': {'outerITM': ring(ch_outer), 'area_m2': r3(ch_outer.area), 'wallsITM': [ring(q) for q in ch_walls], 'top': DECK,
-                    'bottom': CHANNEL_BOTTOM, 'status': 'source',
-                    'note': 'תעלת תריס כיסוי הבריכה (הקופסה הצרה בצד המזרחי, K-400/K-21). תחתית 279.75 – נמדדה בחתך ב (קנ"מ 1:50 מאומת) מקו הסיפון 280.48.',
+                    'floor': CHANNEL_FLOOR, 'bottom': CHANNEL_BOTTOM, 'status': 'source',
+                    'note': 'תעלת תריס כיסוי הבריכה (בצד המזרחי, מעבר לתעלת הגלישה; K-400/K-21). רוחב פנים 45 ס"מ, רצפה 280.05, תחתית 279.90 – נמדדו בחתך ב (קנ"מ 1:50 מאומת).',
                     'source': f'{F.K21} (IfcWall); tools/pool-pieces.json; {F.K400}'},
-        'tank': {'outerITM': ring(tank_outer), 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
-                 'top': DECK, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),
+        'tank': {'outerITM': ring(tank_outer), 'pitITM': ring(tank_pit), 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
+                 'top': DECK_SLAB_TOP, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),
+                 'joinedToPool': 'צמוד לבריכה (K-400, חתך א): הקיר הצפוני = שפת תעלת הגלישה (0.25–0.45 מ מהבריכה), קירות הצד ממשיכים מתחת לתעלה עד קיר הבריכה',
+                 'check': tank_check, 'wallBottom': r3(TANK_FLOOR - TANK_SLAB),
                  'pile32Head': r3(P['32']['headRel'] + H0), 'status': 'source',
                  'note': 'חדר מכונות (רצפה 278.33, עומק 2.17, גובה פנים "180", רצפה "20" ס"מ – מחתך א, קנ"מ 1:50 מאומת); פתח בור האיזון מעליו. ראש כלונס 32 (278.25) נכנס לרצפה (תחתית 278.13).',
                  'source': f'{F.K21} (קירות, IfcWall); {SEC} (מפלסים); {F.K400} (כלונס 32)'},

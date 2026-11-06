@@ -282,8 +282,9 @@ export function buildPool(ctx) {
   const PL = data.pool; if (!PL) return null;
   const D = display.framing; const conc = materials.get('concrete');
   const toV = ([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); };
-  const prism = (ring, z0, z1) => {
-    const g = new THREE.ExtrudeGeometry(new THREE.Shape(ring.map(toV)), { depth: z1 - z0, bevelEnabled: false });
+  const prism = (ring, z0, z1, hole) => {
+    const sh = new THREE.Shape(ring.map(toV)); if (hole) sh.holes.push(new THREE.Path(hole.map(toV)));
+    const g = new THREE.ExtrudeGeometry(sh, { depth: z1 - z0, bevelEnabled: false });
     g.rotateX(-Math.PI / 2); g.translate(0, z0 - coords.H0, 0);
     const p = g.attributes.position, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) + p.getY(i), p.getZ(i) + p.getY(i));
     const m = new THREE.Mesh(g, conc); m.castShadow = m.receiveShadow = true;
@@ -312,9 +313,17 @@ export function buildPool(ctx) {
     for (const w of PL.channel.wallsITM) wg.add(prism(w, PL.channel.bottom, PL.channel.top));
     wg.add(lbl('תעלת כיסוי הבריכה', PL.channel.outerITM, PL.channel.top + 0.4));
   }
-  registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה, תעלת הכיסוי וחדר המכונות (זמני)', status: 'provisional',
-    rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)], ['תעלת כיסוי – תחתית (הונח)', PL.channel ? coords.fmtH(PL.channel.bottom) : '—']],
-    note: `${P.note} ${T.note} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
+  const G = PL.gutter;
+  if (G) {   // overflow gutter: trough floor (pool wall -> outer lip) + outer lip wall, all round the pool
+    wg.add(prism(G.ringOuterITM, G.bottom, G.floor, P.outerITM));
+    wg.add(prism(G.ringOuterITM, G.bottom, G.lipTop, G.ringInnerITM));
+    const o = G.ringOuterITM, mid = [[(o[0][0] + o[1][0]) / 2, (o[0][1] + o[1][1]) / 2]];
+    wg.add(lbl('תעלת גלישה', mid, G.lipTop + 0.3));
+  }
+  registry.add(wg, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'קירות הבריכה, תעלת הגלישה, תעלת הכיסוי וחדר המכונות (זמני)', status: 'provisional',
+    rows: [['ראש קיר (סיפון)', coords.fmtH(P.deck)], ['תעלת גלישה – רוחב / רצפה', G ? `${Math.round(G.width_m * 100)} ס"מ · ${coords.fmtH(G.floor)}` : '—'],
+      ['תעלת כיסוי – רצפה / תחתית', PL.channel ? `${coords.fmtH(PL.channel.floor)} · ${coords.fmtH(PL.channel.bottom)}` : '—'], ['חדר מכונות – תחתית', coords.fmtH(T.slabUnderside)]],
+    note: `${P.note} ${G?.note || ''} ${T.note} ${T.joinedToPool || ''} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
   scene.add(wg);
   return { poolArea_m2: P.area_m2, tankArea_m2: T.area_m2 };
 }

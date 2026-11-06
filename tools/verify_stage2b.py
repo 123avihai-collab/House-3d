@@ -69,6 +69,18 @@ for q in PL['pipes']:
     if q.get('ILfrom') is None: continue
     out.append(f"| {q['id']} | {q['between'][0] or 'בית'} → {q['between'][1]} | {q.get('diameter_m') or '—'} | {q['slope'] * 100:.2f}% | {q['ILfrom']:.3f} → {q['ILto']:.3f} | {q['status']} |")
 out.append('')
+PO = J('data/structure/pool.json'); from shapely.geometry import Polygon as _Pg
+pp, tk, ch = _Pg(PO['pool']['outerITM']), _Pg(PO['tank']['outerITM']), _Pg(PO['channel']['outerITM'])
+dims = lambda g: sorted({round(Point(*g.exterior.coords[i]).distance(Point(*g.exterior.coords[i + 1])), 2) for i in range(4)})
+out += ['## 6. בריכה, תעלת גלישה, תעלת כיסוי וחדר מכונות', '', '| בדיקה | מודל | מקור | סטייה |', '|---|---|---|---|',
+        f"| מידות חוץ של הבריכה | {dims(pp)} | K-400: 476.3×209.2 pt = 8.40×3.69 | {abs(dims(pp)[1] - 8.40):.3f} |",
+        f"| מרחק קירות חדר המכונות (k-21) מהבריכה | {PO['tank']['check']['k21_offsetFromPool_m']} | K-400: טבעת התעלה 25.5 pt = 0.45 | {abs(PO['tank']['check']['k21_offsetFromPool_m'] - 0.45):.3f} |",
+        f"| רוחב חדר המכונות | {dims(tk)[1]} | K-400: 4067.5→4240.0 pt = 3.04 | {abs(dims(tk)[1] - 3.043):.3f} |",
+        f"| עומק חדר המכונות (משפת התעלה) | {dims(tk)[0]} | חתך א: 349.9→471.2 pt = 2.14 | {abs(dims(tk)[0] - 2.14):.3f} |",
+        f"| מרחק תעלת הכיסוי מהבריכה | {ch.distance(pp):.3f} | K-400: 14.0 pt = 0.247 | {abs(ch.distance(pp) - 0.247):.3f} |",
+        f"| תעלת כיסוי – רוחב חוץ × אורך | {dims(ch)} | K-400: 48.3 × 298.5 pt = 0.85×5.27 | — |",
+        f"| תעלת כיסוי – רצפה / תחתית | {PO['channel']['floor']} / {PO['channel']['bottom']} | חתך ב (1:50) | — |",
+        f"| תעלת גלישה – רוחב / רצפה | {PO['gutter']['width_m']} / {PO['gutter']['floor']} | K-400 0.247 · חתך א 280.13 | — |", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)
 open(os.path.join(ROOT, 'docs/verification/stage-2b.md'), 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 print(f'beams vs piles: ok {ok}, bad {bad}; missing beams {missing}')

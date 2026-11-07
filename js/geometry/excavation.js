@@ -125,13 +125,16 @@ export function buildExcavation(ctx) {
     return best ? best.z : pitA(E, N);
   };
   const openAt = (E, N) => (bsmRing && pointInRing(E, N, bsmRing)) || openRings.some(r => pointInRing(E, N, r)) || poolZ(E, N) < Infinity;
-  const working = (E, N) => openAt(E, N) ? pitA(E, N) : workAt(E, N);
+  // inside the basement / courtyards the structure is the surface: the soil stays at the pit bottom, below every basement slab
+  // (Avihai ק18: soil showed in the English courtyard over the floor lowered by OC-1 to -2.75); the pool keeps its own pit
+  const openZ = (E, N) => poolZ(E, N) < Infinity || !pointInRing(E, N, floor) ? pitA(E, N) : Math.min(zb, chamberZ(E, N));
+  const working = (E, N) => openAt(E, N) ? openZ(E, N) : workAt(E, N);
   working.kind = 'backfill';
-  const backfill = (E, N) => openAt(E, N) ? pitA(E, N) : Math.min(workAt(E, N), trenchZ(E, N));     // + trenches of the K-21 beams
+  const backfill = (E, N) => openAt(E, N) ? openZ(E, N) : Math.min(workAt(E, N), trenchZ(E, N));     // + trenches of the K-21 beams
   backfill.kind = 'backfill';
   // final surface (development): garden / strips = planned lot surface; under the slabs and in the openings it stays below the structure
   const finalZ = (E, N) => {
-    if (openAt(E, N)) return pitA(E, N);
+    if (openAt(E, N)) return openZ(E, N);
     const sl = slabs.find(s => inPoly(E, N, s)); if (sl) return sl.z;
     return planned ? planned(E, N) : workAt(E, N);
   };

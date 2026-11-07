@@ -98,6 +98,7 @@ export function buildFloorSkeleton(ctx, F) {
     const g = new THREE.Group();
     const pieces = w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
     for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
+    for (const f of w.raisedITM || []) pieces.push([f.ringITM, f.holesITM, f.bottomRel, f.topRel]);   // part with no beam above: up to the slab (ק17)
     for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);

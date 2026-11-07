@@ -834,18 +834,23 @@ def main():
     # between the shaft and the house / entry slabs without a face – fill it into the house slab (Avihai's edit-mode note
     # 07.11.2026, ק4). Rims of the English courtyards / outside stairs down are left as drawn (open question).
     bwU = unary_union([P for P, w in bw_polys])
-    gapU = bwU.difference(unary_union([p['poly'] for p in panels21] + [o['poly'] for o in open21]))
-    shaft = [o['poly'] for o in open21 if o['zone'] == 'stairShaft']
-    other_open = [o['poly'] for o in open21 if o['zone'] != 'stairShaft']
+    # the same at the rims of the English courtyards and the stairs down (Avihai's edit-mode note ק18: "אמרנו שיהיה שם המשך
+    # יציקת רצפה" – the answer to open issue #82); the grey caps of K-21 (walls that stop at the level) stay as they are
+    capU = unary_union([Polygon(c['footprintITM'], c['holesITM']).buffer(0) for c in caps]) if caps else Polygon()
+    gapU = bwU.difference(unary_union([p['poly'] for p in panels21] + [o['poly'] for o in open21] + [capU]))
+    shaft = [o['poly'] for o in open21 if o['zone'] in ('stairShaft', 'courtyard', 'basementStairs')]
+    other_open = [o['poly'] for o in open21 if o['zone'] not in ('stairShaft', 'courtyard', 'basementStairs')]
+    ZL = {'stairShaft': 'פיר המדרגות', 'courtyard': 'החצר האנגלית', 'basementStairs': 'מדרגות הירידה למרתף'}
+    zname = lambda q: ZL[min((o for o in open21 if o['zone'] in ZL), key=lambda o: o['poly'].distance(q))['zone']]
     for q in polys(gapU):
         if q.area < 0.05 or not any(o.distance(q) < 0.02 for o in shaft) or any(o.distance(q) < 0.02 for o in other_open): continue
-        house = [p for p in panels21 if p['zone'] == 'house' and p['poly'].distance(q) < 0.02]
+        house = [p for p in panels21 if p['zone'] in ('house', 'entry') and p['poly'].distance(q) < 0.02]
         if not house: continue
         tgt = max(house, key=lambda p: p['poly'].area)
         g = unary_union([tgt['poly'].buffer(0.01, join_style=2), q.buffer(0.01, join_style=2)]).buffer(-0.01, join_style=2)
         tgt['poly'] = max(polys(g), key=lambda x: x.area)
-        tgt['note'] = (tgt.get('note', '') + f' רצועה מעל ראש קיר המרתף ליד פיר המדרגות ({q.area:.2f} מ"ר) – הרצפה יצוקה על הקיר, לפי הערת אביחי 07.11.2026.').strip()
-        print('slab over basement wall at the stair shaft', round(q.area, 3))
+        tgt['note'] = (tgt.get('note', '') + f' רצועה מעל ראש קיר המרתף בשפת {zname(q)} ({q.area:.2f} מ"ר) – הרצפה יצוקה על הקיר, לפי הערות אביחי ק4 / ק18 (07.11.2026).').strip()
+        print('slab over basement wall at the rim of', zname(q), round(q.area, 3))
     # a column / wall that stood on the slab, but the slab under it was cut away afterwards (the south English courtyard –
     # slabCuts): it is the joint of the K-21 beams that frame into it – cast with them from their underside (Avihai's
     # edit-mode note ק13: C10 20/80 between B-46 and B-45 over the light well; K-21: dashed outline = goes on below the slab)
@@ -1068,6 +1073,15 @@ def main():
         bot, b = min(hits, key=lambda h: h[0])
         if bot < e['topRel'] - 0.005:
             under.append(f"{e['id']} {e['topRel']:+.2f}→{bot:+.2f}")
+            # the part of a wall with no beam over it still rises to the ceiling slab (Avihai's edit-mode note ק17 – GW5 at
+            # the mamad's NE corner stopped 40 cm under the slab)
+            old = e['topRel']
+            if 'thickness_m' in e and old <= max(p['top'] - p['D'] for p in panels31) + 0.01:     # a wall under the ceiling slab
+                bU = unary_union([LineString(x['axisITM']).buffer(x['width_m'] / 2, cap_style=2) for x in beams if x.get('axisITM') and x['bottomRel'] < old - 0.005]).buffer(0.005)
+                rest = [p for p in polys(g.difference(bU)) if p.area > 0.005]
+                if rest:
+                    e['raisedITM'] = [{'ringITM': ring(p), 'holesITM': holes(p), 'bottomRel': r3(bot), 'topRel': r3(old)} for p in rest]
+                    e['note'] = (e.get('note', '') + f" החלק שאין מעליו קורה ({sum(p.area for p in rest):.2f} מ\"ר) ממשיך עד תחתית התקרה ({old:+.2f}) – הערת אביחי ק17.").strip()
             e['topRel'] = r3(bot)
             e['note'] = (re.sub(r'ראש: בחלל הכפול – עד תחתית תקרת הגג K-41 \(\+6\.65\);?\s*', '', e.get('note', '')) +
                          f" ראש: תחתית הקורה {b['id']} ({round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)}, O.K {b['topRel']:+.2f}) שמעליו.").strip()

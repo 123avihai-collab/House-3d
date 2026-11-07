@@ -48,7 +48,21 @@
   "near": 0.1,
   "far": 3000,
   "eyeHeight_m": 1.65,
-  "walkSpeed_mps": 1.4
+  "walkSpeed_mps": 1.4,
+  "walkSpeeds_mps": [
+   0.7,
+   1.4,
+   3.0
+  ],
+  "walkSpeedLabels": [
+   "איטי",
+   "רגיל",
+   "מהיר"
+  ],
+  "stepUp_m": 0.45,
+  "fallSpeed_mps": 4.0,
+  "wallClearance_m": 0.3,
+  "_docWalk": "walk mode (js/tools/navigation.js): speeds slow/normal/fast, the highest step that is climbed (stairs, slab level steps), descent speed off an edge, distance kept from walls – display constants, not model dimensions"
  },
  "ao": {
   "enabled": true,

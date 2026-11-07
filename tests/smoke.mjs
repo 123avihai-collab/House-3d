@@ -116,6 +116,21 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return bad.length ? bad.slice(0, 12).join(' | ') : 'ok';
     });
     if (info.loadPath !== 'ok') errors.push('load path: ' + info.loadPath);
+    // walk mode stands on the ground-floor slab (not in the basement below it)
+    info.walk = await page.evaluate(() => {
+      const a = window.__app, v = a.viewer, C = a.display.camera;
+      a.store.set({ stageIndex: a.data.tags.sequence.length - 1 });
+      const gs = a.data.floorGround.slab.find(s => s.id === 'GS1');
+      const r = gs.footprintITM; const c = r.reduce((s, p) => [s[0] + p[0] / r.length, s[1] + p[1] / r.length], [0, 0]);
+      // a point of GS1 away from walls: the centroid if it is inside, else the first vertex pulled inward
+      const t = a.coords.toLocal(c[0], c[1], a.coords.H0 + gs.topRel);
+      v.camera.position.set(t.x, t.y + 1.5, t.z + 0.01); v.camera.lookAt(t); v.camera.updateMatrixWorld();
+      a.nav.startWalk(); const eye = v.camera.position.y - (a.coords.H0 - a.coords.H0); a.nav.stopWalk();
+      const feetRel = eye - C.eyeHeight_m - (a.coords.toLocal(c[0], c[1], a.coords.H0).y);
+      a.store.undo();
+      return Math.abs(feetRel - gs.topRel) < 0.06 || feetRel > gs.topRel ? 'ok' : `feet ${feetRel.toFixed(2)} vs GS1 ${gs.topRel}`;
+    });
+    if (info.walk !== 'ok') errors.push('walk on slab: ' + info.walk);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

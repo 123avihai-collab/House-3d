@@ -104,6 +104,9 @@ body:not(.loading) #loading { display: none; }
 #joy { display: none; position: absolute; bottom: 30px; left: 30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .3); touch-action: none; z-index: 7; }
 #joy i { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, .5); }
 body.walking #joy { display: block; }
+#walkspeed { display: none; position: absolute; bottom: 30px; left: 160px; z-index: 7; background: rgba(30, 34, 40, .88); }
+body.walking #walkspeed { display: flex; }
+#walkspeed button { min-height: 36px; min-width: 52px; }
 .toast { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: #263238; border: 1px solid var(--line); padding: 8px 16px; border-radius: 20px; z-index: 50; transition: opacity .4s; }
 .toast.out { opacity: 0; }
 .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, .5); display: grid; place-items: center; z-index: 60; }
@@ -169,6 +172,7 @@ ol.notes.rebar table.kv { font-size: 12px; margin: 2px 0; }
   body.panel-open #panel { transform: none; visibility: visible; display: flex; }
   #minimap { width: 120px !important; height: 120px !important; }
   #info { top: auto; bottom: 140px; }
+  #walkspeed { left: auto; right: 10px; bottom: 168px; }
 }
 @media (min-width: 761px) and (max-width: 1280px) {
   #topbar .brand small { display: none; }

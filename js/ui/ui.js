@@ -22,7 +22,7 @@ export class UI {
     this.buildToolbar();
     this.buildPanel();
     this.buildStageBar();
-    app.store.on(() => { this.refreshPanel(); this.syncStageBar(); this.syncTop(); });
+    app.store.on(() => { this.refreshPanel(); this.syncStageBar(); this.syncTop(); this.syncWalkSpeed(); });
     this.syncTop();
   }
 
@@ -145,6 +145,17 @@ export class UI {
   setWalkUI(on) {
     document.body.classList.toggle('walking', on);
     document.querySelector('#toolbar [data-tool="walk"]')?.classList.toggle('on', on);
+    if (!this.walkSpeedBar) {
+      const C = this.app.display.camera;
+      this.walkSpeedBar = h('div', { id: 'walkspeed', class: 'seg small', title: 'מהירות הליכה (מקשים 1 / 2 / 3)' },
+        (C.walkSpeeds_mps || []).map((v, i) => h('button', { 'data-i': i, onclick: () => this.app.nav.setSpeed(i) }, `${C.walkSpeedLabels?.[i] || i + 1}`)));
+      document.getElementById('viewport').append(this.walkSpeedBar);
+    }
+    this.syncWalkSpeed();
+  }
+  syncWalkSpeed() {
+    const i = this.app.store.get().quality.walkSpeed ?? 1;
+    this.walkSpeedBar?.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
   }
 
   // ---------------- side panel with tabs ----------------
@@ -320,7 +331,9 @@ export class UI {
         h('button', { class: 'x', title: 'מחק', onclick: () => app.store.set({ bookmarks: s.bookmarks.filter((_, j) => j !== i) }, { label: 'bm' }) }, '✕')))),
       h('button', { onclick: () => { const name = prompt('שם למבט:', `מבט ${s.bookmarks.length + 1}`); if (name) app.store.set({ bookmarks: [...s.bookmarks, { name, ...app.currentView() }] }, { label: 'bm' }); } }, '＋ שמור מבט נוכחי'),
       h('h4', {}, 'הליכה'),
-      h('p', { class: 'muted' }, 'הליכה בגובה עיניים על פני השטח. מחשב: חיצים/WASD וגרירה. טלפון: ג׳ויסטיק וגרירה.'),
+      h('p', { class: 'muted' }, 'הליכה בגובה עיניים על הרצפות, הפודסטים, המדרגות והקרקע (מה שמוצג בשלב הנוכחי), בלי לעבור דרך קירות. מתחילים בנקודה שבמרכז המסך. מחשב: חיצים/WASD, גרירה להסתכלות, 1/2/3 מהירות, Shift האצה. טלפון: ג׳ויסטיק וגרירה.'),
+      h('div', { class: 'seg small' }, (app.display.camera.walkSpeeds_mps || []).map((v, i) => h('button', { class: (s.quality.walkSpeed ?? 1) === i ? 'on' : '', onclick: () => app.nav.setSpeed(i) },
+        `${app.display.camera.walkSpeedLabels?.[i] || ''} ${v} מ'/ש'`))),
       h('button', { onclick: () => app.nav.walking ? app.nav.stopWalk() : app.nav.startWalk() }, app.nav.walking ? 'יציאה מהליכה' : '🚶 התחל הליכה'));
   }
 

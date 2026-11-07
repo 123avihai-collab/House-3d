@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 3 – שלד: קומת הקרקע (K-21), תקרה +3.70 (K-31), קומה א', תקרת הגג +6.90, מעקות ופרגולות עד +8.00 (K-41), חומות היקפיות (K-400), מדרגות ופילר מערכות, חלונות ודלתות (אדריכלות)** (ממתין לאישור; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3א](docs/verification/stage-3.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 3 – שלד: קומת הקרקע (K-21), תקרה +3.70 (K-31), קומה א', תקרת הגג +6.90, מעקות ופרגולות עד +8.00 (K-41), חומות היקפיות (K-400), מדרגות ופילר מערכות, חלונות ודלתות (אדריכלות)** (ממתין לאישור; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3](docs/verification/stage-3.md) · [סביבה](docs/verification/environment.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 
@@ -13,6 +13,10 @@ npm test               # בדיקת נתונים + בדיקת דפדפן headles
 npm run extract        # חילוץ מחדש מקבצי המקור (דורש את sources/ ו-tools/cache, ראו sources/README.md)
 node tools/verify_stage1.mjs   # טבלת אימות שלב 1
 node tools/verify_stage2.mjs   # טבלת אימות שלב 2 (חפירה + כלונסאות)
+python3 tools/environment/extract_environment.py   # סביבה: מגרשים שכנים, רחובות, מעטפות -> data/environment/
+python3 tools/environment/extract_sheet04.py       # גיליון 04 סרוק: בית/חניה/כניסה לכל שכן -> data/environment/sheet04.json (אחריו להריץ שוב extract_environment)
+python3 tools/environment/derive_details.py        # בינוי ופיתוח מפורטים -> data/environment/details.json
+python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
 ```
 
@@ -34,7 +38,6 @@ js/
     tin.js                 אינטרפולציית גבהים (TIN), כלי פוליגון
     terrain.js             משטחי קרקע: מגרש (מתוכנן/קיים), שכנים, מדרכה, כביש, משטח ייחוס
     site.js                גבול מגרש, נקודות, קווי בניין, קווי גובה, תוויות, חץ צפון, רשת ITM
-    neighbors.js           מעטפות מקסימליות לבתי השכנים
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
     foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
@@ -47,11 +50,20 @@ js/
     notes.js               הערות ורשימת תיקונים
     navigation.js          נקודות מבט, מבטים שמורים, הליכה בגובה עיניים, מפה קטנה
   ui/ui.js                 סרגל עליון, פאנלים, סרגל שלבים, כרטיס מידע
+src/environment/           סביבה (שכונה): מחליף את משטחי השכנים/הרחוב של שלב 1
+  index.js                 בנייה + חיבור לממשק (קבוצת "סביבה" בפאנל השכבות)
+  lots.js                  13 מגרשים שכנים: פני קרקע סופיים, גבול, קווי בניין, תוויות
+  streets.js               רחוב משולב (13.0 מ'), תעלה, איים, אבני גן; רחובות ללא גבהים מסומנים בכתום
+  envelopes.js             מעטפות מקסימליות (תמל/1016) – נפח ניטרלי, מטיל צל
+  sheet04.js               בתי השכנים, מבני חניה וכניסות ראשיות לפי גיליון 04 (סרוק)
+  details.js               בינוי מפורט: בתים (חלונות, דלת, חיפוי עץ), חומות עם חיפוי אבן ושערים, חצרות, עצים, תאורה, אבני שפה
+  controls.js              הצגה/הסתרה של השכנים, שקיפות מעטפות, מבט על השכונה
 data/
   manifest.json            רשימת קובצי הנתונים
   site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
   structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json); מדרגות ופילר (tools/extract_stairs.py → stairs.json); חומות היקפיות (tools/extract_perimeter.py → perimeter.json); פתחים (tools/extract_openings.py → ../architecture/openings.json + חיתוך קירות הבטון – להריץ אחרי extract_floor.py ו-extract_framing.py); בדיקה עצמית tools/overlay_check.py
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
+  environment/             lots.json, streets.json (נוצרים ע"י tools/environment/), config, קריאות ידניות, תצוגה, חומרים
   materials/               הגדרות חומרים
 assets/                    טקסטורות PBR ו-HDRI (Poly Haven, CC0 – assets/CREDITS.json)
 vendor/                    three.js 0.186.1, delaunator 5.1.0 (ללא שלב build)
@@ -83,7 +95,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | חתך אופקי ואנכי, ניתן להזזה | ✅ | |
 | ניווט: רשימת חדרים, נקודות מבט, הליכה בגובה עיניים (כולל מדרגות בהמשך), מפה קטנה | ✅ (חדרים: בקרוב) | בטלפון: ג'ויסטיק |
 | שמש וצל: תאריך ושעה, מיקום שמש אמיתי | ✅ | זריחה ושקיעה, הנפשת יום |
-| סביבה: מגרשי שכנים + מעטפות 2 קומות לפי התב"ע, הצגה והסתרה | ✅ | גובה המעטפת זמני (מסומן בכתום) |
+| **סביבה:** 13 מגרשים שכנים (מספר מגרש, ±0.00, גבהי פינות), רחוב משולב 13.0 מ', כביש 910 בחתך 15.0, מעטפות 2 קומות לפי תמל/1016, בתים/חניות/כניסות לפי גיליון 04 | ✅ | פאנל שכבות → "סביבה": הצג שכנים, מעטפות / גיליון 04 / שניהם, שקיפות (הצל נשאר מלא), מבט על השכונה. רחובות בלי גבהים במקור – בכתום. [אימות](docs/verification/environment.md) |
 | הערות → רשימת תיקונים + "העתק את כל ההערות" | ✅ | |
 | ייצוא וייבוא הגדרות, ביטול וחזרה (Ctrl+Z / Ctrl+Y) | ✅ | |
 | **שלב 2:** חפירה ליחידת הדיור (שלב "חפירה") + 49 כלונסאות (שלב "כלונסאות") | ✅ | שכבות "חפירה" ו"כלונסאות". לחיצה על כלונס: קוטר, L, ראש, תחתית, ITM, עומס מול המותר |

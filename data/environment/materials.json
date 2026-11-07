@@ -1,0 +1,211 @@
+{
+ "_doc": "Environment materials (PBR, Poly Haven CC0 – assets/CREDITS.json). Street: 'מלבן' paving (נספח 003 פרט 14, graphite); fences: stone cladding + plaster (נספח 009 פרט 5.1); houses: minimalist white plaster + wood accent (illustrative). Integrated street: interlocking 'מלבן' pavers in herringbone (נספח 003 פרט 14).",
+ "materials": {
+  "envLot": {
+   "texture": "assets/textures/dry_ground_01",
+   "size_m": 4.0,
+   "tint": "#d9cfc0",
+   "roughness": 1.0,
+   "envMapIntensity": 0.7
+  },
+  "envStreet": {
+   "texture": "assets/textures/herringbone_pavement_03",
+   "size_m": 2.4,
+   "tint": "#c9c4bb",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "envStreetNoData": {
+   "texture": "assets/textures/interlocking_concrete_pavers",
+   "size_m": 1.8,
+   "tint": "#d8c7a8",
+   "roughness": 1.0,
+   "envMapIntensity": 0.7,
+   "transparent": true,
+   "opacity": 0.7
+  },
+  "envSide": {
+   "texture": "assets/textures/excavated_soil_wall",
+   "size_m": 2.0,
+   "tint": "#ffffff",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
+  },
+  "envEnvelope": {
+   "color": "#dedad3",
+   "roughness": 0.9,
+   "transparent": true,
+   "opacity": 0.55,
+   "envMapIntensity": 0.8
+  },
+  "envBuilding": {
+   "color": "#e8e3da",
+   "roughness": 0.85,
+   "transparent": true,
+   "opacity": 0.55,
+   "envMapIntensity": 0.8
+  },
+  "envParking": {
+   "color": "#b9b2c7",
+   "roughness": 0.85,
+   "transparent": true,
+   "opacity": 0.55,
+   "envMapIntensity": 0.8
+  },
+  "envEntrance": {
+   "texture": "assets/textures/interlocking_concrete_pavers",
+   "size_m": 1.8,
+   "tint": "#e8b46a",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "envSidewalk": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#cfcac0",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "envPlantingStrip": {
+   "texture": "assets/textures/leafy_grass",
+   "size_m": 2.0,
+   "tint": "#ffffff",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
+  },
+  "envAsphalt": {
+   "texture": "assets/textures/asphalt_02",
+   "size_m": 3.0,
+   "tint": "#ffffff",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbPlaster": {
+   "texture": "assets/textures/white_plaster_02",
+   "size_m": 1.0,
+   "tint": "#f3f0e9",
+   "roughness": 0.95,
+   "envMapIntensity": 0.9
+  },
+  "nbStone": {
+   "texture": "assets/textures/white_sandstone_blocks_02",
+   "size_m": 2.0,
+   "tint": "#e9e2d3",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbWood": {
+   "texture": "assets/textures/wood_planks_grey",
+   "size_m": 1.5,
+   "tint": "#c9a27c",
+   "roughness": 0.8,
+   "envMapIntensity": 0.8
+  },
+  "nbDoor": {
+   "texture": "assets/textures/wood_planks_grey",
+   "size_m": 1.5,
+   "tint": "#6d4c35",
+   "roughness": 0.7,
+   "envMapIntensity": 0.8
+  },
+  "nbCoping": {
+   "texture": "assets/textures/concrete_floor_01",
+   "size_m": 2.0,
+   "tint": "#e3e0d8",
+   "roughness": 0.9,
+   "envMapIntensity": 0.8
+  },
+  "nbGrass": {
+   "texture": "assets/textures/leafy_grass",
+   "size_m": 2.0,
+   "tint": "#c8e0a6",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
+  },
+  "nbPaving": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#d8d3c8",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbDriveway": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#8d8f91",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbBark": {
+   "texture": "assets/textures/bark_brown_02",
+   "size_m": 1.0,
+   "tint": "#ffffff",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
+  },
+  "nbGlass": {
+   "color": "#22313a",
+   "roughness": 0.08,
+   "envMapIntensity": 2.2
+  },
+  "nbFrame": {
+   "color": "#3a3d40",
+   "roughness": 0.5,
+   "envMapIntensity": 1.0
+  },
+  "nbMetal": {
+   "color": "#4a4f54",
+   "roughness": 0.45,
+   "envMapIntensity": 1.2
+  },
+  "nbLamp": {
+   "color": "#f5f2e6",
+   "roughness": 0.3,
+   "envMapIntensity": 1.0
+  },
+  "nbLine": {
+   "color": "#f2f2ee",
+   "roughness": 0.8,
+   "envMapIntensity": 0.6
+  },
+  "nbFoliage": {
+   "color": "#ffffff",
+   "roughness": 0.85,
+   "envMapIntensity": 0.6,
+   "vertexColors": true
+  },
+  "curb": {
+   "texture": "assets/textures/concrete_floor_01",
+   "size_m": 2.0,
+   "tint": "#e6e3dc",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbBed": {
+   "texture": "assets/textures/dry_ground_01",
+   "size_m": 2.0,
+   "tint": "#8a6f55",
+   "roughness": 1.0,
+   "envMapIntensity": 0.6
+  },
+  "envLane": {
+   "texture": "assets/textures/herringbone_pavement",
+   "size_m": 2.0,
+   "tint": "#9a9a9a",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "envBay": {
+   "texture": "assets/textures/rectangular_paving",
+   "size_m": 2.0,
+   "tint": "#6c6e70",
+   "roughness": 1.0,
+   "envMapIntensity": 0.8
+  },
+  "nbSteel": {
+   "color": "#80858a",
+   "roughness": 0.45,
+   "envMapIntensity": 1.2
+  }
+ }
+}

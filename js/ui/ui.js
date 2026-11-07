@@ -175,6 +175,7 @@ export class UI {
           impl ? h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
             onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
       }
+      if (g.id === 'environment' && app.environment) box.querySelector('summary').after(app.environment.panel());
       wrap.append(box);
     }
     wrap.append(h('div', { class: 'btns' },

@@ -1,0 +1,17 @@
+/* Environment labels and controls (src/environment) */
+.lbl.env.lot { background: rgba(255, 183, 77, .9); color: #222; direction: rtl; }
+.lbl.env.lot.warn { background: #ef6c00; color: #fff; }
+.lbl.env.corner { background: rgba(255, 213, 79, .85); color: #222; font-size: 10px; padding: 0 4px; }
+.lbl.env.envelope { background: rgba(97, 97, 97, .85); direction: rtl; }
+.lbl.env.nodata { background: rgba(239, 108, 0, .85); direction: rtl; }
+.env-ctl { margin: 4px 0 6px; padding: 6px 8px; border-radius: 8px; background: rgba(128, 128, 128, .12); }
+.env-ctl .env-main { font-weight: 600; }
+.env-ctl .env-slider { display: flex; flex-direction: column; align-items: stretch; gap: 2px; }
+.env-ctl .env-slider input { width: 100%; }
+.env-ctl .muted { font-size: 11px; margin: 4px 0 0; }
+.env-seg { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.env-seg button { flex: 1 1 auto; font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+.env-seg button.on { outline: 2px solid currentColor; font-weight: 700; }
+.env-lines { margin: 6px 0; }
+.env-lines summary { cursor: pointer; font-weight: 600; }
+.env-lines .row { font-size: 13px; }

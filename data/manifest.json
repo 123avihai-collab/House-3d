@@ -34,6 +34,12 @@
     "floorRoof": "data/structure/floor-roof.json",
     "stairs": "data/structure/stairs.json",
     "perimeter": "data/structure/perimeter.json",
-    "openings": "data/architecture/openings.json"
+    "openings": "data/architecture/openings.json",
+    "envLots": "data/environment/lots.json",
+    "envStreets": "data/environment/streets.json",
+    "envDisplay": "data/environment/display.json",
+    "envMaterials": "data/environment/materials.json",
+    "envSheet04": "data/environment/sheet04.json",
+    "envDetails": "data/environment/details.json"
   }
 }

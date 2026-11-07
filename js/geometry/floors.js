@@ -125,7 +125,9 @@ export function buildFloorSkeleton(ctx, F) {
       const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
       const g = new THREE.Group(); g.add(m);
       g.add(label(`${b.pergola ? 'פרגולה · ' : ''}${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, ring, H(b.topRel) + D.labelLift_m));
-      stats.beams_m3 += len * b.width_m * b.depth_m;
+      // volume below / above the slab only (the part inside the slab is counted with the slab)
+      const sl = C.slab[0]; const ov = sl && !b.pergola ? Math.max(0, Math.min(b.topRel, sl.topRel) - Math.max(b.bottomRel, sl.bottomRel)) : 0;
+      stats.beams_m3 += len * b.width_m * (b.depth_m - ov);
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('CeilingBeams') }, {
         ceilTopRel: C.slab.length ? Math.max(...C.slab.map(x => x.topRel)) : b.topRel,
         id: b.id, name: `${b.pergola ? 'קורת פרגולה' : 'קורה'} ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – ${F.ceilingLabel || 'תקרת הקרקע'}`, status: b.status,

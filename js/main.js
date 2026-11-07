@@ -20,6 +20,9 @@ import { InspectTool } from './tools/inspect.js';
 import { SectionTool } from './tools/section.js';
 import { NotesTool } from './tools/notes.js';
 import { FixTool } from './tools/fixes.js';
+import { RebarTool } from './tools/rebar.js';
+import { SearchTool } from './tools/search.js';
+import { LabelManager } from './core/labels.js';
 import { Navigation, Minimap } from './tools/navigation.js';
 import { UI } from './ui/ui.js';
 
@@ -58,7 +61,7 @@ async function main() {
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: data.origin.timezone });
   const defaults = {
     version: 2, mode: 'view', layers,
-    floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1, ceiling: true }])),
+    floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1, ceiling: true, slab: true }])),
     stageIndex: data.tags.sequence.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
@@ -67,6 +70,12 @@ async function main() {
     quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0, minimap: true },
   };
   const store = new StateStore(defaults);
+  // a step index from a saved state / link / import that does not exist (the sequence changed) must not break the app
+  const nSteps = data.tags.sequence.length;
+  const clampStage = (v) => (Number.isInteger(+v) && +v >= 0 && +v < nSteps ? +v : nSteps - 1);
+  const rawSet = store.set.bind(store);
+  store.set = (patch, o) => rawSet(patch && 'stageIndex' in patch ? { ...patch, stageIndex: clampStage(patch.stageIndex) } : patch, o);
+  if (clampStage(store.get().stageIndex) !== store.get().stageIndex) store.set({ stageIndex: nSteps - 1 }, { record: false });
 
   const app = {
     data, coords, viewer, registry, store, display, defaults, plotCenter, ground: ctx.ground, tools: {}, activeTool: 'inspect', quantities,
@@ -81,6 +90,9 @@ async function main() {
   app.tools.measure = new MeasureTool(app);
   app.tools.notes = new NotesTool(app);
   app.tools.fixes = new FixTool(app);
+  app.tools.rebar = new RebarTool(app);
+  app.tools.search = new SearchTool(app);
+  app.labels = new LabelManager(app);
   app.tools.section = new SectionTool(app);
   const minimap = new Minimap(app, document.getElementById('minimap'));
   viewer.afterRender = () => { minimap.draw(); updateCompass(); };
@@ -99,7 +111,7 @@ async function main() {
   app.viewLink = () => {
     const v = app.currentView(); const s = store.get();
     const oc = Object.entries(s.ownerChanges || {}).map(([k, v]) => `${k}:${v ? 1 : 0}`).join(',');
-    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${s.stageIndex}&date=${s.sun.date}&t=${s.sun.minutes}${oc ? '&oc=' + oc : ''}`;
+    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${data.tags.sequence[s.stageIndex]?.id || ''}&date=${s.sun.date}&t=${s.sun.minutes}${oc ? '&oc=' + oc : ''}`;
   };
   let playTimer = null;
   app.toggleSunPlay = () => {
@@ -129,7 +141,7 @@ async function main() {
   let lastMode = store.get().mode;
   store.on((s) => {
     if (s.mode === lastMode) return; lastMode = s.mode;
-    if (s.mode === 'edit') { app.setTool('fix'); app.ui.openTab('fixes'); } else if (app.activeTool === 'fix') app.setTool('inspect');
+    if (s.mode === 'edit') { app.setTool('fix'); app.ui.openTab('fixes', !app.ui.isMobile()); } else if (app.activeTool === 'fix') app.setTool('inspect');
   });
   applyState(store.get());
   app.ui.refreshPanel();
@@ -144,7 +156,8 @@ async function main() {
     store.set({ ownerChanges: cur }, { record: false });
   }
   if (hp.get('stage') || hp.get('date')) {
-    store.set({ stageIndex: +(hp.get('stage') ?? store.get().stageIndex), sun: { date: hp.get('date') || store.get().sun.date, minutes: +(hp.get('t') ?? store.get().sun.minutes) } }, { record: false });
+    const sp = hp.get('stage'); const byId = data.tags.sequence.findIndex(x => x.id === sp);
+    store.set({ stageIndex: sp == null ? store.get().stageIndex : byId >= 0 ? byId : clampStage(sp), sun: { date: hp.get('date') || store.get().sun.date, minutes: +(hp.get('t') ?? store.get().sun.minutes) } }, { record: false });
   }
 
   // ---------- pointer: click tools, hover readout, walk look ----------

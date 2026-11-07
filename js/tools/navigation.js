@@ -48,7 +48,7 @@ export class Navigation {
     v.camera.position.set(c.x, v.camera.position.y, c.z + 14);
     this.snapToGround();
     this.app.ui.setWalkUI(true);
-    this.app.ui.hint('הליכה: חיצים / WASD לתנועה, גרירה להסתכלות. Esc ליציאה');
+    this.app.ui.hint(matchMedia('(pointer: coarse)').matches ? 'הליכה: ג׳ויסטיק לתנועה, גרירה להסתכלות. 🚶 שוב ליציאה' : 'הליכה: חיצים / WASD לתנועה, גרירה להסתכלות. Esc ליציאה');
   }
   stopWalk() {
     if (!this.walking) return;

@@ -144,7 +144,10 @@ export function buildFoundations(ctx) {
     const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
     g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
-    stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;
+    // a K-21 beam under / in the ground slab: the part inside the slab (its thickness D) is counted with the slab
+    const gD = Math.max(0, ...(data.floorGround?.slab || []).map(s => s.thickness_m));
+    const ovl = b.sheet === 'K-21' ? Math.min(gD, b.depth_m) : 0;
+    stats.beams_m3 += L * b.width_m * (b.depth_m - ovl); stats.beamsCount++;
     const outdoor = (data.tags.outdoorZones || []).includes(data.floorGround?.beamZones?.[b.id]);   // beam of an outdoor slab
     registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.layer || 'groundBeams', ...(outdoor ? { step: 'outdoorBeams' } : {}) }, {
       id: b.id, name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,

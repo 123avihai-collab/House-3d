@@ -19,6 +19,12 @@
   "lineLift_m": 0.02
  },
  "labels": {
+  "maxDistance_m": 70,
+  "alwaysLayers": [
+   "plotBoundary",
+   "northArrow"
+  ],
+  "_doc": "js/core/labels.js: labels of the current step only (mode \"step\"), within maxDistance_m of the camera; alwaysLayers always",
   "pointMarkerRadius_m": 0.12
  },
  "neighbors": {

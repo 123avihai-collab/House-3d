@@ -7,8 +7,12 @@ export class Registry {
     this.stages = tagsConfig.stages.map(s => s.id);
     this.steps = tagsConfig.sequence;            // construction-step slider (data/config/tags.json)
     this.listeners = [];
-    this.ceilingOf = {};                         // layer -> floor whose ceiling it is
-    for (const f of tagsConfig.floors) for (const l of f.ceilingLayers || []) this.ceilingOf[l] = f.id;
+    // "תקרה" / "רצפה" switches of the floors tab: layer -> [[floor, 'ceiling' | 'slab'], …]
+    this.switchOf = {};
+    for (const f of tagsConfig.floors) {
+      for (const l of f.ceilingLayers || []) (this.switchOf[l] ||= []).push([f.id, 'ceiling']);
+      for (const l of f.floorLayers || []) (this.switchOf[l] ||= []).push([f.id, 'slab']);
+    }
   }
   add(object3d, tags, meta = {}) {
     for (const k of ['floor', 'system', 'stage', 'layer']) {
@@ -50,13 +54,13 @@ export class Registry {
       const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
       let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       // horizontal floor section: the beams of the floor being cut (the ceiling beams under / on the slab you stand on) are hidden
-      if (visible && cutFloor && t.layer.endsWith('CeilingBeams') && t.floor === cutFloor) visible = false;
-      // "תקרה" switch of the floors tab: the layers of a floor's ceiling (tags.json floors[].ceilingLayers)
-      const cf = this.ceilingOf[t.layer];
-      if (visible && cf && state.floors[cf]?.ceiling === false) visible = false;
+      if (visible && cutFloor && /[cC]eilingBeams$/.test(t.layer) && t.floor === cutFloor) visible = false;
+      // "תקרה" / "רצפה" switches of the floors tab (tags.json floors[].ceilingLayers / floorLayers)
+      if (visible && this.switchOf[t.layer]?.some(([f, k]) => state.floors[f]?.[k] === false)) visible = false;
       it.object.visible = visible;
-      // per-layer label switch: hide only the labels and marking lines (userData.annotation) of the layer, keep the objects
-      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.isCSS2DObject || o.userData.annotation) o.visible = !lo; }); }
+      // per-layer label switch: the marking lines (userData.annotation) here; the CSS labels are filtered every frame by
+      // js/core/labels.js (step / distance / section / selection)
+      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.userData.annotation && !o.isCSS2DObject) o.visible = !lo; }); }
       if (visible) this.applyOpacity(it, floor.opacity);
     }
     this.listeners.forEach(f => f());

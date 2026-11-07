@@ -16,9 +16,15 @@
     "groundMamad",
     "groundOutdoorSlabs",
     "groundFloorBeams",
-    "ceilingBeams"
+    "ceilingBeams",
+    "pileCaps"
    ],
-   "ceilingLabel": "רצפת הקרקע K-21 + קורות K-21 (גם רצפת קומת הקרקע)"
+   "ceilingLabel": "רצפת הקרקע K-21 + קורות K-21 (גם רצפת קומת הקרקע)",
+   "floorLayers": [
+    "slabs",
+    "groundBeams"
+   ],
+   "floorLabel": "רצפת המרתף BS (K-11) וקורות המרתף"
   },
   {
    "id": "ground",
@@ -29,7 +35,16 @@
     "groundCeiling",
     "groundCeilingBeams"
    ],
-   "ceilingLabel": "תקרה ‎+3.70 + קורות K-31"
+   "ceilingLabel": "תקרה ‎+3.70 + קורות K-31",
+   "floorLayers": [
+    "groundSlab",
+    "groundMamad",
+    "groundOutdoorSlabs",
+    "groundFloorBeams",
+    "ceilingBeams",
+    "pileCaps"
+   ],
+   "floorLabel": "רצפת הקרקע K-21 וקורות K-21 (אותה יציקה כמו תקרת יחידת הדיור)"
   },
   {
    "id": "first",
@@ -39,7 +54,12 @@
     "firstCeiling"
    ],
    "ceilingLabel": "תקרת הגג ‎+6.90 (K-41)",
-   "levelSource": "K-31: תקרת הקרקע O.K ‎+3.70"
+   "levelSource": "K-31: תקרת הקרקע O.K ‎+3.70",
+   "floorLayers": [
+    "groundCeiling",
+    "groundCeilingBeams"
+   ],
+   "floorLabel": "תקרה ‎+3.70 וקורות K-31 (אותה יציקה כמו תקרת הקרקע)"
   },
   {
    "id": "roof",
@@ -49,7 +69,11 @@
     "roofCeilingBeams"
    ],
    "ceilingLabel": "קורות הגג והפרגולות ‎+8.00 (K-41)",
-   "levelSource": "K-41: תקרת הגג O.K ‎+6.90"
+   "levelSource": "K-41: תקרת הגג O.K ‎+6.90",
+   "floorLayers": [
+    "firstCeiling"
+   ],
+   "floorLabel": "תקרת הגג ‎+6.90 (אותה יציקה כמו תקרת קומה א')"
   }
  ],
  "systems": [
@@ -398,5 +422,5 @@
   "westYard",
   "parking"
  ],
- "_docCeiling": "floors[].ceilingLayers: the layers that form the ceiling of that floor – the \"תקרה\" switch of the floors tab hides them (state.floors[id].ceiling = false)."
+ "_docCeiling": "floors[].ceilingLayers / floorLayers: the layers that form the ceiling / the floor slab of that floor – the \"תקרה\" / \"רצפה\" switches of the floors tab hide them (state.floors[id].ceiling / .slab = false). A layer can belong to two switches (the ground slab is the ceiling of the unit and the floor of the ground floor): it is hidden when either is off."
 }

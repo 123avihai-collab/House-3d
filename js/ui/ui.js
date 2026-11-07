@@ -40,9 +40,24 @@ export class UI {
       try { app.store.importJson(await f.text()); this.toast('ההגדרות יובאו'); } catch (err) { this.toast('ייבוא נכשל: ' + err.message); }
       e.target.value = '';
     } });
+    const modeSel = h('select', { class: 'mode-sel', title: 'מצב', onchange: (e) => app.store.set({ mode: e.target.value }, { label: 'mode' }) },
+      app.data.tools.modes.filter(m => m.implemented).map(m => h('option', { value: m.id }, m.label)));
+    this.modeSel = modeSel;
+    // element search: "B7" = "B-7", "gw19", "c9"
+    const results = h('div', { class: 'search-res hidden' });
+    const runSearch = (q, go) => {
+      const r = app.tools.search.find(q);
+      if (go && r.length === 1) { results.classList.add('hidden'); app.tools.search.show(r[0]); return; }
+      results.replaceChildren(...(r.length ? r.map(it => h('button', { class: 'li', onclick: () => { results.classList.add('hidden'); app.tools.search.show(it); } },
+        h('b', {}, it.meta.id || ''), ' ', it.meta.name || '', h('small', {}, app.tools.search.describe(it)))) : [h('div', { class: 'muted' }, q ? 'לא נמצא אלמנט בשם הזה' : '')]));
+      results.classList.toggle('hidden', !q);
+    };
+    const sInput = h('input', { type: 'search', class: 'search', placeholder: '🔍 חיפוש: B7, GW19, C9…', title: 'חיפוש אלמנט לפי שם / מזהה – מסמן אותו במודל',
+      oninput: (e) => runSearch(e.target.value, false), onkeydown: (e) => { if (e.key === 'Enter') runSearch(e.target.value, true); if (e.key === 'Escape') { e.target.value = ''; results.classList.add('hidden'); app.tools.search.highlight(null); } } });
+    this.searchInput = sInput;
     top.append(
       h('div', { class: 'brand' }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
-      modes, ws,
+      modes, modeSel, h('div', { class: 'search-wrap' }, sInput, results), ws,
       (this.ocBadge = h('button', { class: 'oc-badge', title: 'שינויים של אביחי: הפעלה / כיבוי של כל השינויים (להשוואה מול התוכניות)', onclick: () => {
         const cur = app.store.get().ownerChanges || {}; const anyOn = Object.values(cur).some(Boolean);
         app.store.set({ ownerChanges: Object.fromEntries(Object.keys(cur).map(k => [k, !anyOn])) }, { label: 'ownerChanges' });
@@ -66,7 +81,7 @@ export class UI {
         btn('⤓', 'ייצוא הגדרות (JSON)', () => download(`house3d-5187-settings-${new Date().toISOString().slice(0, 10)}.json`, app.store.exportJson())),
         btn('⤒', 'ייבוא הגדרות', () => fileIn.click()),
         btn('📷', 'צילום מסך (PNG)', () => { const a = h('a', { href: app.viewer.screenshot(), download: `house3d-5187-${Date.now()}.png` }); a.click(); }),
-        btn('🔗', 'העתק קישור לתצוגה הנוכחית', () => { navigator.clipboard?.writeText(app.viewLink()); this.toast('הקישור הועתק'); }),
+        btn('🔗', 'העתק קישור לתצוגה הנוכחית', () => this.copy(app.viewLink(), 'הקישור הועתק')),
         btn('☰', 'פאנל: פתיחה / סגירה', () => this.togglePanel(), 'panelToggle'),
         fileIn));
     top.prepend(this.$('panelToggle'));   // panel button at the right edge of the bar (RTL start), next to the panel itself
@@ -96,6 +111,7 @@ export class UI {
       this.ceBadge.textContent = `בלי תקרה: ${off.map(f => f.label).join(', ')} · החזרה`;
     }
     document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === s.mode));
+    if (this.modeSel) this.modeSel.value = s.mode;
     this.$('undo').disabled = !this.app.store.canUndo();
     this.$('redo').disabled = !this.app.store.canRedo();
   }
@@ -117,6 +133,12 @@ export class UI {
     tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
     const setMap = (on) => { const q = app.store.get().quality; app.store.set({ quality: { ...q, minimap: on } }, { label: 'minimap' }); };
     tb.append(h('button', { 'data-k': 'minimap', title: 'מפה קטנה: הצגה / הסתרה', onclick: () => setMap(app.store.get().quality.minimap === false) }, '🗺'));
+    // labels: of the current step -> all -> none
+    tb.append(h('button', { 'data-k': 'labels', title: 'תוויות: של השלב הנוכחי / כל התוויות / בלי', onclick: () => {
+      const q = app.store.get().quality; const mode = !q.labels ? 'step' : (q.labelMode || 'step') === 'step' ? 'all' : 'off';
+      app.store.set({ quality: { ...q, labels: mode !== 'off', labelMode: mode === 'off' ? (q.labelMode || 'step') : mode } }, { label: 'labels' });
+      this.toast({ step: 'תוויות: רק של השלב הנוכחי (+ האלמנט שנבחר)', all: 'תוויות: הכול', off: 'בלי תוויות' }[mode]);
+    } }, '🏷'));
     document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
   }
   setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); }
@@ -129,7 +151,7 @@ export class UI {
   buildPanel() {
     const p = this.$('panel');
     this.tabs = [
-      ['fixes', 'תיקונים לקלוד'], ['layers', 'שכבות'], ['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
+      ['fixes', 'תיקונים לקלוד'], ['layers', 'שכבות'], ['floors', 'קומות'], ['rebar', 'ביקורת ברזל'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
       ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
     ];
     this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
@@ -202,13 +224,18 @@ export class UI {
       h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות'),
         h('button', { onclick: () => { const on = app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false);
           app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, ceiling: on }])) }, { label: 'ceilings' }); } },
-          app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false) ? 'להחזיר את כל התקרות' : 'להסיר את כל התקרות')));
+          app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false) ? 'להחזיר את כל התקרות' : 'להסיר את כל התקרות'),
+        h('button', { onclick: () => { const on = app.data.tags.floors.some(f => f.floorLayers && s.floors[f.id]?.slab === false);
+          app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, slab: on }])) }, { label: 'slabs' }); } },
+          app.data.tags.floors.some(f => f.floorLayers && s.floors[f.id]?.slab === false) ? 'להחזיר את כל הרצפות' : 'להסיר את כל הרצפות')));
     for (const f of app.data.tags.floors) {
       const st = s.floors[f.id];
       const count = app.registry.items.filter(i => i.tags.floor === f.id).length;
       wrap.append(h('div', { class: 'floor' },
         h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.visible, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, visible: e.target.checked } } }, { label: 'floor' }) }),
           h('b', {}, f.label), f.level != null ? h('small', {}, ` (${app.coords.fmtRel(f.level)})`) : '', count ? '' : soon('אין עדיין רכיבים')),
+        f.floorLayers ? h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.slab !== false, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, slab: e.target.checked } } }, { label: 'slab' }) }),
+          'רצפה', h('small', { class: 'muted' }, ` – ${f.floorLabel}`)) : '',
         f.ceilingLayers ? h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.ceiling !== false, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, ceiling: e.target.checked } } }, { label: 'ceiling' }) }),
           'תקרה', h('small', { class: 'muted' }, ` – ${f.ceilingLabel}`)) : '',
         h('div', { class: 'row' }, 'שקיפות', h('input', { type: 'range', min: 0.1, max: 1, step: 0.05, value: st.opacity,
@@ -255,9 +282,8 @@ export class UI {
         'הסתר את הקורות של הקומה החתוכה'),
       (() => {
         // quick floor plans: cut 1.20 m above the slab of each floor (the floor is shown without its beams)
-        const lv = app.registry.beamLevels(); const names = { ground: "קומה א'", first: 'גג' };
-        const g0 = app.data.floorGround?.slab?.length ? Math.max(...app.data.floorGround.slab.map(x => x.topRel)) : null;
-        const plans = [...(g0 != null ? [['קומת קרקע', g0]] : []), ...Object.entries(lv).sort((a, b) => a[1] - b[1]).map(([f, z]) => [names[f] || f, z])];
+        // floor levels: tags.json floors[].level (unit -2.60 finish / ground ±0.00 / first +3.70 / roof +6.90)
+        const plans = app.data.tags.floors.filter(f => f.level != null).map(f => [f.label, f.level]);
         return h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'תוכנית קומה:'), plans.map(([n, z]) =>
           h('button', { class: 'small', title: `חתך ב-${app.coords.fmtRel(z + 1.2)} (1.20 מ' מעל הרצפה)`, onclick: () => app.store.set({ section: { ...sec, hOn: true, hideBeams: true, hLevel: +(z + 1.2).toFixed(2) } }, { label: 'section' }) }, n)));
       })(),
@@ -285,7 +311,7 @@ export class UI {
     const { app } = this; const s = app.store.get();
     const vps = app.nav.viewpoints();
     return h('div', {},
-      h('h4', {}, 'חדרים'), h('p', { class: 'muted' }, 'רשימת החדרים עם קפיצה לחדר: ', soon(), ' (מנתוני הבית, משלב 3 ואילך)'),
+      h('h4', {}, 'חדרים'), h('p', { class: 'muted' }, 'רשימת החדרים עם קפיצה לחדר: ', soon(), ' (מתוכניות האדריכל – שלב 4)'),
       h('h4', {}, 'נקודות מבט'),
       h('div', { class: 'list' }, vps.map(v => h('button', { class: 'li', onclick: () => app.nav.goTo(v) }, v.label))),
       h('h4', {}, 'מבטים שמורים'),
@@ -294,17 +320,17 @@ export class UI {
         h('button', { class: 'x', title: 'מחק', onclick: () => app.store.set({ bookmarks: s.bookmarks.filter((_, j) => j !== i) }, { label: 'bm' }) }, '✕')))),
       h('button', { onclick: () => { const name = prompt('שם למבט:', `מבט ${s.bookmarks.length + 1}`); if (name) app.store.set({ bookmarks: [...s.bookmarks, { name, ...app.currentView() }] }, { label: 'bm' }); } }, '＋ שמור מבט נוכחי'),
       h('h4', {}, 'הליכה'),
-      h('p', { class: 'muted' }, 'הליכה בגובה עיניים על פני השטח (ובהמשך גם במדרגות בין קומות). מחשב: חיצים/WASD וגרירה. טלפון: ג׳ויסטיק.'),
+      h('p', { class: 'muted' }, 'הליכה בגובה עיניים על פני השטח. מחשב: חיצים/WASD וגרירה. טלפון: ג׳ויסטיק וגרירה.'),
       h('button', { onclick: () => app.nav.walking ? app.nav.stopWalk() : app.nav.startWalk() }, app.nav.walking ? 'יציאה מהליכה' : '🚶 התחל הליכה'));
   }
 
   panel_notes() {
     const { app } = this; const s = app.store.get();
     return h('div', {},
-      h('p', { class: 'muted' }, 'לחיצה על רכיב במצב "הערה" פותחת חלון כתיבה. כל ההערות נאספות לרשימת התיקונים.'),
+      h('p', { class: 'muted' }, 'הערות ושאלות לאדריכל / לקונסטרוקטור: לחיצה על רכיב במצב "הערה" פותחת חלון כתיבה. הוראות תיקון למודל – בלשונית "תיקונים לקלוד".'),
       h('div', { class: 'btns' },
         h('button', { class: app.activeTool === 'note' ? 'on' : '', onclick: () => app.setTool('note') }, '📝 הוסף הערה'),
-        h('button', { onclick: () => { navigator.clipboard?.writeText(app.tools.notes.toText()); this.toast('כל ההערות הועתקו'); } }, '📋 העתק את כל ההערות')),
+        h('button', { onclick: () => this.copy(app.tools.notes.toText(), 'כל ההערות הועתקו') }, '📋 העתק את כל ההערות')),
       h('h4', {}, 'שינויים של אביחי (מעבר לתוכניות)'),
       ...(app.data.ownerChanges?.changes || []).map(c => h('div', { class: 'oc' },
         h('b', {}, `${c.id} · ${c.title}`), h('div', {}, c.description),
@@ -338,7 +364,7 @@ export class UI {
       h('div', { class: 'fix-conn ' + conn[0] }, conn[1]),
       h('div', { class: 'btns' },
         h('button', { class: editing ? 'on primary' : 'primary', onclick: () => app.store.set({ mode: editing ? 'view' : 'edit' }, { label: 'mode' }) }, editing ? '✓ מצב עריכה פעיל – לחץ על אלמנט' : '✎ היכנס למצב עריכה'),
-        h('button', { onclick: () => { navigator.clipboard?.writeText(T.toText()); this.toast('כל התיקונים הועתקו'); } }, '📋 העתק הכול')),
+        h('button', { onclick: () => this.copy(T.toText(), 'כל התיקונים הועתקו') }, '📋 העתק הכול')),
       h('h4', {}, `תיקונים (${list.filter(x => x.state !== 'done').length} פתוחים מתוך ${list.length})`),
       list.length ? h('ol', { class: 'notes fixes' }, list.map((n, i) => h('li', { class: n.state === 'done' ? 'done' : '' },
         h('div', {}, h('b', {}, `ק${i + 1} · ${A[n.action] || n.action || ''} · ${n.elementId || ''}`), ' ', n.text),
@@ -378,14 +404,63 @@ export class UI {
         tr('רצפת מרתף (תלויה)', `${q.foundations.slabs_m3.toFixed(2)} מ"ק`),
         tr('קירות מרתף', `${q.foundations.walls_m3.toFixed(2)} מ"ק`),
         tr('חסרים (ללא מיקום/מפלס)', q.foundations.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
-      h('h4', {}, 'שלד קומת הקרקע (עד IFC)'),
-      q.groundFloor ? h('table', { class: 'kv' },
-        tr('רצפת הקרקע', `${q.groundFloor.slab_m3.toFixed(2)} מ"ק`),
-        tr('קירות קומת הקרקע', `${q.groundFloor.walls_m3.toFixed(2)} מ"ק`),
-        tr('תקרת הקרקע (+3.70)', `${q.groundFloor.ceiling_m3.toFixed(2)} מ"ק`),
-        tr('קורות התקרה', `${q.groundFloor.beams_m3.toFixed(2)} מ"ק`),
-        tr('קורות בלי גיאומטריה', q.groundFloor.beamsMissing.join(', ') || '—')) : h('p', { class: 'muted' }, '—'),
-      h('div', { class: 'btns' }, h('button', { onclick: () => { navigator.clipboard?.writeText(this.body.innerText); this.toast('הכמויות הועתקו'); } }, '📋 העתק')));
+      h('h4', {}, 'שלד קומת הקרקע'),
+      q.groundFloor ? (() => {
+        const zv = {}; for (const s of app.data.floorGround.slab) { const k = s.zone === 'mamad' ? 'ממ"ד' : ['house', 'entry'].includes(s.zone) ? 'בית וכניסה' : 'חוץ'; zv[k] = (zv[k] || 0) + s.area_m2 * s.thickness_m; }
+        return h('table', { class: 'kv' },
+          tr('רצפת הקרקע', `${q.groundFloor.slab_m3.toFixed(2)} מ"ק (${Object.entries(zv).map(([k, v]) => `${k} ${v.toFixed(2)}`).join(' · ')})`),
+          tr('קירות / עמודים', `${q.groundFloor.walls_m3.toFixed(2)} / ${(q.groundFloor.columns_m3 || 0).toFixed(2)} מ"ק`),
+          tr('תקרת הקרקע (+3.70)', `${q.groundFloor.ceiling_m3.toFixed(2)} מ"ק`),
+          tr('קורות התקרה (מתחת לתקרה)', `${q.groundFloor.beams_m3.toFixed(2)} מ"ק`),
+          tr('קורות בלי גיאומטריה', q.groundFloor.beamsMissing.join(', ') || '—'));
+      })() : h('p', { class: 'muted' }, '—'),
+      h('h4', {}, "קומה א' וגג"),
+      h('table', { class: 'kv' },
+        q.firstFloor ? tr("קירות / עמודים קומה א'", `${q.firstFloor.walls_m3.toFixed(2)} / ${(q.firstFloor.columns_m3 || 0).toFixed(2)} מ"ק`) : '',
+        q.firstFloor ? tr('תקרת הגג (+6.90)', `${q.firstFloor.ceiling_m3.toFixed(2)} מ"ק`) : '',
+        q.roof ? tr('מעקות וקירות מעל הגג', `${q.roof.walls_m3.toFixed(2)} מ"ק`) : '',
+        q.roof ? tr('קורות גג ופרגולות', `${q.roof.beams_m3.toFixed(2)} מ"ק`) : ''),
+      h('h4', {}, 'מדרגות, חומות ופילר'),
+      h('table', { class: 'kv' },
+        q.stairs ? tr('מדרגות בטון', `${q.stairs.concrete_m3.toFixed(2)} מ"ק`) : '',
+        q.perimeter ? tr('יסודות חומות / חומות', `${q.perimeter.footings_m3.toFixed(2)} / ${q.perimeter.walls_m3.toFixed(2)} מ"ק`) : ''),
+      h('h4', {}, 'ביוב וניקוז'),
+      q.plumbing ? h('table', { class: 'kv' }, tr('שוחות', `${q.plumbing.chambers}`), tr('קווים', `${q.plumbing.pipes} · ${q.plumbing.pipeLength_m.toFixed(1)} מ'`), tr('שרוולים נדרשים', `${q.plumbing.sleeves}`)) : '',
+      (() => {
+        const v = [P?.concrete_m3, q.foundations?.beams_m3, q.foundations?.slabs_m3, q.foundations?.walls_m3, q.groundFloor?.slab_m3, q.groundFloor?.walls_m3, q.groundFloor?.columns_m3, q.groundFloor?.ceiling_m3,
+          q.groundFloor?.beams_m3, q.firstFloor?.walls_m3, q.firstFloor?.columns_m3, q.firstFloor?.ceiling_m3, q.roof?.walls_m3, q.roof?.beams_m3, q.stairs?.concrete_m3,
+          q.perimeter?.footings_m3, q.perimeter?.walls_m3].filter(x => x != null).reduce((a, b) => a + b, 0);
+        return h('table', { class: 'kv total' }, tr('סה"כ בטון שלד (כולל כלונסאות, בלי הבריכה)', `${v.toFixed(1)} מ"ק`));
+      })(),
+      h('div', { class: 'btns' }, h('button', { onclick: () => this.copy(this.body.innerText, 'הכמויות הועתקו') }, '📋 העתק')));
+  }
+
+  panel_rebar() {
+    const { app } = this; const T = app.tools.rebar; if (!T) return h('div', {});
+    const s = app.store.get(); const seq = app.data.tags.sequence;
+    const i = this.rebarStep ?? s.stageIndex;
+    const list = T.itemsOfStep(i);
+    const done = list.filter(x => T.checks[x.key]?.ok).length;
+    const sel = h('select', { onchange: (e) => { this.rebarStep = +e.target.value; app.store.set({ stageIndex: +e.target.value }, { label: 'stage' }); } },
+      seq.map((st, k) => h('option', { value: k, selected: k === i }, `${k + 1}. ${st.label}`)));
+    return h('div', {},
+      h('p', { class: 'muted' }, 'ביקורת ברזל בסיור שטח: האלמנטים שנבנים בשלב, עם הברזל מגיליונות הקונסטרוקטור (K-12/K-22/K-32/K-42 קורות, K-13/K-23/K-33/K-43 רצפות). מסמנים "נבדק" ורושמים הערה.'),
+      h('div', { class: 'fix-conn ' + (T.state === 'online' ? 'ok' : 'warn') }, T.state === 'online' ? 'הסימונים נשמרים במודל (משותף).' : 'הסימונים נשמרים בדפדפן הזה בלבד.'),
+      h('label', { class: 'col' }, 'שלב:', sel),
+      h('h4', {}, `${seq[i]?.label || ''} · נבדקו ${done} מתוך ${list.length}`),
+      list.length ? h('ol', { class: 'notes rebar' }, list.map(({ item, info, key }) => {
+        const c = T.checks[key] || {};
+        return h('li', { class: c.ok ? 'done' : '' },
+          h('div', {}, h('b', {}, item.meta.id || ''), ' ', item.meta.name || ''),
+          h('table', { class: 'kv' }, info.map(([k, v]) => tr(k, v))),
+          c.note ? h('div', { class: 'fix-reply' }, `הערה: ${c.note}`) : null,
+          c.at && c.ok ? h('small', {}, `נבדק ${new Date(c.at).toLocaleString('he-IL')}`) : null,
+          h('div', { class: 'btns' },
+            h('button', { class: 'small' + (c.ok ? ' on' : ''), onclick: () => T.setCheck(key, { ok: !c.ok, element: item.meta.id || '', name: item.meta.name || '', step: seq[i]?.id }) }, c.ok ? '✓ נבדק' : 'סמן נבדק'),
+            h('button', { class: 'small', onclick: () => { const t = prompt('הערת ביקורת:', c.note || ''); if (t != null) T.setCheck(key, { note: t.trim(), element: item.meta.id || '', name: item.meta.name || '', step: seq[i]?.id }); } }, 'הערה'),
+            h('button', { class: 'small', onclick: () => app.tools.search.show(item) }, 'הצג')));
+      })) : h('p', { class: 'muted' }, 'אין בשלב הזה אלמנטים עם נתוני ברזל (חפירה, מילוי, צנרת, פיתוח – או שהאלמנטים עוד בלי גיליון ברזל).'),
+      h('div', { class: 'btns' }, h('button', { onclick: () => this.copy(list.map(({ item, info, key }) => `${T.checks[key]?.ok ? '✓' : '☐'} ${item.meta.id || ''} ${item.meta.name || ''}\n` + info.map(([k, v]) => `   ${k}: ${v}`).join('\n') + (T.checks[key]?.note ? `\n   הערה: ${T.checks[key].note}` : '')).join('\n'), 'רשימת הביקורת הועתקה') }, '📋 העתק רשימה')));
   }
 
   panel_electric() {
@@ -405,32 +480,54 @@ export class UI {
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.ao, onchange: (e) => app.store.set({ quality: { ...q, ao: e.target.checked } }, { label: 'q' }) }), 'Ambient Occlusion'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.shadows, onchange: (e) => app.store.set({ quality: { ...q, shadows: e.target.checked } }, { label: 'q' }) }), 'צללים'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.labels, onchange: (e) => app.store.set({ quality: { ...q, labels: e.target.checked } }, { label: 'q' }) }), 'תוויות'),
+      h('div', { class: 'seg small' },
+        h('button', { class: (q.labelMode || 'step') === 'step' ? 'on' : '', onclick: () => app.store.set({ quality: { ...q, labels: true, labelMode: 'step' } }, { label: 'q' }) }, 'תוויות השלב הנוכחי'),
+        h('button', { class: q.labelMode === 'all' ? 'on' : '', onclick: () => app.store.set({ quality: { ...q, labels: true, labelMode: 'all' } }, { label: 'q' }) }, 'כל התוויות')),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.minimap !== false, onchange: (e) => app.store.set({ quality: { ...q, minimap: e.target.checked } }, { label: 'q' }) }), 'מפה קטנה'),
       h('label', { class: 'col' }, `חשיפה: ${q.exposure.toFixed(2)}`, h('input', { type: 'range', min: 0.4, max: 1.8, step: 0.05, value: q.exposure, oninput: (e) => app.store.setCoalesced('exp', { quality: { ...app.store.get().quality, exposure: +e.target.value } }) })),
       h('div', { class: 'btns' },
         h('button', { onclick: () => { if (confirm('לאפס את כל ההגדרות (כולל הערות ומבטים שמורים)?')) app.store.reset(); } }, 'איפוס הגדרות')),
+      h('h4', {}, 'קבצים'),
+      h('div', { class: 'btns' },
+        h('button', { onclick: () => download(`house3d-5187-settings-${new Date().toISOString().slice(0, 10)}.json`, app.store.exportJson()) }, '⤓ ייצוא הגדרות'),
+        h('button', { onclick: () => document.querySelector('#topbar input[type=file]')?.click() }, '⤒ ייבוא הגדרות'),
+        h('button', { onclick: () => { const a = h('a', { href: app.viewer.screenshot(), download: `house3d-5187-${Date.now()}.png` }); a.click(); } }, '📷 צילום מסך')),
       h('h4', {}, 'מקורות הנתונים'),
-      h('p', { class: 'muted' }, 'כל רכיב מציג את קובץ המקור שלו בלחיצה (כלי "מידות"). פירוט מלא: sources/README.md ו-docs/verification/stage-1.md.'));
+      h('p', { class: 'muted' }, 'כל רכיב מציג את קובץ המקור שלו בלחיצה (כלי "מידות"), כולל הברזל מגיליונות הקונסטרוקטור. פירוט: sources/README.md ו-docs/verification/ (שלבים 1, 2, 2ב, 3).'));
   }
 
   // ---------------- stage bar ----------------
   buildStageBar() {
     const { app } = this; const bar = this.$('stagebar');
     const st = app.data.tags.sequence;
-    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => { app.store.setCoalesced('stage', { stageIndex: +e.target.value }); this.hint(st[+e.target.value].hint || ''); clearTimeout(this._hintT); this._hintT = setTimeout(() => this.hint(''), 4000); } });
-    this.stageLabel = h('b', {});
-    const ticks = h('div', { class: 'ticks' }, st.map(s => h('span', {}, s.label)));
-    bar.append(h('div', { class: 'stg-head' }, 'שלב בנייה: ', this.stageLabel,
+    const go = (i) => app.store.set({ stageIndex: Math.max(0, Math.min(st.length - 1, i)) }, { label: 'stage' });
+    this.stageRange = h('input', { type: 'range', min: 0, max: st.length - 1, step: 1, oninput: (e) => app.store.setCoalesced('stage', { stageIndex: +e.target.value }) });
+    this.stageSel = h('select', { class: 'stg-sel', title: 'קפיצה לשלב', onchange: (e) => go(+e.target.value) }, st.map((s, i) => h('option', { value: i }, `${i + 1}/${st.length} · ${s.label}`)));
+    // ticks: one mark per step at its exact slider position (labels in the list / tooltip – 24 names do not fit in a row)
+    const ticks = h('div', { class: 'ticks2' }, st.map((s, i) => h('i', { title: s.label, style: `inset-inline-start: calc(${(i / (st.length - 1)) * 100}% - 1px)`, onclick: () => go(i) })));
+    bar.append(h('div', { class: 'stg-head' },
+      h('button', { class: 'small stg-nav', title: 'השלב הקודם', onclick: () => go(app.store.get().stageIndex - 1) }, '›'),
+      this.stageSel,
+      h('button', { class: 'small stg-nav', title: 'השלב הבא', onclick: () => go(app.store.get().stageIndex + 1) }, '‹'),
       h('div', { class: 'btns' },
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: app.registry.stepById('skeletonEnd'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.length - 1, systemFilter: null }, { label: 'all' }) }, 'הכול'))),
-      this.stageRange, ticks);
+      h('div', { class: 'stg-track' }, this.stageRange, ticks));
     this.syncStageBar();
   }
   syncStageBar() {
     const s = this.app.store.get(); const st = this.app.data.tags.sequence;
     this.stageRange.value = s.stageIndex;
-    this.stageLabel.textContent = st[s.stageIndex].label + (s.systemFilter ? ' · רק שלד' : '');
+    this.stageSel.value = s.stageIndex;
+    this.stageSel.title = (st[s.stageIndex]?.hint || '') + (s.systemFilter ? ' · רק שלד' : '');
+    this.stageSel.classList.toggle('skel', !!s.systemFilter);
+    // the hint of the step on every change (slider, buttons, list, viewpoints, search)
+    if (this._lastStage !== undefined && this._lastStage !== s.stageIndex) {
+      this.hint(`${s.stageIndex + 1}. ${st[s.stageIndex].label}: ${st[s.stageIndex].hint || ''}`);
+      clearTimeout(this._hintT); this._hintT = setTimeout(() => this.hint(''), 5000);
+      this.rebarStep = undefined;
+    }
+    this._lastStage = s.stageIndex;
   }
 
   // ---------------- info card, hints, toasts, note editor ----------------
@@ -452,7 +549,18 @@ export class UI {
       info.source ? h('div', { class: 'src' }, 'מקור: ', info.source) : '');
     el.classList.remove('hidden');
   }
+  showInfoFor(item) { this.app.tools.inspect?.showFor(item); }
   hint(text) { const el = this.$('hint'); el.textContent = text; el.classList.toggle('hidden', !text); }
+  // copy to the clipboard; where the browser does not allow it (http, old phones) the text is shown for a manual copy
+  copy(text, ok = 'הועתק') {
+    const manual = () => {
+      const ta = h('textarea', { rows: 10, readonly: true }); ta.value = text;
+      const dlg = h('div', { class: 'modal' }, h('div', { class: 'dlg' }, h('h3', {}, 'העתקה'), h('small', {}, 'סמן והעתק (Ctrl+C / לחיצה ארוכה):'), ta,
+        h('div', { class: 'btns' }, h('button', { onclick: () => dlg.remove() }, 'סגור'))));
+      document.body.append(dlg); ta.focus(); ta.select();
+    };
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(() => this.toast(ok), manual); else manual();
+  }
   toast(text) {
     const t = h('div', { class: 'toast' }, text); document.body.append(t);
     setTimeout(() => t.classList.add('out'), 2200); setTimeout(() => t.remove(), 2700);

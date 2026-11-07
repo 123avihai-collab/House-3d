@@ -55,7 +55,7 @@ export function buildFoundations(ctx) {
     for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.area_m2 != null && w.variant?.show !== 'changed') stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
-      name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,
+      id: w.id, name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`]].concat(w.area_m2 != null ? [['שטח חתך אופקי', `${w.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]] : []),
       note: w.note, source: w.source,
@@ -128,7 +128,7 @@ export function buildFoundations(ctx) {
     } else g.add(label(`רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl beam'));
     if (s.variant?.show !== 'original') stats.slabs_m3 += s.area_m2 * s.thickness_m;
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'slabs' }, {
-      name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)${s.variant ? ' – לפי התוכניות' : ''}`, status: s.status, variant: s.variant,
+      id: s.id, name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)${s.variant ? ' – לפי התוכניות' : ''}`, status: s.status, variant: s.variant,
       rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.top))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
       note: s.change ? `${s.change.description} ממתין לאישור: ${s.change.approvals.map(a => a.who).join(', ')}.` : (s.note || 'רצפה תלויה על ארגזי פוליביד 25 ס"מ (דוח קרקע 9.1)'), source: s.source,
@@ -147,7 +147,7 @@ export function buildFoundations(ctx) {
     stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;
     const outdoor = (data.tags.outdoorZones || []).includes(data.floorGround?.beamZones?.[b.id]);   // beam of an outdoor slab
     registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.layer || 'groundBeams', ...(outdoor ? { step: 'outdoorSlabs' } : {}) }, {
-      name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
+      id: b.id, name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
       rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
         ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך (בקירוב)', `${L.toFixed(2)} מ'`], ['גיליון', b.sheet]],
       note: (b.layer === 'ceilingBeams' ? 'קורה של תקרת הקרקע מעל המרתף – יושבת על קיר המרתף. ' : b.layer === 'groundFloorBeams' ? 'קורת קומת הקרקע על כלונסאות – נוצקת אחרי קירות המרתף והמילוי, יחד עם רצפת הקרקע. ' : '') + 'חתך ומפלס – מדויקים, מתווית הקורה. מיקום ואורך – בקירוב, לפי פס הבטון בתכנית K-400 (PDF). יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,

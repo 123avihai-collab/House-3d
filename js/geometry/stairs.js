@@ -79,7 +79,7 @@ export function buildStairs(ctx) {
     if (st.landings?.length) rows.push(['פודסטים', st.landings.map((L) => `${L.label} ${coords.fmtH(coords.H0 + L.topRel)} (D=${Math.round(L.thickness_m * 100)})`).join(' · ')]);
     if (st.treads) rows.push(['מדרכים', `${st.treads.length} (כולל 27–28 פנייה), עובי ${Math.round(st.treadThickness_m * 100)} ס"מ`]);
     if (m3) rows.push(['נפח בטון', `${m3.toFixed(2)} מ"ק`]);
-    registry.add(g, tags, { name: st.name, status: st.status, rows, note: st.note, source: st.source });
+    registry.add(g, tags, { id: st.id, name: st.name, status: st.status, rows, note: st.note, source: st.source });
     scene.add(g);
   }
 
@@ -91,7 +91,7 @@ export function buildStairs(ctx) {
     const c0 = centroid(P.wallsITM[0]);
     g.add(label(`${P.name} · ראש ${coords.fmtH(coords.H0 + P.topRel)}`, c0[0], c0[1], P.topRel + DS.labelLift_m));
     registry.add(g, { floor: 'site', system: 'site', stage: 'walls', layer: 'pillar', step: P.step }, {
-      name: P.name, status: P.status,
+      id: P.id, name: P.name, status: P.status,
       rows: [['תחתית / ראש', `${coords.fmtH(coords.H0 + P.bottomRel)} / ${coords.fmtH(coords.H0 + P.topRel)}`], ['עובי קיר', P.wallThickness_m.map((t) => `${Math.round(t * 100)} ס"מ`).join(', ')],
         ['שטח פנים', `${P.innerAreas_m2.map((a) => a.toFixed(2)).join(' / ')} מ"ר (חדר אשפה / נישת הארון)`]],
       note: P.note, source: P.source,

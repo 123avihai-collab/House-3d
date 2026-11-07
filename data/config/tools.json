@@ -2,7 +2,7 @@
   "_doc": "Work modes, workshops and tool registry. implemented=false -> shown with 'בקרוב'.",
   "modes": [
     { "id": "view",      "label": "צפייה",  "implemented": true },
-    { "id": "edit",      "label": "עריכה",  "implemented": false },
+    { "id": "edit",      "label": "עריכה",  "implemented": true, "hint": "עריכת שלד: בחירת אלמנט וכתיבת הוראת תיקון לקלוד" },
     { "id": "furniture", "label": "ריהוט",  "implemented": false },
     { "id": "tiling",    "label": "ריצוף",  "implemented": false },
     { "id": "coping",    "label": "קופינג", "implemented": false }

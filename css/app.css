@@ -164,3 +164,17 @@ body.no-labels .lbl:not(.note-pin):not(.measure) { display: none !important; }
 #minimapClose { position: absolute; bottom: 10px; right: 10px; transform: translate(-4px, calc(-1 * var(--mm-size, 180px) + 4px)); width: 24px; height: 24px; padding: 0; font-size: 13px; line-height: 1; border-radius: 6px; background: rgba(30, 34, 40, .88); z-index: 6; }
 body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
 @media (max-width: 760px) { #minimapClose { --mm-size: 120px; } }
+
+/* edit mode – correction notes for Claude */
+.lbl.fix-pin { background: #00b8d4; color: #fff; border-radius: 10px; padding: 1px 6px; font-weight: 700; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.lbl.fix-pin.done { background: #43a047; opacity: .7; }
+.lbl.fix-pin.q { background: #ffb300; }
+.fix-conn { font-size: 12px; padding: 6px 8px; border-radius: 6px; margin: 6px 0; background: rgba(0,184,212,.12); }
+.fix-conn.ok { background: rgba(67,160,71,.15); }
+.fix-conn.warn { background: rgba(255,179,0,.18); }
+.fix-reply { font-size: 12px; margin-top: 4px; padding: 4px 6px; border-inline-start: 3px solid #00b8d4; background: rgba(0,184,212,.08); }
+.dlg .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.dlg .chips button.on { background: #00b8d4; color: #fff; border-color: #00b8d4; }
+.dlg table.kv { font-size: 12px; margin: 6px 0; }
+.dlg table.kv th { text-align: start; padding-inline-end: 8px; font-weight: 600; opacity: .8; }
+#modes button[data-mode="edit"].on { background: #00b8d4; color: #fff; }

@@ -118,7 +118,7 @@ export class UI {
   buildPanel() {
     const p = this.$('panel');
     this.tabs = [
-      ['layers', 'שכבות'], ['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
+      ['fixes', 'תיקונים לקלוד'], ['layers', 'שכבות'], ['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
       ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
     ];
     this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
@@ -307,6 +307,33 @@ export class UI {
           h('button', { class: 'small x', onclick: () => app.store.set({ notes: s.notes.filter((_, j) => j !== i) }, { label: 'note' }) }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין הערות עדיין.'));
   }
 
+  panel_fixes() {
+    const { app } = this; const T = app.tools.fixes; if (!T) return h('div', {});
+    const A = Object.fromEntries(T.constructor.actions());
+    const st = T.state;
+    const conn = st === 'online' ? ['ok', 'מחובר: התיקונים נשמרים במודל וקלוד קורא אותם ישירות.']
+      : st === 'local' ? ['warn', 'לא מחובר לשרת (פתיחה מחוץ ל-claude.ai): התיקונים נשמרים בדפדפן הזה בלבד – העתק ושלח לקלוד.']
+      : st === 'loading' ? ['', 'מתחבר…'] : st === 'slow' ? ['warn', 'החיבור איטי – התיקונים עלולים לא להתעדכן עדיין.'] : ['warn', 'אין חיבור לשמירת תיקונים.'];
+    const editing = app.store.get().mode === 'edit';
+    const list = T.items;
+    return h('div', {},
+      h('p', { class: 'muted' }, 'מצב עריכה לשלד: בוחרים אלמנט (קורה, רצפה, קיר, עמוד) וכותבים לקלוד מה לתקן במודל. שאלות לאדריכל / לקונסטרוקטור – בלשונית "הערות".'),
+      h('div', { class: 'fix-conn ' + conn[0] }, conn[1]),
+      h('div', { class: 'btns' },
+        h('button', { class: editing ? 'on primary' : 'primary', onclick: () => app.store.set({ mode: editing ? 'view' : 'edit' }, { label: 'mode' }) }, editing ? '✓ מצב עריכה פעיל – לחץ על אלמנט' : '✎ היכנס למצב עריכה'),
+        h('button', { onclick: () => { navigator.clipboard?.writeText(T.toText()); this.toast('כל התיקונים הועתקו'); } }, '📋 העתק הכול')),
+      h('h4', {}, `תיקונים (${list.filter(x => x.state !== 'done').length} פתוחים מתוך ${list.length})`),
+      list.length ? h('ol', { class: 'notes fixes' }, list.map((n, i) => h('li', { class: n.state === 'done' ? 'done' : '' },
+        h('div', {}, h('b', {}, `ק${i + 1} · ${A[n.action] || n.action || ''} · ${n.elementId || ''}`), ' ', n.text),
+        h('small', {}, `${n.elementName} · ${app.coords.fmtH(n.H)} · שלב: ${n.step || '—'}`),
+        n.reply ? h('div', { class: 'fix-reply' }, `קלוד: ${n.reply}`) : null,
+        h('div', { class: 'btns' },
+          h('button', { class: 'small', onclick: () => app.flyToPoint(n) }, 'הצג'),
+          h('button', { class: 'small', onclick: () => T.patch(n.id, { state: n.state === 'done' ? 'open' : 'done' }) }, n.state === 'done' ? 'פתח מחדש' : 'סמן כתוקן'),
+          h('button', { class: 'small', onclick: () => { const t = prompt('עריכת התיקון:', n.text); if (t != null && t.trim()) T.patch(n.id, { text: t.trim() }); } }, 'ערוך'),
+          h('button', { class: 'small x', onclick: () => { if (confirm('למחוק את התיקון?')) T.remove(n.id); } }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין תיקונים עדיין.'));
+  }
+
   panel_quantities() {
     const { app } = this; const q = app.quantities || {}; const P = q.piles, X = q.excavation;
     const piles = app.data.piles.piles;
@@ -412,6 +439,20 @@ export class UI {
   toast(text) {
     const t = h('div', { class: 'toast' }, text); document.body.append(t);
     setTimeout(() => t.classList.add('out'), 2200); setTimeout(() => t.remove(), 2700);
+  }
+  openFixEditor(ctx, onSave) {
+    const { app } = this; let action = 'other';
+    const ta = h('textarea', { rows: 4, placeholder: 'מה לתקן? למשל: "הקיר צריך להיגמר בקורה B-27", "הרצפה צריכה להיות 20 ס\"מ נמוכה יותר", "למחוק – אין קיר כאן"' });
+    const chips = h('div', { class: 'chips' }, app.tools.fixes.constructor.actions().map(([id, label]) =>
+      h('button', { class: 'small' + (id === action ? ' on' : ''), onclick: (e) => { action = id; chips.querySelectorAll('button').forEach(b => b.classList.remove('on')); e.target.classList.add('on'); } }, label)));
+    const close = () => { dlg.remove(); app.tools.fixes.highlight(null); };
+    const dlg = h('div', { class: 'modal' }, h('div', { class: 'dlg' },
+      h('h3', {}, 'תיקון לקלוד'),
+      h('table', { class: 'kv' }, tr('אלמנט', `${ctx.elementName}${ctx.elementId ? ` (${ctx.elementId})` : ''}`), tr('שכבה / קומה', `${ctx.layer} · ${ctx.floor}`),
+        tr('נקודה', `E ${ctx.E.toFixed(2)} N ${ctx.N.toFixed(2)} · ${app.coords.fmtH(ctx.H)}`), tr('שלב בנייה במסך', ctx.step || '—')),
+      chips, ta,
+      h('div', { class: 'btns' }, h('button', { class: 'primary', onclick: () => { onSave(ta.value, action); close(); } }, 'שמור תיקון'), h('button', { onclick: close }, 'ביטול'))));
+    document.body.append(dlg); ta.focus();
   }
   openNoteEditor(ctx, onSave) {
     const ta = h('textarea', { rows: 4, placeholder: 'כתוב הערה / תיקון…' });

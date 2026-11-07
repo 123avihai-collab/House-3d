@@ -19,6 +19,7 @@ import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
 import { SectionTool } from './tools/section.js';
 import { NotesTool } from './tools/notes.js';
+import { FixTool } from './tools/fixes.js';
 import { Navigation, Minimap } from './tools/navigation.js';
 import { UI } from './ui/ui.js';
 
@@ -77,12 +78,13 @@ async function main() {
   app.tools.inspect = new InspectTool(app);
   app.tools.measure = new MeasureTool(app);
   app.tools.notes = new NotesTool(app);
+  app.tools.fixes = new FixTool(app);
   app.tools.section = new SectionTool(app);
   const minimap = new Minimap(app, document.getElementById('minimap'));
   viewer.afterRender = () => { minimap.draw(); updateCompass(); };
 
   app.setTool = (id) => {
-    const map = { inspect: 'inspect', measure: 'measure', note: 'notes' };
+    const map = { inspect: 'inspect', measure: 'measure', note: 'notes', fix: 'fixes' };
     app.tools[map[app.activeTool]]?.deactivate?.();
     app.activeTool = id;
     app.tools[map[id]]?.activate?.();
@@ -121,9 +123,15 @@ async function main() {
     viewer.invalidate();
   };
   store.on(applyState);
+  // edit mode = skeleton correction notes for Claude
+  let lastMode = store.get().mode;
+  store.on((s) => {
+    if (s.mode === lastMode) return; lastMode = s.mode;
+    if (s.mode === 'edit') { app.setTool('fix'); app.ui.openTab('fixes'); } else if (app.activeTool === 'fix') app.setTool('inspect');
+  });
   applyState(store.get());
   app.ui.refreshPanel();
-  app.setTool('inspect');
+  app.setTool(store.get().mode === 'edit' ? 'fix' : 'inspect');
 
   // deep link
   const hp = new URLSearchParams(location.hash.slice(1));
@@ -161,7 +169,7 @@ async function main() {
     down = null;
     if (moved || app.nav.walking) return;
     const hit = pick(e);
-    const map = { inspect: 'inspect', measure: 'measure', note: 'notes' };
+    const map = { inspect: 'inspect', measure: 'measure', note: 'notes', fix: 'fixes' };
     app.tools[map[app.activeTool]]?.handleClick(hit);
     if (hit) showReadout(hit);
   });

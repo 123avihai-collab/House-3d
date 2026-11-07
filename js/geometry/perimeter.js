@@ -23,7 +23,7 @@ export function buildPerimeter(ctx) {
     const m = prism(f.ringITM, f.bottomRel, f.topRel); const g = new THREE.Group(); g.add(m); if (flagged(f.status)) g.add(edges(m));
     stats.footings_m3 += f.area_m2 * f.thickness_m;
     registry.add(g, { floor: 'site', system: 'structure', stage: 'groundBeams', layer: 'perimeterFootings', step: 'perimeter' }, {
-      name: `יסוד חומה ${SIDE[f.side] || f.side} (${f.id})`, status: f.status,
+      id: f.id, name: `יסוד חומה ${SIDE[f.side] || f.side} (${f.id})`, status: f.status,
       rows: [['רוחב / עובי', `${f.width_m.toFixed(2)} / ${f.thickness_m.toFixed(2)} מ'`], ['תחתית / ראש', `${coords.fmtH(coords.H0 + f.bottomRel)} / ${coords.fmtH(coords.H0 + f.topRel)}`],
         ['כלונסאות', f.piles.join(', ') || '—'], ['נפח בטון', `${(f.area_m2 * f.thickness_m).toFixed(2)} מ"ק`]],
       note: f.note, source: f.source,
@@ -39,7 +39,7 @@ export function buildPerimeter(ctx) {
       const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c[0], c[1], coords.H0 + w.topRel + D.labelLift_m)); g.add(o);
     }
     registry.add(g, { floor: 'site', system: 'structure', stage: 'walls', layer: 'perimeterWalls', step: 'perimeter' }, {
-      name: w.post ? `עמוד שער (${w.id})` : `חומה ${SIDE[w.side]} (${w.id})`, status: w.status,
+      id: w.id, name: w.post ? `עמוד שער (${w.id})` : `חומה ${SIDE[w.side]} (${w.id})`, status: w.status,
       rows: [['עובי / אורך', `${w.thickness_m.toFixed(2)} / ${w.length_m.toFixed(2)} מ'`], ['תחתית (ראש היסוד) / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`],
         ['יושב על', w.standsOn || '— (אין יסוד ב-K-400)'], ['נפח בטון', `${v.toFixed(2)} מ"ק`]],
       note: w.topSource, source: w.source,

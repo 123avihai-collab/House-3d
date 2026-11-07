@@ -453,6 +453,16 @@ export function buildPlumbing(ctx) {
       const ctl = buildPanel(app, this);
       this.panel = () => ctl.panel();
       this.pipeView = ctl.pipeView;
+      // first open of this version: show every pipe right away (the pipes are underground / inside the structure and
+      // invisible in the default view). Once per version per browser; skipped in automated tests (navigator.webdriver).
+      const FLAG = 'house3d-plumbing-pipeview-v4';
+      let seen = null; try { seen = localStorage.getItem(FLAG); } catch (e) { /* private mode */ }
+      if (!seen && !navigator.webdriver) setTimeout(() => {
+        ctl.pipeView(); try { localStorage.setItem(FLAG, '1'); } catch (e) { /* private mode */ }
+        const t = document.createElement('div'); t.className = 'pl-toast';
+        t.textContent = 'מוצגת כל הצנרת: קרקע שקופה, בלי שלד וסביבה. ↶ (בטל) מחזיר לתצוגה הרגילה; הכפתור הכתום מחזיר לכאן.';
+        (document.getElementById('viewport') || document.body).append(t); setTimeout(() => t.remove(), 9000);
+      }, 800);
       // module filters (floor, severity, x-ray) applied after the registry's own visibility rules
       const terrain = app.registry.items.filter(i => i.meta.kind === 'terrain');
       app.registry.onChange(() => {

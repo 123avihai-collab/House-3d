@@ -1,0 +1,20 @@
+{
+ "_doc": "קבועי תצוגה לשכבת האינסטלציה (לא מידות של הבית).",
+ "radialSegments": 18, "bendSegments": 10,
+ "labelMinLength_m": 1.2,
+ "xrayTerrainOpacity": 0.28,
+ "severity": {"critical": {"color": "#e53935", "label": "חמור"}, "major": {"color": "#fb8c00", "label": "מהותי"}, "minor": {"color": "#fdd835", "label": "קל"}, "info": {"color": "#42a5f5", "label": "מידע"}},
+ "status": {"source": "מהתוכנית", "derived": "נגזר מהתוכנית", "provisional": "זמני – אין נתון בתוכנית", "missing": "חסר בתוכנית", "catalog": "קטלוג (לאימות מול ספק)"},
+ "markerRadius_m": 0.12,
+ "provisionalTint": "#ffb74d",
+ "openEndColor": "#e53935",
+ "systems": {
+  "sewage": {"label": "ביוב, שופכין ודלוחין", "color": "#c8642f"},
+  "pumped": {"label": "סניקה (משאבה)", "color": "#5b3f8c"},
+  "rain": {"label": "מי גשם", "color": "#8f969c"},
+  "cold": {"label": "מים קרים", "color": "#1f6fd1"},
+  "hot": {"label": "מים חמים", "color": "#cf3a2c"}
+ },
+ "floors": {"site": "חצר / פיתוח", "unit": "מרתף (יחידת דיור)", "ground": "קומת קרקע", "first": "קומה א'", "roof": "גג"},
+ "view": {"targetOffset_m": [0, 0, 0], "camOffset_m": [-14, 12, 16]}
+}

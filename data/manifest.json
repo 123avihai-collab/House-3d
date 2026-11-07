@@ -35,6 +35,9 @@
     "envDisplay": "data/environment/display.json",
     "envMaterials": "data/environment/materials.json",
     "envSheet04": "data/environment/sheet04.json",
-    "envDetails": "data/environment/details.json"
+    "envDetails": "data/environment/details.json",
+    "plumbing": "data/plumbing/network.json",
+    "plumbingCatalog": "data/plumbing/catalog.json",
+    "plumbingDisplay": "data/plumbing/display.json"
   }
 }

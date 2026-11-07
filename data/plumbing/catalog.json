@@ -1,0 +1,43 @@
+{
+ "_doc": "קטלוג רכיבים סטנדרטיים בשוק הישראלי (מידות טיפוסיות – לאימות מול הספק שייבחר). משמש לציור אביזרים, שוחות ושרוולים. לא מכיל מידות של הבית.",
+ "status": "catalog",
+ "source": "מידות טיפוסיות של מוצרים סטנדרטיים: צינורות PVC SN-8 (ת\"י 884), HDPE לשפכים, PEX (פקסגול) למים, חוליות בטון טרומיות לשוחות (ת\"י 658), מכסים ומסגרות (ת\"י 489 / EN 124). לאימות מול הספק.",
+ "pipes": {
+  "PVC SN-8": {"color": "#c8642f", "roughness": 0.55, "joint": "socket", "socketLen_D": 0.75, "socketOD_ratio": 1.16, "stdLength_m": 6.0, "sizes": {"110": {"OD": 0.110, "wall": 0.0032}, "160": {"OD": 0.160, "wall": 0.0047}}},
+  "HDPE": {"color": "#1d1d1f", "roughness": 0.45, "joint": "electrofusion", "socketLen_D": 0.9, "socketOD_ratio": 1.14, "stdLength_m": 5.0, "sizes": {"50": {"OD": 0.050, "wall": 0.003}, "75": {"OD": 0.075, "wall": 0.003}, "110": {"OD": 0.110, "wall": 0.0043}}},
+  "PEX": {"color": {"cold": "#1f6fd1", "hot": "#cf3a2c", "pumped": "#5b3f8c"}, "roughness": 0.35, "joint": "compression", "socketLen_D": 1.2, "socketOD_ratio": 1.55, "stdLength_m": 100,
+          "sizes": {"16": {"OD": 0.016, "wall": 0.0022}, "20": {"OD": 0.020, "wall": 0.0028}, "25": {"OD": 0.025, "wall": 0.0035}, "32": {"OD": 0.032, "wall": 0.0044}, "75": {"OD": 0.075, "wall": 0.0068}}},
+  "PVC": {"color": "#8f969c", "roughness": 0.5, "joint": "socket", "socketLen_D": 0.75, "socketOD_ratio": 1.14, "stdLength_m": 3.0, "sizes": {"50": {"OD": 0.050, "wall": 0.0024}, "110": {"OD": 0.110, "wall": 0.0032}}}
+ },
+ "unknownDiameterDisplay_mm": 20,
+ "bends": {"sewerAngles_deg": [15, 30, 45, 87.5], "rule90": "זווית 90° בשופכין ודלוחין – ב-2 זוויות 45°, מרחק בין המרכזים ≥ 2D (הערה 4 של היועץ)", "bendRadius_D": {"sewage": 1.0, "rain": 1.0, "pumped": 4.0, "cold": 4.0, "hot": 4.0}, "bodyOD_ratio": 1.1},
+ "sleeves": {"_doc": "שרוול = צינור PVC בקוטר הסטנדרטי הבא מעל OD+40 מ\"מ; בקיר מרתף מתחת לפני הקרקע – עם אוגן אטימה וחבק/אטם", "seriesOD_mm": [50, 75, 110, 160, 200, 250], "minGap_mm": 40, "length_m": 0.0, "puddleFlangeExtra_m": 0.15, "material": "PVC SN-8"},
+ "chambers": {
+  "rings": {"0.6": {"wall": 0.08}, "0.8": {"wall": 0.10}, "1.0": {"wall": 0.12}},
+  "ringHeights_m": [1.0, 0.75, 0.5, 0.25],
+  "baseThickness_m": 0.15,
+  "topSlabThickness_m": 0.15,
+  "opening_m": {"0.6": 0.50, "0.8": 0.60, "1.0": 0.60},
+  "frame": {"height_m": 0.10, "flange_m": 0.10},
+  "coverClass": {"yard": "B125", "parking": "C250", "street": "D400"},
+  "adjustRings_m": [0.05, 0.10, 0.15],
+  "stepsWhenDeeper_m": 1.25, "stepSpacing_m": 0.30,
+  "connector": {"_doc": "מחבר שוחה (אטם גומי) בכל כניסה / יציאה", "OD_extra_m": 0.06, "width_m": 0.05}
+ },
+ "fixtures": {
+  "floorDrain": {"grate_m": 0.15, "body_m": 0.18},
+  "floorDrain8": {"grate_m": 0.20, "body_m": 0.24},
+  "inspectionBox": {"size_m": 0.20, "lid_m": 0.12},
+  "dropInspectionBox": {"size_m": 0.24, "lid_m": 0.14},
+  "drumTrap": {"D_m": 0.16, "H_m": 0.20},
+  "wcConnector": {"OD_m": 0.13, "len_m": 0.25},
+  "ventCowl": {"D_ratio": 1.6, "h_m": 0.12},
+  "gardenTap": {"height_m": 0.60, "size": "3/4\""},
+  "ballValve": {"lever_m": 0.09},
+  "waterMeter": {"size": "3/4\"", "body_m": [0.19, 0.10, 0.10], "assemblyLen_m": 0.55},
+  "downpipeShoe": {"len_m": 0.25},
+  "roofDrain": {"D_m": 0.20},
+  "heater": {"_doc": "אין מידות בתוכנית – גוף סמלי בלבד, מסומן זמני", "D_m": 0.55, "L_m": 1.6, "collector_m": [2.0, 1.0]},
+  "manifold": {"len_m": 0.45, "D_m": 0.05}
+ }
+}

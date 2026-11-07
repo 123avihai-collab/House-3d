@@ -1,0 +1,23 @@
+/* plumbing layer – labels and panel */
+.lbl.pl { font-size: 10px; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,.88); color: #263238; border: 1px solid #b0bec5; white-space: nowrap; }
+.lbl.pl.sys-sewage { border-color: #c8642f; } .lbl.pl.sys-cold { border-color: #1f6fd1; color: #0d47a1; } .lbl.pl.sys-hot { border-color: #cf3a2c; }
+.lbl.pl.sys-pumped { border-color: #5b3f8c; } .lbl.pl.sys-rain { border-color: #8f969c; }
+.lbl.pl.chamber { background: #fff8e1; border-color: #6d4c41; font-weight: 600; }
+.lbl.pl.stack { background: #efebe9; border-color: #4e342e; }
+.lbl.pl.end { background: #ffebee; border-color: #e53935; color: #b71c1c; font-weight: 600; }
+.lbl.pl.rain { border-color: #607d8b; }
+.lbl.pl.sev-critical { background: #e53935; color: #fff; border-color: #b71c1c; font-weight: 700; }
+.lbl.pl.sev-major { background: #fb8c00; color: #fff; border-color: #e65100; font-weight: 700; }
+.lbl.pl.sev-minor { background: #fdd835; color: #333; border-color: #f9a825; }
+.lbl.pl.sev-info { background: #42a5f5; color: #fff; border-color: #1565c0; }
+.plbox .plfl label, .plbox .plsev label { margin-inline-end: 8px; white-space: nowrap; }
+.plbox .plsev label { border-bottom: 3px solid var(--c); }
+.plbox button.on { background: #1e88e5; color: #fff; }
+.plbox .plfind ol { max-height: 260px; overflow: auto; padding-inline-start: 22px; margin: 4px 0; font-size: 12px; }
+.plbox .plfind li { cursor: pointer; padding: 2px 0; border-bottom: 1px dotted #ddd; }
+.plbox .plfind li:hover { background: #f1f8ff; }
+.plbox .plfind li.sev-critical::marker { color: #e53935; } .plbox .plfind li.sev-major::marker { color: #fb8c00; }
+
+/* info card above the plumbing labels */
+#info { z-index: 30; }
+.plbox .plmaster { display: block; font-weight: 700; padding: 6px 8px; margin: 4px 0 6px; background: #e3f2fd; border-radius: 6px; cursor: pointer; }

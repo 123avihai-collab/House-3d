@@ -54,7 +54,8 @@
    "topRel": 8.0,
    "standsOn": "רצועה ‎+6.65…+8.00 (מפלסי הנקודה \"+8.00 / +6.65\" ב-K-41) – מתחתיה קירות / חלונות קומה א'",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW2",
@@ -84,7 +85,8 @@
    "topRel": 8.0,
    "standsOn": "רצועה ‎+6.65…+8.00 (מפלסי הנקודה \"+8.00 / +6.65\" ב-K-41) – מתחתיה קירות / חלונות קומה א'",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW3",
@@ -170,7 +172,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW4",
@@ -209,7 +212,8 @@
    "standsOn": "רצועה ‎+6.65…+8.00 (מפלסי הנקודה \"+8.00 / +6.65\" ב-K-41) – מתחתיה קירות / חלונות קומה א'",
    "status": "provisional",
    "note": "ראש +8.00 לפי מפלסי הנקודה שב-K-41 (לא ליד הקיר הזה)",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW5",
@@ -239,7 +243,8 @@
    "topRel": 8.0,
    "standsOn": "רצועה ‎+6.65…+8.00 (מפלסי הנקודה \"+8.00 / +6.65\" ב-K-41) – מתחתיה קירות / חלונות קומה א'",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW6",
@@ -289,20 +294,13 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW7",
    "tag": null,
    "footprintITM": [
-    [
-     179590.967,
-     576242.591
-    ],
-    [
-     179590.763,
-     576242.673
-    ],
     [
      179592.811,
      576247.746
@@ -320,26 +318,25 @@
      576245.529
     ],
     [
-     179591.417,
-     576243.706
+     179592.13,
+     576245.471
     ],
     [
-     179590.968,
-     576242.594
-    ],
-    [
-     179590.967,
-     576242.592
+     179591.926,
+     576245.553
     ]
    ],
    "holesITM": [],
-   "area_m2": 1.204,
+   "area_m2": 0.52,
    "thickness_m": 0.22,
    "bottomRel": 6.9,
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "trimmedBy": "B-8",
+   "note": "החלק שבקו הקורה B-8 (22/135, +6.65…+8.00) הוא הקורה עצמה – נחתך מהמעקה (הערת אביחי 2.5)",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW8",
@@ -389,7 +386,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW9",
@@ -427,7 +425,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W5)"
   },
   {
    "id": "RW10",
@@ -457,7 +456,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W2)"
   },
   {
    "id": "RW11",
@@ -487,7 +487,8 @@
    "topRel": 8.0,
    "standsOn": "רצועה ‎+6.65…+8.00 (מפלסי הנקודה \"+8.00 / +6.65\" ב-K-41) – מתחתיה קירות / חלונות קומה א'",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW12",
@@ -517,7 +518,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW13",
@@ -548,7 +550,8 @@
    "standsOn": "תקרת הגג +6.90",
    "status": "provisional",
    "note": "ראש +8.00 לפי מפלסי הנקודה שב-K-41 (לא ליד הקיר הזה)",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W12)"
   },
   {
    "id": "RW14",
@@ -578,7 +581,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW15",
@@ -616,7 +620,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W4)"
   },
   {
    "id": "RW16",
@@ -646,7 +651,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W7)"
   },
   {
    "id": "RW17",
@@ -676,7 +682,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW18",
@@ -706,7 +713,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W2)"
   },
   {
    "id": "RW19",
@@ -740,7 +748,8 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית – מעל W7)"
   },
   {
    "id": "RW20",
@@ -770,12 +779,45 @@
    "topRel": 8.0,
    "standsOn": "תקרת הגג +6.90",
    "status": "source",
-   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf"
+   "source": "sources/structure/k-41.dxf IfcWall \"Beton Ole\"; ראש: מפלס נקודה \"+8.00 / +6.65\" ב-sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf",
+   "displayName": "מעקה גג (ללא שם בתוכנית)"
   },
   {
    "id": "RW21",
    "tag": null,
    "footprintITM": [
+    [
+     179607.207,
+     576242.235
+    ],
+    [
+     179607.215,
+     576242.254
+    ],
+    [
+     179606.658,
+     576242.479
+    ],
+    [
+     179606.611,
+     576242.498
+    ],
+    [
+     179606.63,
+     576242.544
+    ],
+    [
+     179606.676,
+     576242.526
+    ],
+    [
+     179607.818,
+     576245.353
+    ],
+    [
+     179607.919,
+     576245.603
+    ],
     [
      179608.475,
      576245.379
@@ -785,39 +827,60 @@
      576245.128
     ],
     [
-     179607.225,
-     576242.282
+     179607.232,
+     576242.301
     ],
     [
-     179606.947,
-     576242.395
+     179607.234,
+     576242.3
     ],
     [
-     179606.947,
-     576242.395
+     179607.219,
+     576242.263
     ],
     [
-     179606.669,
-     576242.507
+     179607.215,
+     576242.254
     ],
     [
-     179607.818,
-     576245.353
-    ],
-    [
-     179607.919,
-     576245.603
+     179607.208,
+     576242.235
     ]
    ],
    "holesITM": [],
-   "area_m2": 2.003,
-   "thickness_m": 0.6,
-   "bottomRel": 4.15,
+   "area_m2": 2.024,
+   "thickness_m": 0.651,
+   "bottomRel": 4.05,
    "topRel": 8.0,
-   "standsOn": "קורה B-30 (O.K +4.15)",
+   "standsOn": "קורה B-27 (O.K +4.05), קורה B-28 (O.K +4.05), קורה B-30 (O.K +4.15)",
    "status": "approx",
-   "note": "עמוד-קיר עבה בפינת הפרגולה: מילוי מוקווקו ב-K-41, ב-K-31 הערה \"ליציקת הקיר!\" – מראש הקורה שמתחתיו עד +8.00.",
-   "source": "sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf מילוי מוקווקו (קיר); sources/structure/K-31-תוכנית קומה א' - גיאומטריה.pdf \"ליציקת הקיר!\""
+   "thick": true,
+   "displayName": "קיר 60 בפינת הפרגולה (ללא שם בתוכנית)",
+   "noRebar": true,
+   "noRebarNote": "אין פרט זיון לקיר הזה בגיליונות K-32 / K-42 / K-43 – לא נבנה זיון במודל עד פרט מהקונסטרוקטור (הערת אביחי 2.1): פרט זיון מלא, עיגון לפינה, אישור שמדובר בזיז, K-41 בגרסת P1.",
+   "note": "עמוד-קיר עבה בפינת הפרגולה: מילוי מוקווקו ב-K-41, ב-K-31 הערה \"ליציקת הקיר!\" – מראש הקורות שמתחתיו (פינת B-27 / B-28 +4.05) עד +8.00; אין מתחתיו קיר או עמוד בקומת הקרקע (K-21) – נושא את קצה B-30 ואת קצה B-4 בגג כזיז מהפינה (לאישור הקונסטרוקטור).",
+   "source": "sources/structure/K-41-תוכנית קומה גג - גיאומטריה.pdf מילוי מוקווקו (קיר); sources/structure/K-31-תוכנית קומה א' - גיאומטריה.pdf \"ליציקת הקיר!\"",
+   "framedBy": [
+    {
+     "id": "B-30",
+     "topRel": 4.15,
+     "bottomRel": 3.45,
+     "width_m": 0.27,
+     "depth_m": 0.7
+    }
+   ],
+   "carriesRoof": [
+    {
+     "id": "B-4",
+     "endITM": [
+      179608.425,
+      576245.254
+     ],
+     "topRel": 8.0,
+     "bottomRel": 7.45
+    }
+   ],
+   "cancelledBy": "OC-2"
   }
  ],
  "columns": [],
@@ -851,7 +914,10 @@
     "length_m": 4.634,
     "tagDistance_pt": 0.992,
     "status": "source",
-    "pergola": true
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-5",
@@ -878,7 +944,10 @@
     "length_m": 3.958,
     "tagDistance_pt": 1.596,
     "status": "source",
-    "pergola": true
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-6",
@@ -905,7 +974,10 @@
     "length_m": 5.847,
     "tagDistance_pt": 8.908,
     "status": "source",
-    "pergola": true
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-1",
@@ -932,7 +1004,10 @@
     "length_m": 7.686,
     "tagDistance_pt": 1.331,
     "status": "source",
-    "pergola": true
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-4",
@@ -959,7 +1034,10 @@
     "length_m": 15.793,
     "tagDistance_pt": 0.012,
     "status": "source",
-    "pergola": true
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-3",
@@ -986,8 +1064,10 @@
     "length_m": 3.37,
     "tagDistance_pt": 0.224,
     "status": "source",
-    "note": "K-41 מידה \"337\" (pt 249,310) ומתאר K-42 – הקורה נעצרת בקורה B-2 (במודל נמשכה 0.8 מ' לתוכה)",
-    "pergola": true
+    "note": "K-41 מידה \"337\" (pt 249,310) ומתאר K-42 – הקורה נעצרת בקורה B-2 (במודל נמשכה 0.8 מ' לתוכה) קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42).",
+    "pergola": true,
+    "castWith": "roofWalls",
+    "perimeter": true
    },
    {
     "id": "B-2",
@@ -1014,7 +1094,10 @@
     "length_m": 9.42,
     "tagDistance_pt": 5.227,
     "status": "source",
-    "pergola": false
+    "pergola": false,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    },
    {
     "id": "B-8",
@@ -1041,7 +1124,10 @@
     "length_m": 6.146,
     "tagDistance_pt": 8.211,
     "status": "source",
-    "pergola": false
+    "pergola": false,
+    "castWith": "roofWalls",
+    "perimeter": true,
+    "note": "קורה בהיקף הגג (O.K +8.00 = ראש המעקה) – נוצקת יחד עם המעקות כטבעת רציפה אחת (K-41 תלת-ממד; K-42 חתך טיפוסי 38/55: מעקה וקורה בחתך אחד). בקטע שבו היא בקו המעקה – החתך והברזל של הקורה (K-42)."
    }
   ]
  },

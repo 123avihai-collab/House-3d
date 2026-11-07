@@ -6883,7 +6883,11 @@
      14
     ]
    },
-   "elements": []
+   "elements": [
+    "C5",
+    "C4",
+    "C1"
+   ]
   },
   {
    "title": "עמודבחתך60/44",
@@ -6907,7 +6911,9 @@
      38
     ]
    },
-   "elements": []
+   "elements": [
+    "C9"
+   ]
   },
   {
    "title": "W12",
@@ -8187,8 +8193,8 @@
     15,
     15
    ],
-   "element": "RW7",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8209,8 +8215,8 @@
     15,
     15
    ],
-   "element": "RW4",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8231,8 +8237,8 @@
     15,
     15
    ],
-   "element": "RW7",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8253,8 +8259,8 @@
     15,
     15
    ],
-   "element": "RW3",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8275,8 +8281,8 @@
     15,
     15
    ],
-   "element": "RW5",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8297,8 +8303,8 @@
     15,
     15
    ],
-   "element": "RW2",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8319,8 +8325,8 @@
     15,
     15
    ],
-   "element": "RW3",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8341,8 +8347,8 @@
     15,
     15
    ],
-   "element": "RW1",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8363,8 +8369,8 @@
     15,
     15
    ],
-   "element": "RW1",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8385,8 +8391,8 @@
     15,
     15
    ],
-   "element": "RW1",
-   "elementKind": "wall"
+   "element": null,
+   "elementKind": null
   },
   {
    "sheet": "K-42",
@@ -8403,8 +8409,8 @@
    "leader": true,
    "count": 10,
    "dia_mm": 12,
-   "element": "RW7",
-   "elementKind": "wall"
+   "element": "C1",
+   "elementKind": "column"
   },
   {
    "sheet": "K-42",
@@ -8421,8 +8427,8 @@
    "leader": true,
    "count": 10,
    "dia_mm": 12,
-   "element": "RW3",
-   "elementKind": "wall"
+   "element": "C5",
+   "elementKind": "column"
   },
   {
    "sheet": "K-42",
@@ -8439,8 +8445,8 @@
    "leader": true,
    "count": 10,
    "dia_mm": 12,
-   "element": "RW3",
-   "elementKind": "wall"
+   "element": "C4",
+   "elementKind": "column"
   },
   {
    "sheet": "K-42",
@@ -8457,7 +8463,7 @@
    "leader": true,
    "count": 20,
    "dia_mm": 12,
-   "element": "RW13",
+   "element": "FW7",
    "elementKind": "wall"
   },
   {
@@ -8475,7 +8481,7 @@
    "leader": false,
    "count": 38,
    "dia_mm": 12,
-   "element": "RW10",
+   "element": "FW4",
    "elementKind": "wall"
   },
   {
@@ -8493,7 +8499,7 @@
    "leader": true,
    "count": 26,
    "dia_mm": 12,
-   "element": "RW7",
+   "element": "FW6",
    "elementKind": "wall"
   },
   {
@@ -8511,7 +8517,7 @@
    "leader": false,
    "count": 20,
    "dia_mm": 12,
-   "element": "RW9",
+   "element": "FW5",
    "elementKind": "wall"
   },
   {
@@ -8529,8 +8535,8 @@
    "leader": true,
    "count": 8,
    "dia_mm": 8,
-   "element": null,
-   "elementKind": null
+   "element": "C9",
+   "elementKind": "column"
   },
   {
    "sheet": "K-42",
@@ -8547,7 +8553,7 @@
    "leader": true,
    "count": 10,
    "dia_mm": 12,
-   "element": "RW15",
+   "element": "FW10",
    "elementKind": "wall"
   }
  ],

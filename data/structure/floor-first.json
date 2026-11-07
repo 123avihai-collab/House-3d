@@ -152,7 +152,8 @@
    "topRel": 6.65,
    "standsOn": "תקרת הקרקע +3.70",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W2); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W2); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W2"
   },
   {
    "id": "FW5",
@@ -182,7 +183,8 @@
    "topRel": 6.65,
    "standsOn": "תקרת הקרקע +3.70",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W5); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W5); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W5"
   },
   {
    "id": "FW6",
@@ -380,7 +382,8 @@
    "topRel": 6.65,
    "standsOn": "תקרת הקרקע +3.70",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W6); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W6); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W6"
   },
   {
    "id": "FW7",
@@ -550,7 +553,8 @@
    "topRel": 6.65,
    "standsOn": "קורה B-28 (30/60, O.K +4.05)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W12); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W12); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W12"
   },
   {
    "id": "FW8",
@@ -588,7 +592,8 @@
    "topRel": 6.65,
    "standsOn": "קורה B-27 (30/60, O.K +4.05)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W7); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W7); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W7"
   },
   {
    "id": "FW9",
@@ -971,7 +976,8 @@
    "topRel": 6.65,
    "standsOn": "קורה B-23 (30/60, O.K +4.05)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W4); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W4); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "W4"
   },
   {
    "id": "FW11",
@@ -1085,7 +1091,8 @@
    "topRel": 6.65,
    "standsOn": "קורה B-26 (20/60, O.K +4.05)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "5"
   },
   {
    "id": "C4",
@@ -1151,7 +1158,8 @@
    "topRel": 6.65,
    "standsOn": "קורה B-25 (20/60, O.K +4.05)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "4"
   },
   {
    "id": "C9",
@@ -1233,9 +1241,16 @@
    "topRel": 7.45,
    "standsOn": "עמוד C9 של קומת הקרקע (רציף)",
    "status": "source",
-   "note": "תווית 60/65 מול ההאצ' ב-k-31.dxf 44/60: לפי ה-DXF וחתך \"עמוד בחתך 60/44\" בגיליונות הברזל K-32/K-42 (ב-K-41 מסומן \"3\"); נושא את קורה B-7 – ראש העמוד בתחתית הקורה (+7.45)",
+   "note": "תווית 60/65 מול ההאצ' ב-k-31.dxf 44/60: לפי ה-DXF וחתך \"עמוד בחתך 60/44\" בגיליונות הברזל K-32/K-42 (ב-K-41 מסומן \"3\"); נושא את קורה B-7 – ראש העמוד בתחתית הקורה (+7.45); ב-K-41 העמוד מסומן \"3\" (44/60); מדרגה מול B-7: העמוד (44/60) עמוק מרוחב הקורה (35) – רצועה של כ-8 ס\"מ בצד הפנימי נעצרת בתחתית הקורה (+7.45), 55 ס\"מ מתחת לראשה; הפאה החיצונית מיושרת. כך ב-K-41 DXF (חלק העמוד מחוץ לקורה ממולא אפור \"מפסיק\") – לאישור הקונסטרוקטור / האדריכל (הערת אביחי 2.9)",
    "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
-   "carries": "B-7"
+   "carries": "B-7",
+   "tagK41": "3",
+   "ledge": {
+    "beam": "B-7",
+    "area_m2": 0.049,
+    "width_m": 0.081,
+    "stepHeight_m": 0.55
+   }
   },
   {
    "id": "C1",
@@ -1329,7 +1344,8 @@
    "topRel": 6.65,
    "standsOn": "קורה קורה ללא מספר 30/70 (30/70, O.K +4.15)",
    "status": "source",
-   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
+   "tagK41": "1"
   }
  ],
  "ceiling": {

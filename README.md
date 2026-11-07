@@ -42,6 +42,9 @@ js/
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
     foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
     floors.js              שלד קומה: רצפה, קירות ועמודים שעולים ממנה, תקרה וקורות (floor-<קומה>.json)
+    starters.js            קוצים + סימון קירות/עמודים על כל יציקת רצפה/תקרה (rebar.json, פרטי K-23/33/43)
+    props.js               תמיכות תקרת הגג וקורות ההיקף – המחשה, עד אחרי יציקת חומת הגג (K-43 הערה 12)
+    proposals.js           הצעות בעלים שמבטלות אלמנט (OC-2: קיר הפרגולה → קורת זיז), מצב קיים/מוצע
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
     measure.js             מדידה חופשית בין שתי נקודות
@@ -64,7 +67,7 @@ src/environment/           סביבה (שכונה): מחליף את משטחי �
 data/
   manifest.json            רשימת קובצי הנתונים
   site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
-  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json); מדרגות ופילר (tools/extract_stairs.py → stairs.json); חומות היקפיות (tools/extract_perimeter.py → perimeter.json); פתחים (tools/extract_openings.py → ../architecture/openings.json + חיתוך קירות הבטון – להריץ אחרי extract_floor.py ו-extract_framing.py); בדיקה עצמית tools/overlay_check.py
+  structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json); מדרגות ופילר (tools/extract_stairs.py → stairs.json); חומות היקפיות (tools/extract_perimeter.py → perimeter.json); פתחים (tools/extract_openings.py → ../architecture/openings.json + חיתוך קירות הבטון – להריץ אחרי extract_floor.py ו-extract_framing.py); בדיקה עצמית tools/overlay_check.py; בדיקת תקרות ומעקות מול התוכניות tools/plan_check.py → docs/verification/plan-check.json
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   environment/             lots.json, streets.json (נוצרים ע"י tools/environment/), config, קריאות ידניות, תצוגה, חומרים
   materials/               הגדרות חומרים

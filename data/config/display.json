@@ -149,5 +149,17 @@
   "barScale": 1.6,
   "schematicDia_mm": 12,
   "schematicSpacing_m": 0.2
+ },
+ "props": {
+  "_doc": "תמיכות תקרת הגג – המחשה בלבד (פריסה לפי הקבלן). spacing/inset/dia – קבועי תצוגה, לא מידה מהמקור",
+  "spacing_m": 1.2,
+  "inset_m": 0.4,
+  "dia_m": 0.06,
+  "headPlate_m": 0.15,
+  "color": "#d39e00"
+ },
+ "proposals": {
+  "_doc": "סימון הצעות בעלים שמבטלות אלמנט (OC-2)",
+  "questionMarker_m": 0.12
  }
 }

@@ -402,9 +402,13 @@ def link(out):
              'ground': [(w['id'], Polygon(w['footprintITM']).buffer(0), 'wall') for w in FG['walls']] + [(c['id'], Polygon(c['footprintITM']), 'column') for c in FG['columns']],
              'first': [(w['id'], Polygon(w['footprintITM']).buffer(0), 'wall') for w in FF['walls']] + [(c['id'], Polygon(c['footprintITM']), 'column') for c in FF['columns']],
              'roof': [(w['id'], Polygon(w['footprintITM']).buffer(0), 'wall') for w in RF['walls']] + [(c['id'], Polygon(c['footprintITM']), 'column') for c in RF.get('columns', [])]}
+    # K-41 writes its wall tags (W2, W4 … W12) on the grey "מפסיק" pieces – the first-floor walls that stop under the roof
+    # slab; the parapets above (hatched "צומח") carry no tag. The K-42 wall / column bar callouts therefore belong to the
+    # first-floor walls and columns (same counts as K-32 for the same walls), not to the parapets (Avihai's note 2.7)
+    callout_floor = dict(floor_of, **{'K-42': 'first'})
     for p in out['plan']:
         if p['kind'] == 'bar': continue
-        E = elems[floor_of[p['sheet']]]
+        E = elems[callout_floor[p['sheet']]]
         P = Point(p['itm'])
         near = min(E, key=lambda e: e[1].distance(P)) if E else None
         p['element'] = near[0] if near and near[1].distance(P) < 0.35 else None
@@ -425,7 +429,7 @@ def link(out):
     for fl, D in (('ground', FG), ('first', FF), ('roof', RF)):
         for w in D['walls']:
             if w.get('tag'): tagged.setdefault(w['tag'], []).append(w['id'])
-    cols = {'K-12': [], 'K-22': FG['columns'], 'K-32': FF['columns'], 'K-42': RF.get('columns', [])}
+    cols = {'K-12': [], 'K-22': FG['columns'], 'K-32': FF['columns'], 'K-42': FF['columns'] + RF.get('columns', [])}
     for s in out['sections']:
         if s['kind'] == 'wall': s['elements'] = tagged.get(s['title'], [])
         if s['kind'] == 'column':

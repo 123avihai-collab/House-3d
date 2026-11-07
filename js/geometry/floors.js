@@ -103,16 +103,25 @@ export function buildFloorSkeleton(ctx, F) {
     const pieces = w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
     for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
     for (const f of w.raisedITM || []) pieces.push([f.ringITM, f.holesITM, f.bottomRel, f.topRel]);   // part with no beam above: up to the slab (ק17)
-    for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
+    for (const [r, h, b, t] of pieces) {
+      const m = prism(r, h, H(b), H(t), conc); g.add(m);
+      if (w.cancelledBy) g.add(edges(m, D.ownerChangeRemovedColor)); else if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor));
+    }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
+    if (w.cancelledBy) g.add(label(`מבוטל בהצעה ${w.cancelledBy} – ${w.displayName || w.id}`, w.footprintITM, H(w.topRel) + 2 * D.labelLift_m, 'lbl removed'));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     // mamad walls: cast with the ceiling as one body (Avihai's note 10)
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls'), ...(floor === 'roof' && w.bottomRel < (data.tags.floors.find(f => f.id === 'roof')?.level ?? 99) - 0.5 ? { step: 'firstWalls' } : {}), ...(w.mamad ? { step: 'groundCeiling' } : {}) }, {
-      id: w.id, name: `קיר ${w.tag || w.id} (${w.id}) – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
-      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+      ...(w.cancelledBy ? { variant: { change: w.cancelledBy, show: 'original' } } : {}),
+      // names only from the plans (Avihai's note 2.7): the sheet's wall tag, else "ללא שם בתוכנית"; the model id is internal
+      id: w.id, name: `${w.displayName || (w.tag ? `קיר ${w.tag}` : 'קיר ללא שם בתוכנית')} – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
+      rows: [['שם בתוכנית', w.tag ? `${w.tag}${w.tagK41 ? ` (K-31 ו-K-41: ${w.tagK41})` : ''}` : '— (אין תווית בגיליון)'], ['מזהה פנימי במודל', `${w.id} (לא מהתוכנית)`],
+        ['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+        ...(w.noRebar ? [['זיון', 'אין פרט – לא נבנה במודל']] : []),
         ...(w.openings?.length ? [['פתחים', `${w.openings.join(', ')} (אדן / משקוף בטון)`]] : []),
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
-      note: [w.mamad ? 'קיר ממ"ד – נוצק יחד עם התקרה והקורות שמעליו כגוף אחד (שלב תקרת הקרקע).' : '', w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.'].filter(Boolean).join(' '), source: w.source,
+      note: [w.mamad ? 'קיר ממ"ד – נוצק יחד עם התקרה והקורות שמעליו כגוף אחד (שלב תקרת הקרקע).' : '', w.cancelledBy ? `מבוטל בהצעה ${w.cancelledBy} (כפתור "שינויים") – מוצג כאן לפי התוכניות.` : '',
+        w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', w.noRebar ? w.noRebarNote : ''].filter(Boolean).join(' '), source: w.source,
     });
     if (w.note) wNotes.add(w.note);
     scene.add(g);
@@ -123,8 +132,8 @@ export function buildFloorSkeleton(ctx, F) {
     g.add(label(`${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, c.footprintITM, H(c.topRel) + D.labelLift_m));
     stats.columns_m3 += new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()).y * c.size_cm[0] * c.size_cm[1] / 1e4;
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Columns') }, {
-      id: c.id, name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}${floor === 'first' ? " – קומה א'" : ''}`, status: c.status,
-      rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`], ['יושב על', c.standsOn || '— (חסר במקורות)']],
+      id: c.id, name: `עמוד ${c.id}${c.tagK41 && `C${c.tagK41}` !== c.id ? ` (ב-K-41: "${c.tagK41}")` : ''} ${c.size_cm[0]}/${c.size_cm[1]}${floor === 'first' ? " – קומה א'" : ''}`, status: c.status,
+      rows: [...(c.ledge ? [['מדרגה מול ' + c.ledge.beam, `רצועה ${Math.round(c.ledge.width_m * 100)} ס"מ נעצרת ${Math.round(c.ledge.stepHeight_m * 100)} ס"מ מתחת לראש הקורה (כמו ב-K-41)`]] : []), ['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`], ['יושב על', c.standsOn || '— (חסר במקורות)']],
       note: c.note || '', source: c.source,
     });
     scene.add(g);
@@ -155,7 +164,8 @@ export function buildFloorSkeleton(ctx, F) {
       // volume below / above the slab only (the part inside the slab is counted with the slab)
       const sl = C.slab[0]; const ov = sl && !b.pergola ? Math.max(0, Math.min(b.topRel, sl.topRel) - Math.max(b.bottomRel, sl.bottomRel)) : 0;
       stats.beams_m3 += len * b.width_m * (b.depth_m - ov);
-      registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('CeilingBeams') }, {
+      // perimeter beams of the roof: cast with the parapets as one ring (Avihai's notes 2.4 / 2.5 – step roofWalls)
+      registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('CeilingBeams'), ...(b.castWith ? { step: b.castWith } : {}) }, {
         ceilTopRel: C.slab.length ? Math.max(...C.slab.map(x => x.topRel)) : b.topRel,
         id: b.id, name: `${b.pergola ? 'קורת פרגולה' : 'קורה'} ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – ${F.ceilingLabel || 'תקרת הקרקע'}`, status: b.status,
         rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],

@@ -396,7 +396,16 @@ def main():
                          'source': f'{K400} מלבן מתחת לתווית "{txt}" (pt {round(cx)},{round(bb[1])}) + "פרט ראש כלונס כפול קוטר60"'})
     print('pile caps', [(c['id'], c['size_m'], c['topRel'], c['bottomRel'], c['status']) for c in caps])
 
-    out = {'placement': placement, 'basementWalls': walls, 'slabs': slabs, 'groundBeams': beams, 'pileCaps': caps, 'rebarChanges': rebar_note,
+    # external waterproofing of the basement walls (Avihai's note 2): no detail in the sources – a provisional band on the
+    # outer face of the basement outline, from the wall bottom to the wall top (tools/earthworks.json waterproofing)
+    EW = json.load(open(os.path.join(ROOT, 'tools/earthworks.json'), encoding='utf-8'))['waterproofing']
+    bo = Polygon(basement['outlineITM']).buffer(0)
+    band = bo.buffer(EW['displayThickness_m'], join_style=2).difference(bo)
+    bwall = [w for w in walls if w.get('bottomRel') is not None]
+    wp = {'ringITM': [[r3(a), r3(b)] for a, b in band.exterior.coords[:-1]], 'holesITM': [[[r3(a), r3(b)] for a, b in i.coords[:-1]] for i in band.interiors],
+          'bottomRel': min(w['bottomRel'] for w in bwall), 'topRel': max(w['topRel'] for w in bwall), 'area_m2': r3(bo.length * (max(w['topRel'] for w in bwall) - min(w['bottomRel'] for w in bwall))),
+          'perimeter_m': r3(bo.length), 'layers': EW['layers'], 'status': 'provisional', 'source': EW['source']}
+    out = {'placement': placement, 'basementWalls': walls, 'waterproofing': wp, 'slabs': slabs, 'groundBeams': beams, 'pileCaps': caps, 'rebarChanges': rebar_note,
            'unmatchedStipple': {'count': len(unmatched), 'note': 'פסי נקודות ב-K-400 שלא שויכו לתווית קורה (בעיקר בתוך ראשי כלונס רחבים) – לא שורטטו'},
            'floorTags': {'k11': [{'top': t['top'], 'D': t['thickness_m'], 'itm': [r3(v) for v in t['itm']]} for t in tags11],
                          'k21': [{'top': t['top'], 'D': t['thickness_m'], 'itm': [r3(v) for v in t['itm']]} for t in tags21]},

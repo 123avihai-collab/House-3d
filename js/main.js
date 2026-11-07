@@ -126,7 +126,10 @@ async function main() {
   };
 
   // ---------- apply state ----------
+  // "צנרת מוסתרת": the concrete (one shared material) turns half see-through so the pipes in / under it show
+  const concreteMats = ['concrete', 'concreteProvisional', 'leanConcrete'].map(k => { try { return materials.get(k); } catch { return null; } }).filter(Boolean);
   const applyState = (s) => {
+    for (const m of concreteMats) { const on = !!s.showHidden; if (m.transparent !== on) { m.transparent = on; m.opacity = on ? display.xray.concreteOpacity : 1; m.depthWrite = !on; m.needsUpdate = true; } }
     registry.apply(s);
     app.sun.update(s.sun.date, s.sun.minutes);
     viewer.setAO(s.quality.ao);

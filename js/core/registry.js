@@ -53,6 +53,8 @@ export class Registry {
       const v = it.meta.variant;
       const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
       let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
+      // "צנרת מוסתרת": pipes hidden by the pour (meta.concealed) are shown again from their own step on
+      if (!visible && state.showHidden && it.meta.concealed && layerOn && floor.visible && sysOn && varOn && si >= from) visible = true;
       // horizontal floor section: the beams of the floor being cut (the ceiling beams under / on the slab you stand on) are hidden
       if (visible && cutFloor && /[cC]eilingBeams$/.test(t.layer) && t.floor === cutFloor) visible = false;
       // "תקרה" / "רצפה" switches of the floors tab (tags.json floors[].ceilingLayers / floorLayers)

@@ -74,13 +74,17 @@ export function buildFloorSkeleton(ctx, F) {
   // the pour – under the house in step "underSlab", under the outdoor slabs / beams with them
   if (F.underSlab?.pieces?.length) {
     const U = F.underSlab, total = U.buildUp.reduce((a, b) => a + b.thickness_m, 0);
-    const mats = U.buildUp.map(b => materials.get(/פוליביד|הפרדה/.test(b.item) ? 'voidFormer' : 'leanConcrete'));
+    const formerM = materials.get('voidFormer'), boardM = materials.get('leanConcrete');
+    const mats = U.buildUp.map(b => (/פוליביד|הפרדה/.test(b.item) ? formerM : boardM));
     for (const outdoor of [false, true]) {
       const ps = U.pieces.filter(p => OUTDOOR.has(p.zone) === outdoor); if (!ps.length) continue;
       const g = new THREE.Group(); let area = 0;
       for (const p of ps) {
         let z = p.topRel - total; area += p.area_m2;
-        U.buildUp.forEach((b, i) => { g.add(prism(p.footprintITM, p.holesITM, H(z), H(z + b.thickness_m), mats[i])); z += b.thickness_m; });
+        // the outer face of the void formers is closed by vertical concrete boards (K-400 – "לוחות בטון אנכיים") – side faces in
+        // concrete, so no box shows where the slab steps down to a lower one (Avihai's note 1 / ק19)
+        U.buildUp.forEach((b, i) => { const m = prism(p.footprintITM, p.holesITM, H(z), H(z + b.thickness_m), mats[i]);
+          if (mats[i] === formerM) m.material = [formerM, boardM]; g.add(m); z += b.thickness_m; });
       }
       registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'underSlabFormers', step: outdoor ? 'outdoorBeams' : 'underSlab' }, {
         name: outdoor ? 'בטון רזה + ארגזי פוליביד – מתחת לרצפות ולקורות החוץ' : 'בטון רזה + ארגזי פוליביד – מתחת לרצפת הבית ולקורות K-21',

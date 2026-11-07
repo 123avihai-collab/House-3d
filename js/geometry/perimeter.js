@@ -19,14 +19,17 @@ export function buildPerimeter(ctx) {
   const area = (ring) => Math.abs(ring.reduce((a, p, i) => { const q = ring[(i + 1) % ring.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
   const SIDE = { W: 'מערבית', NW: 'צפונית (מערב)', NE: 'צפונית (מזרח)', E: 'מזרחית', S: 'דרומית (רחוב)', SW: 'פינה דרום-מערבית' };
   const stats = { footings_m3: 0, walls_m3: 0 };
+  // a wall footing that carries a beam the house needs (floor-ground.json outdoorBeamsCheck.earlyFootings – B-58 / B-59 on PF5,
+  // Avihai's note 3) is cast before the ground-floor pour, the rest with the perimeter walls
+  const early = new Set(data.floorGround?.outdoorBeamsCheck?.earlyFootings || []);
   for (const f of PM.footings) {
     const m = prism(f.ringITM, f.bottomRel, f.topRel); const g = new THREE.Group(); g.add(m); if (flagged(f.status)) g.add(edges(m));
     stats.footings_m3 += f.area_m2 * f.thickness_m;
-    registry.add(g, { floor: 'site', system: 'structure', stage: 'groundBeams', layer: 'perimeterFootings', step: 'perimeterFootings' }, {
+    registry.add(g, { floor: 'site', system: 'structure', stage: 'groundBeams', layer: 'perimeterFootings', step: early.has(f.id) ? 'underSlab' : 'perimeterFootings' }, {
       id: f.id, name: `יסוד חומה ${SIDE[f.side] || f.side} (${f.id})`, status: f.status,
       rows: [['רוחב / עובי', `${f.width_m.toFixed(2)} / ${f.thickness_m.toFixed(2)} מ'`], ['תחתית / ראש', `${coords.fmtH(coords.H0 + f.bottomRel)} / ${coords.fmtH(coords.H0 + f.topRel)}`],
         ['כלונסאות', f.piles.join(', ') || '—'], ['נפח בטון', `${(f.area_m2 * f.thickness_m).toFixed(2)} מ"ק`]],
-      note: f.note, source: f.source,
+      note: [f.note, early.has(f.id) ? 'נוצק לפני רצפת הקרקע: נושא קורה שהבית נשען עליה (B-58 / B-59).' : ''].filter(Boolean).join(' '), source: f.source,
     });
     scene.add(g);
   }

@@ -126,5 +126,14 @@
   "glass_m": 0.02,
   "doorLeaf_m": 0.045,
   "defaultWallDepth_m": 0.2
+ },
+ "xray": {
+  "_doc": "כפתור \"צנרת מוסתרת\" – שקיפות הבטון (קבוע תצוגה)",
+  "concreteOpacity": 0.35
+ },
+ "earthworks": {
+  "_doc": "צבעים לשכבות העפר והאיטום – קבועי תצוגה",
+  "strippedColor": "#8d7b63",
+  "waterproofingColor": "#1f1d1b"
  }
 }

@@ -274,6 +274,9 @@ def main():
                         'count': len(piles), 'piles': piles,
                         'requirements': 'K-400: ניסיון קידוח בשיטה יבשה, בדיקות סוניות בכל הכלונסאות לאחר 7 ימים, בטון ב-30, לפי דוח קרקע 214140/5187'})
     dump('basement.json', basement)
+    # earthworks (stripping, levelling, fill, wall drain, waterproofing): manual readings of the soil report / K-400
+    ew = json.load(open(os.path.join(ROOT, 'tools/earthworks.json'), encoding='utf-8')); ew.pop('_doc', None)
+    excavation['earthworks'] = ew
     dump('excavation.json', excavation)
 
 

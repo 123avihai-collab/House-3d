@@ -45,7 +45,7 @@ export function buildTerrain(ctx) {
     const interp25 = makeInterpolator(pts);
     const lot = data.plot.ring;
     const m = regionMesh(lot, interp25, coords, materials.get('soilPlot'), materials.get('soilCut'), T, []);
-    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stepTo: 'pilesOutside', layer: 'topoExisting2025' }, {
+    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stepTo: 'existing', layer: 'topoExisting2025' }, {
       name: 'מגרש 5187 – קרקע קיימת (מדידה 25.09.2025)', kind: 'terrain', role: 'plotExisting', ring: lot,
       area: Math.abs(ringArea(lot)), hMin: m.userData.hMin, hMax: m.userData.hMax, interp: interp25.kind, controlCount: interp25.count,
       source: s25.source, note: `נקודות הגובה הועתקו מסריקה; דיוק מיקום ±${s25.positionAccuracy_m} מ'`,

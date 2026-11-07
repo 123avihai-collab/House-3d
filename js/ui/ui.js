@@ -139,6 +139,11 @@ export class UI {
       app.store.set({ quality: { ...q, labels: mode !== 'off', labelMode: mode === 'off' ? (q.labelMode || 'step') : mode } }, { label: 'labels' });
       this.toast({ step: 'תוויות: רק של השלב הנוכחי (+ האלמנט שנבחר)', all: 'תוויות: הכול', off: 'בלי תוויות' }[mode]);
     } }, '🏷'));
+    // concealed pipes (under the slabs / in the walls) with half see-through concrete – in every step (Avihai's note 4)
+    tb.append(h('button', { 'data-k': 'xray', title: 'צנרת מוסתרת: הצגת הצנרת מתחת לרצפות ובתוך הקירות (בטון שקוף למחצה)', onclick: () => {
+      const on = !app.store.get().showHidden; app.store.set({ showHidden: on }, { label: 'xray' }); this.toast(on ? 'צנרת מוסתרת: מוצגת (בטון שקוף למחצה)' : 'צנרת מוסתרת: כבוי');
+    } }, '🔧'));
+    app.store.on((s) => document.querySelector('#toolbar [data-k="xray"]')?.classList.toggle('on', !!s.showHidden));
     document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
   }
   setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); }

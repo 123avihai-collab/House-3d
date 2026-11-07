@@ -4923,8 +4923,8 @@
   "B-52": "parking",
   "B-56": "southYard",
   "B-57": "entry",
-  "B-58": "southYard",
-  "B-59": "parking",
+  "B-58": "house",
+  "B-59": "house",
   "B-55": "terrace",
   "BU-1": "house",
   "BU-2": "mamad"
@@ -5836,6 +5836,199 @@
   "C5 +3.50→+3.45",
   "C4 +3.50→+3.45"
  ],
+ "outdoorBeamsCheck": {
+  "rows": [
+   {
+    "beam": "B-38",
+    "size": "25/60",
+    "topRel": -0.15,
+    "length_m": 5.14,
+    "restsOn": [
+     "יסוד PF2",
+     "קיר מרתף"
+    ],
+    "carries": [
+     "house",
+     "terrace"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-41",
+    "size": "25/60",
+    "topRel": -0.26,
+    "length_m": 1.582,
+    "restsOn": [
+     "יסוד PF1"
+    ],
+    "carries": [
+     "southYard",
+     "westYard"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-42",
+    "size": "25/60",
+    "topRel": -0.31,
+    "length_m": 2.424,
+    "restsOn": [
+     "כלונס 17",
+     "קורה B-45",
+     "קיר מרתף"
+    ],
+    "carries": [
+     "house",
+     "southYard"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-51",
+    "size": "32/60",
+    "topRel": -0.47,
+    "length_m": 5.33,
+    "restsOn": [
+     "יסוד PF7",
+     "כלונס 11",
+     "כלונס 111",
+     "קורה B-48",
+     "קורה B-49",
+     "קורה B-60"
+    ],
+    "carries": [
+     "house",
+     "parking",
+     "southYard"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-52",
+    "size": "25/60",
+    "topRel": -0.47,
+    "length_m": 3.59,
+    "restsOn": [
+     "יסוד PF4",
+     "כלונס 108",
+     "כלונס 9",
+     "קורה B-47",
+     "קורה B-53",
+     "קורה B-54"
+    ],
+    "carries": [
+     "house",
+     "parking"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-54",
+    "size": "30/60",
+    "topRel": -0.47,
+    "length_m": 5.836,
+    "restsOn": [
+     "כלונס 9",
+     "קורה B-47",
+     "קורה B-52",
+     "קורה B-53"
+    ],
+    "carries": [
+     "house",
+     "parking"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-55",
+    "size": "30/90",
+    "topRel": -0.15,
+    "length_m": 1.079,
+    "restsOn": [
+     "כלונס 7",
+     "קורה B-37"
+    ],
+    "carries": [
+     "terrace"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-56",
+    "size": "25/75",
+    "topRel": -0.31,
+    "length_m": 2.992,
+    "restsOn": [
+     "יסוד PF5"
+    ],
+    "carries": [
+     "southYard"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   },
+   {
+    "beam": "B-58",
+    "size": "25/75",
+    "topRel": -0.32,
+    "length_m": 1.354,
+    "restsOn": [
+     "קורה B-57",
+     "קורה B-59"
+    ],
+    "carries": [
+     "southYard"
+    ],
+    "class": "critical",
+    "reason": "קצה B-57 נשען רק עליה"
+   },
+   {
+    "beam": "B-59",
+    "size": "25/60",
+    "topRel": -0.47,
+    "length_m": 1.405,
+    "restsOn": [
+     "יסוד PF5",
+     "קורה B-58",
+     "קורה B-60"
+    ],
+    "carries": [
+     "parking"
+    ],
+    "class": "critical",
+    "reason": "קצה B-58 נשען רק עליה"
+   },
+   {
+    "beam": "B-60",
+    "size": "20/60",
+    "topRel": -0.47,
+    "length_m": 2.846,
+    "restsOn": [
+     "יסוד PF5",
+     "יסוד PF7",
+     "כלונס 111",
+     "קורה B-51",
+     "קורה B-59"
+    ],
+    "carries": [
+     "parking"
+    ],
+    "class": "outdoor",
+    "reason": "נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית"
+   }
+  ],
+  "earlyFootings": [
+   "PF5"
+  ],
+  "note": "קורה שקצה קורת בית נשען רק עליה – נוצקת עם רצפת הקרקע; יסוד החומה שהיא נשענת עליו – לפני כן. השאר – בשלב קורות החוץ."
+ },
  "underSlab": {
   "buildUp": [
    {
@@ -7656,7 +7849,7 @@
    {
     "on": "B-58",
     "kind": "beam",
-    "zone": "southYard",
+    "zone": "house",
     "footprintITM": [
      [
       179596.554,
@@ -7682,7 +7875,7 @@
    {
     "on": "B-59",
     "kind": "beam",
-    "zone": "parking",
+    "zone": "house",
     "footprintITM": [
      [
       179596.028,

@@ -227,7 +227,9 @@ export function buildPlumbingFoundations(ctx) {
   const houseRings = [data.basement?.outlineITM, ...(data.floorGround?.slab || []).filter(s => ['house', 'entry', 'mamad'].includes(s.zone)).map(s => s.footprintITM)].filter(Boolean);
   const inRing = (E, N, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > N) !== (yj > N) && E < (xj - xi) * (N - yi) / (yj - yi) + xi) c = !c; } return c; };
   const underHouse = (q) => houseRings.some(r => inRing((q.fromITM[0] + q.toITM[0]) / 2, (q.fromITM[1] + q.toITM[1]) / 2, r));
-  const pipeTags = (q) => underHouse(q) ? { floor: 'ground', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'underSlab' } : { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'siteSewer' };
+  // under the house: installed in its own step (after the void formers, before the rebar and the pour) and fully hidden from the
+  // pour on – no shadow, no see-through copy; the "צנרת מוסתרת" switch shows it again (Avihai's note 4)
+  const pipeTags = (q) => underHouse(q) ? { floor: 'ground', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'underSlabPlumbing', stepTo: 'underSlabPlumbing' } : { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'siteSewer' };
   let pipeLen = 0;
   for (const q of P.pipes || []) {
     const r = (q.diameter_m || D.unknownDiameter_m) / 2;
@@ -241,7 +243,7 @@ export function buildPlumbingFoundations(ctx) {
     m.position.copy(a); m.lookAt(b); m.castShadow = true;
     const g = new THREE.Group(); g.add(m);
     const pt = pipeTags(q);
-    ghost(g, [geo], a, col, pt, pt.step === 'underSlab' ? 'groundSlab' : 'outdoorSlabs', m.quaternion);
+    ghost(g, [geo], a, col, pt, pt.step === 'underSlabPlumbing' ? 'underSlabPlumbing' : 'outdoorSlabs', m.quaternion);
     if (q.ILfrom != null) {   // flow arrow at mid-length, pointing downstream
       const cone = new THREE.Mesh(new THREE.ConeGeometry(r * 1.8, r * 4, 12), new THREE.MeshBasicMaterial({ color: D.flowArrowColor }));
       cone.position.copy(a.clone().lerp(b, 0.5)); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); g.add(cone);
@@ -254,6 +256,7 @@ export function buildPlumbingFoundations(ctx) {
     pipeLen += q.lengthM;
     const st = { source: 'מפלסים מהשוחות/תוויות', derived: 'מפלס נגזר (שיפוע כתוב)', provisional: 'מפלס זמני (שיפוע הונח 2%)', missing: 'מפלס לא ידוע – מיקום בלבד' }[q.status];
     registry.add(g, pt, {
+      concealed: !!pt.stepTo,
       name: `צינור ביוב ${q.id}${q.diameter_m ? ` · ø${Math.round(q.diameter_m * 1000)} ${q.material || ''}` : ''}`, status: q.status === 'source' ? 'source' : 'provisional',
       rows: [['אורך', `${q.lengthM.toFixed(2)} מ'`], ['שיפוע', q.slope ? `${(q.slope * 100).toFixed(2)}%` : '—'],
         ['I.L התחלה → סוף', q.ILfrom != null ? `${coords.fmtH(q.ILfrom)} → ${coords.fmtH(q.ILto)}` : '—'], ['כיוון זרימה', q.between?.[1] ? `אל ${q.between[1]}` : '—'], ['מעמד', st]]
@@ -275,6 +278,7 @@ export function buildPlumbingFoundations(ctx) {
     const dl = document.createElement('div'); dl.className = 'lbl removed'; dl.style.textDecoration = 'none'; dl.textContent = `שרוול · ${x.pipe} ↔ ${x.element}`;
     const o = new CSS2DObject(dl); o.position.copy(ring.position); o.position.y += 0.35; g.add(o);
     registry.add(g, pipeTags(q), {
+      concealed: !!pipeTags(q).stepTo,
       name: `מעבר צנרת ${x.pipe} דרך ${x.kind === 'beam' ? 'קורה' : 'קיר מרתף'} ${x.element} – שרוול נדרש`, status: 'provisional',
       rows: [['ITM', `${x.E.toFixed(3)} / ${x.N.toFixed(3)}`], ['אורך מעבר', `${x.length_m.toFixed(2)} מ'`]],
       note: x.note || 'לתאם עם הקונסטרוקטור: שרוול/פתח באלמנט הבטון לפני היציקה.', source: q.source,

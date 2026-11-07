@@ -1087,6 +1087,55 @@ def main():
                          f" ראש: תחתית הקורה {b['id']} ({round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)}, O.K {b['topRel']:+.2f}) שמעליו.").strip()
     print('ground walls / columns up to the K-31 beam soffit', under)
     out['wallsUnderBeams'] = under
+    # ---- outdoor K-21 beams: critical for the house? (Avihai's note 3) – a house beam whose end has no pile, basement wall,
+    #      wall footing or house beam under it rests on the outdoor beam it meets: that beam (and the beams that carry it on in
+    #      line down to a support) is cast with the house, and the wall footing it rests on before it ----
+    OUTZ = set(json.load(open(os.path.join(ROOT, 'data/config/tags.json'), encoding='utf-8'))['outdoorZones'])
+    PL = json.load(open(os.path.join(ROOT, 'data/structure/piles.json'), encoding='utf-8'))['piles']
+    PF = json.load(open(os.path.join(ROOT, 'data/structure/perimeter.json'), encoding='utf-8'))['footings']
+    pileC = {p['id']: Point(p['E'], p['N']).buffer(p['diameter_m'] / 2) for p in PL}
+    pfP = {f['id']: Polygon(f['ringITM']).buffer(0) for f in PF}
+    bwU2 = unary_union([P for P, w in bw_polys])
+    K21B = {x['id']: (LineString(x['axisITM']).buffer(x['width_m'] / 2, cap_style=2), x) for x in FR['groundBeams'] if x['sheet'] == 'K-21' and x.get('axisITM')}
+    zone = out['beamZones']
+    isHouse = lambda k: zone.get(k, 'house') not in OUTZ
+    def end_patch(x, k, d=0.25):
+        (a, b) = np.array(x['axisITM'][0], float), np.array(x['axisITM'][1], float); u = (b - a) / np.linalg.norm(b - a)
+        P0 = a if k == 0 else b; inward = u if k == 0 else -u
+        return LineString([P0, P0 + inward * d]).buffer(x['width_m'] / 2 + 0.02, cap_style=2)
+    def supports(patch, own, house_only=True):
+        r = [f"כלונס {i}" for i, c in pileC.items() if patch.intersects(c)]
+        r += [f"יסוד {i}" for i, g in pfP.items() if patch.intersects(g)]
+        if patch.intersection(bwU2).area > 0.01: r.append('קיר מרתף')
+        r += [f"קורה {o}" for o, (P, y) in K21B.items() if o != own and patch.intersects(P) and (isHouse(o) or not house_only)]
+        return r
+    critical, why = set(), {}
+    changed = True
+    while changed:
+        changed = False
+        for k, (P, x) in K21B.items():
+            if not (isHouse(k) or k in critical): continue
+            for e in (0, 1):
+                pt = end_patch(x, e)
+                if supports(pt, k): continue
+                carriers = [o for o, (Q, y) in K21B.items() if o != k and not isHouse(o) and o not in critical and pt.intersects(Q)]
+                for o in carriers:
+                    critical.add(o); why[o] = f"קצה {k} נשען רק עליה"; changed = True
+    early_footings = sorted({f for o in critical for f, g in pfP.items() if K21B[o][0].intersects(g)})
+    for o in critical: zone[o] = 'house'
+    rows = []
+    for k, (P, x) in sorted(K21B.items()):
+        z0 = zone.get(k)
+        if k not in critical and z0 not in OUTZ: continue
+        rests = sorted(set(supports(end_patch(x, 0), k, False) + supports(end_patch(x, 1), k, False)))
+        carries = sorted({w['id'] for w in wall_out + col_out if (w.get('standsOn') or '').startswith(f"קורה {k} ")} |
+                         {s_['zone'] for s_ in [{'zone': p_['zone']} for p_ in panels21 if p_['poly'].intersection(P.buffer(0.15)).area > 0.1]})
+        rows.append({'beam': k, 'size': f"{round(x['width_m'] * 100)}/{round(x['depth_m'] * 100)}", 'topRel': x['topRel'], 'length_m': r3(math.dist(*x['axisITM'])),
+                     'restsOn': rests, 'carries': carries, 'class': 'critical' if k in critical else 'outdoor',
+                     'reason': why.get(k, 'נושאת רק רצפות חוץ; לא נושאת קיר / עמוד / קצה קורה של הבית')})
+    out['outdoorBeamsCheck'] = {'rows': rows, 'earlyFootings': early_footings,
+                                'note': 'קורה שקצה קורת בית נשען רק עליה – נוצקת עם רצפת הקרקע; יסוד החומה שהיא נשענת עליו – לפני כן. השאר – בשלב קורות החוץ.'}
+    print('outdoor beams: critical', sorted(critical), 'early footings', early_footings)
     # ---- under the ground slabs and K-21 beams outside the basement: lean concrete + void formers (Avihai's ק14 – "על מה
     #      זה יושב?": the suspended slab is cast on them; they were only a gap above the working level) ----
     EXC = json.load(open(os.path.join(ROOT, 'data/structure/excavation.json'), encoding='utf-8'))

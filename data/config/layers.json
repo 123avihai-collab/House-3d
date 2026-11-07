@@ -23,8 +23,13 @@
      "visible": true
     },
     {
+     "id": "earthworks",
+     "label": "חישוף ויישור המגרש",
+     "visible": true
+    },
+    {
      "id": "backfill",
-     "label": "מילוי חוזר ויישור לגובה העבודה",
+     "label": "מילוי חוזר ומצעים (מצע ג')",
      "visible": true
     },
     {
@@ -206,6 +211,11 @@
     {
      "id": "ceilingBeams",
      "label": "קורות מעל המרתף (K-21 / גיליון ברזל K-22)",
+     "visible": true
+    },
+    {
+     "id": "waterproofing",
+     "label": "איטום חיצוני לקירות המרתף (זמני)",
      "visible": true
     },
     {

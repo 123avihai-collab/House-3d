@@ -116,7 +116,9 @@
   "coverThickness_m": 0.06
  },
  "stairs": {
-  "labelLift_m": 0.4
+  "labelLift_m": 0.4,
+  "anchorMarker_m": 0.04,
+  "anchorColor": "#5d6d7e"
  },
  "openings": {
   "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר); sleeveDefaultRel – גובה תצוגה זמני לשרוול בלי גובה במקור; leafParkColor – סימון אזור חניית הכנף",

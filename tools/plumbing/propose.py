@@ -36,6 +36,7 @@ O = CORN[1]
 LOC = [local(c, O) for c in CORN]
 YMAX = max(q[1] for q in LOC); XMIN = min(q[0] for q in LOC)
 FL = I['floors']
+UH = I.get('unitHot', {}).get('enabled', False)      # PD1: hot water to the basement units from roof heaters
 SLEEVE_SERIES = [25, 32, 40, 50, 63, 75, 90, 110, 125, 160, 200]
 
 
@@ -241,6 +242,55 @@ def crossings(pts2, grid, pipe_id, D, z, floor):
     return out
 
 
+# ------------------------------------------------------------------ PD1: roof heaters for the basement units
+def unit_hot_chain(SH, manifolds, grids, add_run, sleeves, crossings, inlet, outl, runs):
+    U = I['unitHot']; inner = SH['inner']; htr = NODES['HTR@roof']
+    zr, zrp = H0 + FL['roof']['finish'], H0 + FL['roof']['pipe']
+    zu, zfl = H0 + FL['unit']['finish'], H0 + FL['unit']['pipe']
+    roof = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['ceiling']['slab']]).buffer(-0.6)
+    busy = [Point(htr['E'], htr['N'])] + [Point(p[0], p[1]) for l in N['lines3d'] if l.get('kind') in ('stack', 'downpipe') for p in l['pts3d'][-1:]]
+    spots = []
+    for k in range(1, 12):
+        for ax in (UY, (-UY[0], -UY[1]), UX, (-UX[0], -UX[1])):
+            q = (htr['E'] + ax[0] * U['heaterSpacing_m'] * k, htr['N'] + ax[1] * U['heaterSpacing_m'] * k)
+            if roof.contains(Point(q)) and all(Point(q).distance(b) >= 0.8 for b in busy + [Point(s_) for s_ in spots]): spots.append(q)
+            if len(spots) == 2: break
+        if len(spots) == 2: break
+    out = {'heaters': [], 'pumps': [], 'loops': [], 'insulation_mm': U['insulation_mm']}
+    for (uk, mk), hp in zip((('u2', 'unit2'), ('u1', 'unit1')), spots):
+        m = manifolds[mk]; s_, r_ = inner[f'{uk}Supply'], inner[f'{uk}Return']
+        H = {'id': f'HTR-{mk.upper()}@roof', 'E': r3(hp[0]), 'N': r3(hp[1]), 'H': r3(zr), 'volume_l': U['heaterVolume_l'], 'unit': mk,
+             'title': f'דוד חשמלי {U["heaterVolume_l"]} ל\' – {m["title"].split(" – ")[0].replace("מחלק ", "")}', 'status': 'proposal'}
+        out['heaters'].append(H)
+        # supply: heater -> roof -> shaft -> unit manifold (unit2 at the shaft, unit1 through the basement floor)
+        pts = [(hp[0], hp[1], zr + 0.60), (hp[0], hp[1], zrp), (s_[0], s_[1], zrp), (s_[0], s_[1], zu + m['hotH'])]
+        if mk == 'unit2':
+            pts.append(inlet(m, zu + m['hotH']))
+        else:
+            st = (s_[0] + UY[0] * 0.20, s_[1] + UY[1] * 0.20)
+            path = grids['unit'].route(st, inlet(m, 0)[:2])
+            pts[-1] = (s_[0], s_[1], zu + 0.60); pts += [(st[0], st[1], zu + 0.60), (st[0], st[1], zfl)] + [(x, y, zfl) for x, y in path[1:]] + [(*inlet(m, 0)[:2], zu + m['hotH'])]
+            sleeves.extend(crossings(path, grids['unit'], f'HOT-{mk.upper()}', U['supply_D'], zfl, 'unit'))
+        add_run(f'HOT-{mk.upper()}', 'hot', 'unit', U['supply_D'], pts, H['id'], m['id'], f'אספקה חמה מהדוד של {"יחידה 1" if mk == "unit1" else "יחידה 2"} – בגג ובפיר, מבודדת', insul=True)
+        sup_len = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+        far = max((r['length_m'] for r in runs if r['from'] == m['id'] and r['system'] == 'hot'), default=0)
+        loop = sup_len + far > U['loopIfOver_m']
+        out['loops'].append({'unit': mk, 'supply_m': r3(sup_len), 'farthestBranch_m': r3(far), 'total_m': r3(sup_len + far), 'loop': loop})
+        if loop:
+            q = outl(m, zu + m['hotH'])
+            if mk == 'unit2':
+                rp = [q, (r_[0], r_[1], zu + m['hotH'] + 0.10)]
+            else:
+                st = (r_[0] + UY[0] * 0.20, r_[1] + UY[1] * 0.20)
+                path = grids['unit'].route(outl(m, 0)[:2], st)
+                rp = [q, (*outl(m, 0)[:2], zfl)] + [(x, y, zfl) for x, y in path[1:]] + [(r_[0], r_[1], zfl), (r_[0], r_[1], zu + m['hotH'] + 0.10)]
+                sleeves.extend(crossings(path, grids['unit'], f'RET-{mk.upper()}', U['return_D'], zfl, 'unit'))
+            rp += [(r_[0], r_[1], zrp + 0.06), (hp[0] + 0.25, hp[1], zrp + 0.06), (hp[0] + 0.25, hp[1], zr + 0.25)]
+            add_run(f'RET-{mk.upper()}', 'return', 'unit', U['return_D'], rp, m['id'], H['id'], f'קו סחרור של {"יחידה 1" if mk == "unit1" else "יחידה 2"}: מקצה המחלק בחזרה לדוד (הערה 12 – מעל {U["loopIfOver_m"]} מ\')', insul=True)
+            out['pumps'].append({'E': r3(hp[0] + 0.25), 'N': r3(hp[1]), 'H': r3(zr + 0.25), 'title': f'משאבת סחרור {"יחידה 1" if mk == "unit1" else "יחידה 2"} + אל-חוזר + ברז ניתוק, טיימר'})
+    return out
+
+
 # ------------------------------------------------------------------ main
 def main():
     global GG
@@ -322,9 +372,9 @@ def main():
             _, fl_, kind, sp, fr, fid, title = a; spec = PT[kind]
             pt_out.append({'id': fid, 'floor': fl_, 'kind': kind, 'title': spec['title'], 'fixture': fid, 'E': r3(sp[0]), 'N': r3(sp[1]),
                            'H': r3(zf + spec['H']), 'H_rel': spec['H'], 'D_mm': spec['D'], 'cold': spec['cold'],
-                           'hot': spec['hot'] and not (mk.startswith('unit')), 'hotPending': spec['hot'] and mk.startswith('unit'),
+                           'hot': spec['hot'] and (UH or not mk.startswith('unit')), 'hotPending': spec['hot'] and mk.startswith('unit') and not UH,
                            'wallDir': fr[0] if fr else None, 'face': fr[1] if fr else None, 'status': 'proposal', 'source': title})
-            for sysn, on, idx, n_tot, H in (('cold', spec['cold'], ci, n_c, m['coldH']), ('hot', spec['hot'] and not mk.startswith('unit'), hi, n_h, m['hotH'])):
+            for sysn, on, idx, n_tot, H in (('cold', spec['cold'], ci, n_c, m['coldH']), ('hot', spec['hot'] and (UH or not mk.startswith('unit')), hi, n_h, m['hotH'])):
                 if not on: continue
                 off = (idx - (n_tot - 1) / 2) * MF['outletPitch_m']
                 ox, oy = m['E'] + m['axis'][0] * off, m['N'] + m['axis'][1] * off
@@ -332,6 +382,10 @@ def main():
                 hs = I['hotSpacing_m'] / 2 * (1 if sysn == 'hot' else -1)
                 tgt = (sp[0] + (fr[0][0] * hs if fr else 0), sp[1] + (fr[0][1] * hs if fr else 0)) if spec['hot'] or sysn == 'hot' else sp
                 path = grids[fl].route(start, tgt)
+                if path is None and fr:      # target cell blocked (wall / keep-out): the other side of the point, then the point itself
+                    for alt in ((sp[0] - fr[0][0] * hs, sp[1] - fr[0][1] * hs), sp):
+                        path = grids[fl].route(start, alt)
+                        if path is not None: tgt = alt; break
                 if path is None: print('NO ROUTE', mk, fid, sysn); continue
                 rid = f'{"C" if sysn == "cold" else "H"}-{fid}'
                 pts3d = [(ox, oy, zf + H), (start[0], start[1], zf + H), (start[0], start[1], z)] + [(x, y, z) for x, y in path[1:-1]] + [(tgt[0], tgt[1], z), (tgt[0], tgt[1], zf + spec['H'])]
@@ -382,6 +436,7 @@ def main():
     add_run('RET-FIRST', 'return', 'first', F['hotReturn_D'], [outl(mf, zfirst + mf['hotH']), (hr[0], hr[1], zfirst + mf['hotH'] + 0.10)], mf['id'], 'RET-RISER', 'חזרה מקצה מחלק קומה א\'', insul=True)
     add_run('RET-RISER', 'return', 'roof', F['hotReturn_D'], [(hr[0], hr[1], zfirst + mf['hotH'] + 0.10), (hr[0], hr[1], zrp + 0.06), (htr['E'] + 0.25, htr['N'], zrp + 0.06), (htr['E'] + 0.25, htr['N'], zr + 0.25)],
             'RET-GROUND', 'HTR@roof', 'קו סחרור עולה לגג אל כניסת הדוד; משאבת סחרור + אל-חוזר ליד הדוד, טיימר / רגש לחץ', insul=True)
+    unit_hot = unit_hot_chain(SH, manifolds, grids, add_run, sleeves, crossings, inlet, outl, runs) if UH else None
     # shaft slab openings
     for lvl, name in ((H0 - 0.15, 'תקרת המרתף / רצפת הקרקע (‎-0.15)'), (H0 + 3.70, 'תקרת הקרקע (+3.70)'), (H0 + FL['roof']['finish'], 'תקרת הגג (+6.85)')):
         sleeves.append({'pipe': 'SHAFT', 'floor': 'shaft', 'at': [r3(SH['poly'].centroid.x), r3(SH['poly'].centroid.y), r3(lvl)], 'through': name,
@@ -415,16 +470,17 @@ def main():
                     if e not in sup and deg.get(e) == 2 and NODES[e]['kind'] == 'waterJoint': sup.add(e)
     sup = sorted(sup)
     mans = [{**{k: v for k, v in m.items()}, 'E': r3(m['E']), 'N': r3(m['N']), 'axis': [r3(v) for v in m['axis']], 'face': [r3(v) for v in m['face']],
-             'H_floor': r3(H0 + FL[floor_of_man[k]]['finish']), 'hotPending': k.startswith('unit'), 'status': 'proposal'} for k, m in manifolds.items()]
+             'H_floor': r3(H0 + FL[floor_of_man[k]]['finish']), 'hotPending': k.startswith('unit') and not UH, 'status': 'proposal'} for k, m in manifolds.items()]
     out = {'_doc': 'הצעת תכנון לשכבת האינסטלציה – לאישור אביחי ואחר כך היועץ. נוצר ע"י tools/plumbing/propose.py; לא לערוך ידנית.',
            'status': 'proposal', 'decisions': I['decisions'], 'pending': I['pending'],
            'shaft': {k: v for k, v in SH.items() if k not in ('poly',)}, 'stackMoves': SM, 'manifolds': mans, 'points': pt_out, 'runs': runs,
            'sleeves': sleeves, 'superseded': sup,
            'submeters': {'E': r3(bcold[0]), 'N': r3(bcold[1]), 'H': r3(zu + 0.60), 'title': 'מוני משנה ליחידות 1 ו-2 + ברזי ניתוק (בבסיס הפיר)'},
            'mainValve': {'E': r3(c[0]), 'N': r3(c[1]), 'H': r3(zg + I['mainEntry']['valveH']), 'title': 'ברז ראשי + מז"ח/אל-חוזר לבית (בפיר, קומת קרקע)'},
+           'unitHot': unit_hot,
            'recircPump': {'E': r3(htr['E'] + 0.25), 'N': r3(htr['N']), 'H': r3(zr + 0.25), 'title': 'משאבת סחרור + אל-חוזר + ברז ניתוק (פרט הסחרור של היועץ)'},
            'summary': {'runs': len(runs), 'pex_m': r3(sum(r['length_m'] for r in runs)), 'points': len(pt_out), 'sleeves': len(sleeves),
-                       'stacksMoved': sum(1 for s in SM if s.get('status') == 'proposal')}}
+                       'stacksMoved': sum(1 for s in SM if s.get('status') == 'proposal'), 'unitHot': bool(unit_hot)}}
     out['site'] = propose_site.build()
     out['summary']['site'] = {'chambers': len(out['site']['chamberRaise']), 'drops': len(out['site']['drops']), 'hoseReel': 1, 'meterConn': 2}
     json.dump(out, open(os.path.join(ROOT, 'data/plumbing/proposal.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

@@ -1,0 +1,5785 @@
+{
+ "_doc": "שכבת האינסטלציה – רשת כפי שתוכננה ע\"י יועץ האינסטלציה (נוצר ע\"י tools/plumbing/extract.py + build.py; לא לערוך ידנית). pts = ITM [E, N]; ILup/ILdown = רום תחתית הצינור (מוחלט) בקצה העליון/התחתון; pts3d = [E, N, H] מוחלט (H=null: לפי פני הקרקע פחות coverDepth_m).",
+ "source": [
+  "sources/plumbing/אינסטלציה חתכים הכל.dxf",
+  "sources/plumbing/‏‏פרטים - לאינטלציה - דוד-מזגן-עטיפת צינור ביוב-ועוד - עותק.dxf",
+  "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf",
+  "sources/plumbing/אינסטלציה - קומה א.pdf",
+  "sources/plumbing/אינסטלציה - גג.pdf",
+  "sources/plumbing/אינטלציה יחידת דיור.pdf"
+ ],
+ "placement": {
+  "ground": {
+   "t_cm": [
+    -25660.757,
+    1840.425
+   ],
+   "inlier": 0.138,
+   "median_cm": 0.174,
+   "matchedTo": "sources/structure/k-21.dxf"
+  },
+  "unit": {
+   "t_cm": [
+    -21571.5,
+    1896.69
+   ],
+   "inlier": 0.287,
+   "median_cm": 0.01,
+   "matchedTo": "sources/structure/k-11.dxf"
+  },
+  "first": {
+   "t_cm": [
+    -18025.974,
+    1896.496
+   ],
+   "inlier": 0.229,
+   "median_cm": 0.268,
+   "matchedTo": "sources/structure/k-31.dxf"
+  },
+  "roof": {
+   "t_cm": [
+    -14733.711,
+    1896.683
+   ],
+   "inlier": 0.182,
+   "median_cm": 0.09,
+   "matchedTo": "sources/structure/k-41.dxf"
+  }
+ },
+ "pdfFit": {
+  "ground": {
+   "pdf": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf",
+   "points": 7,
+   "maxResidual_m": 0.002,
+   "scale_m_per_pt": 0.056,
+   "rotation_deg": 68.0205
+  },
+  "first": {
+   "pdf": "sources/plumbing/אינסטלציה - קומה א.pdf",
+   "points": 9,
+   "maxResidual_m": 0.003,
+   "scale_m_per_pt": 0.045,
+   "rotation_deg": 68.0139
+  },
+  "roof": {
+   "pdf": "sources/plumbing/אינסטלציה - גג.pdf",
+   "points": 6,
+   "maxResidual_m": 0.003,
+   "scale_m_per_pt": 0.056,
+   "rotation_deg": 68.0113
+  },
+  "unit": {
+   "pdf": "sources/plumbing/אינטלציה יחידת דיור.pdf",
+   "points": 2,
+   "maxResidual_m": 0.0,
+   "scale_m_per_pt": 0.045,
+   "rotation_deg": -21.9909
+  }
+ },
+ "profile": {
+  "chambers": {
+   "S-0": {
+    "TL": 279.29,
+    "IL": [
+     277.09,
+     278.04
+    ]
+   },
+   "S-1": {
+    "TL": 280.2,
+    "IL": [
+     278.2,
+     279.13
+    ]
+   },
+   "S-4": {
+    "TL": 280.25,
+    "IL": [
+     279.25
+    ]
+   },
+   "S-5": {
+    "TL": 280.13,
+    "IL": [
+     279.48
+    ]
+   }
+  },
+  "labels": [
+   [
+    295.3431375400299,
+    "dist",
+    8.25
+   ],
+   [
+    684.2385892284815,
+    "slope",
+    0.02
+   ],
+   [
+    720.8738662832474,
+    "dist",
+    8.25
+   ],
+   [
+    730.7225070664828,
+    "pipe",
+    "ø160 PVC SN-8"
+   ],
+   [
+    1015.105042301934,
+    "dist",
+    6.15
+   ],
+   [
+    1300.829010865812,
+    "slope",
+    0.02
+   ],
+   [
+    1335.873866283247,
+    "dist",
+    14.4
+   ],
+   [
+    1344.854983410838,
+    "pipe",
+    "ø160 PVC SN-8"
+   ],
+   [
+    1903.366947063839,
+    "dist",
+    11.72
+   ],
+   [
+    2472.257582294384,
+    "slope",
+    0.0196
+   ],
+   [
+    2507.873866283248,
+    "dist",
+    26.12
+   ]
+  ],
+  "source": "sources/plumbing/‏‏פרטים - לאינטלציה - דוד-מזגן-עטיפת צינור ביוב-ועוד - עותק.dxf – פרופיל ביוב (שכבות TXT / Profile Legend)"
+ },
+ "nodes": [
+  {
+   "id": "PC-1",
+   "kind": "pumpChamber",
+   "floor": "unit",
+   "E": 179589.154,
+   "N": 576241.782,
+   "title": "תא שאיבה לניקוז חצרות אנגליים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD PC-1 (T.L=277.88, I.L=276.68, H=1.20, D=ø60) + סמל MH D1000",
+   "D_m": 0.6,
+   "TL": 277.88,
+   "IL": 276.68,
+   "H_m": 1.2
+  },
+  {
+   "id": "S-0",
+   "kind": "municipalManhole",
+   "floor": "site",
+   "E": 179585.038,
+   "N": 576227.589,
+   "title": "שוחה עירונית עם הכנת התחברות",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-0 (T.L=279.29, I.L=277.09, H=2.20, D=ø100) + סמל MH D1000",
+   "D_m": 1.0,
+   "TL": 279.29,
+   "IL": 277.09,
+   "H_m": 2.2
+  },
+  {
+   "id": "S-1",
+   "kind": "sewerChamber",
+   "floor": "site",
+   "E": 179588.955,
+   "N": 576234.849,
+   "title": "שוחת ביוב (תא בקרה) 1",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-1 (T.L=280.20, I.L=278.20, H=2.00, D=ø100) + סמל MH D1000",
+   "D_m": 1.0,
+   "TL": 280.2,
+   "IL": 278.2,
+   "H_m": 2.0
+  },
+  {
+   "id": "S-2",
+   "kind": "sewerChamber",
+   "floor": "site",
+   "E": 179586.35,
+   "N": 576239.389,
+   "title": "שוחת ביוב (תא בקרה) 2",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-2 (T.L=280.30, I.L=279.30, H=1.00, D=ø80) + סמל MH D1000",
+   "D_m": 0.8,
+   "TL": 280.3,
+   "IL": 279.3,
+   "H_m": 1.0
+  },
+  {
+   "id": "S-3",
+   "kind": "sewerChamber",
+   "floor": "site",
+   "E": 179589.237,
+   "N": 576247.017,
+   "title": "שוחת ביוב (תא בקרה) 3",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-3 (T.L=280.30, I.L=279.50, H=0.80, D=ø80) + סמל MH D1000",
+   "D_m": 0.8,
+   "TL": 280.3,
+   "IL": 279.5,
+   "H_m": 0.8
+  },
+  {
+   "id": "S-4",
+   "kind": "sewerChamber",
+   "floor": "site",
+   "E": 179594.664,
+   "N": 576232.545,
+   "title": "שוחת ביוב (תא בקרה) 4",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-4 (T.L=280.25, I.L=279.25, H=1.00, D=ø80) + סמל MH D1000",
+   "D_m": 0.8,
+   "TL": 280.25,
+   "IL": 279.25,
+   "H_m": 1.0
+  },
+  {
+   "id": "S-5",
+   "kind": "sewerChamber",
+   "floor": "site",
+   "E": 179606.311,
+   "N": 576233.842,
+   "title": "שוחת ביוב (תא בקרה) 5",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – G_LABELD S-5 (T.L=280.13, I.L=279.48, H=0.65, D=ø60) + סמל MH D1000",
+   "D_m": 0.6,
+   "TL": 280.13,
+   "IL": 279.48,
+   "H_m": 0.65
+  },
+  {
+   "id": "ST1@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179588.49,
+   "N": 576237.883,
+   "title": "קולטן צ.א 1 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 1",
+   "stack": 1
+  },
+  {
+   "id": "ST1@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179588.489,
+   "N": 576237.883,
+   "title": "קולטן צ.א 1 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 1",
+   "stack": 1
+  },
+  {
+   "id": "ST1@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179589.874,
+   "N": 576239.615,
+   "title": "קולטן צ.א 1 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 1",
+   "stack": 1
+  },
+  {
+   "id": "ST2@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179591.349,
+   "N": 576246.148,
+   "title": "קולטן צ.א 2 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 2",
+   "stack": 2
+  },
+  {
+   "id": "ST2@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179591.347,
+   "N": 576246.148,
+   "title": "קולטן צ.א 2 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 2",
+   "stack": 2
+  },
+  {
+   "id": "ST2@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179592.154,
+   "N": 576245.823,
+   "title": "קולטן צ.א 2 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 2",
+   "stack": 2
+  },
+  {
+   "id": "ST3@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179592.146,
+   "N": 576248.121,
+   "title": "קולטן צ.א 3 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 3",
+   "stack": 3
+  },
+  {
+   "id": "ST3@unit",
+   "kind": "stack",
+   "floor": "unit",
+   "E": 179592.017,
+   "N": 576247.803,
+   "title": "קולטן צ.א 3 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 3",
+   "stack": 3
+  },
+  {
+   "id": "ST3@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179592.947,
+   "N": 576247.795,
+   "title": "קולטן צ.א 3 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 3",
+   "stack": 3
+  },
+  {
+   "id": "ST3@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179592.95,
+   "N": 576247.796,
+   "title": "קולטן צ.א 3 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 3",
+   "stack": 3
+  },
+  {
+   "id": "ST4@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179595.881,
+   "N": 576235.562,
+   "title": "קולטן צ.א 4 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 4",
+   "stack": 4
+  },
+  {
+   "id": "ST4@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179595.88,
+   "N": 576235.562,
+   "title": "קולטן צ.א 4 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 4",
+   "stack": 4
+  },
+  {
+   "id": "ST4@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179595.883,
+   "N": 576235.563,
+   "title": "קולטן צ.א 4 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 4",
+   "stack": 4
+  },
+  {
+   "id": "ST5@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179595.947,
+   "N": 576235.725,
+   "title": "קולטן צ.א 5 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 5",
+   "stack": 5
+  },
+  {
+   "id": "ST5@unit",
+   "kind": "stack",
+   "floor": "unit",
+   "E": 179595.948,
+   "N": 576235.726,
+   "title": "קולטן צ.א 5 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 5",
+   "stack": 5
+  },
+  {
+   "id": "ST5@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179595.946,
+   "N": 576235.725,
+   "title": "קולטן צ.א 5 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 5",
+   "stack": 5
+  },
+  {
+   "id": "ST5@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179595.949,
+   "N": 576235.725,
+   "title": "קולטן צ.א 5 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 5",
+   "stack": 5
+  },
+  {
+   "id": "ST6@ground",
+   "kind": "stack",
+   "floor": "ground",
+   "E": 179605.833,
+   "N": 576239.264,
+   "title": "קולטן צ.א 6 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 6",
+   "stack": 6
+  },
+  {
+   "id": "ST6@first",
+   "kind": "stack",
+   "floor": "first",
+   "E": 179605.832,
+   "N": 576239.264,
+   "title": "קולטן צ.א 6 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 6",
+   "stack": 6
+  },
+  {
+   "id": "ST6@roof",
+   "kind": "stack",
+   "floor": "roof",
+   "E": 179605.835,
+   "N": 576239.264,
+   "title": "קולטן צ.א 6 (HDPE ø110)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגול מגנטה (שכבה hot water) + תווית צ.א 6",
+   "stack": 6
+  },
+  {
+   "id": "DIB1@ground",
+   "kind": "dropInspectionBox",
+   "floor": "ground",
+   "E": 179608.402,
+   "N": 576238.528,
+   "title": "ק.ב.נ – קופסת ביקורת נופלת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל yuk (שכבה INS)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "DIB2@ground",
+   "kind": "dropInspectionBox",
+   "floor": "ground",
+   "E": 179599.249,
+   "N": 576241.922,
+   "title": "ק.ב.נ – קופסת ביקורת נופלת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל yuk (שכבה INS)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "WY1@ground",
+   "kind": "wye45",
+   "floor": "ground",
+   "E": 179589.828,
+   "N": 576238.38,
+   "title": "הסתעפות 45°",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל TEE -45° (שכבה 0)",
+   "rotation_deg": 270.0
+  },
+  {
+   "id": "FD1@ground",
+   "kind": "floorDrain",
+   "floor": "ground",
+   "E": 179589.187,
+   "N": 576239.608,
+   "title": "מ.ר – מחסום רצפה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל 3wre (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "IB1@ground",
+   "kind": "inspectionBox",
+   "floor": "ground",
+   "E": 179595.953,
+   "N": 576236.906,
+   "title": "ק.ב – קופסת ביקורת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uky (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "IB2@ground",
+   "kind": "inspectionBox",
+   "floor": "ground",
+   "E": 179592.47,
+   "N": 576246.494,
+   "title": "ק.ב – קופסת ביקורת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uky (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "FD2@ground",
+   "kind": "floorDrain",
+   "floor": "ground",
+   "E": 179593.286,
+   "N": 576245.583,
+   "title": "מ.ר – מחסום רצפה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל 3wre (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "IB1@first",
+   "kind": "inspectionBox",
+   "floor": "first",
+   "E": 179591.423,
+   "N": 576242.578,
+   "title": "ק.ב – קופסת ביקורת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uky (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "FD1@first",
+   "kind": "floorDrain",
+   "floor": "first",
+   "E": 179591.878,
+   "N": 576243.704,
+   "title": "מ.ר – מחסום רצפה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל 3wre (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "IB2@first",
+   "kind": "inspectionBox",
+   "floor": "first",
+   "E": 179592.851,
+   "N": 576244.9,
+   "title": "ק.ב – קופסת ביקורת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uky (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "FD2@first",
+   "kind": "floorDrain",
+   "floor": "first",
+   "E": 179591.786,
+   "N": 576243.478,
+   "title": "מ.ר – מחסום רצפה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל 3wre (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "DIB1@unit",
+   "kind": "dropInspectionBox",
+   "floor": "unit",
+   "E": 179591.937,
+   "N": 576248.668,
+   "title": "ק.ב.נ – קופסת ביקורת נופלת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל yuk (שכבה INS)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "WY1@unit",
+   "kind": "wye45",
+   "floor": "unit",
+   "E": 179595.29,
+   "N": 576236.312,
+   "title": "הסתעפות 45°",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל TEE -45° (שכבה 0)",
+   "rotation_deg": 250.262
+  },
+  {
+   "id": "WY2@unit",
+   "kind": "wye45",
+   "floor": "unit",
+   "E": 179591.517,
+   "N": 576247.629,
+   "title": "הסתעפות 45°",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל TEE -45° (שכבה 0)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "DIB2@unit",
+   "kind": "dropInspectionBox",
+   "floor": "unit",
+   "E": 179595.313,
+   "N": 576235.297,
+   "title": "ק.ב.נ – קופסת ביקורת נופלת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל yuk (שכבה INS)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "DIB3@unit",
+   "kind": "dropInspectionBox",
+   "floor": "unit",
+   "E": 179590.049,
+   "N": 576243.991,
+   "title": "ק.ב.נ – קופסת ביקורת נופלת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל yuk (שכבה INS)",
+   "rotation_deg": 0.0
+  },
+  {
+   "id": "DT1@ground",
+   "kind": "drumTrap",
+   "floor": "ground",
+   "E": 179590.202,
+   "N": 576239.892,
+   "title": "מ.ת – מחסום תופי",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uyk (שכבה INS)",
+   "rotation_deg": 134.998
+  },
+  {
+   "id": "IB3@ground",
+   "kind": "inspectionBox",
+   "floor": "ground",
+   "E": 179589.624,
+   "N": 576238.462,
+   "title": "ק.ב – קופסת ביקורת",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – סמל uky (שכבה INS)",
+   "rotation_deg": 90.0
+  },
+  {
+   "id": "WC1@ground",
+   "kind": "wc",
+   "floor": "ground",
+   "E": 179588.746,
+   "N": 576238.817,
+   "title": "אסלה תלויה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (If_toilet_wall_hung_6505 - Wall_Hung_WC-Valverfa_2)",
+   "rotation_deg": 90.0,
+   "block": "If_toilet_wall_hung_6505"
+  },
+  {
+   "id": "BS1@ground",
+   "kind": "basin",
+   "floor": "ground",
+   "E": 179590.266,
+   "N": 576237.341,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-175866-קרקע פיתוח)",
+   "rotation_deg": 180.0,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "SK1@ground",
+   "kind": "sink",
+   "floor": "ground",
+   "E": 179599.435,
+   "N": 576241.849,
+   "title": "כיור מטבח 65×50",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (כיור מלבני - 650 x 500mm-192488-קרקע פיתוח)",
+   "rotation_deg": 90.0,
+   "block": "כיור מלבני"
+  },
+  {
+   "id": "SH1@ground",
+   "kind": "shower",
+   "floor": "ground",
+   "E": 179588.904,
+   "N": 576239.264,
+   "title": "מקלחון",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (2D מקלחון - M_Shower Stall-2D-911699-קרקע פיתוח)",
+   "rotation_deg": 0.0,
+   "block": "2D מקלחון"
+  },
+  {
+   "id": "BS2@ground",
+   "kind": "basin",
+   "floor": "ground",
+   "E": 179590.943,
+   "N": 576237.068,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-175866-קרקע פיתוח)",
+   "rotation_deg": 180.0,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "SH2@ground",
+   "kind": "shower",
+   "floor": "ground",
+   "E": 179593.644,
+   "N": 576245.358,
+   "title": "מקלחון",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (2D מקלחון - M_Shower Stall-2D-1111345-קרקע פיתוח)",
+   "rotation_deg": 90.147,
+   "block": "2D מקלחון"
+  },
+  {
+   "id": "BS3@ground",
+   "kind": "basin",
+   "floor": "ground",
+   "E": 179592.268,
+   "N": 576245.995,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-175866-קרקע פיתוח)",
+   "rotation_deg": 180.0,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "WC2@ground",
+   "kind": "wc",
+   "floor": "ground",
+   "E": 179592.068,
+   "N": 576247.578,
+   "title": "אסלה תלויה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (If_toilet_wall_hung_6505 - Wall_Hung_WC-Valverfa_2)",
+   "rotation_deg": 90.0,
+   "block": "If_toilet_wall_hung_6505"
+  },
+  {
+   "id": "WC3@ground",
+   "kind": "wc",
+   "floor": "ground",
+   "E": 179595.513,
+   "N": 576235.818,
+   "title": "אסלה תלויה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (If_toilet_wall_hung_6505 - Wall_Hung_WC-Valverfa_2)",
+   "rotation_deg": 180.0,
+   "block": "If_toilet_wall_hung_6505"
+  },
+  {
+   "id": "BS4@ground",
+   "kind": "basin",
+   "floor": "ground",
+   "E": 179596.279,
+   "N": 576236.774,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-V8-קרקע פיתוח)",
+   "rotation_deg": -89.911,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "DP1@ground",
+   "kind": "downpipe",
+   "floor": "ground",
+   "E": 179605.2,
+   "N": 576237.695,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1027644-קרקע פיתוח)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP2@ground",
+   "kind": "downpipe",
+   "floor": "ground",
+   "E": 179605.552,
+   "N": 576238.568,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1027644-קרקע פיתוח)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DPS1@ground",
+   "kind": "downpipeShoe",
+   "floor": "ground",
+   "E": 179605.293,
+   "N": 576237.658,
+   "title": "חיבור תחתון למרזב",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (חיבור תחתון למרזב - חיבור תחתון למרזב-594273-קרקע )",
+   "rotation_deg": 180.0,
+   "block": "חיבור תחתון למרזב",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DPS2@ground",
+   "kind": "downpipeShoe",
+   "floor": "ground",
+   "E": 179605.645,
+   "N": 576238.53,
+   "title": "חיבור תחתון למרזב",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (חיבור תחתון למרזב - חיבור תחתון למרזב-594273-קרקע )",
+   "rotation_deg": 180.0,
+   "block": "חיבור תחתון למרזב",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP3@ground",
+   "kind": "downpipe",
+   "floor": "ground",
+   "E": 179594.321,
+   "N": 576250.878,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1028996-קרקע פיתוח)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DPS3@ground",
+   "kind": "downpipeShoe",
+   "floor": "ground",
+   "E": 179594.367,
+   "N": 576250.967,
+   "title": "חיבור תחתון למרזב",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק pituah, שכבה P-SANR-FIXT (חיבור תחתון למרזב - חיבור תחתון למרזב-V165-קרקע פי)",
+   "rotation_deg": -90.0,
+   "block": "חיבור תחתון למרזב",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "WC1@first",
+   "kind": "wc",
+   "floor": "first",
+   "E": 179590.827,
+   "N": 576242.251,
+   "title": "אסלה תלויה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (If_toilet_wall_hung_6505 - Wall_Hung_WC-Valverfa_2)",
+   "rotation_deg": 90.0,
+   "block": "If_toilet_wall_hung_6505"
+  },
+  {
+   "id": "BS1@first",
+   "kind": "basin",
+   "floor": "first",
+   "E": 179592.761,
+   "N": 576243.301,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-175866-קומה א - Dependent )",
+   "rotation_deg": 180.0,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "SH1@first",
+   "kind": "shower",
+   "floor": "first",
+   "E": 179592.231,
+   "N": 576243.481,
+   "title": "מקלחון",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (2D מקלחון - M_Shower Stall-2D-917466-קומה א - Depe)",
+   "rotation_deg": 180.0,
+   "block": "2D מקלחון"
+  },
+  {
+   "id": "SH2@first",
+   "kind": "shower",
+   "floor": "first",
+   "E": 179591.898,
+   "N": 576242.656,
+   "title": "מקלחון",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (2D מקלחון - M_Shower Stall-2D-V170-קומה א - Depend)",
+   "rotation_deg": 180.0,
+   "block": "2D מקלחון"
+  },
+  {
+   "id": "WC2@first",
+   "kind": "wc",
+   "floor": "first",
+   "E": 179592.031,
+   "N": 576245.231,
+   "title": "אסלה תלויה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (If_toilet_wall_hung_6505 - Wall_Hung_WC-Valverfa_2)",
+   "rotation_deg": 90.0,
+   "block": "If_toilet_wall_hung_6505"
+  },
+  {
+   "id": "BS2@first",
+   "kind": "basin",
+   "floor": "first",
+   "E": 179592.7,
+   "N": 576243.15,
+   "title": "כיור רחצה עגול 44×35",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (כיור עגול - 440 x 350mm-917744-קומה א - Dependent )",
+   "rotation_deg": 180.0,
+   "block": "כיור עגול"
+  },
+  {
+   "id": "DP1@first",
+   "kind": "downpipe",
+   "floor": "first",
+   "E": 179605.199,
+   "N": 576237.695,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1027644-קומה א - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP2@first",
+   "kind": "downpipe",
+   "floor": "first",
+   "E": 179605.551,
+   "N": 576238.568,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1027644-קומה א - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP3@first",
+   "kind": "downpipe",
+   "floor": "first",
+   "E": 179594.32,
+   "N": 576250.878,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1028996-קומה א - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD1@first",
+   "kind": "roofDrain",
+   "floor": "first",
+   "E": 179594.102,
+   "N": 576250.34,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (נקז גג - 2_-601488-קומה א - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD2@first",
+   "kind": "roofDrain",
+   "floor": "first",
+   "E": 179589.168,
+   "N": 576238.142,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק alef, שכבה P-SANR-FIXT (נקז גג - 2_-601488-קומה א - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD1@roof",
+   "kind": "roofDrain",
+   "floor": "roof",
+   "E": 179604.692,
+   "N": 576237.902,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (נקז גג - 2_-601488-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD2@roof",
+   "kind": "roofDrain",
+   "floor": "roof",
+   "E": 179605.044,
+   "N": 576238.774,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (נקז גג - 2_-601488-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP1@roof",
+   "kind": "downpipe",
+   "floor": "roof",
+   "E": 179605.202,
+   "N": 576237.696,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-1027644-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DP2@roof",
+   "kind": "downpipe",
+   "floor": "roof",
+   "E": 179605.554,
+   "N": 576238.568,
+   "title": "צינור מי גשם (צמ\"ג) 4\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (צינור 4_ - צמ_ג-V414-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "צינור 4_",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DPS1@roof",
+   "kind": "downpipeShoe",
+   "floor": "roof",
+   "E": 179605.295,
+   "N": 576237.658,
+   "title": "חיבור תחתון למרזב",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (חיבור תחתון למרזב - חיבור תחתון למרזב-594273-גג - )",
+   "rotation_deg": 180.0,
+   "block": "חיבור תחתון למרזב",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "DPS2@roof",
+   "kind": "downpipeShoe",
+   "floor": "roof",
+   "E": 179605.647,
+   "N": 576238.531,
+   "title": "חיבור תחתון למרזב",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (חיבור תחתון למרזב - חיבור תחתון למרזב-594273-גג - )",
+   "rotation_deg": 180.0,
+   "block": "חיבור תחתון למרזב",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD3@roof",
+   "kind": "roofDrain",
+   "floor": "roof",
+   "E": 179594.106,
+   "N": 576250.341,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (נקז גג - 2_-V415-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "RD4@roof",
+   "kind": "roofDrain",
+   "floor": "roof",
+   "E": 179589.172,
+   "N": 576238.143,
+   "title": "נקז גג 2\"",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – רקע אדריכלי בבלוק gag, שכבה P-SANR-FIXT (נקז גג - 2_-601488-גג - Dependent 1)",
+   "rotation_deg": 0.0,
+   "block": "נקז גג",
+   "tagSystem": "drainage"
+  },
+  {
+   "id": "FD1@unit",
+   "kind": "floorDrain",
+   "floor": "unit",
+   "E": 179595.329,
+   "N": 576234.95,
+   "title": "מ.ר – מחסום רצפה ø8/4\" (חצר אנגלית)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – עיגול כחול ø0.22 (מ.ר ø8/4\")"
+  },
+  {
+   "id": "FD2@unit",
+   "kind": "floorDrain",
+   "floor": "unit",
+   "E": 179591.078,
+   "N": 576246.546,
+   "title": "מ.ר – מחסום רצפה ø8/4\" (חצר אנגלית)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – עיגול כחול ø0.22 (מ.ר ø8/4\")"
+  },
+  {
+   "id": "FD3@unit",
+   "kind": "floorDrain",
+   "floor": "unit",
+   "E": 179589.746,
+   "N": 576243.248,
+   "title": "מ.ר – מחסום רצפה ø8/4\" (חצר אנגלית)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – עיגול כחול ø0.22 (מ.ר ø8/4\")"
+  },
+  {
+   "id": "FD4@unit",
+   "kind": "floorDrain",
+   "floor": "unit",
+   "E": 179589.532,
+   "N": 576242.718,
+   "title": "מ.ר – מחסום רצפה ø8/4\" (חצר אנגלית)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – עיגול כחול ø0.22 (מ.ר ø8/4\")"
+  },
+  {
+   "id": "WMC@ground",
+   "kind": "washer",
+   "floor": "ground",
+   "E": 179589.329,
+   "N": 576240.242,
+   "title": "סיפון למכונת כביסה ø50",
+   "status": "derived",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – תווית 'סיפון למכונת כביסה' + 'ø50' (שכבה INS) בחדר הכביסה"
+  },
+  {
+   "id": "POF@ground",
+   "kind": "poolOverflow",
+   "floor": "ground",
+   "E": 179608.027,
+   "N": 576242.975,
+   "title": "יציאה מחדר המכונות / בור האיזון של הבריכה (גלישה O.F)",
+   "status": "provisional",
+   "source": "קו ירוק ב-PDF שמתחיל בקיר חדר המכונות (data/structure/pool.json – tank); פרט 'צינור גלישת מים מבור איזון (O.F)' בקובץ הפרטים"
+  },
+  {
+   "id": "PRU@unit",
+   "kind": "pumpRiser",
+   "floor": "unit",
+   "E": 179588.582,
+   "N": 576241.814,
+   "title": "קו סניקה – עולה מתא השאיבה",
+   "status": "derived",
+   "source": "קו ירוק שיוצא מתא השאיבה PC-1 בתוכנית המרתף"
+  },
+  {
+   "id": "PRG@ground",
+   "kind": "pumpRiser",
+   "floor": "ground",
+   "E": 179588.758,
+   "N": 576241.538,
+   "title": "קו סניקה – מגיע מתא השאיבה (גמל 50 ס\"מ מעל רום שוחה 2)",
+   "status": "derived",
+   "source": "קו 'ø75 PEX' בתוכנית הקרקע + הערה 'ריקון תא ביוב … משאבה טבולה … גמל 50 ס\"מ מעל לתא הביוב הקולט'"
+  },
+  {
+   "id": "J1@ground",
+   "kind": "joint",
+   "floor": "ground",
+   "E": 179586.778,
+   "N": 576241.61,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.08 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.081
+  },
+  {
+   "id": "J3@first",
+   "kind": "joint",
+   "floor": "first",
+   "E": 179593.185,
+   "N": 576244.4,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.12 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.115
+  },
+  {
+   "id": "J4@ground",
+   "kind": "joint",
+   "floor": "ground",
+   "E": 179590.47,
+   "N": 576238.093,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.12 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.117
+  },
+  {
+   "id": "J5@first",
+   "kind": "joint",
+   "floor": "first",
+   "E": 179592.448,
+   "N": 576242.583,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.12 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.117
+  },
+  {
+   "id": "J6@first",
+   "kind": "joint",
+   "floor": "first",
+   "E": 179592.454,
+   "N": 576243.969,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.12 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.118
+  },
+  {
+   "id": "J8@ground",
+   "kind": "joint",
+   "floor": "ground",
+   "E": 179592.972,
+   "N": 576246.262,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.12 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.123
+  },
+  {
+   "id": "J10@first",
+   "kind": "joint",
+   "floor": "first",
+   "E": 179592.007,
+   "N": 576242.396,
+   "title": "המשך קו (רווח בשרטוט מתחת לסמל)",
+   "status": "derived",
+   "source": "גישור רווח של 0.20 מ' בין שני קצוות של הקו הירוק ב-PDF",
+   "gap_m": 0.198
+  },
+  {
+   "id": "WM@site",
+   "kind": "waterMeter",
+   "floor": "site",
+   "E": 179586.499,
+   "N": 576235.992,
+   "title": "מערכת מדידת מים 3/4\" (שעון התאגיד)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – חץ ההערה \"פרט מע' מדידת מים\" + פרט מערכת מדידת מים (קובץ הפרטים)",
+   "detail": {
+    "axisH_m": 0.6,
+    "nicheW_m": 0.8,
+    "nicheH_m": 0.8,
+    "sleeve_mm": 110,
+    "sleeveTop_m": 0.2,
+    "axis": [
+     0.478,
+     0.879
+    ],
+    "back": [
+     0.879,
+     -0.478
+    ],
+    "source": "sources/plumbing/‏‏פרטים - לאינטלציה - דוד-מזגן-עטיפת צינור ביוב-ועוד - עותק.dxf – פרט מע' מדידת מים: מידות 20/40/20 ס\"מ (ציר המונה 0.60 מעל הקרקע), גומחה 80, שרוול PVC ø4\"; הפרט לא בקנה מידה. כיוון: לאורך הקו UT-W → WJ7, שמקביל לגומחה המשורטטת ברקע האדריכלי בקיר הניצב לרחוב"
+   }
+  },
+  {
+   "id": "WJ1@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179586.805,
+   "N": 576236.589,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ2@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179594.324,
+   "N": 576233.553,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ3@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179596.65,
+   "N": 576232.614,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ4@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179608.373,
+   "N": 576237.63,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ5@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179608.462,
+   "N": 576237.908,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ6@ground",
+   "kind": "poolFill",
+   "floor": "ground",
+   "E": 179610.084,
+   "N": 576242.968,
+   "title": "ברז מילוי בריכה אחרי מז\"ח 1\"",
+   "status": "derived",
+   "source": "הערה 'ברז מילוי בריכת שחייה אחרי מז\"ח, יש להתייחס לפרט המצורף' + פרט מילוי בריכה"
+  },
+  {
+   "id": "WJ7@ground",
+   "kind": "meterOutlet",
+   "floor": "ground",
+   "E": 179586.692,
+   "N": 576236.311,
+   "title": "יציאה ממערכת מדידת המים",
+   "status": "derived",
+   "source": "תחילת הקו (שכבה cold water) ליד חץ 'פרט מע' מדידת מים'"
+  },
+  {
+   "id": "WJ8@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179586.961,
+   "N": 576239.171,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ9@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179588.196,
+   "N": 576242.231,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ10@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179588.304,
+   "N": 576242.499,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ11@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179588.518,
+   "N": 576243.028,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ12@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179590.158,
+   "N": 576247.091,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ13@ground",
+   "kind": "gardenTap",
+   "floor": "ground",
+   "E": 179593.893,
+   "N": 576256.34,
+   "title": "ברז גן 3/4\"",
+   "status": "derived",
+   "source": "תווית 'ברז גן 3/4\"' ליד קצה הקו"
+  },
+  {
+   "id": "WJ14@ground",
+   "kind": "gardenTap",
+   "floor": "ground",
+   "E": 179587.289,
+   "N": 576242.909,
+   "title": "ברז גן 3/4\"",
+   "status": "derived",
+   "source": "תווית 'ברז גן 3/4\"' ליד קצה הקו"
+  },
+  {
+   "id": "WJ15@ground",
+   "kind": "designEnd",
+   "floor": "ground",
+   "E": 179588.387,
+   "N": 576238.595,
+   "title": "סוף תכנון – הקו נכנס לקיר הבית (חדר רחצה / כביסה)",
+   "status": "missing",
+   "source": "הקו נגמר בקיר; אין המשך בתוכנית"
+  },
+  {
+   "id": "WJ16@ground",
+   "kind": "designEnd",
+   "floor": "ground",
+   "E": 179589.623,
+   "N": 576241.656,
+   "title": "סוף תכנון – הקו נכנס לקיר הבית",
+   "status": "missing",
+   "source": "הקו נגמר בקיר; אין המשך בתוכנית"
+  },
+  {
+   "id": "WJ17@ground",
+   "kind": "designEnd",
+   "floor": "ground",
+   "E": 179591.407,
+   "N": 576246.587,
+   "title": "סוף תכנון – הקו נכנס לקיר (חדר רחצה הורים)",
+   "status": "missing",
+   "source": "הקו נגמר בקיר; אין המשך בתוכנית"
+  },
+  {
+   "id": "WJ18@ground",
+   "kind": "designEnd",
+   "floor": "ground",
+   "E": 179595.194,
+   "N": 576235.71,
+   "title": "סוף תכנון – הקו נכנס לקיר (שירותי אורחים / רחצה)",
+   "status": "missing",
+   "source": "הקו נגמר בקיר; אין המשך בתוכנית"
+  },
+  {
+   "id": "WJ19@ground",
+   "kind": "kitchenPoint",
+   "floor": "ground",
+   "E": 179599.365,
+   "N": 576241.581,
+   "title": "נקודת מים – כיור המטבח (סוף הקו)",
+   "status": "derived",
+   "source": "קצה הקו ליד כיור המטבח (רקע אדריכלי)"
+  },
+  {
+   "id": "WJ20@ground",
+   "kind": "waterJoint",
+   "floor": "ground",
+   "E": 179605.746,
+   "N": 576239.005,
+   "title": "הסתעפות / חיבור בקו המים",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבה cold water"
+  },
+  {
+   "id": "WJ21@ground",
+   "kind": "gardenTap",
+   "floor": "ground",
+   "E": 179596.056,
+   "N": 576231.145,
+   "title": "ברז גן 3/4\"",
+   "status": "derived",
+   "source": "תווית 'ברז גן 3/4\"' ליד קצה הקו"
+  },
+  {
+   "id": "WJ22@ground",
+   "kind": "riser",
+   "floor": "ground",
+   "E": 179605.637,
+   "N": 576238.735,
+   "title": "עולה – צינור הזנת מים לדוד (לגג)",
+   "status": "derived",
+   "source": "עיגול כחול + תווית 'צינור הזנת מים עולה לדוד'"
+  },
+  {
+   "id": "WJ23@ground",
+   "kind": "riser",
+   "floor": "ground",
+   "E": 179590.064,
+   "N": 576242.405,
+   "title": "עולה – צינור הזנת מים לקומה א'",
+   "status": "derived",
+   "source": "עיגול כחול + תווית 'צינור הזנת מים קומה א''"
+  },
+  {
+   "id": "RS2@roof",
+   "kind": "riser",
+   "floor": "roof",
+   "E": 179605.61,
+   "N": 576238.75,
+   "title": "ראש העולה – הזנת מים לדוד",
+   "status": "source",
+   "source": "עיגול כחול בתוכנית הגג + 'צינור הזנת מים עולה לדוד'"
+  },
+  {
+   "id": "HTR@roof",
+   "kind": "heater",
+   "floor": "roof",
+   "E": 179599.91,
+   "N": 576241.11,
+   "title": "דוד + קולטים (מיקום בלבד – 'מיקום דוד וקולטים')",
+   "status": "provisional",
+   "source": "תוכנית הגג – 'מיקום דוד וקולטים'; אין נפח דוד, מספר קולטים או מידות"
+  },
+  {
+   "id": "HM@roof",
+   "kind": "hotManifold",
+   "floor": "roof",
+   "E": 179591.9,
+   "N": 576244.33,
+   "title": "מחלק מים חמים",
+   "status": "source",
+   "source": "תוכנית הגג – 'מחלק מים חמים' + קו אדום מהדוד"
+  },
+  {
+   "id": "SOAK@site",
+   "kind": "soakawayPit",
+   "floor": "site",
+   "E": 179599.615,
+   "N": 576253.286,
+   "title": "בור חלחול (מיקום בלבד)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – עיגול \"בור חלחול\" ליד 280.33 בגינה הצפונית; פרט עקרוני בקובץ הפרטים",
+   "D_m": 0.59,
+   "TL": 280.33,
+   "tagSystem": "drainage"
+  }
+ ],
+ "runs": [
+  {
+   "id": "SW1@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "S-1",
+   "to": "S-0",
+   "pts": [
+    [
+     179588.956,
+     576234.841
+    ],
+    [
+     179585.04,
+     576227.581
+    ]
+   ],
+   "length_m": 8.249,
+   "D_mm": 160,
+   "material": "PVC SN-8",
+   "diameterRule": "קו בין שוחות: PVC SN-8 ø160 (פרופיל / תווית בתוכנית)",
+   "ILup": 278.2,
+   "ILdown": 278.035,
+   "slope": 0.02,
+   "dropAtDownstream_m": 0.945,
+   "levelStatus": "source",
+   "levelRule": "פרופיל הביוב (קובץ הפרטים): ø160 PVC SN-8, 2.00%, 8.25 מ' – 'הכנה קיימת לביוב', מיקום ושיפוע הניפל לפי תכנון התאגיד; כניסה לשוחה 0 ב-278.04",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW2@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "ST2@ground",
+   "to": "S-3",
+   "pts": [
+    [
+     179591.351,
+     576246.143
+    ],
+    [
+     179589.238,
+     576247.01
+    ]
+   ],
+   "length_m": 2.284,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.546,
+   "ILdown": 279.5,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "מפלס הכניסה = I.L של השוחה (רום התעלה)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW3@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "S-3",
+   "to": "S-2",
+   "pts": [
+    [
+     179589.238,
+     576247.01
+    ],
+    [
+     179586.355,
+     576239.383
+    ]
+   ],
+   "length_m": 8.154,
+   "D_mm": 160,
+   "material": "PVC SN-8",
+   "diameterRule": "קו בין שוחות: PVC SN-8 ø160 (פרופיל / תווית בתוכנית)",
+   "ILup": 279.5,
+   "ILdown": 279.3,
+   "slope": 0.0245,
+   "dropAtDownstream_m": 0.0,
+   "levelStatus": "source",
+   "levelRule": "תווית '2.45%' ו-'PVC SN-8 ø160' בתוכנית",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW4@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "ST4@ground",
+   "to": "S-4",
+   "pts": [
+    [
+     179595.884,
+     576235.559
+    ],
+    [
+     179594.664,
+     576232.538
+    ]
+   ],
+   "length_m": 3.258,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.315,
+   "ILdown": 279.25,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "מפלס הכניסה = I.L של השוחה (רום התעלה)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW5@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "ST1@ground",
+   "to": "S-1",
+   "pts": [
+    [
+     179588.491,
+     576237.88
+    ],
+    [
+     179588.956,
+     576234.841
+    ]
+   ],
+   "length_m": 3.074,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.191,
+   "ILdown": 279.13,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "מפלס הכניסה לשוחה 1 = מפלס הכניסה של הקו 4→1 בפרופיל (279.13); ליועץ אין מפלס לענף הזה",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW6@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "S-4",
+   "to": "S-1",
+   "pts": [
+    [
+     179594.664,
+     576232.538
+    ],
+    [
+     179588.956,
+     576234.841
+    ]
+   ],
+   "length_m": 6.155,
+   "D_mm": 160,
+   "material": "PVC SN-8",
+   "diameterRule": "קו בין שוחות: PVC SN-8 ø160 (פרופיל / תווית בתוכנית)",
+   "ILup": 279.25,
+   "ILdown": 279.127,
+   "slope": 0.02,
+   "dropAtDownstream_m": 0.927,
+   "levelStatus": "source",
+   "levelRule": "פרופיל הביוב: ø160 PVC SN-8, 2.00%, 6.15 מ'; כניסה לשוחה 1 ב-279.13",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW7@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "S-2",
+   "to": "S-1",
+   "pts": [
+    [
+     179586.355,
+     576239.383
+    ],
+    [
+     179588.956,
+     576234.841
+    ]
+   ],
+   "length_m": 5.234,
+   "D_mm": 160,
+   "material": "PVC SN-8",
+   "diameterRule": "קו בין שוחות: PVC SN-8 ø160 (פרופיל / תווית בתוכנית)",
+   "ILup": 279.3,
+   "ILdown": 279.195,
+   "slope": 0.02,
+   "dropAtDownstream_m": 0.995,
+   "levelStatus": "source",
+   "levelRule": "תווית '2%' בתוכנית",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW8@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "S-5",
+   "to": "S-4",
+   "pts": [
+    [
+     179606.319,
+     576233.838
+    ],
+    [
+     179594.664,
+     576232.538
+    ]
+   ],
+   "length_m": 11.727,
+   "D_mm": 160,
+   "material": "PVC SN-8",
+   "diameterRule": "קו בין שוחות: PVC SN-8 ø160 (פרופיל / תווית בתוכנית)",
+   "ILup": 279.48,
+   "ILdown": 279.25,
+   "slope": 0.0196,
+   "dropAtDownstream_m": 0.0,
+   "levelStatus": "source",
+   "levelRule": "פרופיל הביוב: ø160 PVC SN-8, 1.96%, 11.72 מ'",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW9@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "ST6@ground",
+   "to": "S-5",
+   "pts": [
+    [
+     179605.836,
+     576239.259
+    ],
+    [
+     179606.319,
+     576233.838
+    ]
+   ],
+   "length_m": 5.442,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.589,
+   "ILdown": 279.48,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "מפלס הכניסה = I.L של השוחה (רום התעלה)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW10@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "DIB1@ground",
+   "to": "S-5",
+   "pts": [
+    [
+     179608.405,
+     576238.525
+    ],
+    [
+     179606.27,
+     576233.735
+    ]
+   ],
+   "length_m": 5.244,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.585,
+   "ILdown": 279.48,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "מפלס הכניסה = I.L של השוחה (רום התעלה)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW11@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "POF@ground",
+   "to": "S-5",
+   "pts": [
+    [
+     179608.027,
+     576242.975
+    ],
+    [
+     179606.344,
+     576233.972
+    ]
+   ],
+   "length_m": 9.159,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.663,
+   "ILdown": 279.48,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "מפלס הכניסה = I.L של השוחה (רום התעלה)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW12@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "DIB2@ground",
+   "to": "ST6@ground",
+   "pts": [
+    [
+     179599.249,
+     576241.918
+    ],
+    [
+     179605.836,
+     576239.259
+    ]
+   ],
+   "length_m": 7.103,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 279.731,
+   "ILdown": 279.589,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST6@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW13@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "WC1@ground",
+   "to": "ST1@ground",
+   "pts": [
+    [
+     179588.778,
+     576238.592
+    ],
+    [
+     179588.491,
+     576237.88
+    ]
+   ],
+   "length_m": 0.768,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 279.206,
+   "ILdown": 279.191,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST1@ground; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW14@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "J4@ground",
+   "to": "WY1@ground",
+   "pts": [
+    [
+     179590.429,
+     576238.134
+    ],
+    [
+     179589.891,
+     576238.352
+    ]
+   ],
+   "length_m": 0.58,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.235,
+   "ILdown": 279.223,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY1@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW15@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "BS2@ground",
+   "to": "J4@ground",
+   "pts": [
+    [
+     179590.939,
+     576237.043
+    ],
+    [
+     179590.511,
+     576238.051
+    ]
+   ],
+   "length_m": 1.095,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 279.257,
+   "ILdown": 279.235,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי J4@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW16@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "BS1@ground",
+   "to": "WY1@ground",
+   "pts": [
+    [
+     179590.258,
+     576237.318
+    ],
+    [
+     179589.841,
+     576238.3
+    ]
+   ],
+   "length_m": 1.067,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.244,
+   "ILdown": 279.223,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY1@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW17@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "WY1@ground",
+   "to": "IB3@ground",
+   "pts": [
+    [
+     179589.792,
+     576238.392
+    ],
+    [
+     179589.674,
+     576238.439
+    ]
+   ],
+   "length_m": 0.127,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 279.223,
+   "ILdown": 279.22,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB3@ground; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW18@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "IB3@ground",
+   "to": "WC1@ground",
+   "pts": [
+    [
+     179589.581,
+     576238.477
+    ],
+    [
+     179588.913,
+     576238.747
+    ]
+   ],
+   "length_m": 0.721,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.22,
+   "ILdown": 279.206,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WC1@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW19@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "WMC@ground",
+   "to": "DT1@ground",
+   "pts": [
+    [
+     179589.329,
+     576240.242
+    ],
+    [
+     179590.171,
+     576239.902
+    ]
+   ],
+   "length_m": 0.908,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.267,
+   "ILdown": 279.249,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי DT1@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW20@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "FD1@ground",
+   "to": "WC1@ground",
+   "pts": [
+    [
+     179589.168,
+     576239.558
+    ],
+    [
+     179588.873,
+     576238.827
+    ]
+   ],
+   "length_m": 0.788,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.222,
+   "ILdown": 279.206,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WC1@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW23@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "IB1@ground",
+   "to": "WC3@ground",
+   "pts": [
+    [
+     179595.938,
+     576236.854
+    ],
+    [
+     179595.584,
+     576235.975
+    ]
+   ],
+   "length_m": 0.948,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.343,
+   "ILdown": 279.324,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WC3@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW24@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "BS4@ground",
+   "to": "IB1@ground",
+   "pts": [
+    [
+     179596.237,
+     576236.791
+    ],
+    [
+     179596.002,
+     576236.886
+    ]
+   ],
+   "length_m": 0.253,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 279.348,
+   "ILdown": 279.343,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB1@ground; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW26@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "WC2@ground",
+   "to": "ST2@ground",
+   "pts": [
+    [
+     179591.803,
+     576247.263
+    ],
+    [
+     179591.351,
+     576246.143
+    ]
+   ],
+   "length_m": 1.208,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.57,
+   "ILdown": 279.546,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST2@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW27@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "J8@ground",
+   "to": "IB2@ground",
+   "pts": [
+    [
+     179592.928,
+     576246.305
+    ],
+    [
+     179592.519,
+     576246.47
+    ]
+   ],
+   "length_m": 0.441,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.574,
+   "ILdown": 279.565,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB2@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW28@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "FD2@ground",
+   "to": "J8@ground",
+   "pts": [
+    [
+     179593.27,
+     576245.62
+    ],
+    [
+     179593.016,
+     576246.219
+    ]
+   ],
+   "length_m": 0.651,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 279.587,
+   "ILdown": 279.574,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי J8@ground; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW29@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "IB2@ground",
+   "to": "ST2@ground",
+   "pts": [
+    [
+     179592.254,
+     576246.527
+    ],
+    [
+     179591.394,
+     576246.161
+    ]
+   ],
+   "length_m": 0.935,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.565,
+   "ILdown": 279.546,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST2@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW31@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "BS3@ground",
+   "to": "IB2@ground",
+   "pts": [
+    [
+     179592.247,
+     576245.939
+    ],
+    [
+     179592.452,
+     576246.447
+    ]
+   ],
+   "length_m": 0.548,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.576,
+   "ILdown": 279.565,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB2@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW32@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "role": "stackOffset",
+   "from": "ST3@ground",
+   "to": "ST3@unit",
+   "pts": [
+    [
+     179592.148,
+     576248.118
+    ],
+    [
+     179592.018,
+     576247.796
+    ]
+   ],
+   "length_m": 0.347,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 277.705,
+   "ILdown": 277.698,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST3@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW33@ground",
+   "system": "pumped",
+   "tagSystem": "sewage",
+   "floor": "site",
+   "drawnOn": "ground",
+   "role": "pumped",
+   "from": "J1@ground",
+   "to": "S-2",
+   "pts": [
+    [
+     179586.763,
+     576241.572
+    ],
+    [
+     179586.355,
+     576239.383
+    ]
+   ],
+   "length_m": 2.227,
+   "D_mm": 75,
+   "material": "PEX",
+   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט 'תא איסוף עם משאבה': HDPE Ø3\" – אותו קוטר, חומר שונה (PQ1)",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "קו לחץ: עומק כיסוי 0.50 מ' (זמני)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW34@ground",
+   "system": "pumped",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "role": "pumped",
+   "from": "PRG@ground",
+   "to": "J1@ground",
+   "pts": [
+    [
+     179588.758,
+     576241.538
+    ],
+    [
+     179586.793,
+     576241.647
+    ]
+   ],
+   "length_m": 1.968,
+   "D_mm": 75,
+   "material": "PEX",
+   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט 'תא איסוף עם משאבה': HDPE Ø3\" – אותו קוטר, חומר שונה (PQ1)",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "קו לחץ: עומק כיסוי 0.50 מ' (זמני)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW35@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "DT1@ground",
+   "to": "IB3@ground",
+   "pts": [
+    [
+     179590.195,
+     576239.856
+    ],
+    [
+     179589.648,
+     576238.5
+    ]
+   ],
+   "length_m": 1.462,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 279.249,
+   "ILdown": 279.22,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB3@ground",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומת קרקע ופיתוח.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW1@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "WC2@first",
+   "to": "ST2@first",
+   "pts": [
+    [
+     179592.065,
+     576245.607
+    ],
+    [
+     179592.151,
+     576245.82
+    ],
+    [
+     179591.349,
+     576246.143
+    ]
+   ],
+   "length_m": 1.094,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 284.222,
+   "ILdown": 284.2,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "ענף בקומה א': תחתית הצינור בקולטן = פני התקרה הקונסטרוקטיבית +3.70 (אין מפלס בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW2@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "WC1@first",
+   "to": "ST1@first",
+   "pts": [
+    [
+     179590.851,
+     576242.03
+    ],
+    [
+     179589.874,
+     576239.609
+    ],
+    [
+     179588.491,
+     576237.881
+    ]
+   ],
+   "length_m": 4.824,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 284.296,
+   "ILdown": 284.2,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "ענף בקומה א': תחתית הצינור בקולטן = פני התקרה הקונסטרוקטיבית +3.70 (אין מפלס בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW4@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "J3@first",
+   "to": "IB2@first",
+   "pts": [
+    [
+     179593.185,
+     576244.458
+    ],
+    [
+     179593.055,
+     576244.763
+    ]
+   ],
+   "length_m": 0.332,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.242,
+   "ILdown": 284.235,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB2@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW5@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "BS1@first",
+   "to": "J3@first",
+   "pts": [
+    [
+     179592.776,
+     576243.332
+    ],
+    [
+     179593.184,
+     576244.343
+    ]
+   ],
+   "length_m": 1.09,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.264,
+   "ILdown": 284.242,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי J3@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW7@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "J6@first",
+   "to": "IB2@first",
+   "pts": [
+    [
+     179592.497,
+     576244.01
+    ],
+    [
+     179592.837,
+     576244.851
+    ]
+   ],
+   "length_m": 0.907,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.253,
+   "ILdown": 284.235,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB2@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW8@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "FD1@first",
+   "to": "J6@first",
+   "pts": [
+    [
+     179591.926,
+     576243.722
+    ],
+    [
+     179592.412,
+     576243.928
+    ]
+   ],
+   "length_m": 0.528,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 284.264,
+   "ILdown": 284.253,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי J6@first; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW9@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "IB2@first",
+   "to": "WC2@first",
+   "pts": [
+    [
+     179592.81,
+     576244.914
+    ],
+    [
+     179592.196,
+     576245.162
+    ]
+   ],
+   "length_m": 0.662,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.235,
+   "ILdown": 284.222,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WC2@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW11@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "IB1@first",
+   "to": "WC1@first",
+   "pts": [
+    [
+     179591.292,
+     576242.365
+    ],
+    [
+     179590.981,
+     576242.237
+    ]
+   ],
+   "length_m": 0.336,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.303,
+   "ILdown": 284.296,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי WC1@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW12@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "J5@first",
+   "to": "J10@first",
+   "pts": [
+    [
+     179592.406,
+     576242.543
+    ],
+    [
+     179592.029,
+     576242.379
+    ],
+    [
+     179592.105,
+     576242.411
+    ]
+   ],
+   "length_m": 0.494,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.322,
+   "ILdown": 284.312,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי J10@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW13@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "J10@first",
+   "to": "IB1@first",
+   "pts": [
+    [
+     179591.909,
+     576242.381
+    ],
+    [
+     179591.473,
+     576242.557
+    ]
+   ],
+   "length_m": 0.47,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 284.312,
+   "ILdown": 284.303,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB1@first; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW14@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "BS2@first",
+   "to": "J5@first",
+   "pts": [
+    [
+     179592.701,
+     576243.144
+    ],
+    [
+     179592.491,
+     576242.624
+    ]
+   ],
+   "length_m": 0.561,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז כיור / מקלחת / מחסום",
+   "ILup": 284.333,
+   "ILdown": 284.322,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי J5@first; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW15@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "from": "FD2@first",
+   "to": "IB1@first",
+   "pts": [
+    [
+     179591.772,
+     576243.427
+    ],
+    [
+     179591.446,
+     576242.62
+    ]
+   ],
+   "length_m": 0.87,
+   "D_mm": 50,
+   "material": "HDPE",
+   "diameterRule": "תווית \"ø50\" ליד הקו",
+   "ILup": 284.32,
+   "ILdown": 284.303,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי IB1@first",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW16@first",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "first",
+   "drawnOn": "first",
+   "role": "stackOffset",
+   "from": "ST3@first",
+   "to": "ST3@ground",
+   "pts": [
+    [
+     179592.947,
+     576247.79
+    ],
+    [
+     179592.146,
+     576248.119
+    ]
+   ],
+   "length_m": 0.866,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 284.217,
+   "ILdown": 284.2,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "ענף בקומה א': תחתית הצינור בקולטן = פני התקרה הקונסטרוקטיבית +3.70 (אין מפלס בתוכנית); שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה - קומה א.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW1@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "DIB1@unit",
+   "to": "WY2@unit",
+   "pts": [
+    [
+     179591.932,
+     576248.67
+    ],
+    [
+     179591.568,
+     576247.768
+    ]
+   ],
+   "length_m": 0.973,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 277.71,
+   "ILdown": 277.691,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY2@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW2@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "WY2@unit",
+   "to": "FD2@unit",
+   "pts": [
+    [
+     179591.462,
+     576247.506
+    ],
+    [
+     179591.114,
+     576246.644
+    ]
+   ],
+   "length_m": 0.93,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 277.691,
+   "ILdown": 277.672,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי FD2@unit",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW3@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "FD2@unit",
+   "to": "FD3@unit",
+   "pts": [
+    [
+     179591.032,
+     576246.441
+    ],
+    [
+     179589.784,
+     576243.35
+    ]
+   ],
+   "length_m": 3.333,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 277.672,
+   "ILdown": 277.605,
+   "slope": 0.02,
+   "levelStatus": "derived",
+   "levelRule": "נגזר מהקו הממשיך אחרי FD3@unit",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW4@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "FD4@unit",
+   "to": "PC-1",
+   "pts": [
+    [
+     179589.486,
+     576242.612
+    ],
+    [
+     179589.15,
+     576241.78
+    ]
+   ],
+   "length_m": 0.897,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "מחסום רצפה ø8/4\" – יציאה 4\" (ø110); בתוכנית HDPE ø110 על הקו",
+   "ILup": 277.598,
+   "ILdown": 277.58,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "כניסה לתא השאיבה: 0.30 מ' מתחת לרום המכסה (אין מפלס בתוכנית); שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW5@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "FD3@unit",
+   "to": "FD4@unit",
+   "pts": [
+    [
+     179589.7,
+     576243.142
+    ],
+    [
+     179589.568,
+     576242.815
+    ]
+   ],
+   "length_m": 0.353,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "מחסום רצפה ø8/4\" – יציאה 4\" (ø110); בתוכנית HDPE ø110 על הקו",
+   "ILup": 277.605,
+   "ILdown": 277.598,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי FD4@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW6@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "ST3@unit",
+   "to": "WY2@unit",
+   "pts": [
+    [
+     179592.014,
+     576247.801
+    ],
+    [
+     179591.675,
+     576247.662
+    ]
+   ],
+   "length_m": 0.366,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 277.698,
+   "ILdown": 277.691,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY2@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW7@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "ST5@unit",
+   "to": "WY1@unit",
+   "pts": [
+    [
+     179595.944,
+     576235.724
+    ],
+    [
+     179595.398,
+     576236.21
+    ]
+   ],
+   "length_m": 0.731,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "כלל (אין תווית): מנקז אסלה / קולטן / שוחה",
+   "ILup": 277.757,
+   "ILdown": 277.742,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY1@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW8@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "FD1@unit",
+   "to": "WY1@unit",
+   "pts": [
+    [
+     179595.322,
+     576235.054
+    ],
+    [
+     179595.256,
+     576236.146
+    ]
+   ],
+   "length_m": 1.094,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "מחסום רצפה ø8/4\" – יציאה 4\" (ø110); בתוכנית HDPE ø110 על הקו",
+   "ILup": 277.764,
+   "ILdown": 277.742,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי WY1@unit; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW9@unit",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "from": "WY1@unit",
+   "to": "PC-1",
+   "pts": [
+    [
+     179595.186,
+     576236.399
+    ],
+    [
+     179589.15,
+     576241.78
+    ]
+   ],
+   "length_m": 8.086,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "תווית \"HDPE ø110\" ליד הקו",
+   "ILup": 277.742,
+   "ILdown": 277.58,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "כניסה לתא השאיבה: 0.30 מ' מתחת לרום המכסה (אין מפלס בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SW10@unit",
+   "system": "pumped",
+   "tagSystem": "sewage",
+   "floor": "unit",
+   "drawnOn": "unit",
+   "role": "pumped",
+   "from": "PC-1",
+   "to": "PRU@unit",
+   "pts": [
+    [
+     179588.852,
+     576241.797
+    ],
+    [
+     179588.582,
+     576241.814
+    ]
+   ],
+   "length_m": 0.271,
+   "D_mm": 75,
+   "material": "PEX",
+   "diameterRule": "המשך קו הסניקה (ø75 PEX בתוכנית הקרקע)",
+   "ILup": 277.63,
+   "ILdown": 277.63,
+   "slope": 0.0,
+   "levelStatus": "provisional",
+   "levelRule": "יציאה מתא השאיבה (מפלס זמני)",
+   "status": "source",
+   "source": "sources/plumbing/אינטלציה יחידת דיור.pdf – קו ירוק (קו מרכז הצינור), ממוקם ב-ITM (georef.py)"
+  },
+  {
+   "id": "SWX-WC3@ground",
+   "system": "sewage",
+   "tagSystem": "sewage",
+   "floor": "ground",
+   "drawnOn": "ground",
+   "from": "WC3@ground",
+   "to": "ST4@ground",
+   "pts": [
+    [
+     179595.513,
+     576235.818
+    ],
+    [
+     179595.881,
+     576235.562
+    ]
+   ],
+   "length_m": 0.448,
+   "D_mm": 110,
+   "material": "HDPE",
+   "diameterRule": "מחבר אסלה ø110 (קריאה ידנית)",
+   "ILup": 279.324,
+   "ILdown": 279.315,
+   "slope": 0.02,
+   "levelStatus": "provisional",
+   "levelRule": "נגזר מהקו הממשיך אחרי ST4@ground; שיפוע 2% הונח (לא כתוב ליד הקטע)",
+   "status": "source",
+   "source": "האסלה צמודה לצ.א 4; בלוק FITTINGS (מחבר אסלה) בין האסלה לקולטן בתוכנית הקרקע; הקטע הירוק קצר מדי ומוסתר בסמלים"
+  },
+  {
+   "id": "CW1@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ1@ground",
+   "to": "WJ2@ground",
+   "pts": [
+    [
+     179586.805,
+     576236.589
+    ],
+    [
+     179594.324,
+     576233.553
+    ]
+   ],
+   "length_m": 8.109,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW2@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ2@ground",
+   "to": "WJ3@ground",
+   "pts": [
+    [
+     179594.324,
+     576233.553
+    ],
+    [
+     179596.65,
+     576232.614
+    ]
+   ],
+   "length_m": 2.508,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW3@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ3@ground",
+   "to": "WJ4@ground",
+   "pts": [
+    [
+     179596.65,
+     576232.614
+    ],
+    [
+     179604.609,
+     576229.401
+    ],
+    [
+     179605.936,
+     576230.023
+    ],
+    [
+     179608.373,
+     576237.63
+    ]
+   ],
+   "length_m": 18.036,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW4@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ4@ground",
+   "to": "WJ5@ground",
+   "pts": [
+    [
+     179608.373,
+     576237.63
+    ],
+    [
+     179608.462,
+     576237.908
+    ]
+   ],
+   "length_m": 0.292,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW5@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ5@ground",
+   "to": "WJ6@ground",
+   "pts": [
+    [
+     179608.462,
+     576237.908
+    ],
+    [
+     179610.084,
+     576242.968
+    ]
+   ],
+   "length_m": 5.314,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW6@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ7@ground",
+   "to": "WJ1@ground",
+   "pts": [
+    [
+     179586.692,
+     576236.311
+    ],
+    [
+     179586.805,
+     576236.589
+    ]
+   ],
+   "length_m": 0.3,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW7@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ1@ground",
+   "to": "WJ8@ground",
+   "pts": [
+    [
+     179586.805,
+     576236.589
+    ],
+    [
+     179587.074,
+     576237.256
+    ],
+    [
+     179586.908,
+     576237.647
+    ],
+    [
+     179586.703,
+     576237.73
+    ],
+    [
+     179586.537,
+     576238.12
+    ],
+    [
+     179586.961,
+     576239.171
+    ]
+   ],
+   "length_m": 2.922,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW8@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ8@ground",
+   "to": "WJ9@ground",
+   "pts": [
+    [
+     179586.961,
+     576239.171
+    ],
+    [
+     179588.196,
+     576242.231
+    ]
+   ],
+   "length_m": 3.3,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW9@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ9@ground",
+   "to": "WJ10@ground",
+   "pts": [
+    [
+     179588.196,
+     576242.231
+    ],
+    [
+     179588.304,
+     576242.499
+    ]
+   ],
+   "length_m": 0.289,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW10@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ10@ground",
+   "to": "WJ11@ground",
+   "pts": [
+    [
+     179588.304,
+     576242.499
+    ],
+    [
+     179588.518,
+     576243.028
+    ]
+   ],
+   "length_m": 0.571,
+   "D_mm": 25,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø25 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW11@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ11@ground",
+   "to": "WJ12@ground",
+   "pts": [
+    [
+     179588.518,
+     576243.028
+    ],
+    [
+     179590.158,
+     576247.091
+    ]
+   ],
+   "length_m": 4.382,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW12@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ12@ground",
+   "to": "WJ13@ground",
+   "pts": [
+    [
+     179590.158,
+     576247.091
+    ],
+    [
+     179593.893,
+     576256.34
+    ]
+   ],
+   "length_m": 9.975,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW13@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ10@ground",
+   "to": "WJ14@ground",
+   "pts": [
+    [
+     179588.304,
+     576242.499
+    ],
+    [
+     179587.289,
+     576242.909
+    ]
+   ],
+   "length_m": 1.095,
+   "D_mm": 16,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø16 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW14@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ8@ground",
+   "to": "WJ15@ground",
+   "pts": [
+    [
+     179586.961,
+     576239.171
+    ],
+    [
+     179588.387,
+     576238.595
+    ]
+   ],
+   "length_m": 1.538,
+   "D_mm": 25,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø25 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW15@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ9@ground",
+   "to": "WJ16@ground",
+   "pts": [
+    [
+     179588.196,
+     576242.231
+    ],
+    [
+     179589.623,
+     576241.656
+    ]
+   ],
+   "length_m": 1.538,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW16@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ12@ground",
+   "to": "WJ17@ground",
+   "pts": [
+    [
+     179590.158,
+     576247.091
+    ],
+    [
+     179591.407,
+     576246.587
+    ]
+   ],
+   "length_m": 1.347,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW17@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ2@ground",
+   "to": "WJ18@ground",
+   "pts": [
+    [
+     179594.324,
+     576233.553
+    ],
+    [
+     179595.194,
+     576235.71
+    ]
+   ],
+   "length_m": 2.326,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW18@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ19@ground",
+   "to": "WJ20@ground",
+   "pts": [
+    [
+     179599.365,
+     576241.581
+    ],
+    [
+     179605.746,
+     576239.005
+    ]
+   ],
+   "length_m": 6.881,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "אין תווית קוטר",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW19@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ20@ground",
+   "to": "WJ5@ground",
+   "pts": [
+    [
+     179605.746,
+     576239.005
+    ],
+    [
+     179608.462,
+     576237.908
+    ]
+   ],
+   "length_m": 2.929,
+   "D_mm": 20,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø20 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW20@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ3@ground",
+   "to": "WJ21@ground",
+   "pts": [
+    [
+     179596.649,
+     576232.614
+    ],
+    [
+     179596.056,
+     576231.145
+    ]
+   ],
+   "length_m": 1.584,
+   "D_mm": 16,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø16 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW21@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ22@ground",
+   "to": "WJ4@ground",
+   "pts": [
+    [
+     179605.637,
+     576238.735
+    ],
+    [
+     179608.353,
+     576237.638
+    ]
+   ],
+   "length_m": 2.929,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CW22@ground",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "site",
+   "drawnOn": "ground",
+   "from": "WJ11@ground",
+   "to": "WJ23@ground",
+   "pts": [
+    [
+     179588.518,
+     576243.029
+    ],
+    [
+     179590.064,
+     576242.405
+    ]
+   ],
+   "length_m": 1.667,
+   "D_mm": 32,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "תווית ø32 ליד ההסתעפות",
+   "coverDepth_m": 0.5,
+   "levelStatus": "provisional",
+   "levelRule": "עומק כיסוי 0.50 מ' מתחת לפני הפיתוח (זמני – לא כתוב בתוכנית)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "CWR22@roof",
+   "system": "cold",
+   "tagSystem": "water",
+   "floor": "roof",
+   "drawnOn": "roof",
+   "from": "RS2@roof",
+   "to": "HTR@roof",
+   "pts": [
+    [
+     179605.609,
+     576238.747
+    ],
+    [
+     179599.907,
+     576241.111
+    ]
+   ],
+   "length_m": 6.173,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "אין תווית קוטר",
+   "levelStatus": "provisional",
+   "levelRule": "על פני הגג (+6.85) על תומכים 0.10 מ' (זמני)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  },
+  {
+   "id": "HWR23@roof",
+   "system": "hot",
+   "tagSystem": "water",
+   "floor": "roof",
+   "drawnOn": "roof",
+   "from": "HTR@roof",
+   "to": "HM@roof",
+   "pts": [
+    [
+     179599.365,
+     576241.318
+    ],
+    [
+     179591.904,
+     576244.331
+    ]
+   ],
+   "length_m": 8.046,
+   "material": "PEX (פקסגול)",
+   "diameterRule": "אין תווית קוטר",
+   "levelStatus": "provisional",
+   "levelRule": "על פני הגג (+6.85) על תומכים 0.10 מ' (זמני)",
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – שכבת cold water"
+  }
+ ],
+ "lines3d": [
+  {
+   "id": "STACK1",
+   "stack": 1,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179588.49,
+     576237.883,
+     279.191
+    ],
+    [
+     179588.489,
+     576237.883,
+     284.2
+    ],
+    [
+     179588.489,
+     576237.883,
+     286.8
+    ],
+    [
+     179589.874,
+     576239.615,
+     286.95
+    ],
+    [
+     179589.874,
+     576239.615,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof"
+   ],
+   "title": "קולטן צ.א 1 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [
+    "הסטה מתחת לתקרת הגג (2.22 מ' אופקית, זמני)"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 1 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "STACK2",
+   "stack": 2,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179591.349,
+     576246.148,
+     279.546
+    ],
+    [
+     179591.347,
+     576246.148,
+     284.2
+    ],
+    [
+     179591.347,
+     576246.148,
+     286.8
+    ],
+    [
+     179592.154,
+     576245.823,
+     286.95
+    ],
+    [
+     179592.154,
+     576245.823,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof"
+   ],
+   "title": "קולטן צ.א 2 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [
+    "הסטה מתחת לתקרת הגג (0.87 מ' אופקית, זמני)"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 2 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "STACK3",
+   "stack": 3,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179592.017,
+     576247.803,
+     277.698
+    ],
+    [
+     179592.017,
+     576247.803,
+     279.9
+    ],
+    [
+     179592.146,
+     576248.121,
+     280.243
+    ],
+    [
+     179592.146,
+     576248.121,
+     283.75
+    ],
+    [
+     179592.947,
+     576247.795,
+     284.1
+    ],
+    [
+     179592.947,
+     576247.795,
+     284.2
+    ],
+    [
+     179592.95,
+     576247.796,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof",
+    "unit"
+   ],
+   "title": "קולטן צ.א 3 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [
+    "הסטה מתחת לרצפת הקרקע (-0.60, זמני)",
+    "הסטה בתקרת הקרקע (+3.25, זמני)"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 3 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "STACK4",
+   "stack": 4,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179595.881,
+     576235.562,
+     279.315
+    ],
+    [
+     179595.88,
+     576235.562,
+     284.2
+    ],
+    [
+     179595.883,
+     576235.563,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof"
+   ],
+   "title": "קולטן צ.א 4 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 4 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "STACK5",
+   "stack": 5,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179595.948,
+     576235.726,
+     277.757
+    ],
+    [
+     179595.946,
+     576235.725,
+     284.2
+    ],
+    [
+     179595.949,
+     576235.725,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof",
+    "unit"
+   ],
+   "title": "קולטן צ.א 5 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 5 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "STACK6",
+   "stack": 6,
+   "system": "sewage",
+   "kind": "stack",
+   "D_mm": 110,
+   "material": "HDPE",
+   "pts3d": [
+    [
+     179605.833,
+     576239.264,
+     279.589
+    ],
+    [
+     179605.832,
+     576239.264,
+     284.2
+    ],
+    [
+     179605.835,
+     576239.264,
+     287.85
+    ]
+   ],
+   "floors": [
+    "first",
+    "ground",
+    "roof"
+   ],
+   "title": "קולטן צ.א 6 – HDPE ø110 (שופכין ואוויר)",
+   "notes": [],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מיקום בכל קומה מהתוכניות; מפלס הבסיס מהקו לשוחה; גובה ההסטות וקצה האוורור מעל הגג – זמניים",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf – עיגולי מגנטה + תוויות צ.א 6 בכל קומה; הערה \"העתקה מקבילית\""
+  },
+  {
+   "id": "RN-RD1@roof",
+   "floor": "roof",
+   "system": "rain",
+   "pts3d": [
+    [
+     179604.692,
+     576237.902,
+     287.3
+    ],
+    [
+     179605.202,
+     576237.696,
+     287.3
+    ]
+   ],
+   "D_mm": 50,
+   "material": "PVC",
+   "ends": [
+    "RD1@roof",
+    "DP1@roof"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "נקז גג 2\" -> ראש הצמ\"ג דרך המעקה (מפלס זמני)",
+   "source": "רקע אדריכלי בתוכנית האינסטלציה – \"נקז גג 2\"\" ו\"צינור 4\" צמ\"ג\""
+  },
+  {
+   "id": "RN-RD2@roof",
+   "floor": "roof",
+   "system": "rain",
+   "pts3d": [
+    [
+     179605.044,
+     576238.774,
+     287.3
+    ],
+    [
+     179605.554,
+     576238.568,
+     287.3
+    ]
+   ],
+   "D_mm": 50,
+   "material": "PVC",
+   "ends": [
+    "RD2@roof",
+    "DP2@roof"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "נקז גג 2\" -> ראש הצמ\"ג דרך המעקה (מפלס זמני)",
+   "source": "רקע אדריכלי בתוכנית האינסטלציה – \"נקז גג 2\"\" ו\"צינור 4\" צמ\"ג\""
+  },
+  {
+   "id": "DP1",
+   "floor": "ground",
+   "system": "rain",
+   "kind": "downpipe",
+   "pts3d": [
+    [
+     179605.202,
+     576237.696,
+     287.3
+    ],
+    [
+     179605.293,
+     576237.658,
+     280.6
+    ]
+   ],
+   "D_mm": 110,
+   "material": "PVC",
+   "ends": [
+    "DP1@roof",
+    "DPS1@ground"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מגובה הגג/המרפסת עד חיבור תחתון בפני הקרקע (מפלסים זמניים)",
+   "title": "צינור מי גשם (צמ\"ג) 4\" DP1",
+   "source": "רקע אדריכלי – \"צינור 4\" - צמ\"ג\" + \"חיבור תחתון למרזב\" בקומות"
+  },
+  {
+   "id": "DP2",
+   "floor": "ground",
+   "system": "rain",
+   "kind": "downpipe",
+   "pts3d": [
+    [
+     179605.554,
+     576238.568,
+     287.3
+    ],
+    [
+     179605.645,
+     576238.53,
+     280.6
+    ]
+   ],
+   "D_mm": 110,
+   "material": "PVC",
+   "ends": [
+    "DP2@roof",
+    "DPS2@ground"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מגובה הגג/המרפסת עד חיבור תחתון בפני הקרקע (מפלסים זמניים)",
+   "title": "צינור מי גשם (צמ\"ג) 4\" DP2",
+   "source": "רקע אדריכלי – \"צינור 4\" - צמ\"ג\" + \"חיבור תחתון למרזב\" בקומות"
+  },
+  {
+   "id": "DP3",
+   "floor": "ground",
+   "system": "rain",
+   "kind": "downpipe",
+   "pts3d": [
+    [
+     179594.32,
+     576250.878,
+     284.28
+    ],
+    [
+     179594.367,
+     576250.967,
+     280.6
+    ]
+   ],
+   "D_mm": 110,
+   "material": "PVC",
+   "ends": [
+    "DP3@first",
+    "DPS3@ground"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מגובה הגג/המרפסת עד חיבור תחתון בפני הקרקע (מפלסים זמניים)",
+   "title": "צינור מי גשם (צמ\"ג) 4\" DP3",
+   "source": "רקע אדריכלי – \"צינור 4\" - צמ\"ג\" + \"חיבור תחתון למרזב\" בקומות"
+  },
+  {
+   "id": "RN-RD1@first",
+   "floor": "first",
+   "system": "rain",
+   "pts3d": [
+    [
+     179594.102,
+     576250.34,
+     284.25
+    ],
+    [
+     179594.32,
+     576250.878,
+     284.25
+    ]
+   ],
+   "D_mm": 50,
+   "material": "PVC",
+   "ends": [
+    "RD1@first",
+    "DP3@first"
+   ],
+   "status": "source",
+   "levelStatus": "provisional",
+   "levelRule": "מפלס זמני",
+   "source": "רקע אדריכלי – נקז מרפסת קומה א' צפון + צמ\"ג 4\""
+  },
+  {
+   "id": "RN-balcony",
+   "floor": "first",
+   "system": "sewage",
+   "pts3d": [
+    [
+     179589.168,
+     576238.142,
+     284.23
+    ],
+    [
+     179588.489,
+     576237.883,
+     284.215
+    ]
+   ],
+   "D_mm": 50,
+   "material": "HDPE",
+   "ends": [
+    "RD2@first",
+    "ST1@first"
+   ],
+   "status": "derived",
+   "levelStatus": "provisional",
+   "levelRule": "מפלס זמני",
+   "source": "'ניקוז לביוב עד 40 מ\"ר' – מרפסת קומה א' מתנקזת לביוב (צ.א 1)"
+  },
+  {
+   "id": "PUMP-RISER",
+   "system": "pumped",
+   "floor": "unit",
+   "kind": "pumpRiser",
+   "D_mm": 75,
+   "material": "PEX",
+   "pts3d": [
+    [
+     179588.582,
+     576241.814,
+     277.63
+    ],
+    [
+     179588.582,
+     576241.814,
+     280.8
+    ],
+    [
+     179588.758,
+     576241.538,
+     280.8
+    ],
+    [
+     179588.758,
+     576241.538,
+     null
+    ]
+   ],
+   "ends": [
+    "PRU@unit",
+    "PRG@ground"
+   ],
+   "title": "קו סניקה – עלייה מתא השאיבה וגמל",
+   "status": "derived",
+   "levelStatus": "provisional",
+   "levelRule": "גמל ב-280.80 = רום שוחה 2 + 0.50 (הערת היועץ); תוואי העלייה לא משורטט – זמני",
+   "source": "הערה \"ריקון תא ביוב המנקז את קומת המרתף … גמל 50 ס\"מ מעל לתא הביוב הקולט\" + פרט משאבה טבולה"
+  }
+ ],
+ "findings": [
+  {
+   "id": "F1",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 1 עובר בתוך קיר מרתף BW1",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר מרתף BW1 בין המפלסים -1.31 ל--0.40. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179588.49,
+    576237.883,
+    279.645
+   ],
+   "elements": [
+    "STACK1",
+    "BW1"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F2",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 1 עובר בתוך קורת יסוד B-45",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קורת יסוד B-45 בין המפלסים -0.40 ל-+0.20. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179588.49,
+    576237.883,
+    280.4
+   ],
+   "elements": [
+    "STACK1",
+    "B-45"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F3",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 1 עובר בתוך עמוד קומת קרקע C7",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את עמוד קומת קרקע C7 בין המפלסים -0.15 ל-+3.45. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון).",
+   "at": [
+    179588.49,
+    576237.883,
+    282.15
+   ],
+   "elements": [
+    "STACK1",
+    "C7"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F4",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 1 עובר בתוך קורת תקרה +3.70 B-18",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קורת תקרה +3.70 B-18 בין המפלסים +3.45 ל-+3.70. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון).",
+   "at": [
+    179588.49,
+    576237.883,
+    284.075
+   ],
+   "elements": [
+    "STACK1",
+    "B-18"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F5",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 2 עובר בתוך קיר מרתף BW1",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר מרתף BW1 בין המפלסים -0.95 ל--0.40. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179591.349,
+    576246.148,
+    279.823
+   ],
+   "elements": [
+    "STACK2",
+    "BW1"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F6",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 3 עובר בתוך קיר מרתף BW3",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר מרתף BW3 בין המפלסים -2.80 ל--0.60. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179592.017,
+    576247.803,
+    278.799
+   ],
+   "elements": [
+    "STACK3",
+    "BW3"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F7",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 4 עובר בתוך קיר מרתף BW1",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר מרתף BW1 בין המפלסים -1.19 ל--0.40. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179595.881,
+    576235.562,
+    279.707
+   ],
+   "elements": [
+    "STACK4",
+    "BW1"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F8",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 4 עובר בתוך קיר בטון קומת קרקע GW3",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר בטון קומת קרקע GW3 בין המפלסים -0.15 ל-+3.45. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון).",
+   "at": [
+    179595.881,
+    576235.562,
+    282.15
+   ],
+   "elements": [
+    "STACK4",
+    "GW3"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F9",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 5 עובר בתוך קיר מרתף BW1",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר מרתף BW1 בין המפלסים -2.74 ל--0.40. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179595.948,
+    576235.726,
+    278.928
+   ],
+   "elements": [
+    "STACK5",
+    "BW1"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F10",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 5 עובר בתוך קיר בטון קומת קרקע GW3",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר בטון קומת קרקע GW3 בין המפלסים -0.15 ל-+3.45. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון).",
+   "at": [
+    179595.948,
+    576235.726,
+    282.15
+   ],
+   "elements": [
+    "STACK5",
+    "GW3"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F11",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 6 עובר בתוך קיר בטון קומת קרקע GW2",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קיר בטון קומת קרקע GW2 בין המפלסים -0.31 ל-+3.45. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון). (גיאומטריית האלמנט בקירוב)",
+   "at": [
+    179605.833,
+    576239.264,
+    282.07
+   ],
+   "elements": [
+    "STACK6",
+    "GW2"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F12",
+   "severity": "critical",
+   "category": "structure",
+   "title": "צ.א 6 עובר בתוך קורת תקרה +3.70 B-27",
+   "text": "הקולטן (ø110) במיקום שבתוכנית חודר את קורת תקרה +3.70 B-27 בין המפלסים +3.45 ל-+3.70. בטון מזוין – אי אפשר להעביר צינור בתוכו (הערה 8 של היועץ: צ.א לא יעבור בקורת בטון).",
+   "at": [
+    179605.833,
+    576239.264,
+    284.075
+   ],
+   "elements": [
+    "STACK6",
+    "B-27"
+   ],
+   "proposal": "להזיז את הקולטן אל מחוץ לאלמנט (בתיאום עם הקונסטרוקטור), או לבצע הסטה ב-2 זוויות 45° מתחת לאלמנט – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F13",
+   "severity": "critical",
+   "category": "water",
+   "title": "עולה המים בתוך עמוד קומת קרקע C8",
+   "text": "עולה – צינור הזנת מים לקומה א' מסומן בתוך עמוד קומת קרקע C8 (בטון).",
+   "at": [
+    179590.064,
+    576242.405,
+    281.5
+   ],
+   "elements": [
+    "WJ23@ground",
+    "C8"
+   ],
+   "proposal": "להעביר את העולה לצד העמוד, בתוך קיר בלוקים / פיר – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F14",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW2@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -0.91 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179590.914,
+    576246.322,
+    279.591
+   ],
+   "elements": [
+    "SW2@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F15",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW4@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -1.14 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179595.668,
+    576235.024,
+    279.358
+   ],
+   "elements": [
+    "SW4@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F16",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW5@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -1.26 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179588.5,
+    576237.821,
+    279.245
+   ],
+   "elements": [
+    "SW5@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F17",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW8@ground חוצה קורת יסוד B-54 – נדרש שרוול",
+   "text": "צינור ø160 במפלס -0.99 עובר דרך קורת יסוד B-54. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179603.557,
+    576233.53,
+    279.505
+   ],
+   "elements": [
+    "SW8@ground",
+    "B-54"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F18",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW8@ground חוצה קורת יסוד B-51 – נדרש שרוול",
+   "text": "צינור ø160 במפלס -1.07 עובר דרך קורת יסוד B-51. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179599.781,
+    576233.109,
+    279.431
+   ],
+   "elements": [
+    "SW8@ground",
+    "B-51"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F19",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW8@ground חוצה קורת יסוד B-52 – נדרש שרוול",
+   "text": "צינור ø160 במפלס -0.94 עובר דרך קורת יסוד B-52. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179606.174,
+    576233.822,
+    279.557
+   ],
+   "elements": [
+    "SW8@ground",
+    "B-52"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F20",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW9@ground חוצה קורת יסוד B-53 – נדרש שרוול",
+   "text": "צינור ø110 במפלס -0.86 עובר דרך קורת יסוד B-53. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179605.861,
+    576238.974,
+    279.638
+   ],
+   "elements": [
+    "SW9@ground",
+    "B-53"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F21",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW9@ground חוצה קורת יסוד B-52 – נדרש שרוול",
+   "text": "צינור ø110 במפלס -0.96 עובר דרך קורת יסוד B-52. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179606.313,
+    576233.901,
+    279.536
+   ],
+   "elements": [
+    "SW9@ground",
+    "B-52"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F22",
+   "severity": "minor",
+   "category": "sleeve",
+   "title": "SW10@ground חוצה קורת יסוד B-52 – נדרש שרוול",
+   "text": "צינור ø110 במפלס -0.96 עובר דרך קורת יסוד B-52. שרוול ליציקה בתיאום הקונסטרוקטור. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179606.316,
+    576233.838,
+    279.537
+   ],
+   "elements": [
+    "SW10@ground",
+    "B-52"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F23",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW13@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -1.25 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179588.509,
+    576237.926,
+    279.247
+   ],
+   "elements": [
+    "SW13@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F24",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW26@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø50 במפלס -0.92 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179591.539,
+    576246.608,
+    279.581
+   ],
+   "elements": [
+    "SW26@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F25",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW29@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø50 במפלס -0.93 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179591.446,
+    576246.183,
+    279.572
+   ],
+   "elements": [
+    "SW29@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F26",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SW32@ground חוצה קיר מרתף BW3 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -2.75 עובר דרך קיר מרתף BW3. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179592.054,
+    576247.885,
+    277.755
+   ],
+   "elements": [
+    "SW32@ground",
+    "BW3"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F27",
+   "severity": "major",
+   "category": "sleeve",
+   "title": "SWX-WC3@ground חוצה קיר מרתף BW1 – נדרש שרוול אטום",
+   "text": "צינור ø110 במפלס -1.13 עובר דרך קיר מרתף BW1. קיר מרתף מתחת לפני הקרקע – שרוול עם אוגן אטימה (Puddle flange) ואטם. (מיקום האלמנט בקירוב – עד IFC)",
+   "at": [
+    179595.762,
+    576235.645,
+    279.373
+   ],
+   "elements": [
+    "SWX-WC3@ground",
+    "BW1"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F28",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך S-3: 1 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW2@ground נמצאים מעל שטח המרתף, במפלסים -0.98 עד -0.98, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179590.914,
+    576246.322,
+    279.523
+   ],
+   "elements": [
+    "SW2@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F29",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך S-4: 1 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW4@ground נמצאים מעל שטח המרתף, במפלסים -1.22 עד -1.22, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179595.668,
+    576235.024,
+    279.283
+   ],
+   "elements": [
+    "SW4@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F30",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך ST1@ground: 8 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW13@ground, SW14@ground, SW15@ground, SW16@ground, SW18@ground, SW19@ground, SW20@ground, SW35@ground נמצאים מעל שטח המרתף, במפלסים -1.30 עד -1.24, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179588.635,
+    576238.236,
+    279.228
+   ],
+   "elements": [
+    "SW13@ground",
+    "SW14@ground",
+    "SW15@ground",
+    "SW16@ground",
+    "SW18@ground",
+    "SW19@ground",
+    "SW20@ground",
+    "SW35@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F31",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך ST4@ground: 2 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW23@ground, SWX-WC3@ground נמצאים מעל שטח המרתף, במפלסים -1.18 עד -1.17, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179595.761,
+    576236.414,
+    279.327
+   ],
+   "elements": [
+    "SW23@ground",
+    "SWX-WC3@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F32",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך ST2@ground: 5 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW26@ground, SW27@ground, SW28@ground, SW29@ground, SW31@ground נמצאים מעל שטח המרתף, במפלסים -0.94 עד -0.92, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179591.577,
+    576246.703,
+    279.567
+   ],
+   "elements": [
+    "SW26@ground",
+    "SW27@ground",
+    "SW28@ground",
+    "SW29@ground",
+    "SW31@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F33",
+   "severity": "major",
+   "category": "routing",
+   "title": "ניקוז דרך ST3@unit: 1 קטעים בתוך חלל המרתף",
+   "text": "הקטעים SW32@ground נמצאים מעל שטח המרתף, במפלסים -2.80 עד -2.80, כלומר נמוך מתקרת המרתף (‎-0.40). הם יהיו תלויים בתוך יחידת הדיור (גובה נטו 2.20) ויחייבו תקרה מונמכת, או שנדרש תוואי אחר.",
+   "at": [
+    179592.083,
+    576247.957,
+    277.702
+   ],
+   "elements": [
+    "SW32@ground"
+   ],
+   "proposal": "לנקז את קבועות הקומה שמעל המרתף בתקרת המרתף לפיר אחד ולצאת אופקית מעל קיר המרתף – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F34",
+   "severity": "major",
+   "category": "routing",
+   "title": "קומה א' → ST2@first: אין מקום לצנרת במילוי הרצפה",
+   "text": "מילוי של 15 ס\"מ בלבד (+3.70 עד +3.85). בקטעים SW1@first קודקוד הצינור מגיע עד +3.83 – מעל הריצוף.",
+   "at": [
+    179592.065,
+    576245.607,
+    284.332
+   ],
+   "elements": [
+    "SW1@first"
+   ],
+   "proposal": "הנמכת התקרה בחדרים הרטובים (רצפה שקועה) או צנרת מתחת לתקרה עם תקרה מונמכת בקרקע – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F35",
+   "severity": "major",
+   "category": "routing",
+   "title": "קומה א' → ST1@first: אין מקום לצנרת במילוי הרצפה",
+   "text": "מילוי של 15 ס\"מ בלבד (+3.70 עד +3.85). בקטעים SW2@first, SW11@first, SW12@first, SW13@first, SW14@first, SW15@first קודקוד הצינור מגיע עד +3.91 – מעל הריצוף.",
+   "at": [
+    179590.851,
+    576242.03,
+    284.406
+   ],
+   "elements": [
+    "SW2@first",
+    "SW11@first",
+    "SW12@first",
+    "SW13@first",
+    "SW14@first",
+    "SW15@first"
+   ],
+   "proposal": "הנמכת התקרה בחדרים הרטובים (רצפה שקועה) או צנרת מתחת לתקרה עם תקרה מונמכת בקרקע – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F36",
+   "severity": "major",
+   "category": "routing",
+   "title": "SW4@unit עובר בתוך רצפת המרתף",
+   "text": "הקו (ø110, ‏277.58–277.71) חוצה את רצפת המרתף התלויה (277.50–277.75) לאורך 0.90 מ'. מתחת לרצפה יש ארגזי הפרדה וקורות; לא ברור איך הצינור עובר.",
+   "at": [
+    179589.318,
+    576242.196,
+    277.708
+   ],
+   "elements": [
+    "SW4@unit"
+   ],
+   "proposal": "תוואי היקפי בחצר / סביב המרתף אל תא השאיבה – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F37",
+   "severity": "major",
+   "category": "routing",
+   "title": "SW7@unit עובר בתוך רצפת המרתף",
+   "text": "הקו (ø110, ‏277.74–277.87) חוצה את רצפת המרתף התלויה (277.50–277.75) לאורך 0.73 מ'. מתחת לרצפה יש ארגזי הפרדה וקורות; לא ברור איך הצינור עובר.",
+   "at": [
+    179595.671,
+    576235.967,
+    277.867
+   ],
+   "elements": [
+    "SW7@unit"
+   ],
+   "proposal": "תוואי היקפי בחצר / סביב המרתף אל תא השאיבה – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F38",
+   "severity": "major",
+   "category": "routing",
+   "title": "SW8@unit עובר בתוך רצפת המרתף",
+   "text": "הקו (ø110, ‏277.74–277.87) חוצה את רצפת המרתף התלויה (277.50–277.75) לאורך 0.47 מ'. מתחת לרצפה יש ארגזי הפרדה וקורות; לא ברור איך הצינור עובר.",
+   "at": [
+    179595.27,
+    576235.91,
+    277.874
+   ],
+   "elements": [
+    "SW8@unit"
+   ],
+   "proposal": "תוואי היקפי בחצר / סביב המרתף אל תא השאיבה – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F39",
+   "severity": "major",
+   "category": "routing",
+   "title": "SW9@unit עובר בתוך רצפת המרתף",
+   "text": "הקו (ø110, ‏277.58–277.85) חוצה את רצפת המרתף התלויה (277.50–277.75) לאורך 8.09 מ'. מתחת לרצפה יש ארגזי הפרדה וקורות; לא ברור איך הצינור עובר.",
+   "at": [
+    179592.168,
+    576239.09,
+    277.852
+   ],
+   "elements": [
+    "SW9@unit"
+   ],
+   "proposal": "תוואי היקפי בחצר / סביב המרתף אל תא השאיבה – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F40",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-1 צמודה לגבול המגרש",
+   "text": "מרכז השוחה 0.70 מ' מהגבול; רדיוס חיצוני של חוליה ø100 כ-0.62 מ'. הדופן נוגעת בקו הגבול ובחומה ההיקפית וביסודה.",
+   "at": [
+    179588.955,
+    576234.849,
+    280.2
+   ],
+   "elements": [
+    "S-1"
+   ],
+   "proposal": "הזזת השוחה פנימה (≥0.3 מ' מדופן החומה) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F41",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-2: רום המכסה 280.30 מול פיתוח ~280.40",
+   "text": "מפלסי הפיתוח ברקע התוכנית ליד השוחה: 280.44 (0.5 מ'), 280.31 (0.8 מ'). מוערך במקום השוחה 280.40 (טווח 280.31–280.44; ממוצע משוקלל (1/d²) של נקודות הגובה עד 1.5 מ'). הפרש -10 ס\"מ. המכסה צריך להיות בדיוק במפלס הריצוף.",
+   "at": [
+    179586.35,
+    576239.389,
+    280.3
+   ],
+   "elements": [
+    "S-2"
+   ],
+   "proposal": "טבעות הגבהה כ-10 ס\"מ (בפועל לפי הריצוף) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F42",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-2 צמודה לגבול המגרש",
+   "text": "מרכז השוחה 0.53 מ' מהגבול; רדיוס חיצוני של חוליה ø80 כ-0.50 מ'. הדופן נוגעת בקו הגבול ובחומה ההיקפית וביסודה.",
+   "at": [
+    179586.35,
+    576239.389,
+    280.3
+   ],
+   "elements": [
+    "S-2"
+   ],
+   "proposal": "הזזת השוחה פנימה (≥0.3 מ' מדופן החומה) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F43",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-3: רום המכסה 280.30 מול פיתוח ~280.47",
+   "text": "מפלסי הפיתוח ברקע התוכנית ליד השוחה: 280.47 (3.1 מ'). מוערך במקום השוחה 280.47 (טווח 280.42–280.52; נקודת הגובה הקרובה (3.1 מ'), טווח ±1.5% על המרחק). הפרש -17 ס\"מ. המכסה צריך להיות בדיוק במפלס הריצוף.",
+   "at": [
+    179589.237,
+    576247.017,
+    280.3
+   ],
+   "elements": [
+    "S-3"
+   ],
+   "proposal": "טבעות הגבהה כ-17 ס\"מ (בפועל לפי הריצוף) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F44",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-3 צמודה לגבול המגרש",
+   "text": "מרכז השוחה 0.52 מ' מהגבול; רדיוס חיצוני של חוליה ø80 כ-0.50 מ'. הדופן נוגעת בקו הגבול ובחומה ההיקפית וביסודה.",
+   "at": [
+    179589.237,
+    576247.017,
+    280.3
+   ],
+   "elements": [
+    "S-3"
+   ],
+   "proposal": "הזזת השוחה פנימה (≥0.3 מ' מדופן החומה) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F45",
+   "severity": "minor",
+   "category": "chamber",
+   "title": "מפל 0.95 מ' בכניסה ל-S-0",
+   "text": "SW1@ground נכנס ל-S-0 ב-278.04 והתחתית ב-277.09. בתוכנית לא מסומן מפל. מפל חופשי של קרוב למטר בתוך שוחה שוחק את הבסיס והתיעול ומקשה על התחזוקה; הסף לדרישת מפל (לרוב 0.5–0.6 מ') – לאמת מול היועץ / התאגיד. זו שוחה עירונית: מיקום ושיפוע הניפל לפי תכנון תאגיד המים (הערה בפרופיל) – לא בהצעה.",
+   "at": [
+    179585.038,
+    576227.589,
+    278.035
+   ],
+   "elements": [
+    "SW1@ground",
+    "S-0"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F46",
+   "severity": "major",
+   "category": "chamber",
+   "title": "מפל 0.93 מ' בכניסה ל-S-1",
+   "text": "SW5@ground נכנס ל-S-1 ב-279.13 והתחתית ב-278.20 (מפלס הכניסה זמני). בתוכנית לא מסומן מפל. מפל חופשי של קרוב למטר בתוך שוחה שוחק את הבסיס והתיעול ומקשה על התחזוקה; הסף לדרישת מפל (לרוב 0.5–0.6 מ') – לאמת מול היועץ / התאגיד.",
+   "at": [
+    179588.955,
+    576234.849,
+    279.13
+   ],
+   "elements": [
+    "SW5@ground",
+    "S-1"
+   ],
+   "proposal": "מפל חיצוני: הסתעפות, צינור אנכי בעטיפת בטון, 2×45° וכניסה בתחתית – בהצעה",
+   "status": "finding"
+  },
+  {
+   "id": "F47",
+   "severity": "major",
+   "category": "chamber",
+   "title": "מפל 0.93 מ' בכניסה ל-S-1",
+   "text": "SW6@ground נכנס ל-S-1 ב-279.13 והתחתית ב-278.20. בתוכנית לא מסומן מפל. מפל חופשי של קרוב למטר בתוך שוחה שוחק את הבסיס והתיעול ומקשה על התחזוקה; הסף לדרישת מפל (לרוב 0.5–0.6 מ') – לאמת מול היועץ / התאגיד.",
+   "at": [
+    179588.955,
+    576234.849,
+    279.127
+   ],
+   "elements": [
+    "SW6@ground",
+    "S-1"
+   ],
+   "proposal": "מפל חיצוני: הסתעפות, צינור אנכי בעטיפת בטון, 2×45° וכניסה בתחתית – בהצעה",
+   "status": "finding"
+  },
+  {
+   "id": "F48",
+   "severity": "major",
+   "category": "chamber",
+   "title": "מפל 1.00 מ' בכניסה ל-S-1",
+   "text": "SW7@ground נכנס ל-S-1 ב-279.19 והתחתית ב-278.20. בתוכנית לא מסומן מפל. מפל חופשי של קרוב למטר בתוך שוחה שוחק את הבסיס והתיעול ומקשה על התחזוקה; הסף לדרישת מפל (לרוב 0.5–0.6 מ') – לאמת מול היועץ / התאגיד.",
+   "at": [
+    179588.955,
+    576234.849,
+    279.195
+   ],
+   "elements": [
+    "SW7@ground",
+    "S-1"
+   ],
+   "proposal": "מפל חיצוני: הסתעפות, צינור אנכי בעטיפת בטון, 2×45° וכניסה בתחתית – בהצעה",
+   "status": "finding"
+  },
+  {
+   "id": "F49",
+   "severity": "info",
+   "category": "openEnd",
+   "title": "סוף תכנון: סוף תכנון – הקו נכנס לקיר הבית (חדר רחצה / כביסה)",
+   "text": "הקו נגמר בקיר; אין המשך בתוכנית",
+   "at": [
+    179588.387,
+    576238.595,
+    280.5
+   ],
+   "elements": [
+    "WJ15@ground"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F50",
+   "severity": "info",
+   "category": "openEnd",
+   "title": "סוף תכנון: סוף תכנון – הקו נכנס לקיר הבית",
+   "text": "הקו נגמר בקיר; אין המשך בתוכנית",
+   "at": [
+    179589.623,
+    576241.656,
+    280.5
+   ],
+   "elements": [
+    "WJ16@ground"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F51",
+   "severity": "info",
+   "category": "openEnd",
+   "title": "סוף תכנון: סוף תכנון – הקו נכנס לקיר (חדר רחצה הורים)",
+   "text": "הקו נגמר בקיר; אין המשך בתוכנית",
+   "at": [
+    179591.407,
+    576246.587,
+    280.5
+   ],
+   "elements": [
+    "WJ17@ground"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F52",
+   "severity": "info",
+   "category": "openEnd",
+   "title": "סוף תכנון: סוף תכנון – הקו נכנס לקיר (שירותי אורחים / רחצה)",
+   "text": "הקו נגמר בקיר; אין המשך בתוכנית",
+   "at": [
+    179595.194,
+    576235.71,
+    280.5
+   ],
+   "elements": [
+    "WJ18@ground"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F53",
+   "severity": "major",
+   "category": "rain",
+   "title": "מי גשם: DPS1@ground – אין המשך מהחיבור התחתון",
+   "text": "צינור המי גשם יורד לפני הקרקע. אין בתוכנית צינור או יעד (בור חלחול / תעלה / רחוב). אסור לחבר לביוב. החיבור התחתון יושב על התקרה התלויה GS1 (K-21): הקו יעבור דרך התקרה ומתחתיה, תלוי ועטוף בטון לפי פרט \"עטיפת בטון\" של היועץ, ויחצה קורות יסוד בשרוולים.",
+   "at": [
+    179605.293,
+    576237.658,
+    280.5
+   ],
+   "elements": [
+    "DPS1@ground"
+   ],
+   "proposal": "קו ø110 ליעד שייקבע בהחלטה PR1 (בור החלחול סותר את דוח הקרקע)",
+   "status": "finding"
+  },
+  {
+   "id": "F54",
+   "severity": "major",
+   "category": "rain",
+   "title": "מי גשם: DPS2@ground – אין המשך מהחיבור התחתון",
+   "text": "צינור המי גשם יורד לפני הקרקע. אין בתוכנית צינור או יעד (בור חלחול / תעלה / רחוב). אסור לחבר לביוב. החיבור התחתון יושב על התקרה התלויה GS1 (K-21): הקו יעבור דרך התקרה ומתחתיה, תלוי ועטוף בטון לפי פרט \"עטיפת בטון\" של היועץ, ויחצה קורות יסוד בשרוולים.",
+   "at": [
+    179605.645,
+    576238.53,
+    280.5
+   ],
+   "elements": [
+    "DPS2@ground"
+   ],
+   "proposal": "קו ø110 ליעד שייקבע בהחלטה PR1 (בור החלחול סותר את דוח הקרקע)",
+   "status": "finding"
+  },
+  {
+   "id": "F55",
+   "severity": "major",
+   "category": "rain",
+   "title": "מי גשם: DPS3@ground – אין המשך מהחיבור התחתון",
+   "text": "צינור המי גשם יורד לפני הקרקע. אין בתוכנית צינור או יעד (בור חלחול / תעלה / רחוב). אסור לחבר לביוב. החיבור התחתון יושב על התקרה התלויה GS1 (K-21): הקו יעבור דרך התקרה ומתחתיה, תלוי ועטוף בטון לפי פרט \"עטיפת בטון\" של היועץ, ויחצה קורות יסוד בשרוולים.",
+   "at": [
+    179594.367,
+    576250.967,
+    280.5
+   ],
+   "elements": [
+    "DPS3@ground"
+   ],
+   "proposal": "קו ø110 ליעד שייקבע בהחלטה PR1 (בור החלחול סותר את דוח הקרקע)",
+   "status": "finding"
+  },
+  {
+   "id": "F56",
+   "severity": "major",
+   "category": "routing",
+   "title": "צ.א 1: הסטה בין קומה א' לגג",
+   "text": "המיקום בגג שונה מהמיקום בקומה א': הסטה מתחת לתקרת הגג (2.22 מ' אופקית, זמני). בתוכנית אין פרט להסטה.",
+   "at": [
+    179589.874,
+    576239.615,
+    286.95
+   ],
+   "elements": [
+    "STACK1"
+   ],
+   "proposal": "קולטן ישר עד הגג באותו מיקום, או הסטה ב-2×45° עם ביקורת – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F57",
+   "severity": "minor",
+   "category": "routing",
+   "title": "צ.א 2: הסטה בין קומה א' לגג",
+   "text": "המיקום בגג שונה מהמיקום בקומה א': הסטה מתחת לתקרת הגג (0.87 מ' אופקית, זמני). בתוכנית אין פרט להסטה.",
+   "at": [
+    179592.154,
+    576245.823,
+    286.95
+   ],
+   "elements": [
+    "STACK2"
+   ],
+   "proposal": "קולטן ישר עד הגג באותו מיקום, או הסטה ב-2×45° עם ביקורת – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F58",
+   "severity": "minor",
+   "category": "code",
+   "title": "קצה האוורור מעל הגג – גובה לא כתוב",
+   "text": "כל ששת הקולטנים מסתיימים בגג. בתוכנית אין גובה יציאה מעל הגג; במודל 0.50 מ' (זמני).",
+   "at": [
+    179589.874,
+    576239.615,
+    287.85
+   ],
+   "elements": [
+    "STACK1",
+    "STACK2",
+    "STACK3",
+    "STACK4",
+    "STACK5",
+    "STACK6"
+   ],
+   "proposal": "לקבוע לפי הל\"ת (גג שאין בו שימוש / גג בשימוש) – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F59",
+   "severity": "minor",
+   "category": "pumped",
+   "title": "קו הסניקה מהמרתף: ø75 PEX בתוכנית, HDPE Ø3\" בפרט",
+   "text": "בתוכנית הקרקע כתוב \"ø75 PEX\". בפרט \"תא איסוף עם משאבה\" של היועץ: משאבה טבולה גורסת 20 מק\"ש בעומד 10 מ' (תלת-פאזי), שסתום אל-חוזר, קו HDPE Ø3\" וגמל 50 ס\"מ מעל רום מכסה השוחה הקולטת (שוחה 2: 280.80). אותו קוטר נומינלי, חומר שונה. תוואי העלייה והגמל לא משורטטים בתוכנית.",
+   "at": [
+    179589.154,
+    576241.782,
+    277.88
+   ],
+   "elements": [
+    "PC-1",
+    "S-2"
+   ],
+   "proposal": "לקבוע חומר אחד (HDPE לפי הפרט) – לאישור היועץ",
+   "status": "finding"
+  },
+  {
+   "id": "F60",
+   "severity": "major",
+   "category": "pumped",
+   "title": "תא השאיבה PC-1 (ø60) כתא ביוב ליחידות הדיור",
+   "text": "לפי הערת היועץ, ריקון תא הביוב של קומת המרתף נעשה במשאבה טבולה גורסת דרך גמל (פרט \"תא איסוף עם משאבה\"). התא היחיד בתוכנית הוא PC-1: ø60, עומק 1.20, מתוכנן לניקוז החצרות, יושב בפתח הכניסה ליחידה 1. לשפכים של 2 יחידות: קטן למשאבה עם מצוף ונפח הפעלה, ובתקלה השפכים יעלו במקלחות היחידות (277.90) ובמכסה (277.88).",
+   "at": [
+    179589.154,
+    576241.782,
+    277.88
+   ],
+   "elements": [
+    "PC-1"
+   ],
+   "proposal": "הגדלה ל-ø100, מכסה אטום לריח, התראת מפלס גבוה ומשאבה שנייה לגיבוי – לאישור היועץ",
+   "status": "finding"
+  },
+  {
+   "id": "F61",
+   "severity": "major",
+   "category": "missing",
+   "title": "יחידת הדיור במרתף – אין תכנון אינסטלציה",
+   "text": "בתוכנית המרתף כתוב \"מרתף שירות – אחסנה בלבד\" ואין קבועות. לפי אביחי (07.11.2026) זו יחידת דיור עם קבועות. הערת היועץ \"ריקון תא ביוב המנקז את קומת המרתף … משאבה טבולה\" מתייחסת לתא שלא קיים בתוכנית.",
+   "at": [
+    179592.154,
+    576244.782,
+    277.9
+   ],
+   "elements": [
+    "PC-1"
+   ],
+   "proposal": "נדרש תכנון של היועץ: קבועות, תא שאיבה לשופכין עם משאבה (לא תא החצרות), אוורור – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F62",
+   "severity": "minor",
+   "category": "water",
+   "title": "גלגלון כיבוי אש – אין קו הזנה משורטט",
+   "text": "החץ של ההערה \"גלגלון 3/4\" … אל חוזר כפול\" מצביע על נקודה ליד החומה המערבית, 0.9 מ' מקו המים הראשי ו-0.30 מ' ממרכז שוחה 2 (בתוך קו החוליה החיצוני). קו ההזנה לא משורטט. לפי \"פרט עקרוני עמדת כיבוי אש\": ברז כדורי 1\", אל-חוזר כפול 1\", גלגלון 3/4\" רב-כיווני עם זרנוק 30 מ'.",
+   "at": [
+    179586.072,
+    576239.502,
+    280.5
+   ],
+   "elements": [
+    "WATER",
+    "S-2"
+   ],
+   "proposal": "הסתעפות 1\" (PEX ø32) מהקו הראשי לפי הפרט, והזזת הגלגלון מעל השוחה – בהצעה",
+   "status": "finding"
+  },
+  {
+   "id": "F63",
+   "severity": "minor",
+   "category": "water",
+   "title": "ברז גן במרפסת קומה א' – אין קו הזנה",
+   "text": "\"יש להתקין ברז גן לשירות במרפסת\" – הנקודה מסומנת, הקו אליה לא.",
+   "at": [
+    179597.056,
+    576237.804,
+    284.95
+   ],
+   "elements": [
+    "WATER"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F64",
+   "severity": "minor",
+   "category": "water",
+   "title": "ברז גן במרפסת קומה א' – אין קו הזנה",
+   "text": "\"יש להתקין ברז גן לשירות במרפסת\" – הנקודה מסומנת, הקו אליה לא.",
+   "at": [
+    179600.987,
+    576245.121,
+    284.95
+   ],
+   "elements": [
+    "WATER"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F65",
+   "severity": "minor",
+   "category": "water",
+   "title": "חיבור המים לעירייה",
+   "text": "קצה ההכנה העירונית (מפה למשתכן, UT-W) 0.37 מ' בתוך המגרש; מערכת המדידה של היועץ 0.32 מ' ממנה, והקו מתחיל 0.69 מ' ממנה. אין קטע מחבר משורטט; היועץ: \"נא לוודא מיקום טרם הביצוע\".",
+   "at": [
+    179586.361,
+    576235.702,
+    280.0
+   ],
+   "elements": [
+    "WM@site"
+   ],
+   "proposal": "קטע חיבור מקצה ההכנה לשעון – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F66",
+   "severity": "major",
+   "category": "pool",
+   "title": "ניקוז חדר המכונות של הבריכה לשוחה 5",
+   "text": "הקו ø110 מחדר המכונות (רצפה 278.33) לשוחה 5 (I.L 279.48). ניקוז רצפת חדר המכונות בגרביטציה אינו אפשרי; רק גלישה (O.F) שמעל 279.66. הפרט מציין משאבה טבולה כחלופה.",
+   "at": [
+    179608.027,
+    576242.975,
+    279.66
+   ],
+   "elements": [
+    "POF@ground",
+    "S-5"
+   ],
+   "proposal": "משאבה טבולה בבור האיזון + גמל לשוחה 5 – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F67",
+   "severity": "minor",
+   "category": "chamber",
+   "title": "שוחה 5 (ø60) – 4 כניסות + יציאה ø160",
+   "text": "ענפי ø110 מצ.א 6, מהברביקיו ומחדר המכונות, קו הסניקה ø63 של הבריכה, ויציאה ø160. בחוליה ø60 – לבדוק מקום לכניסות ולתיעול.",
+   "at": [
+    179606.311,
+    576233.842,
+    280.13
+   ],
+   "elements": [
+    "S-5"
+   ],
+   "proposal": "שוחה ø80 – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F68",
+   "severity": "info",
+   "category": "missing",
+   "title": "מים חמים – אין חלוקה",
+   "text": "בגג: קו מהדוד ל\"מחלק מים חמים\". אין ירידות לקומות, אין קטרים, אין צנרת נחושת בין הדוד לקולטים (הערה 14), ואין נפח דוד / מספר קולטים.",
+   "at": [
+    179588.955,
+    576234.849,
+    287.5
+   ],
+   "elements": [
+    "WATER"
+   ],
+   "proposal": null,
+   "status": "finding"
+  },
+  {
+   "id": "F69",
+   "severity": "major",
+   "category": "rain",
+   "title": "בור החלחול לא מחובר",
+   "text": "בגינה הצפונית מסומן בור חלחול (פרט עקרוני בקובץ הפרטים) – אין אליו אף צינור.",
+   "at": [
+    179599.615,
+    576253.286,
+    280.33
+   ],
+   "elements": [
+    "SOAK@site",
+    "DP1",
+    "DP2",
+    "DP3"
+   ],
+   "proposal": "לחבר אליו את צינורות המי גשם (DP1–DP3) בקו ø110 – לאישורך",
+   "status": "finding"
+  },
+  {
+   "id": "F70",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-2 בתוך התקרה התלויה GS4",
+   "text": "מרכז השוחה בתוך קו התקרה GS4 (פני בטון 280.24, K-21), 0.43 מ' מקצה התקרה; ב-K-21 אין פתח לשוחה. החוליות עומדות על הקרקע מתחת לתקרה התלויה – בתזוזה של הקרקע המכסה והתקרה זזים בנפרד.",
+   "at": [
+    179586.35,
+    576239.389,
+    280.3
+   ],
+   "elements": [
+    "S-2",
+    "GS4"
+   ],
+   "proposal": "פתח בתקרה עם מסגרת מכסה יצוקה בתקרה, או הזזת השוחה אל מחוץ לתקרה – תיאום קונסטרוקטור ויועץ",
+   "status": "finding"
+  },
+  {
+   "id": "F71",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-3 בתוך התקרה התלויה GS4",
+   "text": "מרכז השוחה בתוך קו התקרה GS4 (פני בטון 280.24, K-21), 0.42 מ' מקצה התקרה; ב-K-21 אין פתח לשוחה. החוליות עומדות על הקרקע מתחת לתקרה התלויה – בתזוזה של הקרקע המכסה והתקרה זזים בנפרד.",
+   "at": [
+    179589.237,
+    576247.017,
+    280.3
+   ],
+   "elements": [
+    "S-3",
+    "GS4"
+   ],
+   "proposal": "פתח בתקרה עם מסגרת מכסה יצוקה בתקרה, או הזזת השוחה אל מחוץ לתקרה – תיאום קונסטרוקטור ויועץ",
+   "status": "finding"
+  },
+  {
+   "id": "F72",
+   "severity": "major",
+   "category": "chamber",
+   "title": "S-5 בתוך התקרה התלויה GS2",
+   "text": "מרכז השוחה בתוך קו התקרה GS2 (פני בטון 280.03, K-21), 0.79 מ' מקצה התקרה; ב-K-21 אין פתח לשוחה. החוליות עומדות על הקרקע מתחת לתקרה התלויה – בתזוזה של הקרקע המכסה והתקרה זזים בנפרד.",
+   "at": [
+    179606.311,
+    576233.842,
+    280.13
+   ],
+   "elements": [
+    "S-5",
+    "GS2"
+   ],
+   "proposal": "פתח בתקרה עם מסגרת מכסה יצוקה בתקרה, או הזזת השוחה אל מחוץ לתקרה – תיאום קונסטרוקטור ויועץ",
+   "status": "finding"
+  },
+  {
+   "id": "F73",
+   "severity": "major",
+   "category": "rain",
+   "title": "בור החלחול קרוב ליסודות – סותר את דוח הקרקע (11.6)",
+   "text": "דוח הקרקע 11.6: \"נדרש להרחיק את בורות הניקוז לפחות 3.0 מ' מיסודות\"; 11.7: פתחי מוצא של ניקוז (מי מרזבים) \"ימוקמו במרחק של 3 מטר לפחות מגבולות המבנה\". הבור של היועץ: 0.94 מ' מקורת יסוד B-38, 1.80 מ' מכלונס 101, 2.51 מ' מכלונס 102, 0.51 מ' מגבול המגרש. נבדק כל המגרש: אין מקום מחוץ לתקרות הבית שרחוק 3.0 מ' מכל היסודות. הקוטר בתוכנית (ø0.59) תואם את 11.6 (ø60, חצץ בשק גאוטכני); עומק – לא כתוב בשום מקור.",
+   "at": [
+    179599.615,
+    576253.286,
+    280.33
+   ],
+   "elements": [
+    "SOAK@site",
+    "B-38",
+    "101",
+    "102"
+   ],
+   "proposal": "החלטה PR1: מיקום הבור / יעד אחר למי הגשם – אביחי, יועץ הקרקע והיועץ",
+   "status": "finding",
+   "source": "sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf"
+  },
+  {
+   "id": "F74",
+   "severity": "major",
+   "category": "geotech",
+   "title": "מוצאות מים פחות מ-3 מ' מהמבנה (דוח הקרקע 11.7)",
+   "text": "דוח הקרקע 11.7: \"מוצאות מים כגון ברזים, שוחות ביוב, פתחי מוצא של ניקוז (מי מרזבים) … ימוקמו במרחק של 3 מטר לפחות מגבולות המבנה\" (הקרקע בעלת פוטנציאל תפיחה, 7.12). מרחק מקו המרתף: PC-1 0.00, DPS3@ground 0.68, S-2 1.16, S-3 1.34, WJ14@ground 1.61, S-4 2.10, S-1 2.53. במגרש צפוף של 498 מ\"ר אי אפשר לעמוד בזה בכל הפריטים.",
+   "at": [
+    179593.566,
+    576242.225,
+    281.0
+   ],
+   "elements": [
+    "PC-1",
+    "DPS3@ground",
+    "S-2",
+    "S-3",
+    "WJ14@ground",
+    "S-4",
+    "S-1"
+   ],
+   "proposal": "לתאם עם יועץ הקרקע אילו פריטים חייבים לזוז ומה הפתרון לשאר (מכסים אטומים, בדיקת לחץ, ריצוף אטום 1.5 מ' סביב – 11.3)",
+   "status": "finding",
+   "source": "sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf"
+  }
+ ],
+ "summary": {
+  "runs": 79,
+  "nodes": 123,
+  "findings": {
+   "critical": 13,
+   "major": 41,
+   "minor": 15,
+   "info": 5
+  }
+ }
+}

@@ -225,6 +225,7 @@ export class UI {
             onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
       }
       if (g.id === 'environment' && app.environment) box.querySelector('summary').after(app.environment.panel());
+      if (app.modules?.[g.id]?.panel) box.querySelector('summary').after(app.modules[g.id].panel());
       wrap.append(box);
     }
     wrap.append(h('div', { class: 'btns' },

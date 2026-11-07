@@ -18,6 +18,7 @@ import { buildMamadFrames } from './geometry/openings.js';
 import { buildStarters } from './geometry/starters.js';
 import { buildWallProposals } from './geometry/proposals.js';
 import { buildProps } from './geometry/props.js';
+import { buildPlumbing } from '../src/plumbing/index.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -50,6 +51,7 @@ async function main() {
   const environment = buildEnvironment(ctx);
   const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx), perimeter: buildPerimeter(ctx), mamadFrames: buildMamadFrames(ctx), starters: buildStarters(ctx), proposals: buildWallProposals(ctx), props: buildProps(ctx) };   // windows / doors: on hold (Avihai 07.11 – skeleton first) – only the mamad frames, cast with the walls (ק15); data in data/architecture/openings.json, module js/geometry/openings.js
   buildOwnerChangeZones(ctx);
+  const plumbing = buildPlumbing(ctx);   // plumbing layer (separate module, src/plumbing)
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));
@@ -88,6 +90,7 @@ async function main() {
   app.sun.center.copy(plotCenter);
   app.environment = environment;
   environment.attach(app);
+  app.modules = { plumbing }; plumbing?.attach(app);
   app.ui = new UI(app);
   app.nav = new Navigation(app);
   app.tools.inspect = new InspectTool(app);

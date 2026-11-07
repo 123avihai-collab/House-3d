@@ -41,6 +41,10 @@
   "envMaterials": "data/environment/materials.json",
   "envSheet04": "data/environment/sheet04.json",
   "envDetails": "data/environment/details.json",
-  "rebar": "data/structure/rebar.json"
+  "rebar": "data/structure/rebar.json",
+  "plumbing": "data/plumbing/network.json",
+  "plumbingCatalog": "data/plumbing/catalog.json",
+  "plumbingDisplay": "data/plumbing/display.json",
+  "plumbingProposal": "data/plumbing/proposal.json"
  }
 }

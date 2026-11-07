@@ -1,97 +1,130 @@
 {
-  "_doc": "Display-only constants (not model dimensions). Changing these never changes geometry positions.",
-  "terrain": {
-    "sampleSpacing_m": 0.75,
-    "boundaryDensify_m": 0.5,
-    "skirtDepthBelowMin_m": 1.5,
-    "contextGroundMargin_m": 400,
-    "contextGroundBelowMin_m": 0.02
-  },
-  "lines": {
-    "plotBoundaryWidth_px": 4,
-    "plotBoundaryColor": "#ff3d00",
-    "plotBoundaryLift_m": 0.03,
-    "buildingLineColor": "#e040fb",
-    "contourColor": "#5d4037",
-    "curbColor": "#eceff1",
-    "parcelColor": "#ffb74d",
-    "contextParcelColor": "#b0a58f",
-    "lineLift_m": 0.02
-  },
-  "labels": {
-    "pointMarkerRadius_m": 0.12
-  },
-  "neighbors": {
-    "envelopeColor": "#d7ccc8",
-    "envelopeOpacity": 0.55,
-    "provisionalEdgeColor": "#ff9800"
-  },
-  "existingTerrain": {
-    "color": "#4fc3f7",
-    "opacity": 0.45
-  },
-  "sun": {
-    "intensity": 3.2,
-    "shadowMapSize": 4096,
-    "shadowRadius": 4,
-    "shadowExtent_m": 70,
-    "ambientEnvIntensity": 0.9
-  },
-  "camera": {
-    "fov": 50,
-    "near": 0.1,
-    "far": 3000,
-    "eyeHeight_m": 1.65,
-    "walkSpeed_mps": 1.4
-  },
-  "ao": {
-    "enabled": true,
-    "radius": 1.2,
-    "distanceFallOff": 1.0,
-    "thickness": 1.0,
-    "blendIntensity": 0.85
-  },
-  "minimap": {
-    "size_px": 180,
-    "extent_m": 90
-  },
-  "excavation": {
-    "sampleSpacing_m": 0.25,
-    "volumeGrid_m": 0.25,
-    "bottomLineColor": "#ffee58",
-    "shoringColor": "#e53935",
-    "shoringMinCut_m": 0.05,
-    "shoringCtrlOffset_m": 0.01,
-    "shoringMatchTol_m": 0.02,
-    "shoringPanelInset_m": 0.03
-  },
-  "piles": {
-    "radialSegments": 28,
-    "labelLift_m": 0.35,
-    "overloadTint": "#ff8a65",
-    "ghostColor": "#90caf9",
-    "ghostOpacity": 0.28
-  },
-  "framing": {
-    "labelLift_m": 0.3,
-    "provisionalEdgeColor": "#ff9800",
-    "ownerChangeColor": "#ab47bc",
-    "ownerChangeZoneOpacity": 0.18,
-    "ownerChangeRemovedColor": "#e53935",
-    "ownerChangeRemovedOpacity": 0.35
-  },
-  "plumbing": {
-    "chamberColor": "#26a69a",
-    "radialSegments": 24,
-    "sewerColor": "#8d6e63",
-    "provisionalPipeColor": "#ffb74d",
-    "unknownLevelColor": "#bdbdbd",
-    "flowArrowColor": "#1565c0",
-    "sleeveColor": "#e53935",
-    "unknownDiameter_m": 0.11,
-    "labelMinLength_m": 2.0,
-    "ghostOpacity": 0.45,
-    "coverRatio": 0.85,
-    "coverThickness_m": 0.06
-  }
+ "_doc": "Display-only constants (not model dimensions). Changing these never changes geometry positions.",
+ "terrain": {
+  "sampleSpacing_m": 0.75,
+  "boundaryDensify_m": 0.5,
+  "skirtDepthBelowMin_m": 1.5,
+  "contextGroundMargin_m": 400,
+  "contextGroundBelowMin_m": 0.02
+ },
+ "lines": {
+  "plotBoundaryWidth_px": 4,
+  "plotBoundaryColor": "#ff3d00",
+  "plotBoundaryLift_m": 0.03,
+  "buildingLineColor": "#e040fb",
+  "contourColor": "#5d4037",
+  "curbColor": "#eceff1",
+  "parcelColor": "#ffb74d",
+  "contextParcelColor": "#b0a58f",
+  "lineLift_m": 0.02
+ },
+ "labels": {
+  "maxDistance_m": 70,
+  "alwaysLayers": [
+   "plotBoundary",
+   "northArrow"
+  ],
+  "_doc": "js/core/labels.js: labels of the current step only (mode \"step\"), within maxDistance_m of the camera; alwaysLayers always",
+  "pointMarkerRadius_m": 0.12
+ },
+ "neighbors": {
+  "envelopeColor": "#d7ccc8",
+  "envelopeOpacity": 0.55,
+  "provisionalEdgeColor": "#ff9800"
+ },
+ "existingTerrain": {
+  "color": "#4fc3f7",
+  "opacity": 0.45
+ },
+ "sun": {
+  "intensity": 3.2,
+  "shadowMapSize": 4096,
+  "shadowRadius": 4,
+  "shadowExtent_m": 70,
+  "ambientEnvIntensity": 0.9
+ },
+ "camera": {
+  "fov": 50,
+  "near": 0.1,
+  "far": 3000,
+  "eyeHeight_m": 1.65,
+  "walkSpeed_mps": 1.4,
+  "walkSpeeds_mps": [
+   0.7,
+   1.4,
+   3.0
+  ],
+  "walkSpeedLabels": [
+   "איטי",
+   "רגיל",
+   "מהיר"
+  ],
+  "stepUp_m": 0.45,
+  "fallSpeed_mps": 4.0,
+  "wallClearance_m": 0.3,
+  "_docWalk": "walk mode (js/tools/navigation.js): speeds slow/normal/fast, the highest step that is climbed (stairs, slab level steps), descent speed off an edge, distance kept from walls – display constants, not model dimensions"
+ },
+ "ao": {
+  "enabled": true,
+  "radius": 1.2,
+  "distanceFallOff": 1.0,
+  "thickness": 1.0,
+  "blendIntensity": 0.85
+ },
+ "minimap": {
+  "size_px": 180,
+  "extent_m": 90
+ },
+ "excavation": {
+  "sampleSpacing_m": 0.25,
+  "volumeGrid_m": 0.25,
+  "bottomLineColor": "#ffee58",
+  "shoringColor": "#e53935",
+  "shoringMinCut_m": 0.05,
+  "shoringCtrlOffset_m": 0.01,
+  "shoringMatchTol_m": 0.02,
+  "shoringPanelInset_m": 0.03,
+  "poolWallStrip_m": 0.3
+ },
+ "piles": {
+  "radialSegments": 28,
+  "labelLift_m": 0.35,
+  "overloadTint": "#ff8a65",
+  "ghostColor": "#90caf9",
+  "ghostOpacity": 0.28
+ },
+ "framing": {
+  "labelLift_m": 0.3,
+  "provisionalEdgeColor": "#ff9800",
+  "ownerChangeColor": "#ab47bc",
+  "ownerChangeZoneOpacity": 0.18,
+  "ownerChangeRemovedColor": "#e53935",
+  "ownerChangeRemovedOpacity": 0.35
+ },
+ "plumbing": {
+  "chamberColor": "#26a69a",
+  "radialSegments": 24,
+  "sewerColor": "#8d6e63",
+  "provisionalPipeColor": "#ffb74d",
+  "unknownLevelColor": "#bdbdbd",
+  "flowArrowColor": "#1565c0",
+  "sleeveColor": "#e53935",
+  "unknownDiameter_m": 0.11,
+  "labelMinLength_m": 2.0,
+  "ghostOpacity": 0.45,
+  "coverRatio": 0.85,
+  "coverThickness_m": 0.06
+ },
+ "stairs": {
+  "labelLift_m": 0.4
+ },
+ "openings": {
+  "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר)",
+  "frame_m": 0.05,
+  "frameDepth_m": 0.07,
+  "mullion_m": 0.05,
+  "glass_m": 0.02,
+  "doorLeaf_m": 0.045,
+  "defaultWallDepth_m": 0.2
+ }
 }

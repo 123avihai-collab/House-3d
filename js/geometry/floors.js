@@ -5,7 +5,7 @@ import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 // that rise from it, and its ceiling (slab + beams of the sheet above). No dimensions here – all come from the data.
 // Tags: slab = {floor, stage 'slab'}; walls/columns = {floor, stage 'walls'}; ceiling slab/beams = {floor, stage 'ceiling'}.
 export function buildFloorSkeleton(ctx, F) {
-  const { coords, registry, scene, materials, display } = ctx;
+  const { data, coords, registry, scene, materials, display } = ctx;
   if (!F) return null;
   const D = display.framing; const floor = F.floor;
   const H = (rel) => coords.H0 + rel;
@@ -32,32 +32,82 @@ export function buildFloorSkeleton(ctx, F) {
   const stats = { slab_m3: 0, walls_m3: 0, columns_m3: 0, ceiling_m3: 0, beams_m3: 0, beamsMissing: [] };
   const L = (k) => `${floor}${k}`;   // layer ids: groundSlab, groundWalls, groundColumns, groundCeiling, groundCeilingBeams
 
-  // floor slab
+  // floor slab – one panel per drawn face of K-21, each in its zone (house / entry / mamad / terraces / yards / parking)
+  const OUTDOOR = new Set(ctx.data.tags.outdoorZones || []);   // cast after the house shell (step outdoorSlabs)
   for (const s of F.slab) {
+    const mamad = s.zone === 'mamad';   // concrete like the house slab; purple edge = per the (missing) shelter plan
     const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, D.provisionalEdgeColor));
-    g.add(label(`רצפה O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
-    stats.slab_m3 += s.area_m2 * s.thickness_m;
-    registry.add(g, { floor, system: 'structure', stage: 'slab', layer: L('Slab') }, {
-      name: `רצפת קרקע ${s.id}`, status: s.status,
-      rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
+    const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, mamad ? D.ownerChangeColor : D.provisionalEdgeColor));
+    const ghost = false;
+    g.add(label(`${s.zoneLabel} · O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
+    if (!ghost) stats.slab_m3 += s.area_m2 * s.thickness_m;
+    const layer = s.zone === 'mamad' ? L('Mamad') : OUTDOOR.has(s.zone) ? L('OutdoorSlabs') : L('Slab');
+    registry.add(g, { floor, system: 'structure', stage: 'slab', layer, ...(OUTDOOR.has(s.zone) ? { step: 'outdoorSlabs' } : {}) }, {
+      id: s.id, name: `${s.zoneLabel} – רצפה ${s.id}`, status: s.status,
+      rows: [['אזור', s.zoneLabel], ['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
       note: s.note || '', source: s.source,
     });
     scene.add(g);
   }
+  // zones without a slab: English courtyards (open down to the basement), stairs down, garden – dashed outline + label
+  for (const o of F.openZones || []) {
+    const ring = o.footprintITM.concat([o.footprintITM[0]]);
+    const pts = ring.map(([E, N]) => coords.toLocal(E, N, H(F.slab[0]?.topRel ?? 0)));
+    const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: D.ownerChangeRemovedColor, dashSize: 0.2, gapSize: 0.12 }));
+    ln.computeLineDistances(); ln.userData.annotation = true;
+    const g = new THREE.Group(); g.add(ln); g.add(label(`${o.label} – בלי רצפה`, o.footprintITM, H(F.slab[0]?.topRel ?? 0) + D.labelLift_m, 'lbl removed'));
+    registry.add(g, { floor, system: 'structure', stage: 'slab', layer: L('OpenZones') }, { name: `${o.label} (${o.area_m2.toFixed(1)} מ"ר)`, pickable: false, note: o.note, source: o.source });
+    scene.add(g);
+  }
+  // tops of the basement / light-well walls that stop at the ground level (grey fill in K-21): cast with the basement walls
+  for (const c of F.basementWallCaps || []) {
+    const m = prism(c.footprintITM, c.holesITM, H(c.bottomRel), H(c.topRel), conc);
+    const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
+    registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'groundSlab' }, {   // cast with the ground slab (ק9/ק10)
+      name: `ראש קיר מרתף (${c.wall}) עד מפלס הקרקע`, status: c.status,
+      rows: [['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`]], note: c.note, source: c.source,
+    });
+    scene.add(g);
+  }
+  // lean concrete + void formers under the suspended ground slab and the K-21 beams outside the basement (ק14): laid before
+  // the pour – under the house in step "underSlab", under the outdoor slabs / beams with them
+  if (F.underSlab?.pieces?.length) {
+    const U = F.underSlab, total = U.buildUp.reduce((a, b) => a + b.thickness_m, 0);
+    const mats = U.buildUp.map(b => materials.get(/פוליביד|הפרדה/.test(b.item) ? 'voidFormer' : 'leanConcrete'));
+    for (const outdoor of [false, true]) {
+      const ps = U.pieces.filter(p => OUTDOOR.has(p.zone) === outdoor); if (!ps.length) continue;
+      const g = new THREE.Group(); let area = 0;
+      for (const p of ps) {
+        let z = p.topRel - total; area += p.area_m2;
+        U.buildUp.forEach((b, i) => { g.add(prism(p.footprintITM, p.holesITM, H(z), H(z + b.thickness_m), mats[i])); z += b.thickness_m; });
+      }
+      registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'underSlabFormers', step: outdoor ? 'outdoorBeams' : 'underSlab' }, {
+        name: outdoor ? 'בטון רזה + ארגזי פוליביד – מתחת לרצפות ולקורות החוץ' : 'בטון רזה + ארגזי פוליביד – מתחת לרצפת הבית ולקורות K-21',
+        rows: [...U.buildUp.slice().reverse().map(b => [b.item, `${Math.round(b.thickness_m * 100)} ס"מ`]), ['שטח', `${area.toFixed(1)} מ"ר`],
+          ['מתחת ל-', [...new Set(ps.map(p => p.on))].join(', ')]],
+        note: U.note, source: [...new Set(U.buildUp.map(b => b.source))].join('; '),
+      });
+      scene.add(g);
+    }
+  }
   // walls rising from the floor
   const wg = new THREE.Group(); const wNotes = new Set();
   for (const w of F.walls) {
-    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor));
+    // a wall with windows / doors (tools/extract_openings.py): its pieces around the openings + concrete sill / lintel in them
+    const g = new THREE.Group();
+    const pieces = w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
+    for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
+    for (const f of w.raisedITM || []) pieces.push([f.ringITM, f.holesITM, f.bottomRel, f.topRel]);   // part with no beam above: up to the slab (ק17)
+    for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
-    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls') }, {
-      name: `קיר ${w.tag || w.id} – קומת קרקע`, status: w.status,
-      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls'), ...(floor === 'roof' && w.bottomRel < (data.tags.floors.find(f => f.id === 'roof')?.level ?? 99) - 0.5 ? { step: 'firstWalls' } : {}) }, {
+      id: w.id, name: `קיר ${w.tag || w.id} (${w.id}) – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
+      rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+        ...(w.openings?.length ? [['פתחים', `${w.openings.join(', ')} (אדן / משקוף בטון)`]] : []),
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
-      note: w.note || 'תחתית = רצפת הקרקע במקום; ראש = תחתית תקרת K-31 במקום.', source: w.source,
+      note: w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', source: w.source,
     });
     if (w.note) wNotes.add(w.note);
     scene.add(g);
@@ -68,8 +118,8 @@ export function buildFloorSkeleton(ctx, F) {
     g.add(label(`${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, c.footprintITM, H(c.topRel) + D.labelLift_m));
     stats.columns_m3 += new THREE.Box3().setFromObject(m).getSize(new THREE.Vector3()).y * c.size_cm[0] * c.size_cm[1] / 1e4;
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Columns') }, {
-      name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}`, status: c.status,
-      rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`]],
+      id: c.id, name: `עמוד ${c.id} ${c.size_cm[0]}/${c.size_cm[1]}${floor === 'first' ? " – קומה א'" : ''}`, status: c.status,
+      rows: [['חתך', `${c.size_cm[0]}/${c.size_cm[1]} ס"מ (תווית: ${c.tagSize_cm.join('/') || '—'})`], ['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`], ['יושב על', c.standsOn || '— (חסר במקורות)']],
       note: c.note || '', source: c.source,
     });
     scene.add(g);
@@ -80,12 +130,12 @@ export function buildFloorSkeleton(ctx, F) {
     for (const s of C.slab) {
       const m = prism(s.footprintITM, s.holesITM, H(s.bottomRel), H(s.topRel), conc);
       const g = new THREE.Group(); g.add(m); if (flagged(s.status)) g.add(edges(m, D.provisionalEdgeColor));
-      if (s.area_m2 > 2) g.add(label(`תקרה O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
+      if (s.area_m2 > 2) g.add(label(`${F.ceilingLabel || 'תקרה'} O.K=${s.topRel.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, s.footprintITM, H(s.topRel) + D.labelLift_m));
       stats.ceiling_m3 += s.area_m2 * s.thickness_m;
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('Ceiling') }, {
-        name: `תקרת קומת הקרקע ${s.id}`, status: s.status,
+        id: s.id, name: `${F.ceilingLabel || 'תקרת קומת הקרקע'} ${s.id}`, status: s.status,
         rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.topRel))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`]],
-        note: (C.openings?.length ? `פתח מדרגות ${C.openings.map(o => o.area_m2.toFixed(1)).join(', ')} מ"ר (K-31). ` : '') + 'האזור המזרחי בלי תקרה ב-+3.70 – חלל כפול (סימון אלכסונים ב-K-31).', source: s.source,
+        note: (C.mamad?.length ? `כולל תקרת הממ"ד (${C.mamad.map(o => o.area_m2.toFixed(1)).join(', ')} מ"ר) – עובי ומפלס לפי תוכנית הג"א (חסרה). ` : '') + 'האזור המזרחי בלי תקרה ב-+3.70 – חלל כפול (סימון אלכסונים ב-K-31).', source: s.source,
       });
       scene.add(g);
     }
@@ -96,13 +146,16 @@ export function buildFloorSkeleton(ctx, F) {
       const ring = [[E1 - uy * hw, N1 + ux * hw], [E2 - uy * hw, N2 + ux * hw], [E2 + uy * hw, N2 - ux * hw], [E1 + uy * hw, N1 - ux * hw]];
       const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
       const g = new THREE.Group(); g.add(m);
-      g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, ring, H(b.topRel) + D.labelLift_m));
-      stats.beams_m3 += len * b.width_m * b.depth_m;
+      g.add(label(`${b.pergola ? 'פרגולה · ' : ''}${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, ring, H(b.topRel) + D.labelLift_m));
+      // volume below / above the slab only (the part inside the slab is counted with the slab)
+      const sl = C.slab[0]; const ov = sl && !b.pergola ? Math.max(0, Math.min(b.topRel, sl.topRel) - Math.max(b.bottomRel, sl.bottomRel)) : 0;
+      stats.beams_m3 += len * b.width_m * (b.depth_m - ov);
       registry.add(g, { floor, system: 'structure', stage: 'ceiling', layer: L('CeilingBeams') }, {
-        name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – תקרת הקרקע`, status: b.status,
+        ceilTopRel: C.slab.length ? Math.max(...C.slab.map(x => x.topRel)) : b.topRel,
+        id: b.id, name: `${b.pergola ? 'קורת פרגולה' : 'קורה'} ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} – ${F.ceilingLabel || 'תקרת הקרקע'}`, status: b.status,
         rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
           ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך', `${len.toFixed(2)} מ'`]],
-        note: b.topRel > (C.slab[0]?.topRel ?? 0) + 0.01 ? 'קורה הפוכה – בולטת מעל פני התקרה.' : '', source: b.source,
+        note: [b.pergola ? 'פרגולה: אין תקרה משני צידי הקורה – מסגרת פתוחה.' : '', C.slab.length && b.topRel > C.slab[0].topRel + 0.01 ? 'קורה הפוכה – בולטת מעל פני התקרה.' : '', b.note || ''].filter(Boolean).join(' '), source: b.source,
       });
       scene.add(g);
     }

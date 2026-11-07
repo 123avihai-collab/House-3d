@@ -1,0 +1,10 @@
+{
+  "_doc": "Owner corrections to the perimeter walls (edit-mode notes). Applied by tools/extract_perimeter.py after the ids are assigned, so the other ids stay stable.",
+  "drop": {
+    "PW8": "הערת אביחי 07.11.2026 (מצב עריכה ק1): עמוד השער הזה לא קיים בתוכניות – הוסר"
+  },
+  "clipToPillar": {
+    "PW1": "הערת אביחי 07.11.2026 (מצב עריכה ק2): החומה לא חודרת לפילר – נעצרת צמוד לדופן הפילר (מקום למערכת עתידית, חשמל / מים)"
+  },
+  "source": "הנחיית אביחי במצב העריכה, 07.11.2026"
+}

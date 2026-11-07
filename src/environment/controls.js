@@ -34,7 +34,24 @@ const MODES = [
   ['both', 'מפורט + מעטפות', { neighborHouses: true, neighborEnvelopes: true, neighborSheet04: false, neighborParking: false, neighborEntrances: false }],
 ];
 
+// Presets. Default = neighbour levels only (lot surfaces at their final levels, lot lines, ±0.00 / corner labels).
+const ENV_IDS = ['street', 'neighborLots', 'neighborLotLines', 'streetHeightOutline', 'neighborHouses', 'neighborFences', 'neighborYards',
+  'streetFurniture', 'neighborEnvelopes', 'neighborSheet04', 'neighborParking', 'neighborEntrances', 'neighborBuildingLines', 'neighborLabels'];
+const PRESETS = {
+  levels: ['neighborLots', 'neighborLotLines', 'neighborLabels'],
+  full: ['street', 'neighborLots', 'neighborHouses', 'neighborFences', 'neighborYards', 'streetFurniture'],
+  none: [],
+};
+const DEFAULTS_VERSION = 1; // bump to re-apply the default preset once over settings saved in the browser
+const preset = (layers, name) => ({ ...layers, ...Object.fromEntries(ENV_IDS.map(id => [id, PRESETS[name].includes(id)])) });
+
 export function buildControls(app, env) {
+  {
+    const s = app.store.get();
+    if ((s.environment?.defaultsVersion ?? 0) < DEFAULTS_VERSION) {
+      app.store.set({ layers: preset(s.layers, 'levels'), environment: { ...(s.environment || {}), defaultsVersion: DEFAULTS_VERSION } }, { record: false });
+    }
+  }
   const D = app.data.envDisplay;
   const [lo, hi] = D.envelopeOpacityRange;
   const opacity = () => app.store.get().environment?.envelopeOpacity ?? D.envelopeDefaultOpacity;
@@ -67,7 +84,10 @@ export function buildControls(app, env) {
       const mode = (MODES.find(([, , l]) => Object.entries(l).every(([k, v]) => (s.layers[k] === true) === v)) || [])[0];
       const pct = Math.round(opacity() * 100);
       const wrap = h('div', { class: 'env-ctl' });
+      const cur = Object.entries(PRESETS).find(([, ids]) => ENV_IDS.every(id => (s.layers[id] === true) === ids.includes(id)))?.[0];
+      const pb = (name, label) => h('button', { class: cur === name ? 'on' : '', onclick: () => app.store.set({ layers: preset(app.store.get().layers, name) }, { label: 'env preset' }) }, label);
       wrap.append(
+        h('div', { class: 'env-seg', role: 'group', 'aria-label': 'שכונה' }, pb('levels', 'מפלסי שכנים בלבד'), pb('full', 'שכונה מלאה'), pb('none', 'הסתר שכונה')),
         h('label', { class: 'row env-main' },
           h('input', { type: 'checkbox', checked: on, onchange: (e) => {
             const layers = { ...s.layers }; for (const id of NEIGHBOUR_LAYERS) layers[id] = e.target.checked;

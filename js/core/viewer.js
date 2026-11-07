@@ -103,6 +103,7 @@ export class Viewer {
       if (this.needsRender || active) {
         this.needsRender = false;
         this.composer.render();
+        this.beforeLabels?.();
         this.labels.render(this.scene, this.camera);
         this.afterRender?.();
       }

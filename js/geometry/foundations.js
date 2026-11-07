@@ -47,11 +47,15 @@ export function buildFoundations(ctx) {
       area_m2: null, variant: { change: ch.id, show: 'changed' }, note: `${w.note} | ${ch.id}: בלי קיר ${ch.openWall.piece} (פתח מעבר)` }));
   }
   for (const w of wallList) {
-    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor));
+    // windows / doors (tools/extract_openings.py): the wall around the openings + concrete sill / lintel in them
+    const g = new THREE.Group();
+    const own = !w.variant || w.variant.show === 'original';
+    const pieces = own && w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
+    if (own) for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
+    for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.area_m2 != null && w.variant?.show !== 'changed') stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
-      name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,
+      id: w.id, name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`]].concat(w.area_m2 != null ? [['שטח חתך אופקי', `${w.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]] : []),
       note: w.note, source: w.source,
@@ -124,7 +128,7 @@ export function buildFoundations(ctx) {
     } else g.add(label(`רצפה O.K=${s.top.toFixed(2)} D=${Math.round(s.thickness_m * 100)}`, c[0], c[1], H(s.top) + D.labelLift_m, 'lbl beam'));
     if (s.variant?.show !== 'original') stats.slabs_m3 += s.area_m2 * s.thickness_m;
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'slab', layer: 'slabs' }, {
-      name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)${s.variant ? ' – לפי התוכניות' : ''}`, status: s.status, variant: s.variant,
+      id: s.id, name: s.change ? `רצפת מרתף – ${s.change.id}: ${s.change.title}` : `רצפת מרתף ${s.id} (תלויה)${s.variant ? ' – לפי התוכניות' : ''}`, status: s.status, variant: s.variant,
       rows: [['מפלס עליון (O.K)', coords.fmtH(H(s.top))], ['עובי', `${Math.round(s.thickness_m * 100)} ס"מ`], ['שטח', `${s.area_m2.toFixed(2)} מ"ר`],
         ['נפח בטון', `${(s.area_m2 * s.thickness_m).toFixed(2)} מ"ק`]],
       note: s.change ? `${s.change.description} ממתין לאישור: ${s.change.approvals.map(a => a.who).join(', ')}.` : (s.note || 'רצפה תלויה על ארגזי פוליביד 25 ס"מ (דוח קרקע 9.1)'), source: s.source,
@@ -140,12 +144,33 @@ export function buildFoundations(ctx) {
     const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
     g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
-    stats.beams_m3 += L * b.width_m * b.depth_m; stats.beamsCount++;
-    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.layer || 'groundBeams' }, {
-      name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
+    // a K-21 beam under / in the ground slab: the part inside the slab (its thickness D) is counted with the slab
+    const gD = Math.max(0, ...(data.floorGround?.slab || []).map(s => s.thickness_m));
+    const ovl = b.sheet === 'K-21' ? Math.min(gD, b.depth_m) : 0;
+    stats.beams_m3 += L * b.width_m * (b.depth_m - ovl); stats.beamsCount++;
+    const outdoor = (data.tags.outdoorZones || []).includes(data.floorGround?.beamZones?.[b.id]);   // beam of an outdoor slab
+    registry.add(g, { floor: b.sheet === 'K-11' ? 'unit' : 'ground', system: 'structure', stage: b.stage, layer: b.layer || 'groundBeams', ...(outdoor ? { step: 'outdoorBeams' } : {}) }, {
+      id: b.id, name: `קורה ${b.id} · ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, status: b.status,
       rows: [['חתך (רוחב/גובה)', `${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)} ס"מ`], ['מפלס עליון (O.K)', coords.fmtH(H(b.topRel))],
         ['מפלס תחתון', coords.fmtH(H(b.bottomRel))], ['אורך (בקירוב)', `${L.toFixed(2)} מ'`], ['גיליון', b.sheet]],
       note: (b.layer === 'ceilingBeams' ? 'קורה של תקרת הקרקע מעל המרתף – יושבת על קיר המרתף. ' : b.layer === 'groundFloorBeams' ? 'קורת קומת הקרקע על כלונסאות – נוצקת אחרי קירות המרתף והמילוי, יחד עם רצפת הקרקע. ' : '') + 'חתך ומפלס – מדויקים, מתווית הקורה. מיקום ואורך – בקירוב, לפי פס הבטון בתכנית K-400 (PDF). יוחלף ב-IFC.', source: `${b.source}; ${b.geometrySource}`,
+    });
+    scene.add(g);
+  }
+  // double pile caps (K-400 "80/60; O.K=-0.15" over two piles): cast with the K-21 beams of the zone above
+  const outRings = (data.floorGround?.slab || []).filter(s => (data.tags.outdoorZones || []).includes(s.zone)).map(s => s.footprintITM);
+  const inR = (E, N, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > N) !== (yj > N) && E < (xj - xi) * (N - yi) / (yj - yi) + xi) c = !c; } return c; };
+  for (const c of F.pileCaps || []) {
+    const m = prism(c.ringITM, [], H(c.bottomRel), H(c.topRel), conc);
+    const g = new THREE.Group(); g.add(m); if (c.status !== 'source') g.add(edges(m, D.provisionalEdgeColor));
+    const ce = c.ringITM.reduce((a, p) => [a[0] + p[0] / c.ringITM.length, a[1] + p[1] / c.ringITM.length], [0, 0]);
+    g.add(label(`ראש כלונס ${c.piles.join('/')} · ${Math.round(c.width_m * 100)}/${Math.round(c.depth_m * 100)}`, ce[0], ce[1], H(c.topRel) + D.labelLift_m));
+    stats.beams_m3 += c.size_m[0] * c.size_m[1] * c.depth_m;
+    const outdoor = outRings.some(r => inR(ce[0], ce[1], r));
+    registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'pileCaps', ...(outdoor ? { step: 'outdoorBeams' } : {}) }, {
+      id: c.id, name: `ראש כלונס כפול ${c.piles.join('/')} · ${Math.round(c.width_m * 100)}/${Math.round(c.depth_m * 100)}`, status: c.status,
+      rows: [['מידות', `${c.size_m[0].toFixed(2)} × ${c.size_m[1].toFixed(2)} מ', עומק ${c.depth_m.toFixed(2)}`], ['ראש / תחתית', `${coords.fmtH(H(c.topRel))} / ${coords.fmtH(H(c.bottomRel))}`],
+        ['כלונסאות', c.piles.join(', ')]], note: c.note, source: c.source,
     });
     scene.add(g);
   }
@@ -158,13 +183,13 @@ export function buildPlumbingFoundations(ctx) {
   const P = data.plumbingFoundations; if (!P) return null;
   const D = display.plumbing;
   // "x-ray" copy drawn on top of the soil (chambers and pipes are underground) – same tags, not pickable
-  const ghost = (g0, geos, pos, color, tags, quat) => {
+  const ghost = (g0, geos, pos, color, tags, to, quat) => {
     const gg = new THREE.Group();
     for (const geo of geos) {
       const gm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: D.ghostOpacity, depthTest: false, depthWrite: false }));
       gm.position.copy(pos); if (quat) gm.quaternion.copy(quat); gm.renderOrder = 6; gm.raycast = () => {}; gg.add(gm);
     }
-    scene.add(gg); registry.add(gg, { ...tags, stageTo: 'ceiling' }, { name: 'שיקוף', kind: 'ghost', pickable: false });
+    scene.add(gg); registry.add(gg, { ...tags, stepTo: to }, { name: 'שיקוף', kind: 'ghost', pickable: false });
   };
   for (const c of P.chambers) {
     const r = c.diameter_m / 2, h = c.TL - c.IL;
@@ -177,16 +202,17 @@ export function buildPlumbingFoundations(ctx) {
       new THREE.MeshStandardMaterial({ color: sewer ? D.sewerColor : D.chamberColor, roughness: 0.5, metalness: 0.3 }));
     cover.position.copy(coords.toLocal(c.E, c.N, c.TL + D.coverThickness_m / 2));
     const g = new THREE.Group(); g.add(m, cover);
-    ghost(g, [m.geometry], m.position, sewer ? D.sewerColor : D.chamberColor, sewer ? { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewageManholes' } : { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' });
+    const ctags = sewer ? { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewageManholes', step: 'siteSewer' } : { floor: 'unit', system: 'drainage', stage: 'slab', layer: 'drainChambers', step: 'basementSlab' };
+    ghost(g, [m.geometry], m.position, sewer ? D.sewerColor : D.chamberColor, ctags, sewer ? 'outdoorSlabs' : 'backfill');
     const d = document.createElement('div'); d.className = 'lbl beam';
     d.textContent = sewer ? `שוחה ${c.number} · ø${Math.round(c.diameter_m * 100)} · T.L ${c.TL.toFixed(2)} · I.L ${c.IL.toFixed(2)}` : `${c.id} תא שאיבה ø${Math.round(c.diameter_m * 100)} · I.L. ${c.IL.toFixed(2)}`;
     const o = new CSS2DObject(d); o.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.4)); g.add(o);
     if (c.affectedBy) {
       const ga = new THREE.Group(); const da = document.createElement('div'); da.className = 'lbl change'; da.textContent = `מושפע מ-${c.affectedBy}`;
       const oa = new CSS2DObject(da); oa.position.copy(coords.toLocal(c.E, c.N, c.TL + 0.9)); ga.add(oa); scene.add(ga);
-      registry.add(ga, { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, { name: `${c.id} – מושפע מ-${c.affectedBy}`, variant: { change: c.affectedBy, show: 'changed' }, note: c.note });
+      registry.add(ga, { floor: 'unit', system: 'drainage', stage: 'slab', layer: 'drainChambers', step: 'basementSlab' }, { name: `${c.id} – מושפע מ-${c.affectedBy}`, variant: { change: c.affectedBy, show: 'changed' }, note: c.note });
     }
-    registry.add(g, sewer ? { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewageManholes' } : { floor: 'unit', system: 'drainage', stage: 'excavation', layer: 'drainChambers' }, {
+    registry.add(g, ctags, {
       name: `${c.id} – ${c.title}`, status: c.status,
       rows: [['קוטר', `${Math.round(c.diameter_m * 100)} ס"מ`], ['T.L. (מכסה)', coords.fmtH(c.TL)], ['I.L. (תחתית)', coords.fmtH(c.IL)], ['עומק', `${c.H_m.toFixed(2)} מ'`],
         ['ITM', `${c.E.toFixed(3)} / ${c.N.toFixed(3)}`]],
@@ -196,6 +222,12 @@ export function buildPlumbingFoundations(ctx) {
   }
   // sewer pipes (centre line from the plumbing PDF; levels from the chambers / slope labels – see each record's status)
   const sevC = new THREE.Color(D.sewerColor);
+  // a pipe under the house (basement outline / the ground slabs of the house) is laid before the ground-floor pour; the rest
+  // (manholes 1–5 and the lines between them) after the perimeter walls
+  const houseRings = [data.basement?.outlineITM, ...(data.floorGround?.slab || []).filter(s => ['house', 'entry', 'mamad'].includes(s.zone)).map(s => s.footprintITM)].filter(Boolean);
+  const inRing = (E, N, r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const [xi, yi] = r[i], [xj, yj] = r[j]; if ((yi > N) !== (yj > N) && E < (xj - xi) * (N - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const underHouse = (q) => houseRings.some(r => inRing((q.fromITM[0] + q.toITM[0]) / 2, (q.fromITM[1] + q.toITM[1]) / 2, r));
+  const pipeTags = (q) => underHouse(q) ? { floor: 'ground', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'underSlab' } : { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes', step: 'siteSewer' };
   let pipeLen = 0;
   for (const q of P.pipes || []) {
     const r = (q.diameter_m || D.unknownDiameter_m) / 2;
@@ -208,7 +240,8 @@ export function buildPlumbingFoundations(ctx) {
     const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 }));
     m.position.copy(a); m.lookAt(b); m.castShadow = true;
     const g = new THREE.Group(); g.add(m);
-    ghost(g, [geo], a, col, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, m.quaternion);
+    const pt = pipeTags(q);
+    ghost(g, [geo], a, col, pt, pt.step === 'underSlab' ? 'groundSlab' : 'outdoorSlabs', m.quaternion);
     if (q.ILfrom != null) {   // flow arrow at mid-length, pointing downstream
       const cone = new THREE.Mesh(new THREE.ConeGeometry(r * 1.8, r * 4, 12), new THREE.MeshBasicMaterial({ color: D.flowArrowColor }));
       cone.position.copy(a.clone().lerp(b, 0.5)); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()); g.add(cone);
@@ -220,7 +253,7 @@ export function buildPlumbingFoundations(ctx) {
     }
     pipeLen += q.lengthM;
     const st = { source: 'מפלסים מהשוחות/תוויות', derived: 'מפלס נגזר (שיפוע כתוב)', provisional: 'מפלס זמני (שיפוע הונח 2%)', missing: 'מפלס לא ידוע – מיקום בלבד' }[q.status];
-    registry.add(g, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, {
+    registry.add(g, pt, {
       name: `צינור ביוב ${q.id}${q.diameter_m ? ` · ø${Math.round(q.diameter_m * 1000)} ${q.material || ''}` : ''}`, status: q.status === 'source' ? 'source' : 'provisional',
       rows: [['אורך', `${q.lengthM.toFixed(2)} מ'`], ['שיפוע', q.slope ? `${(q.slope * 100).toFixed(2)}%` : '—'],
         ['I.L התחלה → סוף', q.ILfrom != null ? `${coords.fmtH(q.ILfrom)} → ${coords.fmtH(q.ILto)}` : '—'], ['כיוון זרימה', q.between?.[1] ? `אל ${q.between[1]}` : '—'], ['מעמד', st]]
@@ -241,7 +274,7 @@ export function buildPlumbingFoundations(ctx) {
     const g = new THREE.Group(); g.add(ring);
     const dl = document.createElement('div'); dl.className = 'lbl removed'; dl.style.textDecoration = 'none'; dl.textContent = `שרוול · ${x.pipe} ↔ ${x.element}`;
     const o = new CSS2DObject(dl); o.position.copy(ring.position); o.position.y += 0.35; g.add(o);
-    registry.add(g, { floor: 'site', system: 'sewage', stage: 'walls', layer: 'sewagePipes' }, {
+    registry.add(g, pipeTags(q), {
       name: `מעבר צנרת ${x.pipe} דרך ${x.kind === 'beam' ? 'קורה' : 'קיר מרתף'} ${x.element} – שרוול נדרש`, status: 'provisional',
       rows: [['ITM', `${x.E.toFixed(3)} / ${x.N.toFixed(3)}`], ['אורך מעבר', `${x.length_m.toFixed(2)} מ'`]],
       note: x.note || 'לתאם עם הקונסטרוקטור: שרוול/פתח באלמנט הבטון לפני היציקה.', source: q.source,

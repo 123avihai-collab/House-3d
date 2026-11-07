@@ -624,6 +624,12 @@ def main():
     n31 = absorb(panels31, elems31)
     panels31 = clip_to_beams(fill_thin(close(panels31, gap=0.35)), beams)   # K-31 overall 1702 x 1465 (column 9 stands 35 cm out)
     print('absorbed into slabs: ground', n21, 'ceiling', n31)
+    # owner corrections to the zone slabs (tools/ground-zones.json "slabCuts")
+    for cut in ZN.get('slabCuts', []):
+        cp = Polygon(cut['ringITM']).buffer(0)
+        for p in panels21:
+            if p['zone'] == cut['zone'] and p['poly'].intersection(cp).area > 0.01:
+                p['poly'] = max(polys(p['poly'].difference(cp)), key=lambda g: g.area); p['note'] = (p.get('note', '') + ' ' + cut['note']).strip()
 
     out = {
         'floor': 'ground',

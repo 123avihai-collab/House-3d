@@ -79,8 +79,70 @@ export function buildStairs(ctx) {
     if (st.landings?.length) rows.push(['פודסטים', st.landings.map((L) => `${L.label} ${coords.fmtH(coords.H0 + L.topRel)} (D=${Math.round(L.thickness_m * 100)})`).join(' · ')]);
     if (st.treads) rows.push(['מדרכים', `${st.treads.length} (כולל 27–28 פנייה), עובי ${Math.round(st.treadThickness_m * 100)} ס"מ`]);
     if (m3) rows.push(['נפח בטון', `${m3.toFixed(2)} מ"ק`]);
-    registry.add(g, tags, { id: st.id, name: st.name, status: st.status, rows, note: st.note, source: st.source });
+    const CP = st.concreteProposal;
+    registry.add(g, tags, { id: st.id, name: st.name, status: st.status, rows, note: st.note, source: st.source,
+      ...(CP ? { variant: { change: CP.change, show: 'original' } } : {}) });
     scene.add(g);
+    if (CP) buildStairProposal(st, CP);
+  }
+
+  // OC-3 (Avihai's note 14): the light / floating stair of the plans vs a concrete stair on the same path.
+  //  original: anchor points in the concrete wall the treads cantilever from (the wall's own step) – a tread with no
+  //            concrete wall in K-21 gets a red "?" (architecture vs structure mismatch)
+  //  changed : concrete stair (each tread down to rise + waist under it, concrete levels = finished − finish) in its own
+  //            step, starter bars waiting in the ground slab and the ground ceiling (display.starters, illustration)
+  function buildStairProposal(st, CP) {
+    const PM = new THREE.LineBasicMaterial({ color: D.ownerChangeColor });
+    const anchorM = new THREE.MeshStandardMaterial({ color: DS.anchorColor, metalness: 0.6, roughness: 0.4 });
+    const missM = new THREE.MeshBasicMaterial({ color: D.ownerChangeRemovedColor });
+    // original variant – anchors
+    const ag = new THREE.Group(); const missing = [];
+    for (const a of st.anchors || []) {
+      const t = st.treads.find(x => x.n === a.n); const c = centroid(t.ringITM);
+      if (!a.wall) { missing.push(a.n); const q = new THREE.Mesh(new THREE.SphereGeometry(DS.anchorMarker_m, 12, 8), missM); q.position.copy(coords.toLocal(c[0], c[1], coords.H0 + t.topRel)); ag.add(q); continue; }
+      const m = new THREE.Mesh(new THREE.BoxGeometry(DS.anchorMarker_m * 2, DS.anchorMarker_m * 2, DS.anchorMarker_m * 2), anchorM);
+      m.position.copy(coords.toLocal(a.atITM[0], a.atITM[1], coords.H0 + a.zRel)); ag.add(m);
+    }
+    const walls = [...new Set((st.anchors || []).filter(a => a.wall).map(a => a.wall))];
+    if (missing.length) { const t = st.treads.find(x => x.n === missing[0]), c = centroid(t.ringITM); ag.add(label(`? מדרכים ${missing[0]}–${missing[missing.length - 1]}: אין קיר בטון לעיגון ב-K-21`, c[0], c[1], t.topRel + DS.labelLift_m, 'lbl removed-q')); }
+    registry.add(ag, { floor: 'ground', system: 'structure', stage: 'walls', layer: 'stairsLight', step: 'groundWalls' }, {
+      id: `${st.id}-anchors`, name: `נקודות עיגון המדרגות המרחפות – קירות ${walls.join(', ')}`, status: 'provisional', variant: { change: CP.change, show: 'original' },
+      rows: [['מעוגנים בקיר בטון', `${(st.anchors || []).filter(a => a.wall).map(a => `${a.n}→${a.wall}`).join(' · ')}`], ['בלי קיר בטון ב-K-21', missing.length ? missing.join(', ') : '—']],
+      note: 'לפי התוכנית: מדרכים מרחפים מעוגנים ב"קיר בטון לעיגון מדרגות מרחפות" (גיליון 13 – לא בתיקיית המקורות). הקיר נבחר לפי מגע בין המדרך לקיר בטון של K-21.', source: st.source,
+    });
+    scene.add(ag);
+    // changed variant – the concrete stair
+    const cg = new THREE.Group(); let m3 = 0;
+    for (const t of st.treads) {
+      const zt = t.topRel - CP.finish_m, zb = Math.max(CP.bottomRel, zt - st.rise_m - CP.waist_m);
+      const m = prism(t.ringITM, null, zb, zt, conc); cg.add(m); cg.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), PM)); m3 += vol(m.geometry);
+    }
+    const c0 = centroid(st.treads[Math.floor(st.treads.length / 2)].ringITM);
+    cg.add(label(`הצעה – ממתין לתוכנית (${CP.change}): גרם בטון ${st.risers} × ${Math.round(st.rise_m * 1000) / 10}`, c0[0], c0[1], CP.topRel + DS.labelLift_m, 'lbl change'));
+    registry.add(cg, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'stairsProposal', step: CP.step }, {
+      id: `${st.id}-concrete`, name: `גרם מדרגות בטון – הצעה (${CP.change})`, status: 'provisional', variant: { change: CP.change, show: 'changed' },
+      rows: [['רומים', `${st.risers} × ${(st.rise_m * 100).toFixed(1)} ס"מ – כמו בתוכנית`], ['תחתית / הגעה (בטון)', `${coords.fmtH(coords.H0 + CP.bottomRel)} / ${coords.fmtH(coords.H0 + CP.topRel)}`],
+        ['עובי שיפוע (זמני)', `${Math.round(CP.waist_m * 100)} ס"מ`], ['נפח בטון (הערכה)', `${m3.toFixed(2)} מ"ק`]],
+      note: CP.note, source: CP.source,
+    });
+    scene.add(cg);
+    // starter bars waiting for the stair: first riser in the ground slab, arrival edge in the ground ceiling
+    const SD = display.starters, proj = data.rebar?.starters?.wallProjection_m;
+    const bars = (pts, z) => {
+      const geo = new THREE.CylinderGeometry(SD.schematicDia_mm / 2000 * SD.barScale, SD.schematicDia_mm / 2000 * SD.barScale, proj, 6); geo.translate(0, proj / 2, 0);
+      const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: SD.schematicBarColor }), pts.length), M = new THREE.Matrix4();
+      pts.forEach(([E, N], i) => { const v = coords.toLocal(E, N, coords.H0 + z); M.makeTranslation(v.x, v.y, v.z); im.setMatrixAt(i, M); }); return im;
+    };
+    const along = ([a, b]) => { const L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(2, Math.round(L / SD.schematicSpacing_m)); return [...Array(n)].map((_, i) => [a[0] + (b[0] - a[0]) * (i + 0.5) / n, a[1] + (b[1] - a[1]) * (i + 0.5) / n]); };
+    const first = st.treads.find(x => x.n === Math.min(...st.treads.map(t => t.n))).ringITM;
+    for (const [line, z, step, where] of [[[first[0], first[1]], CP.bottomRel, 'groundSlab', 'ברצפת הקרקע'], [st.arrivalRiserITM, CP.topRel, 'groundCeiling', 'בתקרת הקרקע']]) {
+      const sg = new THREE.Group(); sg.add(bars(along(line), z));
+      registry.add(sg, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'starters', step, stepTo: 'groundCeiling' }, {
+        id: `${st.id}-starters-${step}`, name: `קוצי המתנה לגרם הבטון ${where} (הצעה ${CP.change})`, status: 'provisional', variant: { change: CP.change, show: 'changed' },
+        rows: [['קוצים', `סכמטי Ø${SD.schematicDia_mm}@${Math.round(SD.schematicSpacing_m * 100)} – המחשה`]], note: 'אין תוכנית לגרם – קוצים להמחשה בלבד.', source: CP.source,
+      });
+      scene.add(sg);
+    }
   }
 
   // utilities pillar: garbage room + electric-cabinet niche (cast with the perimeter walls), and the cabinet

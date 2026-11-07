@@ -125,7 +125,16 @@ def main():
     print('placement ground', plG, 'basement', plB)
 
     # ---------- ST1: concrete stair basement -> ground (section: "מדרגות בטון ירידה למרתף"), 15 risers ----------
-    rise1 = (rel['ground'] - rel['basement']) / 15
+    # the concrete stair is built to the CONCRETE levels of the slabs it joins (Avihai's note 6): K-11 basement slab O.K -2.75,
+    # K-21 ground slab O.K -0.15 – the architect's levels (-2.60 / ±0.00) are the finished floors, 15 cm higher at both ends,
+    # so the rise stays 2.60 / 15
+    FRm = json.load(open(os.path.join(ROOT, 'data/structure/framing.json'), encoding='utf-8'))
+    FGm = json.load(open(os.path.join(ROOT, 'data/structure/floor-ground.json'), encoding='utf-8'))
+    bs = next(x for x in FRm['slabs'] if x['id'] == 'BS1'); gs = next(x for x in FGm['slab'] if x['id'] == 'GS1')
+    relc = {'basement': bs['top'], 'ground': gs['topRel']}
+    fin1 = {'basement': rel['basement'] - relc['basement'], 'ground': rel['ground'] - relc['ground']}
+    assert abs(fin1['basement'] - fin1['ground']) < 0.005, fin1
+    rise1 = (relc['ground'] - relc['basement']) / 15
     WAIST, LAND = 0.20, 0.28    # measured on section A-A (1:100): waist ⟂ ≈ 5.7 pt, landing ≈ 7.9 pt -> approx
     yA = hlines(BA, 640.9, 665.9, 545, 640, 'solid')                  # right flight 1-7 + riser 8 onto the landing
     yA = [y for y in yA if 555 < y < 620]
@@ -136,9 +145,9 @@ def main():
     yBb = [y + 26.14 for y in hlines(BA, 640.9, 665.9, 562, 612, 'dashed', keep_near=True)]   # same risers, dashed on the basement sheet (check)
     chkB = [r3(abs(a - b) / PT_M) for a, b in zip(sorted(yB)[1:], sorted(yBb))] if len(yBb) == 6 else []   # 10..9 (riser 15 is solid on both)
     xA0, xA1 = 640.88, 665.96   # flight A sides on the basement sheet (stringer line / shaft wall face)
-    A = flight(fb, xA0, xA1, yA, rel['basement'], rise1, 'floor', WAIST, 'south')
+    A = flight(fb, xA0, xA1, yA, relc['basement'], rise1, 'floor', WAIST, 'south')
     xB0, xB1 = 593.0, 617.96    # flight B sides on the ground sheet (shaft wall face / divider)
-    B = flight(gb, xB0, xB1, sorted(yB, reverse=True), rel['basement'] + 8 * rise1, rise1, 'landing', WAIST, 'north')
+    B = flight(gb, xB0, xB1, sorted(yB, reverse=True), relc['basement'] + 8 * rise1, rise1, 'landing', WAIST, 'north')
     # shaft = the stair opening of K-21 (stairShaft zone in floor-ground.json)
     FG = json.load(open(os.path.join(ROOT, 'data/structure/floor-ground.json'), encoding='utf-8'))
     shaft = [o for o in FG['openZones'] if o.get('zone') == 'stairShaft']
@@ -152,12 +161,14 @@ def main():
     st1 = {'id': 'ST1', 'name': 'מדרגות בטון: מרתף ← קרקע', 'kind': 'concrete', 'floor': 'unit', 'step': 'groundSlab',
            'rise_m': r3(rise1), 'risers': 15, 'waist_m': WAIST, 'flights': [dict(A, id='ST1-A', numbers='1–8'), dict(B, id='ST1-B', numbers='9–15')],
            'landings': [{'id': 'ST1-L8', 'label': 'פודסט ביניים (8)', 'ringITM': [[r3(a), r3(b)] for a, b in land8.exterior.coords[:-1]],
-                         'topRel': r3(rel['basement'] + 8 * rise1), 'thickness_m': LAND},
+                         'topRel': r3(relc['basement'] + 8 * rise1), 'thickness_m': LAND},
                         {'id': 'ST1-L15', 'label': 'פודסט קומת הקרקע (15)', 'ringITM': [[r3(a), r3(b)] for a, b in land15.exterior.coords[:-1]],
-                         'topRel': rel['ground'], 'thickness_m': LAND}],
+                         'topRel': relc['ground'], 'thickness_m': LAND}],
+           'concreteLevels': {'basement': relc['basement'], 'ground': relc['ground'], 'finish_m': r3(fin1['ground']),
+                              'source': f"K-11 BS1 O.K={relc['basement']:+.2f}; K-21 GS1 O.K={relc['ground']:+.2f}; ריצוף {round(fin1['ground'] * 100)} ס\"מ מעל הבטון בשני הקצוות"},
            'crossCheck_m': {'flight9to15_groundVsBasementSheet': chkB},
            'status': 'approx',
-           'note': 'אין תוכנית קונסטרוקציה למדרגות: מיקום ומספר שלבים מהתוכניות האדריכליות, מפלסים גמורים (אחרי ריצוף), עובי שיפוע/פודסט נמדדו בחתך א-א 1:100.',
+           'note': 'אין תוכנית קונסטרוקציה למדרגות: מיקום ומספר שלבים מהתוכניות האדריכליות, עובי שיפוע/פודסט נמדדו בחתך א-א 1:100. מפלסי בטון (הערת אביחי 6): הפודסט העליון בפני הבטון של רצפת הקרקע ‎-0.15 (280.35), התחתון ברצפת המרתף ‎-2.75; הריצוף 15 ס"מ מעל. עובי הריצוף על המדרכים לא ידוע – הגרם כולו הונמך ב-15 ס"מ (זמני).',
            'source': f'{BA} (שלבים 1–8); {GA} (שלבים 9–15, מוצגים בחיתוך); {SEC} (מפלסים, "מדרגות בטון ירידה למרתף", עוביים); K-21 (פתח הפיר)'}
 
     # ---------- ST2: light stair ground -> first floor (section: "מדרגות קלות עלייה קומה א'"), risers 16-37 ----------
@@ -182,6 +193,30 @@ def main():
            'status': 'approx',
            'note': 'מדרגות קלות (לפי החתך) – החומר והקונסטרוקציה לפי מסמך העיצוב / יצרן (חסר). עובי המדרך כפי שמשורטט בחתך. 27–28 שלבי פנייה (מחולקים באלכסון כמו בתוכנית).',
            'source': f'{GA} (שלבים 16–37, קו האלכסון של 27–28); {SEC} ("מדרגות קלות עלייה קומה א\'", קומה א\' +3.85)'}
+
+    # ---------- ST2 alternative (Avihai's note 14 – OC-3): concrete stair on the same path instead of the floating one ----------
+    # the architect's plan = floating treads anchored in a concrete wall ("קיר בטון לעיגון מדרגות מרחפות", sheet 13 – not in
+    # sources/). The owner prefers a concrete stair: a proposal on the same treads / risers, built to the concrete levels
+    # (ground slab -0.15, ground ceiling +3.70 – the finished floors ±0.00 / +3.85 are 15 cm higher at both ends)
+    fc = next(x for x in FGm['ceiling']['slab'] if x['id'] == 'FS1')
+    fin2 = {'ground': rel['ground'] - relc['ground'], 'first': rel['first'] - fc['topRel']}
+    assert abs(fin2['ground'] - fin2['first']) < 0.005, fin2
+    # anchoring wall of the floating variant: the K-21 concrete wall each tread touches (longest shared edge)
+    walls = [(w['id'], w.get('tag'), Polygon(w['footprintITM']).buffer(0)) for w in FGm['walls']]
+    anchors = []
+    for t in treads:
+        T = Polygon(t['ringITM']).buffer(0)
+        best = max(((wid, tag, W.buffer(0.03).intersection(T.exterior)) for wid, tag, W in walls), key=lambda x: x[2].length)
+        if best[2].length < 0.15: anchors.append({'n': t['n'], 'wall': None}); continue
+        c = best[2].interpolate(0.5, normalized=True)
+        anchors.append({'n': t['n'], 'wall': best[0], 'wallTag': best[1], 'contact_m': r3(best[2].length), 'atITM': [r3(c.x), r3(c.y)], 'zRel': r3(t['topRel'] - TREAD / 2)})
+    st2['concreteProposal'] = {
+        'change': 'OC-3', 'step': 'stairsPour', 'finish_m': r3(fin2['ground']), 'waist_m': WAIST, 'bottomRel': relc['ground'], 'topRel': fc['topRel'],
+        'note': 'הצעת בעלים (OC-3): גרם בטון באותו תוואי ובאותם רום ושלח (22 × 17.5 ס"מ) – מפלסי בטון: תחתית ברצפת הקרקע ‎-0.15, הגעה לתקרת הקרקע +3.70. '
+                'עובי השיפוע כמו במדרגות המרתף (20 ס"מ, זמני). ממתין לתוכנית אדריכל + קונסטרוקטור.',
+        'source': f"{GA} (תוואי, שלבים 16–37); {SEC} (רום); K-21 GS1 / K-31 FS1 (מפלסי בטון)"}
+    st2['anchors'] = anchors
+    print('ST2 anchors', [(a['n'], a['wall'], a.get('contact_m')) for a in anchors])
 
     # ---------- ST3: outside stair down to the unit (west light well), 14 risers 280.31 -> 277.88 ----------
     rise3 = (rel['outTop'] - rel['outBottom']) / 14

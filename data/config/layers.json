@@ -274,6 +274,11 @@
      "visible": true
     },
     {
+     "id": "stairsProposal",
+     "label": "גרם מדרגות בטון קרקע←א' – הצעה (OC-3)",
+     "visible": true
+    },
+    {
      "id": "stairsLight",
      "label": "מדרגות קלות (קרקע←קומה א')",
      "visible": true

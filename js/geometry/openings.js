@@ -50,3 +50,39 @@ export function buildOpenings(ctx) {
   }
   return { count: n };
 }
+
+// Steel frames of the mamad window / door (Avihai's edit-mode note ק15): set in the formwork and cast with the walls, so they
+// are part of the skeleton (step of the walls). The opening = the gap between the walls of the structural sheet
+// (openings.json castFrame, tools/extract_openings.py); the frame profile is a display constant (display.openings.frame_m)
+// until the approved shelter plan gives it. The leaves stay with the windows / doors (finishes – on hold).
+export function buildMamadFrames(ctx) {
+  const { data, coords, registry, scene, materials, display } = ctx;
+  const OP = (data.openings?.openings || []).filter(o => o.castFrame); if (!OP.length) return null;
+  const f = display.openings.frame_m, steel = materials.get('steelFrame'), DF = display.framing;
+  const toV = ([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); };
+  const prism = (ring, zBot, zTop) => {
+    const g = new THREE.ExtrudeGeometry(new THREE.Shape(ring.map(toV)), { depth: zTop - zBot, bevelEnabled: false });
+    g.rotateX(-Math.PI / 2); g.translate(0, zBot, 0);
+    const m = new THREE.Mesh(g, steel); m.castShadow = m.receiveShadow = true; return m;
+  };
+  const lerp = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k];
+  for (const o of OP) {
+    const C = o.castFrame, [P0, P1, P2, P3] = C.ringITM, W = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]), k = f / W;
+    const g = new THREE.Group();
+    g.add(prism([P0, lerp(P0, P1, k), lerp(P3, P2, k), P3], C.bottomRel, C.topRel));                 // jambs
+    g.add(prism([lerp(P0, P1, 1 - k), P1, P2, lerp(P3, P2, 1 - k)], C.bottomRel, C.topRel));
+    g.add(prism(C.ringITM, C.topRel - f, C.topRel));                                                  // head
+    if (o.kind !== 'door') g.add(prism(C.ringITM, C.bottomRel, C.bottomRel + f));                    // sill
+    if (C.pocketITM) g.add(prism(C.pocketITM, C.bottomRel, C.topRel));                               // shutter pocket (steel box)
+    g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
+    const abs = (rel) => coords.fmtH(coords.H0 + rel);
+    registry.add(g, { floor: o.floor, system: 'structure', stage: 'walls', layer: 'mamadFrames' }, {
+      id: o.id, name: `משקוף ${o.kind === 'door' ? 'דלת' : 'חלון'} ממ"ד ${o.id} (נוצק בקיר ${o.host})`, status: 'approx',
+      rows: [['פתח בבטון (K-21)', `${Math.round(C.width_m * 100)} ס"מ`], ...(C.pocketWidth_m ? [['מזה כיס תריס ההדף', `${Math.round(C.pocketWidth_m * 100)} ס"מ`]] : []),
+        ['תחתית / ראש', `${abs(C.bottomRel)} / ${abs(C.topRel)}`], ['משפחת Revit', `${o.name} – ${Math.round(o.width_m * 100)} ס"מ`], ['קיר', `${o.host} (${Math.round(o.hostThickness_m * 100)} ס"מ)`]],
+      note: C.note, source: o.source,
+    });
+    scene.add(g);
+  }
+  return { count: OP.length };
+}

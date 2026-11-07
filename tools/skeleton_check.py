@@ -40,6 +40,8 @@ def main():
     for o in OP:
         c = np.array(o['centerITM']); a = np.array(o['axisITM']); n = np.array([-a[1], a[0]]); hw = o['width_m'] / 2 - 0.03; d = 0.35
         R = Polygon([tuple(c - a * hw - n * d), tuple(c + a * hw - n * d), tuple(c + a * hw + n * d), tuple(c - a * hw + n * d)])
+        if o.get('castFrame'):   # mamad: the opening in the concrete = the structural gap (the frame / pocket inside it)
+            R = Polygon(o['castFrame']['ringITM']).buffer(-0.03, join_style=2)
         z0, z1 = o['sillRel'] + 0.03, o['headRel'] - 0.03
         hits = []
         for name, g, b, t in E:

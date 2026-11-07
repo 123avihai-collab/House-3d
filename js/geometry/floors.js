@@ -70,6 +70,27 @@ export function buildFloorSkeleton(ctx, F) {
     });
     scene.add(g);
   }
+  // lean concrete + void formers under the suspended ground slab and the K-21 beams outside the basement (ק14): laid before
+  // the pour – under the house in step "underSlab", under the outdoor slabs / beams with them
+  if (F.underSlab?.pieces?.length) {
+    const U = F.underSlab, total = U.buildUp.reduce((a, b) => a + b.thickness_m, 0);
+    const mats = U.buildUp.map(b => materials.get(/פוליביד|הפרדה/.test(b.item) ? 'voidFormer' : 'leanConcrete'));
+    for (const outdoor of [false, true]) {
+      const ps = U.pieces.filter(p => OUTDOOR.has(p.zone) === outdoor); if (!ps.length) continue;
+      const g = new THREE.Group(); let area = 0;
+      for (const p of ps) {
+        let z = p.topRel - total; area += p.area_m2;
+        U.buildUp.forEach((b, i) => { g.add(prism(p.footprintITM, p.holesITM, H(z), H(z + b.thickness_m), mats[i])); z += b.thickness_m; });
+      }
+      registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'underSlabFormers', step: outdoor ? 'outdoorBeams' : 'underSlab' }, {
+        name: outdoor ? 'בטון רזה + ארגזי פוליביד – מתחת לרצפות ולקורות החוץ' : 'בטון רזה + ארגזי פוליביד – מתחת לרצפת הבית ולקורות K-21',
+        rows: [...U.buildUp.slice().reverse().map(b => [b.item, `${Math.round(b.thickness_m * 100)} ס"מ`]), ['שטח', `${area.toFixed(1)} מ"ר`],
+          ['מתחת ל-', [...new Set(ps.map(p => p.on))].join(', ')]],
+        note: U.note, source: [...new Set(U.buildUp.map(b => b.source))].join('; '),
+      });
+      scene.add(g);
+    }
+  }
   // walls rising from the floor
   const wg = new THREE.Group(); const wNotes = new Set();
   for (const w of F.walls) {

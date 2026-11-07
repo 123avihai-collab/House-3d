@@ -302,6 +302,72 @@ def rising_wall_pieces(m, to):
     return [q for g in grp.values() for q in polys(unary_union([x.buffer(0.003, join_style=2) for x in g]).buffer(-0.003, join_style=2))], grey
 
 
+def bear_beam_ends(beams, verts, slabs, bar_len=None, reach=1.2, tol=0.03):
+    """a beam end with nothing under it and nothing it frames into (Avihai's edit-mode note ק12 – B-26 "באוויר"): the plan
+    outline of the beam stops at the face of the wall below it, but the beam runs on over the wall (K-32: the grey outline
+    and the bars continue over W7 to the far face of B-27). Looks ahead along the axis (up to `reach`):
+      - a beam crossing the axis at the same level  -> run on to its far face (T joint, cast together)
+      - else a wall / column in line under the beam -> run on to its far face (bearing on it)
+    verts: [(polygon, bottomRel, topRel, id)], slabs: [(polygon, topRel, D)]. Returns [(beam id, end, metres, onto)]."""
+    ax = [b for b in beams if b.get('axisITM')]
+    bpoly = lambda b: LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2)
+    same_level = lambda lo, hi, b: lo < b['topRel'] - 0.005 and hi > b['bottomRel'] + 0.005
+    done = []
+    for b in ax:
+        for k in (0, 1):
+            p0, p1 = np.array(b['axisITM'][0], float), np.array(b['axisITM'][1], float)
+            u = (p1 - p0) / np.linalg.norm(p1 - p0); P = p0 if k == 0 else p1; d = -u if k == 0 else u
+            hw = b['width_m'] / 2
+            patch = LineString([P - d * 0.2, P]).buffer(hw, cap_style=2)
+            under = sum(patch.intersection(g).area for g, lo, hi, _ in verts if lo < b['bottomRel'] - 0.005 and hi >= b['bottomRel'] - 0.06) / patch.area
+            # framed: touches a wall / column standing at the beam's level (rising through it, or the first-floor wall
+            # on the slab next to an upstand beam – B-13 at W9 in K-32), another beam or a slab at its level
+            framed = (any(patch.distance(g) < tol for g, lo, hi, _ in verts if min(hi, b['topRel']) - max(lo, b['bottomRel']) > 0.1)
+                      or any(patch.distance(bpoly(o)) < tol for o in ax if o is not b and same_level(o['bottomRel'], o['topRel'], b))
+                      or any(patch.distance(s) < tol for s, top, D in slabs if same_level(top - D, top, b)))
+            # framed into a beam / slab / wall at its level: done – unless the end already stands partly on a wall it
+            # stops on (B-22 on GW3: K-32 bars to the far face of the wall)
+            if under > 0.3 or (framed and under < 0.05): continue
+            target, onto = None, None
+            for o in ax:          # a beam crossing the axis ahead
+                if o is b or not same_level(o['bottomRel'], o['topRel'], b): continue
+                q0, q1 = np.array(o['axisITM'][0], float), np.array(o['axisITM'][1], float)
+                v = (q1 - q0) / np.linalg.norm(q1 - q0)
+                if abs(float(np.dot(u, v))) > 0.05: continue
+                t = float(np.dot(q0 - P, d)) if abs(float(np.dot(v, d))) < 0.05 else None
+                if t is None: continue
+                s = float(np.dot(P + d * t - q0, v))
+                if not (-hw <= s <= np.linalg.norm(q1 - q0) + hw): continue
+                far = t + o['width_m'] / 2
+                if t - o['width_m'] / 2 > -tol and far <= reach and (target is None or far < target): target, onto = far, f"קורה {o['id']}"
+            if target is None:    # a wall / column in line under the beam: to its far face
+                step = 0.02; s = 0.0; hit = None
+                while s < reach:
+                    sl = LineString([P + d * s, P + d * (s + step)]).buffer(hw, cap_style=2)
+                    cov = [(gid, sl.intersection(g).area / sl.area) for g, lo, hi, gid in verts if lo < b['bottomRel'] - 0.005 and hi >= b['bottomRel'] - 0.06]
+                    best = max(cov, key=lambda c: c[1], default=(None, 0))
+                    if best[1] > 0.5: hit = best[0]; target = s + step
+                    elif hit: break
+                    elif s > 0.1: break
+                    s += step
+                if hit and s >= reach:   # the wall runs on along the beam line: no end to run to – left as drawn
+                    done.append((b['id'], k, None, f'{hit} (ממשיך מעבר ל-{reach} מ\' – לא שונה)')); continue
+                onto = hit and f"{hit}"
+            if target is None or target < 0.01: continue
+            newP = P + d * target
+            # the bars of the beam in the rebar sheet (K-32 / K-42, length incl. anchorage) must reach the new end
+            Lb = (bar_len or {}).get(b['id'])
+            if Lb and Lb < math.dist(newP, b['axisITM'][1 - k]) - 0.10:
+                done.append((b['id'], k, None, f'{onto}: המוטות L={Lb * 100:.0f} קצרים מ-{math.dist(newP, b["axisITM"][1 - k]):.2f} – לא שונה')); continue
+            if not Lb and framed: continue
+            b['axisITM'][k] = [r3(newP[0]), r3(newP[1])]
+            if 'length_m' in b: b['length_m'] = r3(math.dist(*b['axisITM']))
+            b['note'] = (b.get('note', '') + f" הקצה הוארך ב-{target:.2f} מ' עד הפאה הרחוקה של {onto}: בתוכנית הקורה נעצרת בפאת הקיר שמתחתיה, "
+                         "אבל היא ממשיכה מעליו (בגיליון הברזל המתאר והמוטות ממשיכים) – הערת אביחי ק12.").strip()
+            done.append((b['id'], k, round(target, 3), onto))
+    return done
+
+
 def mark_pergola(beams, panels):
     """a beam with no slab on either side carries no floor: a pergola beam (open frame, e.g. over a terrace).
     An edge beam has the slab on one side."""
@@ -618,7 +684,38 @@ def main():
             rec['note'] = (rec.get('note', '') + ' מ-HATCH IfcWall ב-k-21 (אין קווי "Beton Ole").').strip()
             rec['source'] = f'{K21} HATCH IfcWall; מפלסים: {K21}/{K31} Floor Tags'
             wall_out.append(rec); recovered.append(f"{rec['id']} חדש {q.area:.2f}")
+    # a wall drawn hatched in the K-21 PDF with neither "Beton Ole" lines nor an IfcWall hatch in the DXF, that connects
+    # walls of the model (the south wall of the mamad between GW10 and GW16 / GW20 – Avihai's edit-mode note ק15: "למה
+    # הקיר הזה לא סגור?") -> a wall of its own (new id after the others)
+    hatchP = pdf_grey(F.K21P, K21P_T, shades=(0.93, 0.97))
+    have = unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0) for w in wall_out] + [c.buffer(0) for c in cols])
+    for q in polys(hatchP.difference(have.buffer(0.02))):
+        if q.area < 0.08 or 2 * q.area / q.length < 0.12 or q.intersection(lot.exterior.buffer(0.6)).area > 0.3 * q.area: continue
+        if q.intersection(grey).area > 0.5 * q.area or pool_zone.intersects(q.representative_point()): continue
+        touch = [w for w in wall_out if Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q) < 0.05]
+        if len(touch) < 2: continue
+        q = unary_union([q, have.buffer(0.025).intersection(q.buffer(0.03))]).difference(have).buffer(0)   # up to the faces of the walls it joins
+        q = max(polys(q), key=lambda x: x.area)
+        rec = {'id': f'GW{len(wall_out) + 1}', 'tag': None, 'footprintITM': ring(q), 'holesITM': holes(q), 'area_m2': r3(q.area), 'thickness_m': r3(2 * q.area / q.length)}
+        rec.update(vertical(q, 'wall')); rec['status'] = 'approx'
+        rec['note'] = (rec.get('note', '') + f" קיר מקווקו ב-K-21 (PDF) בין {', '.join(w['id'] for w in touch)}, בלי קווי \"Beton Ole\" ובלי HATCH ב-DXF – נוסף (הערת אביחי ק15).").strip()
+        rec['source'] = f"{F.K21P} מילוי קיר מקווקו; מפלסים: {K21}/{K31} Floor Tags"
+        wall_out.append(rec); recovered.append(f"{rec['id']} חדש מה-PDF {q.area:.2f} ({', '.join(w['id'] for w in touch)})")
     print('recovered hatched wall pieces', recovered)
+    # notches / slits left in the wall outlines (a sleeve island in the k-21 hatch, a corner not closed – the mamad corner
+    # GW7 / GW4, Avihai's edit-mode note ק16): where the K-21 PDF fills the wall hatch, the wall is continuous
+    WU =unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0) for w in wall_out] + [c.buffer(0) for c in cols])
+    slits = []
+    for q in polys(WU.buffer(0.08, join_style=2).buffer(-0.08, join_style=2).difference(WU).intersection(hatchP.buffer(0.01))):
+        if q.area < 0.001: continue
+        touch = [w for w in wall_out if Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q) < 0.005]
+        if not touch: continue
+        w = max(touch, key=lambda w: Polygon(w['footprintITM'], w['holesITM']).buffer(0).buffer(0.005).intersection(q).area)
+        g = max(polys(unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0), q]).buffer(0.002, join_style=2).buffer(-0.002, join_style=2)), key=lambda x: x.area)
+        w['footprintITM'] = ring(g); w['holesITM'] = holes(g); w['area_m2'] = r3(g.area)
+        w['note'] = (w.get('note', '') + f' שקע / חריץ של {q.area * 1e4:.0f} סמ"ר בקו הקיר נסגר – ב-K-21 הקיר מקווקו ורציף שם (הערת אביחי ק16).').strip()
+        slits.append(f"{w['id']}+{q.area:.4f}")
+    print('wall notches / slits closed', slits)
     col_out = []
     for q in cols:
         mr = q.minimum_rotated_rectangle; xy = list(mr.exterior.coords)
@@ -749,6 +846,27 @@ def main():
         tgt['poly'] = max(polys(g), key=lambda x: x.area)
         tgt['note'] = (tgt.get('note', '') + f' רצועה מעל ראש קיר המרתף ליד פיר המדרגות ({q.area:.2f} מ"ר) – הרצפה יצוקה על הקיר, לפי הערת אביחי 07.11.2026.').strip()
         print('slab over basement wall at the stair shaft', round(q.area, 3))
+    # a column / wall that stood on the slab, but the slab under it was cut away afterwards (the south English courtyard –
+    # slabCuts): it is the joint of the K-21 beams that frame into it – cast with them from their underside (Avihai's
+    # edit-mode note ק13: C10 20/80 between B-46 and B-45 over the light well; K-21: dashed outline = goes on below the slab)
+    slabU = unary_union([p['poly'] for p in panels21])
+    rejoined = []
+    for e in col_out + wall_out:
+        q = Polygon(e['footprintITM']).buffer(0)
+        if not (e.get('standsOn') or '').startswith('רצפה') or q.intersection(slabU).area > 0.5 * q.area: continue
+        near = [(x, P) for P, x in beam_polys if P.distance(q) < 0.03]
+        if not near: continue
+        frac = {x['id']: q.intersection(P).area / q.area for x, P in near}
+        near.sort(key=lambda t: -frac[t[0]['id']])
+        bot = min(x['bottomRel'] for x, _ in near)
+        on = ' + '.join(f"{x['id']} ({round(x['width_m'] * 100)}/{round(x['depth_m'] * 100)}, O.K {x['topRel']:+.2f}" +
+                        (f", {round(frac[x['id']] * 100)}% מתחתיו)" if frac[x['id']] > 0.01 else ', נכנסת לצד העמוד)') for x, _ in near)
+        e['bottomRel'] = r3(bot); e['standsOn'] = f"קורה {on}"
+        e['note'] = (re.sub(r'קורה B-\d+ \([^)]*\) מתחת ל-\d+% מהעמוד בלבד – העמוד יוצק מראש הרצפה \(הערת אביחי 07\.11\.2026\);?\s*', '', e.get('note', '')) +
+                     f" הרצפה שמתחתיו הוצאה (החצר האנגלית) – {round(q.intersection(slabU).area / q.area * 100)}% על רצפה. העמוד הוא הצומת של הקורות "
+                     f"שנכנסות אליו, ויוצק איתן מתחתיתן ({bot:+.2f}); ב-K-21 קו המתאר שלו מקווקו (ממשיך מתחת לרצפה). הערת אביחי ק13.").strip()
+        rejoined.append(f"{e['id']} → {bot:+.2f} ({', '.join(x['id'] for x, _ in near)})")
+    print('elements re-seated on the beams after the slab cuts', rejoined)
 
     out = {
         'floor': 'ground',
@@ -869,6 +987,13 @@ def main():
         first_walls.append({'id': f'FW{i + 1}', 'tag': tag, 'footprintITM': ring(q), 'holesITM': holes(q), 'area_m2': r3(q.area), 'thickness_m': r3(th),
                             'bottomRel': bot, 'topRel': r3(top[0] - top[1]), 'standsOn': on, 'status': st, **({'note': '; '.join(notes)} if notes else {}),
                             'source': f'{K31} IfcWall "Beton Ole"' + (f' (תווית {tag})' if tag else '') + f'; מפלסים: {K31}/{K41} Floor Tags'})
+    # K-31 beam ends with nothing under them (ק12) – after the first-floor walls, which frame the upstand beams next to them
+    verts31 = [(Polygon(e['footprintITM'], e.get('holesITM') or []).buffer(0), e['bottomRel'], e['topRel'], e['id'])
+               for e in wall_out + col_out + first_walls + first_cols]
+    bars_of = lambda sh: {rb['id']: max([x['length_cm'] / 100 for x in rb['bars'] if x.get('length_cm') and x['position'] in ('top', 'bottom')] or [0]) or None
+                          for rb in REBAR['beams'] if rb['sheet'] == sh}
+    be31 = bear_beam_ends(beams, verts31, [(p['poly'], p['top'], p['D']) for p in panels31], bars_of('K-32'))
+    print('beam ends run on to their support K-31', be31)
     # ---- roof (K-41): slab + beams (K-41 PDF tags + edge lines; parapet / pergola beams up to +8.00) ----
     H4, V4 = pdf_lines(K41P, K41P_CLIP, t41[1]); H4, V4 = merge_collinear(H4), merge_collinear(V4)
     H4d, V4d = merge_collinear(pdf_lines(K41P, K41P_CLIP, t41[1])[0], gap=8.0), merge_collinear(pdf_lines(K41P, K41P_CLIP, t41[1])[1], gap=8.0)
@@ -948,6 +1073,26 @@ def main():
                          f" ראש: תחתית הקורה {b['id']} ({round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)}, O.K {b['topRel']:+.2f}) שמעליו.").strip()
     print('ground walls / columns up to the K-31 beam soffit', under)
     out['wallsUnderBeams'] = under
+    # ---- under the ground slabs and K-21 beams outside the basement: lean concrete + void formers (Avihai's ק14 – "על מה
+    #      זה יושב?": the suspended slab is cast on them; they were only a gap above the working level) ----
+    EXC = json.load(open(os.path.join(ROOT, 'data/structure/excavation.json'), encoding='utf-8'))
+    build = [{'item': b['item'], 'thickness_m': b['thickness_m'], 'source': b['source'], **({'status': b['status']} if b.get('status') else {})}
+             for b in EXC['bottomBuildUp'] if b.get('thickness_m')]
+    no_soil = unary_union([bsm.buffer(0), pool_zone] + [Polygon(o['footprintITM']).buffer(0) for o in out['openZones']])
+    gb = [(LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2), b) for b in FR['groundBeams'] if b.get('axisITM') and b.get('layer') == 'groundFloorBeams']
+    beamU = unary_union([P for P, _ in gb])
+    pieces_u = []
+    for s in out['slab']:
+        for q in polys(Polygon(s['footprintITM'], s['holesITM']).buffer(0).difference(no_soil).difference(beamU)):
+            if q.area >= 0.05: pieces_u.append({'on': s['id'], 'kind': 'slab', 'zone': s['zone'], 'footprintITM': ring(q), 'holesITM': holes(q), 'area_m2': r3(q.area), 'topRel': s['bottomRel']})
+    for P, b in gb:
+        for q in polys(P.difference(no_soil)):
+            if q.area >= 0.02: pieces_u.append({'on': b['id'], 'kind': 'beam', 'zone': out['beamZones'].get(b['id'], 'house'), 'footprintITM': ring(q), 'holesITM': holes(q),
+                                                'area_m2': r3(q.area), 'topRel': b['bottomRel']})
+    out['underSlab'] = {'buildUp': build, 'pieces': pieces_u,
+                        'note': 'מתחת לרצפות הקרקע ולקורות K-21 שמחוץ למרתף (רצפה תלויה): בטון רזה ומעליו ארגזי הפרדה (פוליביד). הרצפה נוצקת עליהם ונישאת על הקורות, הקירות והכלונסאות – לא על הקרקע.',
+                        'source': 'data/structure/excavation.json bottomBuildUp'}
+    print('under-slab build-up pieces', len(pieces_u), round(sum(p['area_m2'] for p in pieces_u), 1), 'm2')
     json.dump(out, open(os.path.join(ROOT, 'data/structure/floor-ground.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     roof = {'slab': [{'id': f'RS{i + 1}', 'footprintITM': ring(p['poly']), 'holesITM': holes(p['poly']), 'area_m2': r3(p['poly'].area),
                       'topRel': p['top'], 'thickness_m': p['D'], 'bottomRel': r3(p['top'] - p['D']), 'status': 'source',
@@ -1011,6 +1156,8 @@ def main():
                            'status': 'approx', 'note': 'עמוד-קיר עבה בפינת הפרגולה: מילוי מוקווקו ב-K-41, ב-K-31 הערה "ליציקת הקיר!" – מראש הקורה שמתחתיו עד +8.00.',
                            'source': f'{K41P} מילוי מוקווקו (קיר); {K31P} "ליציקת הקיר!"'})
         print('thick roof wall', roof_walls[-1]['id'], r3(q.area), bot, on)
+    verts41 = [(Polygon(e['footprintITM'], e.get('holesITM') or []).buffer(0), e['bottomRel'], e['topRel'], e['id']) for e in first_walls + first_cols + roof_walls]
+    print('beam ends run on to their support K-41', bear_beam_ends(roof_beams, verts41, [(p['poly'], p['top'], p['D']) for p in panels41], bars_of('K-42')))
     roof_floor = {'floor': 'roof', 'slab': [], 'walls': roof_walls, 'columns': [],
                   'ceiling': {'slab': [], 'openings': [], 'mamad': [], 'beams': roof_beams}, 'ceilingLabel': 'קורות הגג והפרגולות',
                   'note': 'מעל תקרת הגג (+6.90): מעקות / קירות עד +8.00 וקורות K-41 (O.K +8.00) עליהם – קורות בלי תקרה משני הצדדים = פרגולה.',

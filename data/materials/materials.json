@@ -121,6 +121,26 @@
       "roughness": 0.6,
       "envMapIntensity": 0.9,
       "_note": "כנף דלת – צבע לפי מסמך העיצוב (חסר)"
+    },
+    "voidFormer": {
+      "color": "#d8d2c4",
+      "roughness": 0.9,
+      "envMapIntensity": 0.8,
+      "_note": "ארגזי הפרדה (פוליביד) מתחת לרצפה התלויה – צבע להמחשה בלבד"
+    },
+    "leanConcrete": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 2.0,
+      "tint": "#d2cfc8",
+      "roughness": 1,
+      "envMapIntensity": 0.8,
+      "_note": "בטון רזה – טקסטורת הבטון בגוון בהיר"
+    },
+    "steelFrame": {
+      "color": "#5b646b",
+      "roughness": 0.45,
+      "envMapIntensity": 1,
+      "_note": "משקוף פלדה של חלון / דלת הממ\"ד, נוצק בקיר – צבע להמחשה"
     }
   }
 }

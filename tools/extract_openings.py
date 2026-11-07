@@ -33,6 +33,55 @@ FLOORS = {   # block, structural DXF it is placed on, finished floor level (rel)
     'first': ('alef', 'sources/structure/k-31.dxf', 3.85, 'floor-first.json'),
 }
 NAME = re.compile(r'^(.*)-([A-Z]?\d+)-(.+)$')
+MAMAD = re.compile(r'ממד|mamad', re.I)
+_GREY = {}
+
+
+def k_grey(floor):
+    """grey (SOLID) fill of the structural sheet = concrete that stops at this level – in a mamad window gap: the pocket of
+    the sliding blast shutter (K-21: "34" grey next to the "66" opening)"""
+    if floor not in _GREY:
+        import extract_floor as XF
+        if floor == 'ground':     # the grey fills of the K-21 PDF (the DXF has no hatch for the pocket)
+            FR = json.load(open(os.path.join(ROOT, 'data/structure/framing.json'), encoding='utf-8'))
+            _GREY[floor] = XF.pdf_grey(F.K21P, FR['placement']['K21pdf']['translation_pt'], shades=(0.79, 0.81))
+        else:
+            _, sheet, to = XF.placement()
+            _GREY[floor] = XF.rising_wall_pieces(F.read_dxf(FLOORS[floor][1]), to)[1]
+    return _GREY[floor]
+
+
+def mamad_frame(o, w, ws, c0, ax, nrm, t):
+    """mamad window / door (Avihai's edit-mode note ק15): the steel frame is set in the formwork and cast with the walls.
+    The Revit family is wider than the hole in the concrete (it includes the frame / the leaf parked beside the opening),
+    so the opening is the gap between the walls of the structural sheet along the opening axis – no wall is cut. Below the
+    sill / above the head the gap is concrete; between them the cast-in frame (and the shutter pocket, grey in K-21)."""
+    U = unary_union([Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0) for x in ws]).buffer(0.005)
+    inside = lambda s: U.contains(Point(*(c0 + ax * s)))
+    lim, step = o['width_m'] / 2 + 0.8, 0.005
+    free = [s for s in np.arange(-lim, lim, step) if not inside(s)]
+    if not free: return
+    s0 = min(free, key=abs); a = b = s0
+    while a > -lim and not inside(a - step): a -= step
+    while b < lim and not inside(b + step): b += step
+    a, b = a - 0.005, b + 0.005          # to the wall faces (U is grown by 5 mm)
+    rect = lambda a_, b_: Polygon([tuple(c0 + ax * a_ - nrm * t / 2), tuple(c0 + ax * b_ - nrm * t / 2), tuple(c0 + ax * b_ + nrm * t / 2), tuple(c0 + ax * a_ + nrm * t / 2)])
+    R = rect(a, b)
+    ring = lambda g: [[r3(p), r3(q)] for p, q in g.exterior.coords[:-1]]
+    pocket = R.intersection(k_grey(o['floor']).buffer(0.01))
+    pocket = max([p for p in getattr(pocket, 'geoms', [pocket]) if p.geom_type == 'Polygon'], key=lambda p: p.area, default=None)
+    bot, top = w['bottomRel'], w['topRel']
+    fb = o['sillRel'] if o['kind'] != 'door' else bot     # a door frame stands on the slab
+    o.update(host=w['id'], hostThickness_m=r3(t), cutITM=ring(R), structuralWidth_m=r3(b - a),
+             castFrame={'ringITM': ring(R), 'bottomRel': r3(fb), 'topRel': o['headRel'], 'width_m': r3(b - a),
+                        **({'pocketITM': ring(pocket), 'pocketWidth_m': r3(pocket.area / t)} if pocket is not None and pocket.area > 0.01 else {}),
+                        'note': ('משקוף פלדה של ' + ('דלת' if o['kind'] == 'door' else 'חלון') + ' הממ"ד – מוצב בתבנית ונוצק עם הקירות. '
+                                 f"רוחב הפתח בבטון {b - a:.2f} מ' = הרווח בין הקירות ב-K-21 (משפחת Revit {o['width_m']:.2f} כוללת את המשקוף / הכנף הנגררת)."
+                                 + (' הקטע האפור ב-K-21 לצד הפתח = כיס תריס ההדף.' if pocket is not None and pocket.area > 0.01 else '')
+                                 + ' פרופיל המשקוף – לפי תוכנית הג"א (חסרה); בתצוגה – קבוע תצוגה.')})
+    if o['id'] not in w.setdefault('openings', []): w['openings'].append(o['id'])
+    if fb > bot + 0.01: w.setdefault('infill', []).append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring(R), 'bottomRel': bot, 'topRel': r3(min(fb, top))})
+    if o['headRel'] < top - 0.01: w.setdefault('infill', []).append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring(R), 'bottomRel': r3(max(o['headRel'], bot)), 'topRel': top})
 
 
 def place(msp, block, dxf):
@@ -189,6 +238,8 @@ def main():
             o['host'] = None; stats['noConcrete'] += 1; continue
         _, w, t, off = best
         c0 = np.array(c.coords[0]) + nrm * off; hw = o['width_m'] / 2
+        if MAMAD.search(o['name']):
+            mamad_frame(o, w, walls[o['floor']], c0, ax, nrm, t); stats['mamadFrame'] += 1; continue
         R = Polygon([tuple(c0 - ax * hw - nrm * t / 2), tuple(c0 + ax * hw - nrm * t / 2), tuple(c0 + ax * hw + nrm * t / 2), tuple(c0 - ax * hw + nrm * t / 2)])
         g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
         both_sides = g.intersects(affinity.translate(R, *(ax * (hw + 0.1)))) and g.intersects(affinity.translate(R, *(-ax * (hw + 0.1))))
@@ -201,6 +252,7 @@ def main():
         stats['hosted'] += 1; stats['cutContinuous' if covered >= 0.5 else 'filledGap'] += 1
     # every other concrete wall (any floor) standing in the opening volume is cut as well (e.g. a wall continuing past a door)
     for o in openings:
+        if o.get('castFrame'): continue          # mamad: the structural opening of K-21, no wall is cut
         c = np.array(o['centerITM']); ax = np.array(o['axisITM']); nrm = np.array([-ax[1], ax[0]]); hw = o['width_m'] / 2
         R0 = Polygon([tuple(c - ax * hw - nrm * 0.4), tuple(c + ax * hw - nrm * 0.4), tuple(c + ax * hw + nrm * 0.4), tuple(c - ax * hw + nrm * 0.4)])
         for fl, ws in walls.items():

@@ -85,5 +85,5 @@
 
 ## 7. ממצאים
 
-סה"כ 67: critical 13, major 36, minor 13, info 5. הרשימה המלאה בממשק (שכבות → אינסטלציה) וב-`data/plumbing/network.json`.
+סה"כ 68: critical 13, major 36, minor 14, info 5. הרשימה המלאה בממשק (שכבות → אינסטלציה) וב-`data/plumbing/network.json`.
 

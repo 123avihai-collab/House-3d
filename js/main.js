@@ -58,7 +58,7 @@ async function main() {
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: data.origin.timezone });
   const defaults = {
     version: 2, mode: 'view', layers,
-    floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1 }])),
+    floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1, ceiling: true }])),
     stageIndex: data.tags.sequence.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },

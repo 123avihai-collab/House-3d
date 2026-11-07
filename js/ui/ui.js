@@ -54,6 +54,12 @@ export class UI {
         app.store.set({ floors: Object.fromEntries(Object.entries(f).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' });
         this.toast('כל הקומות אטומות');
       } }, '')),
+      // ceilings removed in the "קומות" tab: shown here, one click puts them back
+      (this.ceBadge = h('button', { class: 'oc-badge op-badge', title: 'יש קומה שהתקרה שלה מוסתרת (לשונית "קומות"). לחיצה – החזרת כל התקרות', onclick: () => {
+        const f = app.store.get().floors;
+        app.store.set({ floors: Object.fromEntries(Object.entries(f).map(([k, v]) => [k, { ...v, ceiling: true }])) }, { label: 'ceilings' });
+        this.toast('כל התקרות מוצגות');
+      } }, '')),
       h('div', { class: 'actions' },
         btn('↶', 'ביטול (Ctrl+Z)', () => app.store.undo(), 'undo'),
         btn('↷', 'חזרה (Ctrl+Y)', () => app.store.redo(), 'redo'),
@@ -83,6 +89,11 @@ export class UI {
       const see = this.app.data.tags.floors.filter(f => (s.floors[f.id]?.opacity ?? 1) < 0.999);
       this.opBadge.style.display = see.length ? '' : 'none';
       this.opBadge.textContent = `שקיפות: ${see.map(f => f.label).join(', ')} · איפוס`;
+    }
+    if (this.ceBadge) {
+      const off = this.app.data.tags.floors.filter(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false);
+      this.ceBadge.style.display = off.length ? '' : 'none';
+      this.ceBadge.textContent = `בלי תקרה: ${off.map(f => f.label).join(', ')} · החזרה`;
     }
     document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === s.mode));
     this.$('undo').disabled = !this.app.store.canUndo();
@@ -188,13 +199,18 @@ export class UI {
   panel_floors() {
     const { app } = this; const s = app.store.get();
     const wrap = h('div', {}, h('p', { class: 'muted' }, 'הצגה, הסתרה ושקיפות לכל קומה (נשמר בדפדפן).'),
-      h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות')));
+      h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות'),
+        h('button', { onclick: () => { const on = app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false);
+          app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, ceiling: on }])) }, { label: 'ceilings' }); } },
+          app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false) ? 'להחזיר את כל התקרות' : 'להסיר את כל התקרות')));
     for (const f of app.data.tags.floors) {
       const st = s.floors[f.id];
       const count = app.registry.items.filter(i => i.tags.floor === f.id).length;
       wrap.append(h('div', { class: 'floor' },
         h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.visible, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, visible: e.target.checked } } }, { label: 'floor' }) }),
           h('b', {}, f.label), f.level != null ? h('small', {}, ` (${app.coords.fmtRel(f.level)})`) : '', count ? '' : soon('אין עדיין רכיבים')),
+        f.ceilingLayers ? h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.ceiling !== false, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, ceiling: e.target.checked } } }, { label: 'ceiling' }) }),
+          'תקרה', h('small', { class: 'muted' }, ` – ${f.ceilingLabel}`)) : '',
         h('div', { class: 'row' }, 'שקיפות', h('input', { type: 'range', min: 0.1, max: 1, step: 0.05, value: st.opacity,
           oninput: (e) => app.store.setCoalesced('floorOp' + f.id, { floors: { ...app.store.get().floors, [f.id]: { ...st, opacity: +e.target.value } } }) })),
         h('button', { class: 'small', onclick: () => app.store.set({ floors: Object.fromEntries(app.data.tags.floors.map(x => [x.id, { ...s.floors[x.id], visible: x.id === f.id }])) }, { label: 'solo' }) }, 'רק קומה זו')));

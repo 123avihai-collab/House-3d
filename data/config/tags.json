@@ -10,23 +10,44 @@
    "id": "unit",
    "label": "יחידת דיור",
    "level": -2.6,
-   "levelSource": "user brief (יחידת דיור -2.60); permit sections show -2.60 — to be verified from DXF at stage 3"
+   "levelSource": "user brief (יחידת דיור -2.60); permit sections show -2.60 — to be verified from DXF at stage 3",
+   "ceilingLayers": [
+    "groundSlab",
+    "groundMamad",
+    "groundOutdoorSlabs",
+    "groundFloorBeams",
+    "ceilingBeams"
+   ],
+   "ceilingLabel": "רצפת הקרקע K-21 + קורות K-21 (גם רצפת קומת הקרקע)"
   },
   {
    "id": "ground",
    "label": "קרקע",
    "level": 0.0,
-   "levelSource": "±0.00 = 280.50 (data/site/origin.json)"
+   "levelSource": "±0.00 = 280.50 (data/site/origin.json)",
+   "ceilingLayers": [
+    "groundCeiling",
+    "groundCeilingBeams"
+   ],
+   "ceilingLabel": "תקרה ‎+3.70 + קורות K-31"
   },
   {
    "id": "first",
    "label": "קומה א'",
-   "level": null
+   "level": null,
+   "ceilingLayers": [
+    "firstCeiling"
+   ],
+   "ceilingLabel": "תקרת הגג ‎+6.90 (K-41)"
   },
   {
    "id": "roof",
    "label": "גג",
-   "level": null
+   "level": null,
+   "ceilingLayers": [
+    "roofCeilingBeams"
+   ],
+   "ceilingLabel": "קורות הגג והפרגולות ‎+8.00 (K-41)"
   }
  ],
  "systems": [
@@ -323,5 +344,6 @@
   "southYard",
   "westYard",
   "parking"
- ]
+ ],
+ "_docCeiling": "floors[].ceilingLayers: the layers that form the ceiling of that floor – the \"תקרה\" switch of the floors tab hides them (state.floors[id].ceiling = false)."
 }

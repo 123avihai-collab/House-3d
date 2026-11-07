@@ -123,10 +123,10 @@
       "_note": "כנף דלת – צבע לפי מסמך העיצוב (חסר)"
     },
     "voidFormer": {
-      "color": "#d8d2c4",
+      "color": "#5f5b55",
       "roughness": 0.9,
       "envMapIntensity": 0.8,
-      "_note": "ארגזי הפרדה (פוליביד) מתחת לרצפה התלויה – צבע להמחשה בלבד"
+      "_note": "ארגזי הפרדה (פוליביד, פלסטיק אפור כהה) מתחת לרצפה התלויה – צבע להמחשה בלבד"
     },
     "leanConcrete": {
       "texture": "assets/textures/concrete_floor_01",

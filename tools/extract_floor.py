@@ -512,8 +512,17 @@ def main():
         if sup:
             b0 = max(sup, key=lambda t: t[0])
             rec['bottomRel'] = b0[0]; rec['standsOn'] = b0[1]
-            if b0[1].startswith('קורה') and b0[0] > max([t[0] for t in sup if t[1].startswith('רצפה')] or [-9]) + 0.01:
-                notes.append(f'יושב על קורה הפוכה {b0[1]} – מתחיל מראש הקורה')
+            slab_sup = [t for t in sup if t[1].startswith('רצפה')]
+            if b0[1].startswith('קורה') and b0[0] > max([t[0] for t in slab_sup] or [-9]) + 0.01:
+                bp = next(P for P, x in beam_polys if b0[1].startswith(f"קורה {x['id']} "))
+                if slab_sup and frac(bp) < 0.9:
+                    # the upstand beam is under part of the column only: the column is cast from the slab top
+                    # (Avihai's edit-mode note 07.11.2026, ק3 – C9)
+                    s0 = max(slab_sup, key=lambda t: t[0])
+                    rec['bottomRel'] = s0[0]; rec['standsOn'] = s0[1]
+                    notes.append(f'{b0[1]} מתחת ל-{round(frac(bp) * 100)}% מהעמוד בלבד – העמוד יוצק מראש הרצפה (הערת אביחי 07.11.2026)')
+                else:
+                    notes.append(f'יושב על קורה הפוכה {b0[1]} – מתחיל מראש הקורה')
         else:
             near = min(tags21, key=lambda tg: c.distance(Point(tg['itm'])))
             rec['bottomRel'] = near['top']; rec['standsOn'] = None; st = 'provisional'; unsupported.append(c)
@@ -652,6 +661,22 @@ def main():
             if p['zone'] in zs and p['poly'].intersection(cp).area > 0.01:
                 p['poly'] = max(polys(p['poly'].difference(cp)), key=lambda g: g.area); p['note'] = (p.get('note', '') + ' ' + cut['note']).strip()
         if cut.get('openZone'): open21.append({'poly': cp, 'zone': cut['openZone']['zone'], 'override': cut['openZone']})
+    # the ground slab is cast over the top of the basement wall at the stair shaft (bears on it): K-21 leaves the wall top
+    # between the shaft and the house / entry slabs without a face – fill it into the house slab (Avihai's edit-mode note
+    # 07.11.2026, ק4). Rims of the English courtyards / outside stairs down are left as drawn (open question).
+    bwU = unary_union([P for P, w in bw_polys])
+    gapU = bwU.difference(unary_union([p['poly'] for p in panels21] + [o['poly'] for o in open21]))
+    shaft = [o['poly'] for o in open21 if o['zone'] == 'stairShaft']
+    other_open = [o['poly'] for o in open21 if o['zone'] != 'stairShaft']
+    for q in polys(gapU):
+        if q.area < 0.05 or not any(o.distance(q) < 0.02 for o in shaft) or any(o.distance(q) < 0.02 for o in other_open): continue
+        house = [p for p in panels21 if p['zone'] == 'house' and p['poly'].distance(q) < 0.02]
+        if not house: continue
+        tgt = max(house, key=lambda p: p['poly'].area)
+        g = unary_union([tgt['poly'].buffer(0.01, join_style=2), q.buffer(0.01, join_style=2)]).buffer(-0.01, join_style=2)
+        tgt['poly'] = max(polys(g), key=lambda x: x.area)
+        tgt['note'] = (tgt.get('note', '') + f' רצועה מעל ראש קיר המרתף ליד פיר המדרגות ({q.area:.2f} מ"ר) – הרצפה יצוקה על הקיר, לפי הערת אביחי 07.11.2026.').strip()
+        print('slab over basement wall at the stair shaft', round(q.area, 3))
 
     out = {
         'floor': 'ground',

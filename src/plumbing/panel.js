@@ -24,7 +24,13 @@ export function buildPanel(app, pl) {
     panel() {
       const s = st(); const floors = s.floors || {}; const sev = s.severity || {};
       const S = N.summary.findings;
+      const ids = app.data.layers.groups.find(g => g.id === 'plumbing').layers.map(l => l.id);
+      const layers = app.store.get().layers;
+      const anyOn = ids.some(id => layers[id] !== false);
       const box = h('div', { class: 'plbox' },
+        h('label', { class: 'plmaster' }, h('input', { type: 'checkbox', checked: anyOn,
+          onchange: (e) => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(ids.map(id => [id, e.target.checked])) } }, { label: 'plumbing' }) }),
+          anyOn ? 'שכבת האינסטלציה מוצגת – לחיצה מכבה את כולה' : 'שכבת האינסטלציה כבויה – לחיצה מדליקה את כולה'),
         h('p', { class: 'muted' }, `${N.summary.runs} קטעי צנרת · ${pl.totalLen.toFixed(0)} מ' · ${N.summary.nodes} צמתים. `,
           'צינור עם גוון כתום = מפלס זמני (לא כתוב בתוכנית); נקודה אדומה = סוף תכנון / קצה פתוח. לחיצה על רכיב מציגה סוג, קוטר, חומר, מפלסים, שיפוע ומאיפה לאן.'),
         h('div', { class: 'row plfl' }, h('b', {}, 'קומות: '), ...Object.entries(D.floors).map(([id, lbl]) =>

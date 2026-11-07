@@ -20,3 +20,4 @@
 
 /* info card above the plumbing labels */
 #info { z-index: 30; }
+.plbox .plmaster { display: block; font-weight: 700; padding: 6px 8px; margin: 4px 0 6px; background: #e3f2fd; border-radius: 6px; cursor: pointer; }

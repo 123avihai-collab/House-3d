@@ -35,6 +35,8 @@ export class Registry {
   }
   apply(state) {
     const si = state.stageIndex;   // index into the step sequence
+    const sec = state.section || {};
+    const cutFloor = sec.hOn && sec.hideBeams !== false ? this.cutFloor(sec.hLevel) : null;
     for (const it of this.items) {
       const t = it.tags;
       const [from, to] = this.range(t);
@@ -44,7 +46,9 @@ export class Registry {
       // owner-change variants: "original" shows while the change is off, "changed" while it is on
       const v = it.meta.variant;
       const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
-      const visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
+      let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
+      // horizontal floor section: the beams of the floor being cut (the ceiling beams under / on the slab you stand on) are hidden
+      if (visible && cutFloor && t.layer.endsWith('CeilingBeams') && t.floor === cutFloor) visible = false;
       it.object.visible = visible;
       // per-layer label switch: hide only the labels and marking lines (userData.annotation) of the layer, keep the objects
       if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.isCSS2DObject || o.userData.annotation) o.visible = !lo; }); }
@@ -81,6 +85,21 @@ export class Registry {
       it.object.traverse(o => { if (o.isMesh && o.visible) out.push(o); });
     }
     return out;
+  }
+  // floor levels of the slabs that carry ceiling beams: { floorTag: slab top (rel) } – e.g. ground ceiling = floor A slab
+  beamLevels() {
+    if (!this._beamLevels) {
+      this._beamLevels = {};
+      for (const it of this.items) if (it.tags.layer.endsWith('CeilingBeams') && it.meta.ceilTopRel != null)
+        this._beamLevels[it.tags.floor] = Math.max(this._beamLevels[it.tags.floor] ?? -Infinity, it.meta.ceilTopRel);
+    }
+    return this._beamLevels;
+  }
+  // the floor whose slab is the highest one at or below the cut level
+  cutFloor(hLevel) {
+    let best = null, bz = -Infinity;
+    for (const [f, z] of Object.entries(this.beamLevels())) if (z <= hLevel + 0.01 && z > bz) { best = f; bz = z; }
+    return best;
   }
   byKind(kind) { return this.items.filter(i => i.meta.kind === kind); }
   onChange(f) { this.listeners.push(f); }

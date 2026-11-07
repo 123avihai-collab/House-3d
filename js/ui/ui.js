@@ -63,6 +63,7 @@ export class UI {
         btn('🔗', 'העתק קישור לתצוגה הנוכחית', () => { navigator.clipboard?.writeText(app.viewLink()); this.toast('הקישור הועתק'); }),
         btn('☰', 'פאנל: פתיחה / סגירה', () => this.togglePanel(), 'panelToggle'),
         fileIn));
+    top.prepend(this.$('panelToggle'));   // panel button at the right edge of the bar (RTL start), next to the panel itself
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !e.shiftKey) { app.store.undo(); e.preventDefault(); }
@@ -233,6 +234,16 @@ export class UI {
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.hOn, onchange: (e) => app.store.set({ section: { ...sec, hOn: e.target.checked } }, { label: 'section' }) }), h('b', {}, 'חתך אופקי')),
       h('label', { class: 'col' }, `מפלס: ${app.coords.fmtRel(sec.hLevel)} (${(sec.hLevel + app.coords.H0).toFixed(2)})`,
         h('input', { type: 'range', min: -6, max: 12, step: 0.05, value: sec.hLevel, oninput: (e) => set({ hLevel: +e.target.value }, 'secH') })),
+      h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.hideBeams !== false, onchange: (e) => app.store.set({ section: { ...sec, hideBeams: e.target.checked } }, { label: 'section' }) }),
+        'הסתר את הקורות של הקומה החתוכה'),
+      (() => {
+        // quick floor plans: cut 1.20 m above the slab of each floor (the floor is shown without its beams)
+        const lv = app.registry.beamLevels(); const names = { ground: "קומה א'", first: 'גג' };
+        const g0 = app.data.floorGround?.slab?.length ? Math.max(...app.data.floorGround.slab.map(x => x.topRel)) : null;
+        const plans = [...(g0 != null ? [['קומת קרקע', g0]] : []), ...Object.entries(lv).sort((a, b) => a[1] - b[1]).map(([f, z]) => [names[f] || f, z])];
+        return h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'תוכנית קומה:'), plans.map(([n, z]) =>
+          h('button', { class: 'small', title: `חתך ב-${app.coords.fmtRel(z + 1.2)} (1.20 מ' מעל הרצפה)`, onclick: () => app.store.set({ section: { ...sec, hOn: true, hideBeams: true, hLevel: +(z + 1.2).toFixed(2) } }, { label: 'section' }) }, n)));
+      })(),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.vOn, onchange: (e) => app.store.set({ section: { ...sec, vOn: e.target.checked } }, { label: 'section' }) }), h('b', {}, 'חתך אנכי')),
       h('div', { class: 'seg small' },
         h('button', { class: sec.vAxis === 'E' ? 'on' : '', onclick: () => app.store.set({ section: { ...sec, vAxis: 'E' } }, { label: 'section' }) }, 'חתך צפון–דרום'),

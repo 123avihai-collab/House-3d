@@ -174,6 +174,23 @@ def arch_band(floor):
                         if v.dxftype() == 'LINE' and v.dxf.layer in ('A-WALL', 'I-WALL', 'S-STRS', 'S-STRS-MBND')]).buffer(0.13)
 
 
+def below_slab(path, t):
+    """walls under the slab of a structural sheet: grey fill (stops at the slab) ∪ light hatch fill (continues up)"""
+    return pdf_grey(path, t).union(pdf_grey(path, t, shades=(0.93, 0.97)))
+
+
+def keep_in(pieces, region):
+    """a floor's concrete walls = the wall pieces the sheet of the slab ABOVE draws under it (grey / hatched); outlines
+    only on the sheet of the floor itself (block walls drawn for reference) are dropped"""
+    kept, dropped = [], []
+    for q in pieces:
+        r = q.intersection(region.buffer(0.05))
+        parts = [x for x in polys(r) if x.area > 0.03 and 2 * x.area / x.length > 0.06]
+        if q.area - sum(x.area for x in parts) > 0.02: dropped.append({'areaRemoved_m2': r3(q.area - sum(x.area for x in parts)), 'centroidITM': [r3(v) for v in q.centroid.coords[0]]})
+        kept += parts
+    return kept, dropped
+
+
 def drop_below(pieces, grey, arch):
     """remove from the wall pieces of a floor what the sheet fills grey (wall below, stopping at the level) and the architect
     does not have on that floor; returns (kept pieces, removed areas)"""
@@ -305,11 +322,11 @@ def beam_geometry(tag, H, V, S_CM):
     L, (al, pe) = (H, (x, y)) if tag['axis'] == 'h' else (V, (y, x))
     best = None
     for i, a in enumerate(L):
-        if abs(a[0] - pe) > 40: continue
+        if abs(a[0] - pe) > 50: continue
         for b in L:
             if not (abs((b[0] - a[0]) - w) < 0.7): continue
             lo, hi = max(a[1], b[1]), min(a[2], b[2])
-            if hi - lo < 10 or not (lo - 15 <= al <= hi + 15): continue
+            if hi - lo < 10 or not (lo - 25 <= al <= hi + 25): continue
             d = abs((a[0] + b[0]) / 2 - pe)
             if best is None or d < best[0]: best = (d, (a[0] + b[0]) / 2, lo, hi)
     return best
@@ -456,6 +473,9 @@ def main():
         walls.append(q)
     # walls the sheet fills grey (stopping = basement walls below) and the architect's ground plan does not have
     walls, removed21 = drop_below(walls, pdf_grey(F.K21P, K21P_T), arch_band('ground'))
+    walls, notUnder31 = keep_in(walls, below_slab(K31P, t31p))      # not drawn under the +3.70 slab in K-31 -> not a concrete wall
+    removed21 += notUnder31
+    print('ground: not under K-31', notUnder31)
     print('ground: removed below-walls', removed21)
     cols = hatches(m21, 'IfcColumn', to)
     ctags = tag_texts(m21, 'Structural Column Tags', to)
@@ -673,6 +693,9 @@ def main():
 
     # ---- first floor: columns rising from the K-31 slab (hatched in k-31 = cut above the level) up to the K-41 roof slab ----
     m41 = F.read_dxf(K41)
+    t41 = F.icp(F.pdf_endpoints(K41P, K41P_CLIP), np.unique(np.round(np.array(
+        [sheet(e.dxf.start.x, e.dxf.start.y) for e in m41.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')] +
+        [sheet(e.dxf.end.x, e.dxf.end.y) for e in m41.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')]), 2), axis=0))
     tags41 = F.floor_tags(m41, sheet)
     panels41 = fill_thin(close(tagged_panels(slab_faces(m41, to), tags41)))
     cols31 = hatches(m31, 'IfcColumn', to); ctags31 = tag_texts(m31, 'Structural Column Tags', to)
@@ -714,6 +737,9 @@ def main():
     # K-31 also draws the ground-floor walls under the +3.70 slab (grey fill = "מפסיק"): keep only what rises – walls the
     # sheet fills grey and the architect's first-floor plan does not have are removed
     W31, removed31 = drop_below(W31, pdf_grey(K31P, t31p), arch_band('first'))
+    W31, notUnder41 = keep_in(W31, below_slab(K41P, t41[1]))     # not drawn under the roof slab in K-41 -> not a concrete wall
+    removed31 += notUnder41
+    print('first: not under K-41', notUnder41)
     print('first: removed below-walls', removed31)
     W31 = sorted(W31, key=lambda g: -g.area)
     wtag31 = {}
@@ -743,9 +769,6 @@ def main():
                             'bottomRel': bot, 'topRel': r3(top[0] - top[1]), 'standsOn': on, 'status': st, **({'note': '; '.join(notes)} if notes else {}),
                             'source': f'{K31} IfcWall "Beton Ole"' + (f' (תווית {tag})' if tag else '') + f'; מפלסים: {K31}/{K41} Floor Tags'})
     # ---- roof (K-41): slab + beams (K-41 PDF tags + edge lines; parapet / pergola beams up to +8.00) ----
-    t41 = F.icp(F.pdf_endpoints(K41P, K41P_CLIP), np.unique(np.round(np.array(
-        [sheet(e.dxf.start.x, e.dxf.start.y) for e in m41.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')] +
-        [sheet(e.dxf.end.x, e.dxf.end.y) for e in m41.query('LINE') if e.dxf.layer in ('IfcWall', 'IfcSlab', 'IfcColumn')]), 2), axis=0))
     H4, V4 = pdf_lines(K41P, K41P_CLIP, t41[1]); H4, V4 = merge_collinear(H4), merge_collinear(V4)
     H4d, V4d = merge_collinear(pdf_lines(K41P, K41P_CLIP, t41[1])[0], gap=8.0), merge_collinear(pdf_lines(K41P, K41P_CLIP, t41[1])[1], gap=8.0)
     roof_beams = []
@@ -825,6 +848,21 @@ def main():
         roof_walls.append({'id': f'RW{i + 1}', 'tag': None, 'footprintITM': ring(q), 'holesITM': holes(q), 'area_m2': r3(q.area), 'thickness_m': r3(th),
                            'bottomRel': bot, 'topRel': top, 'standsOn': on, 'status': st, **({'note': '; '.join(notes)} if notes else {}),
                            'source': f'{K41} IfcWall "Beton Ole"; ראש: מפלס נקודה "+8.00 / +6.65" ב-{K41P}'})
+    # thick hatched walls of K-41 (60 cm pergola pier, NE corner – K-31: "ליציקת הקיר!") are outside the thin-face filter:
+    # hatched (light fill) regions of the K-41 sheet ≥ 45 cm thick not yet in the model -> wall from the K-31 beam / slab under it to +8.00
+    H41 = pdf_grey(K41P, t41[1], shades=(0.93, 0.97))
+    have = unary_union([Polygon(w['footprintITM']).buffer(0) for w in roof_walls + first_walls] + [Polygon(c['footprintITM']) for c in first_cols])
+    for q in polys(H41.difference(have.buffer(0.03))):
+        if q.area < 0.5 or 2 * q.area / q.length < 0.45: continue
+        sup = [(b['topRel'], f"קורה {b['id']} (O.K {b['topRel']:+.2f})") for P, b in beam31 if q.intersection(P.buffer(0.1)).area > 0.02]
+        sup += [(p['top'], f"תקרת הקרקע +{p['top']:.2f}") for p in panels31 if q.intersection(p['poly']).area > 0.25 * q.area]
+        bot, on = max(sup, key=lambda x: x[0]) if sup else (6.65, None)
+        mr = q.minimum_rotated_rectangle; xy = list(mr.exterior.coords)
+        roof_walls.append({'id': f'RW{len(roof_walls) + 1}', 'tag': None, 'footprintITM': ring(q), 'holesITM': holes(q), 'area_m2': r3(q.area),
+                           'thickness_m': r3(min(math.dist(xy[0], xy[1]), math.dist(xy[1], xy[2]))), 'bottomRel': bot, 'topRel': 8.0, 'standsOn': on,
+                           'status': 'approx', 'note': 'עמוד-קיר עבה בפינת הפרגולה: מילוי מוקווקו ב-K-41, ב-K-31 הערה "ליציקת הקיר!" – מראש הקורה שמתחתיו עד +8.00.',
+                           'source': f'{K41P} מילוי מוקווקו (קיר); {K31P} "ליציקת הקיר!"'})
+        print('thick roof wall', roof_walls[-1]['id'], r3(q.area), bot, on)
     roof_floor = {'floor': 'roof', 'slab': [], 'walls': roof_walls, 'columns': [],
                   'ceiling': {'slab': [], 'openings': [], 'mamad': [], 'beams': roof_beams}, 'ceilingLabel': 'קורות הגג והפרגולות',
                   'note': 'מעל תקרת הגג (+6.90): מעקות / קירות עד +8.00 וקורות K-41 (O.K +8.00) עליהם – קורות בלי תקרה משני הצדדים = פרגולה.',

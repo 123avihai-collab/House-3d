@@ -14,7 +14,6 @@ import { buildFoundations, buildPlumbingFoundations, buildOwnerChangeZones, buil
 import { buildFloorSkeleton } from './geometry/floors.js';
 import { buildStairs } from './geometry/stairs.js';
 import { buildPerimeter } from './geometry/perimeter.js';
-import { buildOpenings } from './geometry/openings.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -41,7 +40,7 @@ async function main() {
   ctx.ground = buildTerrain(ctx);
   buildSite(ctx);
   buildNeighbors(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx), perimeter: buildPerimeter(ctx), openings: buildOpenings(ctx) };
+  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx), perimeter: buildPerimeter(ctx) };   // windows / doors: on hold (Avihai 07.11 – skeleton first); data in data/architecture/openings.json, module js/geometry/openings.js
   buildOwnerChangeZones(ctx);
 
   const pc = centroid(data.plot.ring);

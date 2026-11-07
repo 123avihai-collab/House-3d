@@ -142,12 +142,29 @@ def main():
                              'status': st, 'note': note, 'heightSource': hsrc,
                              'source': f'{SRC} בלוק {blk}, שכבה {v.dxf.layer}, "{nm}" (מזהה {eid}); גובה: {hsrc}'})
     # ---- host concrete walls: cut the opening rectangle, refill below the sill / above the head ----
-    files = {f: json.load(open(os.path.join(ROOT, 'data/structure', f), encoding='utf-8')) for f in ('framing.json', 'floor-ground.json', 'floor-first.json')}
-    walls = {'unit': files['framing.json']['basementWalls'], 'ground': files['floor-ground.json']['walls'], 'first': files['floor-first.json']['walls']}
+    files = {f: json.load(open(os.path.join(ROOT, 'data/structure', f), encoding='utf-8')) for f in ('framing.json', 'floor-ground.json', 'floor-first.json', 'floor-roof.json')}
+    walls = {'unit': files['framing.json']['basementWalls'], 'ground': files['floor-ground.json']['walls'], 'first': files['floor-first.json']['walls'],
+             'roof': files['floor-roof.json']['walls']}
     for ws in walls.values():
         for w in ws:
             w.pop('partsITM', None); w.pop('infill', None); w.pop('openings', None)
     stats = defaultdict(int)
+
+    def cut(w, region, o):
+        """remove the opening region from wall w, refill it below the sill and above the head (concrete sill / lintel)"""
+        g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
+        prev = w.get('partsITM')
+        cur = unary_union([Polygon(p['ringITM'], p['holesITM']) for p in prev]) if prev else g
+        cur = cur.difference(region.buffer(0.001))
+        w['partsITM'] = [{'ringITM': [[r3(a), r3(b)] for a, b in p.exterior.coords[:-1]],
+                          'holesITM': [[[r3(a), r3(b)] for a, b in i.coords[:-1]] for i in p.interiors]}
+                         for p in getattr(cur, 'geoms', [cur]) if p.area > 0.002]
+        if o['id'] not in w.setdefault('openings', []): w['openings'].append(o['id'])
+        bot, top = w['bottomRel'], w['topRel']
+        for q in [x for x in getattr(region, 'geoms', [region]) if x.geom_type == 'Polygon' and x.area > 0.002]:
+            ring = [[r3(a), r3(b)] for a, b in q.exterior.coords[:-1]]
+            if o['sillRel'] > bot + 0.01 and o['kind'] != 'door': w.setdefault('infill', []).append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring, 'bottomRel': bot, 'topRel': min(o['sillRel'], top)})
+            if o['headRel'] < top - 0.01: w.setdefault('infill', []).append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring, 'bottomRel': max(o['headRel'], bot), 'topRel': top})
     for o in openings:
         c = Point(o['centerITM']); ax = np.array(o['axisITM']); nrm = np.array([-ax[1], ax[0]])
         best = None
@@ -180,20 +197,19 @@ def main():
             neigh = [x for x in walls[o['floor']] if x is not w and Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0).distance(R) < 0.12]
             if not neigh: o['host'] = None; stats['noConcrete'] += 1; continue
         o['host'] = w['id']; o['hostThickness_m'] = r3(t); o['cutITM'] = [[r3(a), r3(b)] for a, b in R.exterior.coords[:-1]]
-        rest = g.difference(R.buffer(0.001))
-        w.setdefault('openings', []).append(o['id'])
-        prev = w.get('partsITM')
-        cur = unary_union([Polygon(p['ringITM'], p['holesITM']) for p in prev]) if prev else g
-        cur = cur.difference(R.buffer(0.001))
-        w['partsITM'] = [{'ringITM': [[r3(a), r3(b)] for a, b in p.exterior.coords[:-1]],
-                          'holesITM': [[[r3(a), r3(b)] for a, b in i.coords[:-1]] for i in p.interiors]}
-                         for p in getattr(cur, 'geoms', [cur]) if p.area > 0.002]
-        inf = w.setdefault('infill', [])
-        bot, top = w['bottomRel'], w['topRel']
-        ring = [[r3(a), r3(b)] for a, b in R.exterior.coords[:-1]]
-        if o['sillRel'] > bot + 0.01 and o['kind'] != 'door': inf.append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring, 'bottomRel': bot, 'topRel': o['sillRel']})
-        if o['headRel'] < top - 0.01: inf.append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring, 'bottomRel': o['headRel'], 'topRel': top})
+        cut(w, R, o)
         stats['hosted'] += 1; stats['cutContinuous' if covered >= 0.5 else 'filledGap'] += 1
+    # every other concrete wall (any floor) standing in the opening volume is cut as well (e.g. a wall continuing past a door)
+    for o in openings:
+        c = np.array(o['centerITM']); ax = np.array(o['axisITM']); nrm = np.array([-ax[1], ax[0]]); hw = o['width_m'] / 2
+        R0 = Polygon([tuple(c - ax * hw - nrm * 0.4), tuple(c + ax * hw - nrm * 0.4), tuple(c + ax * hw + nrm * 0.4), tuple(c - ax * hw + nrm * 0.4)])
+        for fl, ws in walls.items():
+            for w in ws:
+                if w['topRel'] <= o['sillRel'] + 0.02 or w['bottomRel'] >= o['headRel'] - 0.02: continue
+                g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
+                reg = g.intersection(R0)
+                if reg.area > 0.005:
+                    cut(w, reg, o); o.setdefault('alsoCut', []).append(w['id']); stats['extraCut'] += 1
     for f, d in files.items():
         json.dump(d, open(os.path.join(ROOT, 'data/structure', f), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     out = {'_doc': 'Windows and doors. Generated by tools/extract_openings.py – do not edit by hand. Levels relative to ±0.00 (finished floors: basement −2.60, ground 0.00, first +3.85).',

@@ -35,7 +35,7 @@ def main():
         A = unary_union(arch).buffer(0.13)   # walls are drawn as face lines: ±13 cm covers walls up to 26 cm
         for w in walls[floor]:
             g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
-            for p in (w.get('partsITM') and [Polygon(r['ringITM'], r['holesITM']) for r in w['partsITM']]) or [g]:
+            for p in ([Polygon(r['ringITM'], r['holesITM']) for r in w['partsITM']] if 'partsITM' in w else [g]):
                 for q in getattr(p, 'geoms', [p]):
                     xs, ys = q.exterior.xy; ax.fill(xs, ys, color='#9e9e9e', alpha=0.6, lw=0)
             un = g.difference(A).area / max(g.area, 1e-6)

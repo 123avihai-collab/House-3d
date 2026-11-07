@@ -76,11 +76,34 @@ export function buildMamadFrames(ctx) {
     if (C.pocketITM) g.add(prism(C.pocketITM, C.bottomRel, C.topRel));                               // shutter pocket (steel box)
     g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
     const abs = (rel) => coords.fmtH(coords.H0 + rel);
-    registry.add(g, { floor: o.floor, system: 'structure', stage: 'walls', layer: 'mamadFrames' }, {
+    if (C.leafParkITM) {   // the stretch of wall the sliding leaf parks on: continuous concrete, no electrical / plumbing
+      const pz = prism(C.leafParkITM, C.bottomRel, C.topRel); pz.material = new THREE.MeshBasicMaterial({ color: display.openings.leafParkColor, transparent: true, opacity: 0.35, depthWrite: false });
+      pz.castShadow = pz.receiveShadow = false; pz.renderOrder = 5; pz.scale.set(1, 1, 1); g.add(pz);
+    }
+    const hostW = (data.floorGround?.walls || []).find(w => w.id === o.host);
+    registry.add(g, { floor: o.floor, system: 'structure', stage: 'walls', layer: 'mamadFrames', ...(hostW?.mamad ? { step: 'groundCeiling' } : {}) }, {
       id: o.id, name: `משקוף ${o.kind === 'door' ? 'דלת' : 'חלון'} ממ"ד ${o.id} (נוצק בקיר ${o.host})`, status: 'approx',
       rows: [['פתח בבטון (K-21)', `${Math.round(C.width_m * 100)} ס"מ`], ...(C.pocketWidth_m ? [['מזה כיס תריס ההדף', `${Math.round(C.pocketWidth_m * 100)} ס"מ`]] : []),
-        ['תחתית / ראש', `${abs(C.bottomRel)} / ${abs(C.topRel)}`], ['משפחת Revit', `${o.name} – ${Math.round(o.width_m * 100)} ס"מ`], ['קיר', `${o.host} (${Math.round(o.hostThickness_m * 100)} ס"מ)`]],
+        ['תחתית / ראש', `${abs(C.bottomRel)} / ${abs(C.topRel)}`], ['משפחת Revit', `${o.name} – ${Math.round(o.width_m * 100)} ס"מ`], ['קיר', `${o.host} (${Math.round(o.hostThickness_m * 100)} ס"מ)`],
+        ...(C.leafParkITM ? [['חניית הכנף', `${Math.round(C.leafPark_m * 100)} ס"מ קיר רציף ${C.leafParkWallOk ? '✓' : '✗'} – בלי חשמל וצנרת`]] : [])],
       note: C.note, source: o.source,
+    });
+    scene.add(g);
+  }
+  // ventilation / filter sleeves of the mamad (architect's families "צינור אוורור 4"", "Zinor8") – cast in the wall
+  for (const sv of data.openings?.sleeves || []) {
+    if (!sv.dia_m) continue;
+    const z = sv.zRel ?? display.openings.sleeveDefaultRel, t = sv.hostThickness_m || display.openings.defaultWallDepth_m;
+    const [x0, z0] = coords.xz(...sv.centerITM), [x1, z1] = coords.xz(sv.centerITM[0] + sv.axisITM[0], sv.centerITM[1] + sv.axisITM[1]);
+    const ax = new THREE.Vector3(x1 - x0, 0, z1 - z0).normalize(), nrm = new THREE.Vector3(-ax.z, 0, ax.x);
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(sv.dia_m / 2, sv.dia_m / 2, t + 0.04, 24), steel);
+    cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), nrm); cyl.position.set(x0, z, z0);
+    const g = new THREE.Group(); g.add(cyl); if (sv.status !== 'source') g.add(new THREE.BoxHelper(cyl, DF.provisionalEdgeColor));
+    const hostW = (sv.floor === 'ground' ? data.floorGround : data.floorFirst)?.walls?.find(w => w.id === sv.host);
+    registry.add(g, { floor: sv.floor, system: 'structure', stage: 'walls', layer: 'mamadFrames', ...(hostW?.mamad ? { step: 'groundCeiling' } : {}) }, {
+      id: sv.id, name: `שרוול ${Math.round(sv.dia_m / 0.0254)}" ${/Zinor8|8__ext/.test(sv.name) ? '(סינון / חיצוני)' : '(אוורור)'} – ${sv.host}`, status: sv.status,
+      rows: [['קוטר', `${Math.round(sv.dia_m * 1000)} מ"מ (${Math.round(sv.dia_m / 0.0254)}")`], ['גובה מרכז', sv.zRel != null ? coords.fmtH(coords.H0 + sv.zRel) : 'לא ידוע – זמני'], ['קיר', sv.host], ['משפחת Revit', sv.name]],
+      note: `${sv.note}. שרוול שנוצק בקיר – פרט היצרן המאושר של פיקוד העורף חסר.`, source: sv.source,
     });
     scene.add(g);
   }

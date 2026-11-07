@@ -79,6 +79,15 @@ def mamad_frame(o, w, ws, c0, ax, nrm, t):
                                  f"רוחב הפתח בבטון {b - a:.2f} מ' = הרווח בין הקירות ב-K-21 (משפחת Revit {o['width_m']:.2f} כוללת את המשקוף / הכנף הנגררת)."
                                  + (' הקטע האפור ב-K-21 לצד הפתח = כיס תריס ההדף.' if pocket is not None and pocket.area > 0.01 else '')
                                  + ' פרופיל המשקוף – לפי תוכנית הג"א (חסרה); בתצוגה – קבוע תצוגה.')})
+    if o['kind'] == 'door':     # sliding blast door: the leaf parks beside the opening – a continuous wall, no services (note 10)
+        leaf = b - a        # the leaf covers the opening: it parks on a wall stretch at least as long, on one side
+        Uw = unary_union([Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0) for x in ws]).buffer(0.01)
+        sides = [(a - leaf, a), (b, b + leaf)]
+        okS = [bool(rect(*sd).buffer(-0.02).within(Uw)) for sd in sides]
+        k = okS.index(True) if any(okS) else 0
+        PZ = rect(*sides[k])
+        o['castFrame'].update(leafParkITM=ring(PZ), leafPark_m=r3(leaf), leafParkWallOk=okS[k], leafParkSides=okS,
+                              leafParkNote='צד החניה של הכנף לפי פרט היצרן (חסר) – מוצג הצד שבו הקיר רציף' if all(okS) else '')
     if o['id'] not in w.setdefault('openings', []): w['openings'].append(o['id'])
     if fb > bot + 0.01: w.setdefault('infill', []).append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring(R), 'bottomRel': bot, 'topRel': r3(min(fb, top))})
     if o['headRel'] < top - 0.01: w.setdefault('infill', []).append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring(R), 'bottomRel': r3(max(o['headRel'], bot)), 'topRel': top})
@@ -136,7 +145,7 @@ def kind_of(name, layer):
 def main():
     doc = ezdxf.readfile(os.path.join(ROOT, SRC)); msp = doc.modelspace()
     H, FAM = view_heights()
-    openings, placement = [], {}
+    openings, placement, sleeves = [], {}, []
     for floor, (blk, dxf, ffl, _) in FLOORS.items():
         ents, to_itm, pl = place(msp, blk, dxf); placement[blk] = pl
         txt = [(v.dxf.insert.x, v.dxf.insert.y, v.plain_text().strip()) for v in ents if v.dxftype() == 'MTEXT' and v.dxf.layer == 'A-GLAZ-IDEN']
@@ -151,7 +160,15 @@ def main():
             m = NAME.match(v.dxf.name)
             if not m: continue
             nm, eid, view = m.groups(); nm = nm.strip(); kind = kind_of(nm, v.dxf.layer)
-            if kind == 'vent': continue                         # mamad ventilation sleeves – not an opening in the model
+            if kind == 'vent':                                   # mamad ventilation / filter sleeves – cast in the wall (note 10)
+                c0v = to_itm(v.dxf.insert.x, v.dxf.insert.y); a2v = to_itm(v.dxf.insert.x + 100 * math.cos(math.radians(v.dxf.rotation)), v.dxf.insert.y + 100 * math.sin(math.radians(v.dxf.rotation)))
+                axv = np.subtract(a2v, c0v); axv = axv / np.linalg.norm(axv)
+                dm = re.search(r'(?:אורור|Zinor)\s*(\d+)', nm)
+                own = [r for r in H.get(eid, []) if ffl - 0.05 <= r[0] / 100 < ffl + 3.30]
+                sleeves.append({'floor': floor, 'name': nm, 'revitId': eid, 'centerITM': [r3(c0v[0]), r3(c0v[1])], 'axisITM': [round(axv[0], 6), round(axv[1], 6)],
+                                'dia_m': r3(int(dm.group(1)) * 0.0254) if dm else None, 'zRel': r3((min(r[0] for r in own) + max(r[1] for r in own)) / 200) if own else None,
+                                'source': f'{SRC} בלוק {blk}, שכבה {v.dxf.layer}, "{nm}" (מזהה {eid})'})
+                continue
             x, y = v.dxf.insert.x, v.dxf.insert.y; rot = math.radians(v.dxf.rotation)
             c = to_itm(x, y); a2 = to_itm(x + 100 * math.cos(rot), y + 100 * math.sin(rot))
             ax = ((a2[0] - c[0]) / 1.0, (a2[1] - c[1]) / 1.0); L = math.hypot(*ax); ax = (ax[0] / L, ax[1] / L)
@@ -214,12 +231,22 @@ def main():
             ring = [[r3(a), r3(b)] for a, b in q.exterior.coords[:-1]]
             if o['sillRel'] > bot + 0.01 and o['kind'] != 'door': w.setdefault('infill', []).append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring, 'bottomRel': bot, 'topRel': min(o['sillRel'], top)})
             if o['headRel'] < top - 0.01: w.setdefault('infill', []).append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring, 'bottomRel': max(o['headRel'], bot), 'topRel': top})
+    OVR = json.load(open(os.path.join(ROOT, 'tools/opening-overrides.json'), encoding='utf-8'))
     for o in openings:
         c = Point(o['centerITM']); ax = np.array(o['axisITM']); nrm = np.array([-ax[1], ax[0]])
+        if o['id'] in OVR and OVR[o['id']].get('host', '') is None:
+            o['host'] = None; o['note'] = (o.get('note', '') + ' ' + OVR[o['id']]['reason']).strip(); o['hostOverride'] = 'tools/opening-overrides.json'
+            stats['noConcrete'] += 1; continue
         best = None
         for w in walls[o['floor']]:
             g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
             if g.distance(c) > 0.6: continue
+            # a straight wall piece must run along the opening: G07 (a door in a 10 cm partition) was hosted by GW3, which is
+            # perpendicular to it – the lintel floated (Avihai's note 9)
+            mr = g.minimum_rotated_rectangle; xy = list(mr.exterior.coords)
+            e1, e2 = np.subtract(xy[1], xy[0]), np.subtract(xy[2], xy[1]); long_ = e1 if np.linalg.norm(e1) >= np.linalg.norm(e2) else e2
+            straight = g.area > 0.7 * mr.area and np.linalg.norm(long_) > 2.5 * min(np.linalg.norm(e1), np.linalg.norm(e2))
+            if straight and abs(float(np.dot(long_ / np.linalg.norm(long_), ax))) < 0.7: continue
             probe = LineString([tuple(np.array(c.coords[0]) - nrm * 0.6), tuple(np.array(c.coords[0]) + nrm * 0.6)])
             # wall thickness across the opening: the wall's cut by the normal line through the centre, or next to it along the axis
             for sh in (0.0, -o['width_m'] / 2 - 0.15, o['width_m'] / 2 + 0.15):
@@ -245,8 +272,29 @@ def main():
         both_sides = g.intersects(affinity.translate(R, *(ax * (hw + 0.1)))) and g.intersects(affinity.translate(R, *(-ax * (hw + 0.1))))
         covered = R.intersection(g).area / R.area
         if covered < 0.5 and not both_sides:
-            neigh = [x for x in walls[o['floor']] if x is not w and Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0).distance(R) < 0.12]
-            if not neigh: o['host'] = None; stats['noConcrete'] += 1; continue
+            # concrete on the far end of the opening too (along its axis), else the opening is in a non-concrete wall: no
+            # concrete sill / lintel – it is built with the block walls (G07: a door in a 10 cm partition next to GW21 /
+            # GW17 / GW3, its lintel floated – Avihai's note 9)
+            ends = [affinity.translate(R, *(ax * (hw + 0.1))), affinity.translate(R, *(-ax * (hw + 0.1)))]
+            hit = lambda Q: [x['id'] for x in walls[o['floor']] if Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0).intersects(Q)]
+            if not (hit(ends[0]) and hit(ends[1])):
+                o['host'] = None; o['note'] = (o.get('note', '') + ' הפתח בקיר שאינו בטון (מחיצה / בלוקים) – בלי אדן / משקוף בטון בשלד; נבנה עם קירות הבלוקים.').strip()
+                stats['noConcrete'] += 1; continue
+        if covered < 0.5 and both_sides:
+            # an opening in the gap between two concrete wall ends: the sill / lintel spans the whole gap, wall face to wall
+            # face (G07 – the lintel hung 4–8 cm short of GW21 / GW17, Avihai's note 9)
+            U = unary_union([Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0) for x in walls[o['floor']]]).buffer(0.005)
+            inside = lambda s_: U.contains(Point(*(c0 + ax * s_)))
+            st, lim = 0.005, hw + 0.4
+            if not inside(0):
+                a_ = b_ = 0.0
+                while a_ > -lim and not inside(a_ - st): a_ -= st
+                while b_ < lim and not inside(b_ + st): b_ += st
+                if a_ > -lim and b_ < lim:
+                    a_, b_ = a_ - 0.005, b_ + 0.005
+                    R = Polygon([tuple(c0 + ax * a_ - nrm * t / 2), tuple(c0 + ax * b_ - nrm * t / 2), tuple(c0 + ax * b_ + nrm * t / 2), tuple(c0 + ax * a_ + nrm * t / 2)])
+                    o['structuralWidth_m'] = r3(b_ - a_)
+                    o['note'] = (o.get('note', '') + f" הפתח בין שני קירות בטון ({b_ - a_:.2f} מ' מפאה לפאה): האדן / המשקוף מעל הדלת – בטון עם הקירות; אין במקורות פרט בטון / בלוקים מעל הדלת.").strip()
         o['host'] = w['id']; o['hostThickness_m'] = r3(t); o['cutITM'] = [[r3(a), r3(b)] for a, b in R.exterior.coords[:-1]]
         cut(w, R, o)
         stats['hosted'] += 1; stats['cutContinuous' if covered >= 0.5 else 'filledGap'] += 1
@@ -269,8 +317,18 @@ def main():
                     cut(w, reg, o); o.setdefault('alsoCut', []).append(w['id']); stats['extraCut'] += 1
     for f, d in files.items():
         json.dump(d, open(os.path.join(ROOT, 'data/structure', f), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    # sleeves: one per position (the same family appears in two views), hosted by the nearest concrete wall
+    uniq = []
+    for sv in sleeves:
+        if any(u['floor'] == sv['floor'] and math.dist(u['centerITM'], sv['centerITM']) < 0.05 for u in uniq): continue
+        P0 = Point(sv['centerITM']); best = min(((Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0).distance(P0), w) for w in walls[sv['floor']]), key=lambda t: t[0], default=(9, None))
+        if best[0] > 0.35: continue
+        w = best[1]; sv.update(id=f"S{len(uniq) + 1:02d}", host=w['id'], hostThickness_m=w.get('thickness_m'), mamad=bool(w.get('mamad')),
+                               status='source' if sv['zRel'] is not None and sv['dia_m'] else 'provisional',
+                               note=('גובה לפי חזיתות / חתכים' if sv['zRel'] is not None else 'אין גובה במקורות – מוצג זמני') + ('; קוטר מהשם (אינץ\')' if sv['dia_m'] else '; קוטר לא ידוע'))
+        uniq.append(sv)
     out = {'_doc': 'Windows and doors. Generated by tools/extract_openings.py – do not edit by hand. Levels relative to ±0.00 (finished floors: basement −2.60, ground 0.00, first +3.85).',
-           'placement': placement, 'openings': openings}
+           'placement': placement, 'openings': openings, 'sleeves': uniq}
     os.makedirs(os.path.join(ROOT, 'data/architecture'), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, 'data/architecture/openings.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('placement', placement)

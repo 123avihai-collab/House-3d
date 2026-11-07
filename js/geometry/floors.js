@@ -106,12 +106,13 @@ export function buildFloorSkeleton(ctx, F) {
     for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
-    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls'), ...(floor === 'roof' && w.bottomRel < (data.tags.floors.find(f => f.id === 'roof')?.level ?? 99) - 0.5 ? { step: 'firstWalls' } : {}) }, {
+    // mamad walls: cast with the ceiling as one body (Avihai's note 10)
+    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls'), ...(floor === 'roof' && w.bottomRel < (data.tags.floors.find(f => f.id === 'roof')?.level ?? 99) - 0.5 ? { step: 'firstWalls' } : {}), ...(w.mamad ? { step: 'groundCeiling' } : {}) }, {
       id: w.id, name: `קיר ${w.tag || w.id} (${w.id}) – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
         ...(w.openings?.length ? [['פתחים', `${w.openings.join(', ')} (אדן / משקוף בטון)`]] : []),
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
-      note: w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', source: w.source,
+      note: [w.mamad ? 'קיר ממ"ד – נוצק יחד עם התקרה והקורות שמעליו כגוף אחד (שלב תקרת הקרקע).' : '', w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.'].filter(Boolean).join(' '), source: w.source,
     });
     if (w.note) wNotes.add(w.note);
     scene.add(g);

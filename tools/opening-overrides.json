@@ -1,0 +1,7 @@
+{
+ "_doc": "Openings whose concrete host the automatic test cannot decide – with the evidence. Applied by tools/extract_openings.py.",
+ "G07": {
+  "host": null,
+  "reason": "דלת שירותי האורחים (76/210) – בתוכנית האדריכל (sources/plumbing/אינסטלציה חתכים הכל.dxf, בלוק pituah) הדלת בקיר I-WALL של 10 ס\"מ בין GW21 ל-GW17, ניצב ל-GW3; אין בטון מעל הדלת בתוכניות הקונסטרוקציה (אין קורה מעליה; B-61 מקבילה במרחק 8–58 ס\"מ). המשקוף – עם קירות הבלוקים (שלב 4), לא בשלד. הערת אביחי סעיף 9."
+ }
+}

@@ -119,13 +119,15 @@
   "labelLift_m": 0.4
  },
  "openings": {
-  "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר)",
+  "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר); sleeveDefaultRel – גובה תצוגה זמני לשרוול בלי גובה במקור; leafParkColor – סימון אזור חניית הכנף",
   "frame_m": 0.05,
   "frameDepth_m": 0.07,
   "mullion_m": 0.05,
   "glass_m": 0.02,
   "doorLeaf_m": 0.045,
-  "defaultWallDepth_m": 0.2
+  "defaultWallDepth_m": 0.2,
+  "leafParkColor": "#ffb300",
+  "sleeveDefaultRel": 2.2
  },
  "xray": {
   "_doc": "כפתור \"צנרת מוסתרת\" – שקיפות הבטון (קבוע תצוגה)",

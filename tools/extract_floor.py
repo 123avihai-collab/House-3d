@@ -788,6 +788,25 @@ def main():
         if any(c.startswith(b['id'] + '+') for c in cc31):
             b['note'] = (b.get('note', '') + ' הקצה הוארך עד הפאה החיצונית של הקורה הניצבת בפינה (פינת L סגורה – הערת אביחי ק5).').strip()
     mark_pergola(beams, panels31)
+    # wall hatch of the K-21 PDF that was dropped as "not under the K-31 slab" but stands under a K-31 beam (the mamad NW
+    # corner GW4 / GW7 under the 30/70 beam – Avihai's note 10: "יש מגרעת"): a wall under a beam is a wall – into the wall
+    # it touches
+    b31U = unary_union([LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2) for b in beams if b.get('axisITM')])
+    haveW = unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0) for w in wall_out] + [c.buffer(0) for c in cols])
+    underB = []
+    hp_all = pdf_grey(F.K21P, K21P_T, shades=(0.93, 0.97))
+    for q in polys(hp_all.difference(haveW.buffer(0.01))):
+        if q.area < 0.05 or q.intersection(b31U).area < 0.5 * q.area or q.intersection(grey).area > 0.5 * q.area: continue
+        if q.intersection(lot.exterior.buffer(0.6)).area > 0.3 * q.area or pool_zone.intersects(q.representative_point()): continue
+        touch = [w for w in wall_out if Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q) < 0.08]
+        if not touch: continue
+        w = min(touch, key=lambda w: Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q))
+        wg = Polygon(w['footprintITM'], w['holesITM']).buffer(0)
+        g = max(polys(unary_union([wg, q.buffer(0.012), wg.buffer(0.09, join_style=2).intersection(q.buffer(0.09, join_style=2)).intersection(hp_all.buffer(0.012))]).buffer(-0.002, join_style=2)), key=lambda x: x.area)
+        w['footprintITM'] = ring(g); w['holesITM'] = holes(g); w['area_m2'] = r3(g.area)
+        w['note'] = (w.get('note', '') + f' הוסף קטע קיר מקווקו ב-K-21 ({q.area:.2f} מ"ר) מתחת לקורת K-31 – הפינה רציפה כמו בתוכנית (הערת אביחי, סעיף 10).').strip()
+        underB.append(f"{w['id']}+{q.area:.3f}")
+    print('K-21 wall hatch under K-31 beams added', underB)
 
     # the slab runs on under the walls and columns that stand on it, and the ceiling runs on over the ones that carry it:
     # the drawn faces stop at their outlines, which leaves notches / holes at every column and wall -> absorb them
@@ -1087,6 +1106,13 @@ def main():
                          f" ראש: תחתית הקורה {b['id']} ({round(b['width_m'] * 100)}/{round(b['depth_m'] * 100)}, O.K {b['topRel']:+.2f}) שמעליו.").strip()
     print('ground walls / columns up to the K-31 beam soffit', under)
     out['wallsUnderBeams'] = under
+    # mamad: walls and ceiling are cast as one body (Avihai's note 10) – its walls are cast with the ground ceiling
+    mam = unary_union([Polygon(s_['footprintITM'], s_['holesITM']).buffer(0) for s_ in out['slab'] if s_['zone'] == 'mamad'])
+    for w in out['walls']:
+        g = Polygon(w['footprintITM'], w['holesITM']).buffer(0)
+        if not mam.is_empty and g.distance(mam) < 0.03 and g.intersection(mam.buffer(0.35, join_style=2)).area > 0.5 * g.area:
+            w['mamad'] = True
+    print('mamad walls (cast with the ceiling)', [w['id'] for w in out['walls'] if w.get('mamad')])
     # ---- outdoor K-21 beams: critical for the house? (Avihai's note 3) – a house beam whose end has no pile, basement wall,
     #      wall footing or house beam under it rests on the outdoor beam it meets: that beam (and the beams that carry it on in
     #      line down to a support) is cast with the house, and the wall footing it rests on before it ----

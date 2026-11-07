@@ -137,5 +137,17 @@
   "_doc": "צבעים לשכבות העפר והאיטום – קבועי תצוגה",
   "strippedColor": "#8d7b63",
   "waterproofingColor": "#1f1d1b"
+ },
+ "starters": {
+  "_doc": "תצוגת קוצים וסימון אלמנטים על היציקה (סעיף 5). barScale – הגדלת עובי המוט לתצוגה בלבד; schematic* – קוצים להמחשה כשאין תיוג ברזל בגיליון (לא מידה מהמקור)",
+  "barColor": "#b0453a",
+  "schematicBarColor": "#9e9e9e",
+  "outlineColor": "#ffd600",
+  "fillOpacity": 0.35,
+  "lift_m": 0.012,
+  "labelLift_m": 0.12,
+  "barScale": 1.6,
+  "schematicDia_mm": 12,
+  "schematicSpacing_m": 0.2
  }
 }

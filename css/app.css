@@ -131,6 +131,8 @@ body.walking #walkspeed { display: flex; }
 .lbl.north { background: #c62828; font-weight: 700; direction: rtl; }
 .lbl.grid { background: rgba(69, 90, 100, .7); }
 .lbl.measure { background: #00838f; font-size: 12px; text-align: center; }
+.lbl.starter { background: #b0453a; font-size: 10px; padding: 0 4px; }
+.lbl.starter.schematic { background: rgba(120,120,120,.85); }
 .lbl.pile { background: rgba(120,120,120,.85); font-size: 10px; padding: 0 4px; }
 .lbl.pile.over { background: #e64a19; }
 .lbl.shoring { background: #c62828; font-weight: 700; direction: rtl; }

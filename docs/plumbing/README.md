@@ -31,6 +31,10 @@
 
 הפירוט המלא: [03-proposal.md](03-proposal.md). הקוד: `tools/plumbing/propose.py` (קלטים ב-`proposal-inputs.json`), והדוח: `tools/plumbing/report_proposal.py`.
 
+## צפייה אונליין
+
+ארטיפקט של הענף (נפרד מהארטיפקט של המודל הראשי): https://claude.ai/artifact/6ir8Jknqx5JcbrD2fHLzVP . פורסם עם אותם קבצים כמו האתר, ועם ה-HDRI בקידוד base64 (ראו README הראשי).
+
 ## שימוש
 
 לשונית "שכבות" → קבוצת "אינסטלציה – תוכנית היועץ":

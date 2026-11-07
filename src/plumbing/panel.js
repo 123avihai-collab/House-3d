@@ -26,7 +26,7 @@ export function buildPanel(app, pl) {
   const isOn = () => !!before;
   const pipeView = () => {
     const cur = app.store.get();
-    before = { layers: { ...cur.layers }, labelsOff: { ...(cur.labelsOff || {}) }, plumbing: { ...(cur.plumbing || {}) } };
+    before = { layers: { ...cur.layers }, labelsOff: { ...(cur.labelsOff || {}) }, plumbing: { ...(cur.plumbing || {}) }, systemFilter: cur.systemFilter ?? null, stageIndex: cur.stageIndex };
     const L = { ...cur.layers };
     for (const g of app.data.layers.groups) for (const l of g.layers) {
       if (g.id === 'plumbing') L[l.id] = l.id !== 'plFindings';
@@ -34,7 +34,7 @@ export function buildPanel(app, pl) {
       else L[l.id] = false;
     }
     const lo = { ...(cur.labelsOff || {}) }; for (const id of ['plSewage', 'plCold', 'plRain', 'plPumped', 'plHot', 'plProposal', 'plChambers', 'plotBoundary']) lo[id] = true;
-    app.store.set({ layers: L, labelsOff: lo, plumbing: { ...st(), xray: true, proposal: true, floors: {} } }, { label: 'אינסטלציה – הצג את כל הצנרת' });
+    app.store.set({ layers: L, labelsOff: lo, systemFilter: null, stageIndex: app.data.tags.sequence.length - 1, plumbing: { ...st(), xray: true, proposal: true, floors: {} } }, { label: 'אינסטלציה – הצג את כל הצנרת' });
     const c = app.plotCenter.clone(); app.viewer.flyTo(c, c.clone().add({ x: D.view.camOffset_m[0], y: D.view.camOffset_m[1], z: D.view.camOffset_m[2] }));
     sync();
   };

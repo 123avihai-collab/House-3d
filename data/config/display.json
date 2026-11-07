@@ -163,5 +163,13 @@
  "proposals": {
   "_doc": "סימון הצעות בעלים שמבטלות אלמנט (OC-2)",
   "questionMarker_m": 0.12
+ },
+ "blocks": {
+  "_doc": "תצוגת קירות בלוקים – צבעים ומרווח פוגה (תצוגה בלבד)",
+  "blockColor": "#e9e5dc",
+  "cutBlockColor": "#d8cdb8",
+  "shutterBoxColor": "#9aa4ad",
+  "joint_m": 0.008,
+  "labelLift_m": 0.15
  }
 }

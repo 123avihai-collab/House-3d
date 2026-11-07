@@ -351,6 +351,24 @@
    ]
   },
   {
+   "id": "blocks",
+   "label": "בנייה בבלוקים (שלב 4)",
+   "system": "walls",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "blockWalls",
+     "label": "קירות ומחיצות בלוקים – איטונג 60×25",
+     "visible": true
+    },
+    {
+     "id": "shutterBoxes",
+     "label": "ארגזי תריס גלילה",
+     "visible": true
+    }
+   ]
+  },
+  {
    "id": "plumbing",
    "label": "אינסטלציה",
    "system": "plumbing",

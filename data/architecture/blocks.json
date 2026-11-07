@@ -1,0 +1,2509 @@
+{
+ "_doc": "נוצר ע\"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.",
+ "block": {
+  "type": "איטונג (בטון תאי)",
+  "length_m": 0.6,
+  "height_m": 0.25,
+  "source": "החלטת אביחי 07.11.2026"
+ },
+ "houseAxisDeg": 68.015,
+ "walls": [
+  {
+   "id": "BK-U1",
+   "floor": "unit",
+   "axisITM": [
+    [
+     179588.891,
+     576239.548
+    ],
+    [
+     179589.632,
+     576241.385
+    ]
+   ],
+   "length_m": 1.981,
+   "thickness_m": 0.22,
+   "bottomRel": -2.75,
+   "topRel": -0.65,
+   "openings": [
+    {
+     "id": "U01",
+     "s0": 0.0,
+     "s1": 1.981,
+     "z0": -1.3,
+     "z1": -0.46,
+     "shutter": false
+    }
+   ],
+   "courses": 9,
+   "blocksFull": 13,
+   "blocksCut": 7,
+   "area_m2": 2.496,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit martef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G2",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179590.702,
+     576242.548
+    ],
+    [
+     179590.288,
+     576242.715
+    ]
+   ],
+   "length_m": 0.446,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.606,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G3",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179589.154,
+     576240.201
+    ],
+    [
+     179590.031,
+     576242.374
+    ]
+   ],
+   "length_m": 2.343,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G08",
+     "s0": 0.942,
+     "s1": 1.702,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    },
+    {
+     "id": "G10",
+     "s0": 0.052,
+     "s1": 0.712,
+     "z0": 1.5,
+     "z1": 2.3,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 20,
+   "blocksCut": 47,
+   "area_m2": 6.311,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G4",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179589.961,
+     576239.82
+    ],
+    [
+     179589.033,
+     576240.195
+    ]
+   ],
+   "length_m": 1.001,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 23,
+   "area_m2": 3.604,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.103
+  },
+  {
+   "id": "BK-G5",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179588.729,
+     576239.148
+    ],
+    [
+     179589.116,
+     576240.106
+    ]
+   ],
+   "length_m": 1.033,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 23,
+   "area_m2": 3.719,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.221
+  },
+  {
+   "id": "BK-G6",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179588.301,
+     576238.087
+    ],
+    [
+     179588.729,
+     576239.148
+    ]
+   ],
+   "length_m": 1.144,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G11",
+     "s0": 0.513,
+     "s1": 1.144,
+     "z0": 1.5,
+     "z1": 2.3,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 10,
+   "blocksCut": 23,
+   "area_m2": 3.614,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G7",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179589.084,
+     576237.648
+    ],
+    [
+     179588.638,
+     576237.828
+    ]
+   ],
+   "length_m": 0.481,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.732,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G8",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.212,
+     576238.966
+    ],
+    [
+     179592.754,
+     576240.309
+    ]
+   ],
+   "length_m": 1.448,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 21,
+   "blocksCut": 24,
+   "area_m2": 5.213,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.102
+  },
+  {
+   "id": "BK-G9",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179593.745,
+     576239.666
+    ],
+    [
+     179592.836,
+     576240.033
+    ]
+   ],
+   "length_m": 0.98,
+   "thickness_m": 0.45,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G04",
+     "s0": 0.01,
+     "s1": 0.97,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 5,
+   "blocksCut": 28,
+   "area_m2": 1.512,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.45
+  },
+  {
+   "id": "BK-G10",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179595.017,
+     576239.341
+    ],
+    [
+     179593.81,
+     576239.828
+    ]
+   ],
+   "length_m": 1.301,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 21,
+   "blocksCut": 24,
+   "area_m2": 4.684,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G11",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.137,
+     576239.183
+    ],
+    [
+     179591.414,
+     576239.476
+    ]
+   ],
+   "length_m": 0.78,
+   "thickness_m": 0.348,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.808,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.348,
+   "note": "עובי 35 ס\"מ לא תואם לעוביי הקירות בתוכנית ([10, 22, 30, 45]) – לבדיקה"
+  },
+  {
+   "id": "BK-G12",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.193,
+     576239.377
+    ],
+    [
+     179592.18,
+     576241.822
+    ]
+   ],
+   "length_m": 2.637,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G03",
+     "s0": 0.843,
+     "s1": 1.803,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 27,
+   "blocksCut": 39,
+   "area_m2": 7.477,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G13",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.222,
+     576239.31
+    ],
+    [
+     179589.961,
+     576239.82
+    ]
+   ],
+   "length_m": 1.36,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 21,
+   "blocksCut": 24,
+   "area_m2": 4.896,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.102
+  },
+  {
+   "id": "BK-G14",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179590.345,
+     576237.139
+    ],
+    [
+     179589.084,
+     576237.648
+    ]
+   ],
+   "length_m": 1.36,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 21,
+   "blocksCut": 24,
+   "area_m2": 4.896,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G15",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.146,
+     576238.937
+    ],
+    [
+     179591.222,
+     576239.31
+    ]
+   ],
+   "length_m": 0.996,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G06",
+     "s0": 0.111,
+     "s1": 0.871,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 5,
+   "blocksCut": 32,
+   "area_m2": 1.99,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.102
+  },
+  {
+   "id": "BK-G16",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.269,
+     576236.766
+    ],
+    [
+     179590.345,
+     576237.139
+    ]
+   ],
+   "length_m": 0.996,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 23,
+   "area_m2": 3.586,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G17",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.357,
+     576236.851
+    ],
+    [
+     179592.211,
+     576238.966
+    ]
+   ],
+   "length_m": 2.281,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 42,
+   "blocksCut": 25,
+   "area_m2": 8.212,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G18",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179593.346,
+     576235.928
+    ],
+    [
+     179591.269,
+     576236.767
+    ]
+   ],
+   "length_m": 2.24,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G14",
+     "s0": 0.61,
+     "s1": 1.92,
+     "z0": 0.8,
+     "z1": 3.25,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 42,
+   "area_m2": 4.855,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.222
+  },
+  {
+   "id": "BK-G19",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179594.964,
+     576236.052
+    ],
+    [
+     179595.832,
+     576238.203
+    ]
+   ],
+   "length_m": 2.32,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 42,
+   "blocksCut": 25,
+   "area_m2": 8.352,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.101
+  },
+  {
+   "id": "BK-G20",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179594.644,
+     576235.403
+    ],
+    [
+     179593.92,
+     576235.696
+    ]
+   ],
+   "length_m": 0.78,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.808,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G21",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.672,
+     576249.436
+    ],
+    [
+     179593.376,
+     576251.18
+    ]
+   ],
+   "length_m": 1.881,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 35,
+   "blocksCut": 25,
+   "area_m2": 6.772,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.228
+  },
+  {
+   "id": "BK-G22",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.147,
+     576248.1
+    ],
+    [
+     179592.419,
+     576248.774
+    ]
+   ],
+   "length_m": 0.727,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.617,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.203
+  },
+  {
+   "id": "BK-G23",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179593.512,
+     576247.603
+    ],
+    [
+     179592.26,
+     576248.108
+    ]
+   ],
+   "length_m": 1.35,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G05",
+     "s0": 0.0,
+     "s1": 0.751,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 29,
+   "area_m2": 3.283,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.099
+  },
+  {
+   "id": "BK-G24",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.82,
+     576247.313
+    ],
+    [
+     179592.139,
+     576248.103
+    ]
+   ],
+   "length_m": 0.852,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G13",
+     "s0": 0.011,
+     "s1": 0.671,
+     "z0": 1.5,
+     "z1": 2.3,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 5,
+   "blocksCut": 25,
+   "area_m2": 2.539,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.222
+  },
+  {
+   "id": "BK-G25",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179591.39,
+     576246.251
+    ],
+    [
+     179591.82,
+     576247.313
+    ]
+   ],
+   "length_m": 1.146,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 23,
+   "area_m2": 4.126,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G26",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179592.325,
+     576245.768
+    ],
+    [
+     179591.252,
+     576246.201
+    ]
+   ],
+   "length_m": 1.157,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 23,
+   "area_m2": 4.165,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.196
+  },
+  {
+   "id": "BK-G27",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179595.68,
+     576250.373
+    ],
+    [
+     179593.794,
+     576251.134
+    ]
+   ],
+   "length_m": 2.034,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 35,
+   "blocksCut": 25,
+   "area_m2": 7.322,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G28",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179595.461,
+     576249.695
+    ],
+    [
+     179595.768,
+     576250.456
+    ]
+   ],
+   "length_m": 0.82,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.952,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.101
+  },
+  {
+   "id": "BK-G29",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179596.596,
+     576249.959
+    ],
+    [
+     179595.758,
+     576250.297
+    ]
+   ],
+   "length_m": 0.904,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 14,
+   "blocksCut": 16,
+   "area_m2": 3.254,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.301
+  },
+  {
+   "id": "BK-G30",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179596.591,
+     576249.8
+    ],
+    [
+     179596.703,
+     576250.078
+    ]
+   ],
+   "length_m": 0.3,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 15,
+   "area_m2": 1.08,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.109
+  },
+  {
+   "id": "BK-G31",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179598.831,
+     576249.057
+    ],
+    [
+     179596.698,
+     576249.918
+    ]
+   ],
+   "length_m": 2.3,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G18",
+     "s0": 0.0,
+     "s1": 2.291,
+     "z0": 0.0,
+     "z1": 2.8,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 6,
+   "blocksCut": 19,
+   "area_m2": 1.865,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.3
+  },
+  {
+   "id": "BK-G32",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179598.474,
+     576247.68
+    ],
+    [
+     179598.942,
+     576248.84
+    ]
+   ],
+   "length_m": 1.251,
+   "thickness_m": 0.35,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G19",
+     "s0": 0.23,
+     "s1": 1.251,
+     "z0": -0.0,
+     "z1": 2.85,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 3,
+   "blocksCut": 18,
+   "area_m2": 1.594,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.35,
+   "note": "עובי 35 ס\"מ לא תואם לעוביי הקירות בתוכנית ([10, 22, 30, 45]) – לבדיקה"
+  },
+  {
+   "id": "BK-G33",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179597.807,
+     576246.226
+    ],
+    [
+     179598.405,
+     576247.708
+    ]
+   ],
+   "length_m": 1.598,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 28,
+   "blocksCut": 24,
+   "area_m2": 5.753,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.201
+  },
+  {
+   "id": "BK-G34",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179598.014,
+     576246.072
+    ],
+    [
+     179597.689,
+     576246.203
+    ]
+   ],
+   "length_m": 0.35,
+   "thickness_m": 0.131,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.26,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.131,
+   "note": "עובי 13 ס\"מ לא תואם לעוביי הקירות בתוכנית ([10, 22, 30, 45]) – לבדיקה"
+  },
+  {
+   "id": "BK-G35",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179600.121,
+     576244.96
+    ],
+    [
+     179597.773,
+     576245.909
+    ]
+   ],
+   "length_m": 2.533,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G17",
+     "s0": 0.02,
+     "s1": 1.7,
+     "z0": 0.4,
+     "z1": 2.79,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 19,
+   "blocksCut": 41,
+   "area_m2": 5.104,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.308
+  },
+  {
+   "id": "BK-G36",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179606.185,
+     576242.508
+    ],
+    [
+     179601.437,
+     576244.425
+    ]
+   ],
+   "length_m": 5.12,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G16",
+     "s0": 0.061,
+     "s1": 5.061,
+     "z0": 0.0,
+     "z1": 3.35,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 44,
+   "area_m2": 1.682,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.3
+  },
+  {
+   "id": "BK-G37",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179604.192,
+     576235.17
+    ],
+    [
+     179605.81,
+     576239.177
+    ]
+   ],
+   "length_m": 4.321,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G20",
+     "s0": 0.03,
+     "s1": 1.34,
+     "z0": 1.1,
+     "z1": 3.65,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 69,
+   "blocksCut": 41,
+   "area_m2": 12.215,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.3
+  },
+  {
+   "id": "BK-G38",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179600.466,
+     576234.69
+    ],
+    [
+     179600.949,
+     576235.887
+    ]
+   ],
+   "length_m": 1.291,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 21,
+   "blocksCut": 24,
+   "area_m2": 4.648,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.202
+  },
+  {
+   "id": "BK-G39",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179598.411,
+     576235.391
+    ],
+    [
+     179597.971,
+     576235.568
+    ]
+   ],
+   "length_m": 0.474,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.706,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G40",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179600.044,
+     576234.731
+    ],
+    [
+     179598.411,
+     576235.391
+    ]
+   ],
+   "length_m": 1.761,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G01",
+     "s0": 0.41,
+     "s1": 1.761,
+     "z0": 0.0,
+     "z1": 2.1,
+     "shutter": false
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 10,
+   "blocksCut": 24,
+   "area_m2": 3.502,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G41",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179603.306,
+     576235.043
+    ],
+    [
+     179601.365,
+     576235.826
+    ]
+   ],
+   "length_m": 2.094,
+   "thickness_m": 0.22,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 35,
+   "blocksCut": 25,
+   "area_m2": 7.538,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-G42",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179597.211,
+     576234.323
+    ],
+    [
+     179596.069,
+     576234.784
+    ]
+   ],
+   "length_m": 1.231,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G15",
+     "s0": 0.0,
+     "s1": 1.231,
+     "z0": 1.1,
+     "z1": 3.65,
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 8,
+   "blocksCut": 7,
+   "area_m2": 1.293,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.302
+  },
+  {
+   "id": "BK-G43",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179596.876,
+     576237.901
+    ],
+    [
+     179597.134,
+     576238.54
+    ]
+   ],
+   "length_m": 0.689,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.48,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G44",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179600.906,
+     576236.076
+    ],
+    [
+     179600.544,
+     576236.222
+    ]
+   ],
+   "length_m": 0.391,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.5,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.427,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G45",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179596.299,
+     576240.224
+    ],
+    [
+     179595.614,
+     576240.5
+    ]
+   ],
+   "length_m": 0.739,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 7,
+   "blocksCut": 23,
+   "area_m2": 2.66,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G46",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179594.544,
+     576247.362
+    ],
+    [
+     179595.173,
+     576248.919
+    ]
+   ],
+   "length_m": 1.68,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 28,
+   "blocksCut": 24,
+   "area_m2": 6.048,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-G47",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179593.72,
+     576245.322
+    ],
+    [
+     179594.462,
+     576247.158
+    ]
+   ],
+   "length_m": 1.98,
+   "thickness_m": 0.1,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [],
+   "courses": 15,
+   "blocksFull": 35,
+   "blocksCut": 25,
+   "area_m2": 7.128,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F48",
+   "floor": "first",
+   "axisITM": [
+    [
+     179598.443,
+     576242.753
+    ],
+    [
+     179599.387,
+     576245.091
+    ]
+   ],
+   "length_m": 2.521,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 39,
+   "blocksCut": 21,
+   "area_m2": 7.437,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F49",
+   "floor": "first",
+   "axisITM": [
+    [
+     179592.503,
+     576245.582
+    ],
+    [
+     179592.23,
+     576245.692
+    ]
+   ],
+   "length_m": 0.295,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 12,
+   "area_m2": 0.87,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F50",
+   "floor": "first",
+   "axisITM": [
+    [
+     179592.984,
+     576245.388
+    ],
+    [
+     179592.503,
+     576245.582
+    ]
+   ],
+   "length_m": 0.519,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 18,
+   "area_m2": 1.531,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F51",
+   "floor": "first",
+   "axisITM": [
+    [
+     179594.1,
+     576244.749
+    ],
+    [
+     179593.033,
+     576245.18
+    ]
+   ],
+   "length_m": 1.15,
+   "thickness_m": 0.45,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F05",
+     "s0": 0.29,
+     "s1": 1.15,
+     "z0": 3.85,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 2,
+   "blocksCut": 15,
+   "area_m2": 1.587,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.45
+  },
+  {
+   "id": "BK-F52",
+   "floor": "first",
+   "axisITM": [
+    [
+     179592.109,
+     576245.426
+    ],
+    [
+     179591.905,
+     576245.509
+    ]
+   ],
+   "length_m": 0.22,
+   "thickness_m": 0.22,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 12,
+   "area_m2": 0.649,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.215
+  },
+  {
+   "id": "BK-F53",
+   "floor": "first",
+   "axisITM": [
+    [
+     179591.505,
+     576244.225
+    ],
+    [
+     179591.966,
+     576245.368
+    ]
+   ],
+   "length_m": 1.233,
+   "thickness_m": 0.22,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F01",
+     "s0": 0.821,
+     "s1": 1.233,
+     "z0": 5.15,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 13,
+   "blocksCut": 19,
+   "area_m2": 3.308,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-F54",
+   "floor": "first",
+   "axisITM": [
+    [
+     179591.35,
+     576243.841
+    ],
+    [
+     179591.505,
+     576244.225
+    ]
+   ],
+   "length_m": 0.414,
+   "thickness_m": 0.22,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 18,
+   "area_m2": 1.221,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-F55",
+   "floor": "first",
+   "axisITM": [
+    [
+     179590.563,
+     576241.893
+    ],
+    [
+     179590.842,
+     576242.582
+    ]
+   ],
+   "length_m": 0.744,
+   "thickness_m": 0.22,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F02",
+     "s0": 0.138,
+     "s1": 0.744,
+     "z0": 5.15,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 4,
+   "blocksCut": 16,
+   "area_m2": 1.71,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.22
+  },
+  {
+   "id": "BK-F56",
+   "floor": "first",
+   "axisITM": [
+    [
+     179590.702,
+     576241.781
+    ],
+    [
+     179590.442,
+     576241.886
+    ]
+   ],
+   "length_m": 0.281,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 12,
+   "area_m2": 0.829,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.102
+  },
+  {
+   "id": "BK-F57",
+   "floor": "first",
+   "axisITM": [
+    [
+     179589.722,
+     576239.808
+    ],
+    [
+     179590.525,
+     576241.798
+    ]
+   ],
+   "length_m": 2.146,
+   "thickness_m": 0.22,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 33,
+   "blocksCut": 21,
+   "area_m2": 6.331,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.221
+  },
+  {
+   "id": "BK-F58",
+   "floor": "first",
+   "axisITM": [
+    [
+     179593.285,
+     576243.004
+    ],
+    [
+     179591.489,
+     576243.729
+    ]
+   ],
+   "length_m": 1.937,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 28,
+   "blocksCut": 20,
+   "area_m2": 5.714,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F59",
+   "floor": "first",
+   "axisITM": [
+    [
+     179591.573,
+     576241.429
+    ],
+    [
+     179590.702,
+     576241.781
+    ]
+   ],
+   "length_m": 0.939,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 11,
+   "blocksCut": 19,
+   "area_m2": 2.77,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F60",
+   "floor": "first",
+   "axisITM": [
+    [
+     179592.564,
+     576241.218
+    ],
+    [
+     179591.638,
+     576241.591
+    ]
+   ],
+   "length_m": 0.998,
+   "thickness_m": 0.45,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F06",
+     "s0": 0.128,
+     "s1": 0.988,
+     "z0": 3.85,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 2,
+   "blocksCut": 24,
+   "area_m2": 1.138,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.45
+  },
+  {
+   "id": "BK-F61",
+   "floor": "first",
+   "axisITM": [
+    [
+     179592.527,
+     576240.99
+    ],
+    [
+     179593.968,
+     576244.56
+    ]
+   ],
+   "length_m": 3.85,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 61,
+   "blocksCut": 23,
+   "area_m2": 11.358,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.103
+  },
+  {
+   "id": "BK-F62",
+   "floor": "first",
+   "axisITM": [
+    [
+     179597.673,
+     576241.911
+    ],
+    [
+     179593.616,
+     576243.549
+    ]
+   ],
+   "length_m": 4.375,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 72,
+   "blocksCut": 24,
+   "area_m2": 12.906,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.101
+  },
+  {
+   "id": "BK-F63",
+   "floor": "first",
+   "axisITM": [
+    [
+     179597.862,
+     576241.78
+    ],
+    [
+     179598.281,
+     576242.818
+    ]
+   ],
+   "length_m": 1.12,
+   "thickness_m": 0.45,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F07",
+     "s0": 0.22,
+     "s1": 1.08,
+     "z0": 3.85,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 2,
+   "blocksCut": 24,
+   "area_m2": 1.498,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.449
+  },
+  {
+   "id": "BK-F64",
+   "floor": "first",
+   "axisITM": [
+    [
+     179597.488,
+     576240.853
+    ],
+    [
+     179597.818,
+     576241.669
+    ]
+   ],
+   "length_m": 0.88,
+   "thickness_m": 0.45,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "F08",
+     "s0": 0.011,
+     "s1": 0.871,
+     "z0": 3.85,
+     "z1": 5.95,
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 1,
+   "blocksCut": 23,
+   "area_m2": 0.79,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.449
+  },
+  {
+   "id": "BK-F65",
+   "floor": "first",
+   "axisITM": [
+    [
+     179596.696,
+     576238.425
+    ],
+    [
+     179597.65,
+     576240.788
+    ]
+   ],
+   "length_m": 2.548,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 39,
+   "blocksCut": 21,
+   "area_m2": 7.517,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  },
+  {
+   "id": "BK-F66",
+   "floor": "first",
+   "axisITM": [
+    [
+     179596.753,
+     576237.949
+    ],
+    [
+     179596.91,
+     576238.338
+    ]
+   ],
+   "length_m": 0.419,
+   "thickness_m": 0.359,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 18,
+   "area_m2": 1.236,
+   "status": "approx",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.359,
+   "note": "עובי 36 ס\"מ לא תואם לעוביי הקירות בתוכנית ([10, 22, 30, 45]) – לבדיקה"
+  },
+  {
+   "id": "BK-F67",
+   "floor": "first",
+   "axisITM": [
+    [
+     179594.474,
+     576245.81
+    ],
+    [
+     179594.913,
+     576246.898
+    ]
+   ],
+   "length_m": 1.173,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 11,
+   "blocksCut": 19,
+   "area_m2": 3.46,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.101
+  },
+  {
+   "id": "BK-F68",
+   "floor": "first",
+   "axisITM": [
+    [
+     179600.907,
+     576236.077
+    ],
+    [
+     179598.755,
+     576236.946
+    ]
+   ],
+   "length_m": 2.321,
+   "thickness_m": 0.1,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [],
+   "courses": 12,
+   "blocksFull": 33,
+   "blocksCut": 21,
+   "area_m2": 6.847,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "drawnThickness_m": 0.1
+  }
+ ],
+ "shutterBoxes": [
+  {
+   "opening": "G14",
+   "floor": "ground",
+   "width_m": 1.31,
+   "headRel": 3.25,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - ח_ שינה קרקע-1069676-חזית דרומית"
+  },
+  {
+   "opening": "G15",
+   "floor": "ground",
+   "width_m": 1.31,
+   "headRel": 3.65,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - מדרגות 2-1071027-חזית דרומית"
+  },
+  {
+   "opening": "G16",
+   "floor": "ground",
+   "width_m": 5.0,
+   "headRel": 3.35,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: ויטרינה תלת כנפית _ תריס - סלון-909893-חתך א-א"
+  },
+  {
+   "opening": "G17",
+   "floor": "ground",
+   "width_m": 1.68,
+   "headRel": 2.79,
+   "box_m": 0.35,
+   "frameTop_m": 0.04,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - פינת אוכל_מטבח-910150-חתך א-א"
+  },
+  {
+   "opening": "G18",
+   "floor": "ground",
+   "width_m": 2.3,
+   "headRel": 2.8,
+   "box_m": 0.3,
+   "frameTop_m": null,
+   "status": "approx",
+   "source": "כמו F03 (אותו סוג משפחה) – אין חתך / חזית למשפחה בגרמושקה"
+  },
+  {
+   "opening": "G19",
+   "floor": "ground",
+   "width_m": 1.06,
+   "headRel": 2.85,
+   "box_m": 0.39,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - יחידת הורים 2-1111972-חתך ב-ב"
+  },
+  {
+   "opening": "G20",
+   "floor": "ground",
+   "width_m": 1.31,
+   "headRel": 3.65,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - מדרגות 2-961565-חזית מזרחית"
+  },
+  {
+   "opening": "F03",
+   "floor": "first",
+   "width_m": 1.7,
+   "headRel": 6.45,
+   "box_m": 0.3,
+   "frameTop_m": 0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: ויטרינה דו כנפית _ גלילה - ח_ שינה קומה א-919626-חתך א-א"
+  },
+  {
+   "opening": "F04",
+   "floor": "first",
+   "width_m": 1.7,
+   "headRel": 6.45,
+   "box_m": 0.3,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: ויטרינה דו כנפית _ גלילה - ח_ שינה קומה א-1070952-חזית דרומית"
+  },
+  {
+   "opening": "F09",
+   "floor": "first",
+   "width_m": 1.31,
+   "headRel": 6.6,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - מדרגות 2-961650-חזית מזרחית"
+  },
+  {
+   "opening": "F10",
+   "floor": "first",
+   "width_m": 5.0,
+   "headRel": 6.3,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: ויטרינה תלת כנפית _ תריס - חלל עולה קומה א-943972-חתך א-א"
+  },
+  {
+   "opening": "F11",
+   "floor": "first",
+   "width_m": 1.31,
+   "headRel": 6.6,
+   "box_m": 0.35,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg: חלון חד כנפי  _ גלילה - מדרגות 2-1071027-חזית דרומית"
+  }
+ ],
+ "outsideWalls": {
+  "items": [
+   {
+    "floor": "ground",
+    "axisITM": [
+     [
+      179598.157,
+      576230.07
+     ],
+     [
+      179597.671,
+      576230.266
+     ]
+    ],
+    "length_m": 0.523,
+    "thickness_m": 0.117
+   },
+   {
+    "floor": "ground",
+    "axisITM": [
+     [
+      179598.658,
+      576229.781
+     ],
+     [
+      179598.998,
+      576230.624
+     ]
+    ],
+    "length_m": 0.909,
+    "thickness_m": 0.106
+   },
+   {
+    "floor": "ground",
+    "axisITM": [
+     [
+      179605.582,
+      576228.074
+     ],
+     [
+      179604.567,
+      576228.483
+     ]
+    ],
+    "length_m": 1.094,
+    "thickness_m": 0.2
+   },
+   {
+    "floor": "ground",
+    "axisITM": [
+     [
+      179588.335,
+      576243.333
+     ],
+     [
+      179587.519,
+      576243.662
+     ]
+    ],
+    "length_m": 0.879,
+    "thickness_m": 0.2
+   },
+   {
+    "floor": "ground",
+    "axisITM": [
+     [
+      179587.586,
+      576241.479
+     ],
+     [
+      179586.81,
+      576241.792
+     ]
+    ],
+    "length_m": 0.837,
+    "thickness_m": 0.2
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179600.532,
+      576244.855
+     ],
+     [
+      179597.942,
+      576245.901
+     ]
+    ],
+    "length_m": 2.793,
+    "thickness_m": 0.182
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179599.456,
+      576245.127
+     ],
+     [
+      179597.886,
+      576245.761
+     ]
+    ],
+    "length_m": 1.693,
+    "thickness_m": 0.119
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179600.454,
+      576244.714
+     ],
+     [
+      179599.452,
+      576245.119
+     ]
+    ],
+    "length_m": 1.08,
+    "thickness_m": 0.101
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179592.192,
+      576245.927
+     ],
+     [
+      179592.907,
+      576247.697
+     ]
+    ],
+    "length_m": 1.909,
+    "thickness_m": 0.22
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179589.838,
+      576239.641
+     ],
+     [
+      179589.578,
+      576239.746
+     ]
+    ],
+    "length_m": 0.281,
+    "thickness_m": 0.222
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179591.636,
+      576238.914
+     ],
+     [
+      179589.838,
+      576239.64
+     ]
+    ],
+    "length_m": 1.939,
+    "thickness_m": 0.22
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179591.698,
+      576238.771
+     ],
+     [
+      179592.278,
+      576240.208
+     ]
+    ],
+    "length_m": 1.55,
+    "thickness_m": 0.222
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179594.509,
+      576239.145
+     ],
+     [
+      179592.325,
+      576240.027
+     ]
+    ],
+    "length_m": 2.356,
+    "thickness_m": 0.3
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179596.093,
+      576238.344
+     ],
+     [
+      179596.206,
+      576238.622
+     ]
+    ],
+    "length_m": 0.3,
+    "thickness_m": 0.259
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179596.688,
+      576238.266
+     ],
+     [
+      179596.27,
+      576238.435
+     ]
+    ],
+    "length_m": 0.451,
+    "thickness_m": 0.301
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179595.01,
+      576247.002
+     ],
+     [
+      179594.556,
+      576247.185
+     ]
+    ],
+    "length_m": 0.49,
+    "thickness_m": 0.266
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179597.873,
+      576245.865
+     ],
+     [
+      179595.017,
+      576247.018
+     ]
+    ],
+    "length_m": 3.081,
+    "thickness_m": 0.3
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179606.185,
+      576242.509
+     ],
+     [
+      179601.437,
+      576244.426
+     ]
+    ],
+    "length_m": 5.12,
+    "thickness_m": 0.3
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179604.19,
+      576235.171
+     ],
+     [
+      179605.808,
+      576239.178
+     ]
+    ],
+    "length_m": 4.322,
+    "thickness_m": 0.3
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179600.466,
+      576234.684
+     ],
+     [
+      179600.952,
+      576235.887
+     ]
+    ],
+    "length_m": 1.297,
+    "thickness_m": 0.213
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179600.045,
+      576234.739
+     ],
+     [
+      179598.17,
+      576235.496
+     ]
+    ],
+    "length_m": 2.023,
+    "thickness_m": 0.207
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179603.306,
+      576235.044
+     ],
+     [
+      179601.365,
+      576235.828
+     ]
+    ],
+    "length_m": 2.093,
+    "thickness_m": 0.22
+   },
+   {
+    "floor": "first",
+    "axisITM": [
+     [
+      179597.211,
+      576234.324
+     ],
+     [
+      179596.07,
+      576234.784
+     ]
+    ],
+    "length_m": 1.231,
+    "thickness_m": 0.3
+   }
+  ],
+  "note": "קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו"
+ },
+ "dominantThickness_cm": [
+  10,
+  22,
+  30,
+  45
+ ],
+ "quantities": {
+  "unit": {
+   "t22_cut": 7,
+   "t22_full": 13,
+   "t22_m2": 2.5
+  },
+  "ground": {
+   "t10_cut": 400,
+   "t10_full": 284,
+   "t10_m2": 71.49,
+   "t13_cut": 22,
+   "t13_full": 0,
+   "t13_m2": 1.26,
+   "t22_cut": 512,
+   "t22_full": 304,
+   "t22_m2": 83.81,
+   "t30_cut": 168,
+   "t30_full": 116,
+   "t30_m2": 25.41,
+   "t35_cut": 41,
+   "t35_full": 10,
+   "t35_m2": 4.4,
+   "t45_cut": 28,
+   "t45_full": 5,
+   "t45_m2": 1.51
+  },
+  "first": {
+   "t10_cut": 210,
+   "t10_full": 294,
+   "t10_m2": 61.24,
+   "t22_cut": 86,
+   "t22_full": 50,
+   "t22_m2": 13.22,
+   "t36_cut": 18,
+   "t36_full": 0,
+   "t36_m2": 1.24,
+   "t45_cut": 86,
+   "t45_full": 7,
+   "t45_m2": 5.01
+  }
+ }
+}

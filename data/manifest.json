@@ -42,6 +42,8 @@
   "envSheet04": "data/environment/sheet04.json",
   "envDetails": "data/environment/details.json",
   "rebar": "data/structure/rebar.json",
+  "blocks": "data/architecture/blocks.json",
+  "blocksCfg": "data/config/blocks.json",
   "plumbing": "data/plumbing/network.json",
   "plumbingCatalog": "data/plumbing/catalog.json",
   "plumbingDisplay": "data/plumbing/display.json",

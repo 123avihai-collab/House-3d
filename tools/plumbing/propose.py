@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from proposal_common import *
 import georef as G
 from georef_basement_sketch import fit as sketch_fit, SKETCH
+import propose_site
 
 r3 = lambda v: round(float(v), 3)
 I = J('tools/plumbing/proposal-inputs.json')
@@ -424,6 +425,8 @@ def main():
            'recircPump': {'E': r3(htr['E'] + 0.25), 'N': r3(htr['N']), 'H': r3(zr + 0.25), 'title': 'משאבת סחרור + אל-חוזר + ברז ניתוק (פרט הסחרור של היועץ)'},
            'summary': {'runs': len(runs), 'pex_m': r3(sum(r['length_m'] for r in runs)), 'points': len(pt_out), 'sleeves': len(sleeves),
                        'stacksMoved': sum(1 for s in SM if s.get('status') == 'proposal')}}
+    out['site'] = propose_site.build()
+    out['summary']['site'] = {'chambers': len(out['site']['chamberRaise']), 'drops': len(out['site']['drops']), 'hoseReel': 1, 'meterConn': 2}
     json.dump(out, open(os.path.join(ROOT, 'data/plumbing/proposal.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(json.dumps(out['summary'], ensure_ascii=False)); print('superseded', sup)
     for m in mans: print(m['id'], m['E'], m['N'], len(m['outlets']['cold']), len(m['outlets']['hot']))

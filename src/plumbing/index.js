@@ -278,15 +278,29 @@ export function buildPlumbing(ctx) {
         if (h != null) { const p = P3(n, h); grp.add(collar(p, new THREE.Vector3(1, 0, 0), 0.03, 0.06, brass)); for (const d of [[1, 0, 0], [-1, 0, 0], [0, 0, 1]]) grp.add(hexNut(p.clone().addScaledVector(new THREE.Vector3(...d), 0.04), new THREE.Vector3(...d), 0.045, 0.02, brass)); }
         floor = 'site'; break;
       }
-      case 'waterMeter': {
+      case 'waterMeter': {      // per the consultant's detail "מע' מדידת מים": niche in the boundary wall, risers in PVC ø4" sleeves
         layer = 'plCold'; sys = 'cold'; floor = 'site';
-        const f = C.fixtures.waterMeter; const H = groundAt(n.E, n.N) - 0.35;
-        const p = P3(n, H);
-        grp.add(box(p, f.body_m[0], f.body_m[1], f.body_m[2], mat('meter', () => std('#2c5aa0', 0.4, 0.2))));
-        grp.add(disk(p.clone().add(new THREE.Vector3(0, f.body_m[1] / 2, 0)), 0.045, 0.012, mat('glass', () => std('#dfe8f2', 0.1, 0.1, { transparent: true, opacity: 0.7 }))));
-        for (const s of [-1, 1]) { const q = p.clone().add(new THREE.Vector3(s * 0.2, 0, 0)); grp.add(collar(q, new THREE.Vector3(1, 0, 0), 0.025, 0.07, brass)); grp.add(box(q.clone().add(new THREE.Vector3(0, 0.05, 0)), 0.09, 0.012, 0.015, mat('lever', () => std('#d32f2f', 0.5)))); }
-        rows.push(['הרכב (לפי הפרט)', 'ברז אלכסוני 1" · מד מים 3/4" של התאגיד · אל-חוזר קלפה · ברז אלכסוני · ניפל מעבר 3/4"×1" · מעבר PEX לפלדה']);
-        rows.push(['מצב', 'מיקום לפי חץ ההערה בתוכנית; "נא לוודא מיקום טרם הביצוע"']);
+        const f = C.fixtures.waterMeter, d = n.detail; const g0 = groundAt(n.E, n.N), H = g0 + d.axisH_m;
+        const ax = new THREE.Vector3(d.axis[0], 0, -d.axis[1]).normalize(), back = new THREE.Vector3(d.back[0], 0, -d.back[1]).normalize();
+        const c = P3(n, H), half = f.assemblyLen_m / 2, mpex = pipeMat('PEX', 'cold', 'source');
+        const ends = [-1, 1].map(s => c.clone().addScaledVector(ax, s * half));
+        grp.add(cylBetween(ends[0], ends[1], 0.017, brass, 14));
+        grp.add(box(c, f.body_m[0], f.body_m[1], f.body_m[2], mat('meter', () => std('#2c5aa0', 0.4, 0.2)), Math.atan2(-ax.z, ax.x)));
+        grp.add(disk(c.clone().add(new THREE.Vector3(0, f.body_m[1] / 2, 0)), 0.045, 0.012, mat('glass', () => std('#dfe8f2', 0.1, 0.1, { transparent: true, opacity: 0.7 }))));
+        for (const [k, s] of [[0, -1], [1, 1]]) {
+          const v = c.clone().addScaledVector(ax, s * (half - 0.09));
+          grp.add(collar(v, ax, 0.024, 0.07, brass));                                                          // angle valve (ברז אלכסוני)
+          grp.add(box(v.clone().add(new THREE.Vector3(0, 0.05, 0)), 0.09, 0.012, 0.015, mat('lever', () => std('#d32f2f', 0.5)), Math.atan2(-ax.z, ax.x)));
+          const foot = P3(n, g0 - 0.5 - 0.016).addScaledVector(ax, s * half);                                   // to the depth of the consultant's lines
+          grp.add(cylBetween(foot, ends[k], 0.016, k ? mpex : steel, 14));
+          grp.add(cylBetween(P3(n, g0 - 0.30).addScaledVector(ax, s * half), P3(n, g0 + d.sleeveTop_m).addScaledVector(ax, s * half), d.sleeve_mm / 2000, mat('pvcSleeve', () => std('#9e9e9e', 0.6, 0, { transparent: true, opacity: 0.55 })), 18, true));
+        }
+        grp.add(collar(c.clone().addScaledVector(ax, half - 0.17), ax, 0.022, 0.06, mat('check', () => std('#5c6b73', 0.4, 0.6))));    // check valve
+        const nb = P3(n, g0 + d.nicheH_m / 2).addScaledVector(back, 0.14);
+        grp.add(box(nb, d.nicheW_m + 0.2, d.nicheH_m + 0.1, 0.06, concrete, Math.atan2(-ax.z, ax.x)));         // back of the niche
+        rows.push(['הרכב (לפי הפרט)', 'עולה מהקו העירוני בשרוול PVC ø4" · ברז אלכסוני 1" · מד מים 3/4" של התאגיד · אל-חוזר קלפה · ברז אלכסוני 1" · מעבר פלדה ל-PEX ø32 יורד בשרוול']);
+        rows.push(['גובה', `ציר המונה ${d.axisH_m.toFixed(2)} מעל הפיתוח, גומחה ${Math.round(d.nicheW_m * 100)} ס"מ (לפי מידות הפרט; הפרט לא בקנה מידה)`]);
+        rows.push(['מצב', 'מיקום לפי חץ ההערה בתוכנית; "נא לוודא מיקום טרם הביצוע". הקטעים אל קצה ההכנה ואל תחילת הקו – בהצעה']);
         break;
       }
       case 'meterOutlet': case 'kitchenPoint': case 'riser': case 'gardenTap': case 'poolFill': {
@@ -427,7 +441,7 @@ export function buildPlumbing(ctx) {
   }
 
   // ---- design proposal (data/plumbing/proposal.json) – separate items, shown with the "with proposal" switch
-  const proposal = data.plumbingProposal ? buildProposal({ data, coords, scene, registry, C, D, H0, mat, std, pipeMat, pipe, label, add, odOf, brass, rubber, iron, steel, concrete, redCap, ground }) : null;
+  const proposal = data.plumbingProposal ? buildProposal({ data, coords, scene, registry, C, D, H0, mat, std, pipeMat, pipe, label, add, odOf, brass, rubber, iron, steel, concrete, redCap, ground, buildChamber }) : null;
   const superseded = new Set(proposal?.superseded || []);
 
   const api = {

@@ -36,7 +36,7 @@ export function buildPanel(app, pl) {
         pl.proposal ? h('div', { class: 'row plprop' }, h('b', {}, 'תצוגה: '),
           h('label', {}, h('input', { type: 'radio', name: 'plprop', checked: !s.proposal, onchange: () => set({ proposal: false }) }), 'לפי היועץ'),
           h('label', {}, h('input', { type: 'radio', name: 'plprop', checked: !!s.proposal, onchange: () => { set({ proposal: true }); app.store.set({ layers: { ...app.store.get().layers, plProposal: true } }, { label: 'plumbing' }); } }),
-            `עם ההצעה (${pl.proposal.summary.stacksMoved} קולטנים, ${pl.proposal.summary.points} נקודות, ${pl.proposal.summary.sleeves} מעברים)`)) : null,
+            `עם ההצעה (${pl.proposal.summary.stacksMoved} קולטנים, ${pl.proposal.summary.points} נקודות, ${pl.proposal.summary.sleeves} מעברים${pl.proposal.summary.site ? `; פיתוח: ${pl.proposal.summary.site.chambers} מכסים, ${pl.proposal.summary.site.drops} מפלים, גלגלון, חיבור מונה` : ''})`)) : null,
         h('div', { class: 'row plfl' }, h('b', {}, 'קומות: '), ...Object.entries(D.floors).map(([id, lbl]) =>
           h('label', {}, h('input', { type: 'checkbox', checked: floors[id] !== false, onchange: (e) => set({ floors: { ...floors, [id]: e.target.checked } }) }), lbl))),
         h('div', { class: 'btns' },

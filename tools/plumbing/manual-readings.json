@@ -123,7 +123,7 @@
    "D_mm": 75,
    "material": "PEX",
    "flowFrom": "PRG@ground",
-   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט המשאבה: 'יציאה לנק' נדרשת PEX ø50' – סתירה"
+   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט 'תא איסוף עם משאבה': HDPE Ø3\" – אותו קוטר, חומר שונה (PQ1)"
   },
   {
    "floor": "ground",
@@ -135,7 +135,7 @@
    "system": "pumped",
    "D_mm": 75,
    "material": "PEX",
-   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט המשאבה: PEX ø50 – סתירה"
+   "diameterRule": "תווית 'ø75 PEX' בתוכנית. בפרט 'תא איסוף עם משאבה': HDPE Ø3\" – אותו קוטר, חומר שונה (PQ1)"
   },
   {
    "floor": "unit",

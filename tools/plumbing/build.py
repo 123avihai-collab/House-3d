@@ -554,21 +554,27 @@ def findings(nodes, byid, runs, stacks, rainruns, wnodes, wruns, R, M):
     wall_t = {0.6: 0.08, 0.8: 0.10, 1.0: 0.12}
     for n in nodes:
         if n['cls'] != 'chamber' or n['id'] in ('S-0', 'PC-1'): continue
-        sp = sorted(R['spots'], key=lambda q: dist((q['E'], q['N']), (n['E'], n['N'])))[0]
-        if dist((sp['E'], sp['N']), (n['E'], n['N'])) < 3.5 and abs(sp['H'] - n['TL']) > 0.04:
-            add('major' if abs(sp['H'] - n['TL']) > 0.08 else 'minor', f'{n["id"]}: רום המכסה {n["TL"]:.2f} מול פיתוח {sp["H"]:.2f}',
-                f'הפרש {(n["TL"] - sp["H"]) * 100:+.0f} ס"מ מגובה הפיתוח הסמוך ({dist((sp["E"], sp["N"]), (n["E"], n["N"])):.1f} מ\' מהשוחה). המכסה צריך להיות בדיוק במפלס הריצוף.',
-                (n['E'], n['N'], n['TL']), [n['id']], f'טבעות הגבהה {abs(n["TL"] - sp["H"]) * 100:.0f} ס"מ' if sp['H'] > n['TL'] else 'הנמכת חוליית הראש', 'chamber')
+        fin = G.finish_level(R['spots'], lot, n['E'], n['N'])
+        if fin and (fin['H'] - n['TL'] > 0.04 or n['TL'] - fin['H'] > 0.04):
+            dH = fin['H'] - n['TL']; spots = ', '.join(f'{h:.2f} ({d:.1f} מ\')' for h, d in fin['spots'])
+            add('major' if abs(dH) > 0.08 else 'minor', f'{n["id"]}: רום המכסה {n["TL"]:.2f} מול פיתוח ~{fin["H"]:.2f}',
+                f'מפלסי הפיתוח ברקע התוכנית ליד השוחה: {spots}. מוערך במקום השוחה {fin["H"]:.2f} (טווח {fin["lo"]:.2f}–{fin["hi"]:.2f}; {fin["rule"]}). '
+                f'הפרש {-dH * 100:+.0f} ס"מ. המכסה צריך להיות בדיוק במפלס הריצוף.',
+                (n['E'], n['N'], n['TL']), [n['id']], (f'טבעות הגבהה כ-{dH * 100:.0f} ס"מ (בפועל לפי הריצוף)' if dH > 0 else 'הנמכת חוליית הראש') + ' – לאישורך', 'chamber')
         outer = n['D_m'] / 2 + wall_t.get(n['D_m'], 0.1)
         d = lot.exterior.distance(Point(n['E'], n['N']))
         if d < outer + 0.15:
             add('major', f'{n["id"]} צמודה לגבול המגרש', f'מרכז השוחה {d:.2f} מ\' מהגבול; רדיוס חיצוני של חוליה ø{n["D_m"] * 100:.0f} כ-{outer:.2f} מ\'. הדופן נוגעת בקו הגבול ובחומה ההיקפית וביסודה.',
                 (n['E'], n['N'], n['TL']), [n['id']], 'הזזת השוחה פנימה (≥0.3 מ\' מדופן החומה) – לאישורך', 'chamber')
     for r in runs:
-        if r.get('dropAtDownstream_m', 0) > 0.3:
-            c = byid[r['down']]
-            add('major', f'מפל {r["dropAtDownstream_m"]:.2f} מ\' בכניסה ל-{c["id"]}', f'{r["id"]} נכנס ל-{c["id"]} ב-{r["ILdown"]:.2f} והתחתית ב-{c["IL"]:.2f}. בתוכנית לא מסומן מפל.',
-                (c['E'], c['N'], r['ILdown']), [r['id'], c['id']], 'מפל חיצוני (הסתעפות + צינור אנכי + קשת) לפי ת"י 1205 – לאישורך', 'chamber')
+        c = byid.get(r['ends'][1])
+        if not c or c.get('cls') != 'chamber' or c['kind'] == 'pumpChamber' or r.get('ILdown') is None or r['ILdown'] - c['IL'] <= 0.3: continue
+        drop = r['ILdown'] - c['IL']; muni = c['kind'] == 'municipalManhole'
+        add('major' if not muni else 'minor', f'מפל {drop:.2f} מ\' בכניסה ל-{c["id"]}',
+            f'{r["id"]} נכנס ל-{c["id"]} ב-{r["ILdown"]:.2f} והתחתית ב-{c["IL"]:.2f}' + (' (מפלס הכניסה זמני)' if r.get('levelStatus') == 'provisional' else '') + '. בתוכנית לא מסומן מפל. '
+            'מפל חופשי של קרוב למטר בתוך שוחה שוחק את הבסיס והתיעול ומקשה על התחזוקה; הסף לדרישת מפל (לרוב 0.5–0.6 מ\') – לאמת מול היועץ / התאגיד.'
+            + (' זו שוחה עירונית: מיקום ושיפוע הניפל לפי תכנון תאגיד המים (הערה בפרופיל) – לא בהצעה.' if muni else ''),
+            (c['E'], c['N'], r['ILdown']), [r['id'], c['id']], None if muni else 'מפל חיצוני: הסתעפות, צינור אנכי בעטיפת בטון, 2×45° וכניסה בתחתית – בהצעה', 'chamber')
     # open ends / design ends
     for n in nodes + wnodes:
         if n['kind'] in ('openEnd', 'designEnd'):
@@ -576,8 +582,10 @@ def findings(nodes, byid, runs, stacks, rainruns, wnodes, wruns, R, M):
                 (n['E'], n['N'], H0 + (0.0 if n['floor'] in ('ground', 'site') else 3.85)), [n['id']], None, 'openEnd')
     for d in ('DPS1@ground', 'DPS2@ground', 'DPS3@ground'):
         n = byid[d]
-        add('major', f'מי גשם: {d} – אין המשך מהחיבור התחתון', 'צינור המי גשם יורד לפני הקרקע. אין בתוכנית צינור או יעד (בור חלחול / תעלה / רחוב). אסור לחבר לביוב.',
-            (n['E'], n['N'], H0), [d], 'קו ניקוז ø110 לבור החלחול בגינה הצפונית / לתעלת הניקוז – לאישורך', 'rain')
+        sl = next((x['id'] for x in J('data/structure/floor-ground.json')['slab'] if Polygon(x['footprintITM']).buffer(0).contains(Point(n['E'], n['N']))), None)
+        add('major', f'מי גשם: {d} – אין המשך מהחיבור התחתון', 'צינור המי גשם יורד לפני הקרקע. אין בתוכנית צינור או יעד (בור חלחול / תעלה / רחוב). אסור לחבר לביוב.'
+            + (f' החיבור התחתון יושב על התקרה התלויה {sl} (K-21): הקו יעבור דרך התקרה ומתחתיה, תלוי ועטוף בטון לפי פרט "עטיפת בטון" של היועץ, ויחצה קורות יסוד בשרוולים.' if sl else ''),
+            (n['E'], n['N'], H0), [d], 'קו ø110 ליעד שייקבע בהחלטה PR1 (בור החלחול סותר את דוח הקרקע)', 'rain')
     # stack offsets / vents
     for st in stacks:
         for nt in st['notes']:
@@ -599,8 +607,10 @@ def findings(nodes, byid, runs, stacks, rainruns, wnodes, wruns, R, M):
         'הערת היועץ "ריקון תא ביוב המנקז את קומת המרתף … משאבה טבולה" מתייחסת לתא שלא קיים בתוכנית.', (pc['E'] + 3, pc['N'] + 3, H0 - 2.6), ['PC-1'],
         'נדרש תכנון של היועץ: קבועות, תא שאיבה לשופכין עם משאבה (לא תא החצרות), אוורור – לאישורך', 'missing')
     hr = R['hoseReel']
-    add('minor', 'גלגלון כיבוי אש – אין קו הזנה משורטט', 'החץ של ההערה "גלגלון 3/4\" … אל חוזר כפול" מצביע על נקודה ליד החומה המערבית, 0.8 מ\' מקו המים הראשי; קו ההזנה לא משורטט.',
-        (hr[0], hr[1], H0), ['WATER'], 'הסתעפות ø25 מהקו הראשי עם אל-חוזר כפול לפי הפרט – לאישורך', 'water')
+    s2 = byid['S-2']
+    add('minor', 'גלגלון כיבוי אש – אין קו הזנה משורטט', 'החץ של ההערה "גלגלון 3/4\" … אל חוזר כפול" מצביע על נקודה ליד החומה המערבית, 0.9 מ\' מקו המים הראשי '
+        f'ו-{dist(hr, (s2["E"], s2["N"])):.2f} מ\' ממרכז שוחה 2 (בתוך קו החוליה החיצוני). קו ההזנה לא משורטט. לפי "פרט עקרוני עמדת כיבוי אש": ברז כדורי 1", אל-חוזר כפול 1", '
+        'גלגלון 3/4" רב-כיווני עם זרנוק 30 מ\'.', (hr[0], hr[1], H0), ['WATER', 'S-2'], 'הסתעפות 1" (PEX ø32) מהקו הראשי לפי הפרט, והזזת הגלגלון מעל השוחה – בהצעה', 'water')
     for t in [x for x in R['taps'] if x['floor'] == 'first']:
         add('minor', 'ברז גן במרפסת קומה א\' – אין קו הזנה', '"יש להתקין ברז גן לשירות במרפסת" – הנקודה מסומנת, הקו אליה לא.', (t['E'], t['N'], H0 + 3.85 + 0.6), ['WATER'], None, 'water')
     mig = (179586.361, 576235.702); m = byid.get('WM@site') or {'E': R['meter'][0], 'N': R['meter'][1]}
@@ -617,8 +627,55 @@ def findings(nodes, byid, runs, stacks, rainruns, wnodes, wruns, R, M):
     return F
 
 
+def site_findings(F, nodes, R):
+    """Chambers inside suspended slabs (K-21) and the soil report (sections 11.6, 11.7) vs the soak pit and the water outlets."""
+    import sys as _s; _s.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from proposal_common import beam_poly
+    def add(sev, title, text, at, ids, proposal, cat):
+        F.append({'id': f'F{len(F) + 1}', 'severity': sev, 'category': cat, 'title': title, 'text': text, 'at': [r3(at[0]), r3(at[1]), r3(at[2])],
+                  'elements': ids, 'proposal': proposal, 'status': 'finding'})
+    FG, FR, BAS, PI, POOL = (J(f'data/structure/{x}.json') for x in ('floor-ground', 'framing', 'basement', 'piles', 'pool'))
+    lot = Polygon(J('data/site/plot-5187.json')['ring'])
+    slabs = [(x['id'], Polygon(x['footprintITM']).buffer(0), x['topRel']) for x in FG['slab']]
+    byid = {n['id']: n for n in nodes}
+    GEO = 'sources/geotech/דוח קרקע וביסוס - רקפות מגרש 5187.pdf'
+    # 1. chambers inside a suspended slab, no opening in K-21
+    for n in nodes:
+        if n.get('kind') not in ('sewerChamber',): continue
+        for sid, P, top in slabs:
+            if P.contains(Point(n['E'], n['N'])) and not any(Polygon(h).contains(Point(n['E'], n['N'])) for x in FG['slab'] if x['id'] == sid for h in (x.get('holesITM') or [])):
+                add('major', f'{n["id"]} בתוך התקרה התלויה {sid}', f'מרכז השוחה בתוך קו התקרה {sid} (פני בטון {H0 + top:.2f}, K-21), {P.exterior.distance(Point(n["E"], n["N"])):.2f} מ\' מקצה התקרה; '
+                    f'ב-K-21 אין פתח לשוחה. החוליות עומדות על הקרקע מתחת לתקרה התלויה – בתזוזה של הקרקע המכסה והתקרה זזים בנפרד.',
+                    (n['E'], n['N'], n['TL']), [n['id'], sid], 'פתח בתקרה עם מסגרת מכסה יצוקה בתקרה, או הזזת השוחה אל מחוץ לתקרה – תיאום קונסטרוקטור ויועץ', 'chamber')
+    # 2. soak pit vs foundations (soil report 11.6)
+    sk = byid['SOAK@site']; p = Point(sk['E'], sk['N'])
+    fnd = [('קיר / קו מרתף', 'מרתף', Polygon(BAS['outlineITM']))] + [('כלונס', x['id'], Point(x['E'], x['N']).buffer(x['diameter_m'] / 2)) for x in PI['piles']] \
+        + [('קורת יסוד', b['id'], beam_poly(b)) for b in FR['groundBeams'] if b.get('axisITM')] + [('בריכה', 'מסגרת הגלישה', Polygon(POOL['gutter']['ringOuterITM']))]
+    near = sorted(((g.distance(p), k, i) for k, i, g in fnd), key=lambda z: z[0])
+    near = [z for z in near if z[0] < 3.0]
+    allf = unary_union([g for _, _, g in fnd])
+    ok = lot.buffer(-0.5).difference(allf.buffer(3.0)).difference(unary_union([P for _, P, _ in slabs]))
+    add('major', 'בור החלחול קרוב ליסודות – סותר את דוח הקרקע (11.6)', 'דוח הקרקע 11.6: "נדרש להרחיק את בורות הניקוז לפחות 3.0 מ\' מיסודות"; 11.7: פתחי מוצא של ניקוז (מי מרזבים) '
+        '"ימוקמו במרחק של 3 מטר לפחות מגבולות המבנה". הבור של היועץ: ' + ', '.join(f'{d:.2f} מ\' מ{k} {i}' for d, k, i in near[:4])
+        + f', {lot.exterior.distance(p):.2f} מ\' מגבול המגרש. נבדק כל המגרש: ' + ('אין מקום מחוץ לתקרות הבית שרחוק 3.0 מ\' מכל היסודות.' if ok.area < 0.5 else f'יש {ok.area:.1f} מ"ר שעומדים בזה.')
+        + ' הקוטר בתוכנית (ø0.59) תואם את 11.6 (ø60, חצץ בשק גאוטכני); עומק – לא כתוב בשום מקור.',
+        (sk['E'], sk['N'], sk['TL']), ['SOAK@site'] + [i for _, _, i in near[:3]], 'החלטה PR1: מיקום הבור / יעד אחר למי הגשם – אביחי, יועץ הקרקע והיועץ', 'rain')
+    # 3. water outlets within 3 m of the building (soil report 11.7) – basement outline as the building line below grade
+    bas = Polygon(BAS['outlineITM'])
+    close = []
+    for n in nodes:
+        if n.get('kind') in ('sewerChamber', 'pumpChamber', 'gardenTap', 'poolFill', 'downpipeShoe', 'soakawayPit') and n.get('floor') in ('site', 'ground', 'unit'):
+            d = 0.0 if bas.contains(Point(n['E'], n['N'])) else bas.exterior.distance(Point(n['E'], n['N']))
+            if d < 3.0: close.append((d, n['id']))
+    close.sort()
+    add('major', 'מוצאות מים פחות מ-3 מ\' מהמבנה (דוח הקרקע 11.7)', 'דוח הקרקע 11.7: "מוצאות מים כגון ברזים, שוחות ביוב, פתחי מוצא של ניקוז (מי מרזבים) … ימוקמו במרחק של 3 מטר לפחות '
+        'מגבולות המבנה" (הקרקע בעלת פוטנציאל תפיחה, 7.12). מרחק מקו המרתף: ' + ', '.join(f'{i} {d:.2f}' for d, i in close) + '. במגרש צפוף של 498 מ"ר אי אפשר לעמוד בזה בכל הפריטים.',
+        (bas.centroid.x, bas.centroid.y, H0 + 0.5), [i for _, i in close], 'לתאם עם יועץ הקרקע אילו פריטים חייבים לזוז ומה הפתרון לשאר (מכסים אטומים, בדיקת לחץ, ריצוף אטום 1.5 מ\' סביב – 11.3)', 'geotech')
+    F[-2]['source'] = F[-1]['source'] = GEO
+
+
 def export(nodes, runs, lines3d, F, R):
-    KEEP_N = ('id', 'kind', 'floor', 'E', 'N', 'title', 'status', 'source', 'D_m', 'TL', 'IL', 'H_m', 'stack', 'rotation_deg', 'block', 'gap_m')
+    KEEP_N = ('id', 'kind', 'floor', 'E', 'N', 'title', 'status', 'source', 'D_m', 'TL', 'IL', 'H_m', 'stack', 'rotation_deg', 'block', 'gap_m', 'detail')
     SYS = {'sewage': 'sewage', 'pumped': 'sewage', 'rain': 'drainage', 'cold': 'water', 'hot': 'water'}
     out_runs = []
     for r in runs:
@@ -662,6 +719,14 @@ def main():
                 n = {'id': m['node'], 'kind': m['kind'], 'cls': 'water', 'floor': 'roof', 'E': m['at'][0], 'N': m['at'][1], 'title': m['title'], 'status': m.get('status', 'source'), 'source': m['source']}
                 wn.append(n); wbyid[n['id']] = n
             r['ends'][k] = m['node']
+    # water meter per the consultant's detail "פרט מע' מדידת מים": axis 20+40 cm above grade, niche 80 cm, risers in PVC ø4" sleeves;
+    # assembly along the line municipal stub (UT-W) -> start of the main line (WJ7), niche on the boundary side
+    wm, wj = wbyid['WM@site'], wbyid['WJ7@ground']; utw = (179586.361, 576235.702)
+    ax = (wj['E'] - utw[0], wj['N'] - utw[1]); L_ = math.hypot(*ax); ax = (ax[0] / L_, ax[1] / L_)
+    bk = (ax[1], -ax[0])      # niche back: the solid side of the wall that runs from the street inwards (architect background, pituah)
+    wm['detail'] = {'axisH_m': 0.60, 'nicheW_m': 0.80, 'nicheH_m': 0.80, 'sleeve_mm': 110, 'sleeveTop_m': 0.20, 'axis': [r3(ax[0]), r3(ax[1])], 'back': [r3(bk[0]), r3(bk[1])],
+                    'source': f'{G.DETAILS} – פרט מע\' מדידת מים: מידות 20/40/20 ס"מ (ציר המונה 0.60 מעל הקרקע), גומחה 80, שרוול PVC ø4"; הפרט לא בקנה מידה. '
+                              'כיוון: לאורך הקו UT-W → WJ7, שמקביל לגומחה המשורטטת ברקע האדריכלי בקיר הניצב לרחוב'}
     sv = stacks_vertical(nodes, byid, runs, lvl, M)
     rr = rain(nodes, byid, M)
     allnodes = nodes + wn
@@ -687,6 +752,7 @@ def main():
     allnodes.append(soak)
     F.append({'id': f'F{len(F) + 1}', 'severity': 'major', 'category': 'rain', 'title': 'בור החלחול לא מחובר', 'text': 'בגינה הצפונית מסומן בור חלחול (פרט עקרוני בקובץ הפרטים) – אין אליו אף צינור.',
               'at': [soak['E'], soak['N'], soak['TL']], 'elements': ['SOAK@site', 'DP1', 'DP2', 'DP3'], 'proposal': 'לחבר אליו את צינורות המי גשם (DP1–DP3) בקו ø110 – לאישורך', 'status': 'finding'})
+    site_findings(F, allnodes, R)
     export(allnodes, runs + wr, sv + rr + [pump3d], F, R)
     os.makedirs(os.path.join(ROOT, 'tools/plumbing/cache'), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, 'tools/plumbing/cache/net.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

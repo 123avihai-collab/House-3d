@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { cylBetween, collar, hexNut, sphere, box } from './geom.js';
+import { cylBetween, collar, hexNut, sphere, box, seal, disk } from './geom.js';
 
 // Design proposal of the plumbing layer (data/plumbing/proposal.json, tools/plumbing/propose.py) – for approval.
 // Shaft, manifolds with a ball valve per outlet, PEX in sleeves to every point, insulated hot supply + recirculation,
@@ -20,14 +20,18 @@ export function buildProposal(h) {
   const glassM = mat('shaftGlass', () => std('#ffd54f', 0.6, 0, { transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide }));
   const propTag = (it) => { it.meta.plProposal = true; return it; };
   const fmtH = (H) => coords.fmtH(H);
-  const supersededSet = P.superseded;
+  const supersededSet = [...P.superseded, ...(P.site?.superseded || [])];
 
-  // ---- runs (PEX in sleeves / insulated hot + return)
+  // ---- runs (PEX in sleeves / insulated hot + return; site runs buried at the cover depth of the consultant's lines)
   const runsById = {};
-  for (const r of P.runs) {
+  const groundAt = (E, N_) => h.ground.heightAt(E, N_);
+  function drawRun(r) {
     runsById[r.id] = r;
-    const pts = r.pts3d.map(L);
     const OD = (C.pipes.PEX.sizes[String(r.D_mm)]?.OD) || r.D_mm / 1000;
+    const p3 = r.pts3d.map(p => [p[0], p[1], p[2] != null ? p[2] : groundAt(p[0], p[1]) - (r.cover_m ?? 0.5) - OD / 2]);
+    if (r.riserTo_m != null) { const q = p3[p3.length - 1]; p3.push([q[0], q[1], groundAt(q[0], q[1]) + r.riserTo_m]); }
+    r._p3 = p3;
+    const pts = p3.map(L);
     const g = new THREE.Group();
     const sys = r.system === 'return' ? 'hot' : r.system;
     const tally = pipe(g, pts, OD, 'PEX', sys, 'source');
@@ -39,14 +43,17 @@ export function buildProposal(h) {
     }
     if (r.length_m > 2.5 && r.system !== 'cold') label(g, pts[Math.floor(pts.length / 2)].clone().add(new THREE.Vector3(0, 0.15, 0)), `ø${r.D_mm}${r.system === 'return' ? ' חזרה' : ''}`, `sys-${sys}`);
     const rows = [['מעמד', 'הצעה לאישור – לא מתוכנית היועץ'], ['מערכת', SYSLBL[r.system]], ['צינור', `PEX ø${r.D_mm}`],
-      [r.insulation_mm ? 'בידוד' : 'שרוול', r.insulation_mm ? `גומי מוקצף ${r.insulation_mm} מ"מ (עובי זמני – PD1/PL)` : `שרוול מריכף ø${r.conduitD_mm} לכל האורך (הערה 10 – לשליפה)`],
+      r.insulation_mm ? ['בידוד', `גומי מוקצף ${r.insulation_mm} מ"מ (עובי זמני – PD1/PL)`] : r.conduitD_mm ? ['שרוול', `שרוול מריכף ø${r.conduitD_mm} לכל האורך (הערה 10 – לשליפה)`] : ['הנחה', `בקרקע, כיסוי ${(r.cover_m ?? 0.5).toFixed(2)} מ' כמו קווי היועץ (זמני)`],
       ['אורך', `${r.length_m.toFixed(2)} מ'`], ['מאיפה → לאן', `${r.from} → ${r.to}`],
-      ['מפלסים', `${fmtH(r.pts3d[0][2])} → ${fmtH(r.pts3d[r.pts3d.length - 1][2])}`],
+      ['מפלסים', `${fmtH(p3[0][2])} → ${fmtH(p3[p3.length - 1][2])}`],
       ['אביזרים', Object.entries(tally).map(([k, v]) => `${v}× ${k}`).join(' · ') || 'קטע רציף (PEX גמיש)']];
     if (r.note) rows.push(['הערה', r.note]);
-    propTag(add(g, { floor: floorTag(r.floor), system: TAG[r.system], stage: stageOf(r.floor), layer: 'plProposal' },
+    const fl = r.floor === 'site' ? 'site' : floorTag(r.floor);
+    propTag(add(g, { floor: fl, system: TAG[r.system], stage: r.floor === 'site' ? 'finishes' : stageOf(r.floor), layer: 'plProposal' },
       { name: `הצעה · ${r.id} · ${SYSLBL[r.system]} ø${r.D_mm}`, kind: 'plPropRun', plFloor: r.floor, rows, source: 'tools/plumbing/propose.py – הצעת תכנון', note: 'הצעה בלבד – דורשת את אישורך ואת אישור היועץ' }));
   }
+  for (const r of P.runs) drawRun(r);
+  for (const r of P.site?.runs || []) drawRun(r);
 
   // ---- manifolds: cabinet, brass bars, ball valve per outlet, main valve at the inlet
   for (const m of P.manifolds) {
@@ -144,14 +151,16 @@ export function buildProposal(h) {
   }
 
   // ---- sleeves at wall crossings (collar along the pipe) and the entry sleeve
-  for (const s of P.sleeves) {
+  for (const s of [...P.sleeves, ...(P.site?.sleeves || [])]) {
     if (s.pipe === 'SHAFT') continue;
     const r = runsById[s.pipe]; if (!r) continue;
     let best = null;
-    for (let i = 1; i < r.pts3d.length; i++) {
-      const a = r.pts3d[i - 1], b = r.pts3d[i];
-      const t = Math.max(0, Math.min(1, ((s.at[0] - a[0]) * (b[0] - a[0]) + (s.at[1] - a[1]) * (b[1] - a[1])) / (((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2) || 1)));
-      const d = Math.hypot(a[0] + t * (b[0] - a[0]) - s.at[0], a[1] + t * (b[1] - a[1]) - s.at[1]);
+    const R3 = r._p3 || r.pts3d;
+    for (let i = 1; i < R3.length; i++) {
+      const a = R3[i - 1], b = R3[i];
+      const v = [0, 1, 2].map(k => b[k] - a[k]), w = [0, 1, 2].map(k => s.at[k] - a[k]);
+      const t = Math.max(0, Math.min(1, (v[0] * w[0] + v[1] * w[1] + v[2] * w[2]) / ((v[0] ** 2 + v[1] ** 2 + v[2] ** 2) || 1)));
+      const d = Math.hypot(...[0, 1, 2].map(k => a[k] + t * v[k] - s.at[k]));
       if (!best || d < best.d) best = { d, dir: new THREE.Vector3(b[0] - a[0], b[2] - a[2], -(b[1] - a[1])).normalize() };
     }
     const g = new THREE.Group();
@@ -159,7 +168,7 @@ export function buildProposal(h) {
     g.add(collar(L(s.at), best.dir, R, Math.max(0.12, s.length_m || 0.2), mat(`slv:${s.through}`, () => std(s.through.includes('בטון') || s.through.includes('חוץ') ? '#8d8d8d' : '#f39c12', 0.6, 0, { transparent: true, opacity: 0.75 }))));
     if (s.through.includes('חוץ')) g.add(collar(L(s.at), best.dir, R + 0.05, 0.012, iron));    // puddle flange
     const rows = [['מעבר', s.through], ['צינור', s.pipe], ['שרוול', s.sleeve], ['קוטר / חומר', `${s.sleeveD_mm ? 'ø' + s.sleeveD_mm : '—'} · ${s.material}`], ['ITM / רום', `${coords.fmtEN(s.at[0], s.at[1])} · ${fmtH(s.at[2])}`]];
-    propTag(add(g, { floor: floorTag(s.floor), system: 'water', stage: stageOf(s.floor), layer: 'plProposal' }, { name: `הצעה · שרוול – ${s.through}`, kind: 'plPropSleeve', plFloor: s.floor, rows, source: 'tools/plumbing/propose.py', note: 'הצעה בלבד' }));
+    propTag(add(g, { floor: s.floor === 'site' ? 'site' : floorTag(s.floor), system: 'water', stage: stageOf(s.floor), layer: 'plProposal' }, { name: `הצעה · שרוול – ${s.through}`, kind: 'plPropSleeve', plFloor: s.floor, rows, source: 'tools/plumbing/propose.py', note: 'הצעה בלבד' }));
   }
 
   // ---- main valve, sub-meters, recirculation pump
@@ -172,5 +181,90 @@ export function buildProposal(h) {
     propTag(add(g, { floor: kind === 'pump' ? 'roof' : kind === 'meters' ? 'unit' : 'ground', system: 'water', stage: 'finishes', layer: 'plProposal' },
       { name: `הצעה · ${o.title}`, kind: 'plPropDevice', plFloor: kind === 'pump' ? 'roof' : kind === 'meters' ? 'unit' : 'ground', rows: [['מעמד', 'הצעה לאישור'], ['רכיב', o.title], ['רום', fmtH(o.H)]], source: 'tools/plumbing/propose.py', note: 'הצעה בלבד' }));
   }
+  if (P.site) buildSite(h, { L, propTag, chrome, fmtH, groundAt });
   return { superseded: supersededSet, summary: P.summary };
+}
+
+// ---- site proposals (tools/plumbing/propose_site.py): cover levels, external drops, fire hose reel, meter connection
+function buildSite(h, { L, propTag, chrome, fmtH, groundAt }) {
+  const { data, coords, C, mat, std, pipe, label, add, brass, steel, iron, rubber, concrete, buildChamber } = h;
+  const S = data.plumbingProposal.site, N = data.plumbing;
+  const byId = Object.fromEntries(N.nodes.map(n => [n.id, n]));
+  const vecEN = (d) => new THREE.Vector3(d[0], 0, -d[1]).normalize();
+  const encMat = mat('dropEncasement', () => std('#a9a59c', 0.85, 0, { transparent: true, opacity: 0.35, depthWrite: false }));
+  const red = mat('fireRed', () => std('#c62828', 0.45, 0.2));
+
+  // cover at the finished level: the same precast chamber, re-composed for the new T.L
+  for (const c of S.chamberRaise) {
+    const g = new THREE.Group();
+    const info = buildChamber(g, { ...byId[c.id], TL: c.TLto });
+    const comp = (x) => `חוליות ${x.rings_m.map(v => Math.round(v * 100)).join('+') || '—'} · טבעות הגבהה ${x.adjust_m.map(v => Math.round(v * 100)).join('+') || '—'}${x.mortar_m > 0.004 ? ` · מצע טיט ${Math.round(x.mortar_m * 100)}` : ''}`;
+    const rows = [['מעמד', 'הצעה לאישור – מפלס זמני'], ['T.L', `${fmtH(c.TLfrom)} (יועץ) → ${fmtH(c.TLto)} (${c.delta_m >= 0 ? '+' : ''}${Math.round(c.delta_m * 100)} ס"מ)`],
+      ['טווח מפלס הפיתוח', `${c.finish.lo.toFixed(2)}–${c.finish.hi.toFixed(2)} · ${c.finish.rule}`], ['הרכב לפי היועץ', comp(c.before)], ['הרכב מוצע', comp(c.after)],
+      ['עומק', `${(c.TLfrom - c.IL).toFixed(2)} → ${c.depthTo_m.toFixed(2)} מ'`], ['נימוק', c.why], ...info.rows.slice(4)];
+    propTag(add(g, { floor: 'site', system: 'sewage', stage: 'finishes', layer: 'plProposal' },
+      { name: `הצעה · שוחה ${c.id.slice(2)} – מכסה במפלס הפיתוח`, kind: 'plPropChamber', plFloor: 'site', rows, source: 'tools/plumbing/propose_site.py', note: 'הצעה בלבד – גובה סופי לפי הריצוף בפועל' }));
+  }
+
+  // external drops: tee outside the chamber, vertical in concrete encasement, 2×45°, lower inlet with a seal; plug on the straight run
+  for (const d of S.drops) {
+    const g = new THREE.Group();
+    const spec = C.pipes[d.material] || C.pipes.HDPE, OD = spec.sizes[String(d.D_mm)].OD;
+    const st = d.levelStatus === 'provisional' ? 'provisional' : 'source';
+    const tally = pipe(g, d.pts3d.map(L), OD, d.material, 'sewage', st);
+    const dir = vecEN(d.dir);
+    g.add(collar(L(d.pts3d[0]), new THREE.Vector3(0, 1, 0), OD / 2 * 1.18, OD * 1.6, h.pipeMat(d.material, 'sewage', st)));      // tee body
+    g.add(disk(L(d.plugAt).addScaledVector(dir, -0.01).add(new THREE.Vector3(0, -OD / 2, 0)), OD / 2 * 1.05, OD, mat('plug', () => std('#e0e0e0', 0.5))));   // cleaning plug
+    g.add(seal(L(d.wallAt), dir, OD / 2 + C.chambers.connector.OD_extra_m / 2, C.chambers.connector.width_m / 2, rubber));
+    const a = d.encasement.from, b = d.encasement.to;
+    const ctr = L([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2]);
+    g.add(box(ctr, Math.hypot(b[0] - a[0], b[1] - a[1]), b[2] - a[2], d.encasement.width_m, encMat, Math.atan2(d.dir[1], d.dir[0])));
+    label(g, L(d.pts3d[0]).add(new THREE.Vector3(0, 0.3, 0)), `מפל חיצוני ${d.run.split('@')[0]} · ${d.drop_m.toFixed(2)} מ'`, 'chamber');
+    const rows = [['מעמד', 'הצעה לאישור'], ['קו', `${d.run} · ${d.material} ø${d.D_mm}`], ['כניסה עליונה (הסתעפות)', fmtH(d.ILin)], ['כניסה תחתונה (I.L)', fmtH(d.ILlowInlet)],
+      ['תחתית השוחה', fmtH(d.ILchamber)], ['גובה המפל', `${d.drop_m.toFixed(2)} מ'`], ['ציר האנכי', `${d.axisDist_m.toFixed(2)} מ' ממרכז השוחה`],
+      ['אביזרים', `הסתעפות T · ${Object.entries(tally).map(([k, v]) => `${v}× ${k}`).join(' · ')} · פקק ביקורת בקו הישר · אטם שוחה בכניסה התחתונה · עטיפת בטון 10 ס"מ`], ['נימוק', d.why]];
+    if (d.note) rows.push(['הערה', d.note]);
+    propTag(add(g, { floor: 'site', system: 'sewage', stage: 'groundBeams', layer: 'plProposal' },
+      { name: `הצעה · מפל חיצוני – ${d.run} ל-${d.chamber}`, kind: 'plPropDrop', plFloor: 'site', rows, source: 'tools/plumbing/propose_site.py', note: 'הצעה בלבד' }));
+  }
+
+  // fire hose reel: valves on the riser (ball – double check – ball), reel with hose on the boundary wall
+  if (S.hoseReel) {
+    const r = S.hoseReel, g = new THREE.Group();
+    const back = vecEN(r.wall), along = vecEN(r.along);
+    const g0 = groundAt(r.E, r.N), base = coords.toLocal(r.E, r.N, g0);
+    const pv = base.clone().add(new THREE.Vector3(0, r.valveH_m, 0)), pr = base.clone().add(new THREE.Vector3(0, r.reelH_m, 0));
+    const ODs = 0.0337;                                                                   // 1" steel
+    const q1 = pv.clone().addScaledVector(along, 0.45), q2 = q1.clone().add(new THREE.Vector3(0, r.reelH_m - r.valveH_m, 0));
+    for (const [a, b] of [[pv, q1], [q1, q2]]) g.add(cylBetween(a, b, ODs / 2, steel, 14));
+    g.add(sphere(q1, ODs / 2 * 1.25, steel, 10));
+    const v1 = pv.clone().addScaledVector(along, 0.09), dc = pv.clone().addScaledVector(along, 0.22), v2 = pv.clone().addScaledVector(along, 0.35);
+    for (const v of [v1, v2]) { g.add(sphere(v, 0.026, brass, 12)); const lev = box(v.clone().add(new THREE.Vector3(0, 0.035, 0)), 0.1, 0.008, 0.016, red); lev.rotation.y = Math.atan2(-along.z, along.x); g.add(lev); }
+    g.add(collar(dc, along, 0.034, 0.12, mat('dcv', () => std('#5c6b73', 0.4, 0.6)))); g.add(box(dc.clone().add(new THREE.Vector3(0, 0.045, 0)), 0.05, 0.03, 0.03, brass));
+    const reelC = q2.clone().addScaledVector(back, -0.12);
+    g.add(cylBetween(reelC.clone().addScaledVector(back, 0.06), reelC.clone().addScaledVector(back, -0.06), 0.30, red, 32));
+    g.add(cylBetween(reelC.clone().addScaledVector(back, 0.065), reelC.clone().addScaledVector(back, -0.065), 0.21, mat('hose', () => std('#d84315', 0.7)), 32));
+    g.add(cylBetween(q2, reelC.clone().addScaledVector(back, 0.07), 0.03, steel, 12));     // swivel arm + bracket
+    g.add(box(q2.clone().addScaledVector(back, 0.02), 0.12, 0.16, 0.02, steel, Math.atan2(-along.z, along.x)));
+    const nz = reelC.clone().add(new THREE.Vector3(0, -0.34, 0)).addScaledVector(along, 0.2);
+    g.add(cylBetween(nz, nz.clone().add(new THREE.Vector3(0, -0.12, 0)), 0.018, mat('nozzle', () => std('#212121', 0.5))));
+    label(g, pr.clone().add(new THREE.Vector3(0, 0.55, 0)), 'גלגלון כיבוי 3/4" · זרנוק 30 מ\' (הצעה)', 'pt');
+    const rows = [['מעמד', 'הצעה לאישור – גבהים טיפוסיים (זמני)'], ['מיקום', `${coords.fmtEN(r.E, r.N)} · הוזז ${Math.round(r.shift_m * 100)} ס"מ לאורך החומה מנקודת החץ של היועץ`],
+      ['הזנה', `הסתעפות T מ-${r.tee.run} (ø${r.tee.runD_mm}) · PEX ø${r.D_mm} (1")`], ['הרכב (פרט עמדת כיבוי אש)', r.components.join(' → ')],
+      ['גבהים', `ברזים ${r.valveH_m.toFixed(2)} · מרכז הגלגלון ${r.reelH_m.toFixed(2)} מעל הפיתוח (טיפוסי, לאישור)`], ['מעבר', r.slab ? `עלייה דרך התקרה ${r.slab} – שרוול יצוק` : 'בקרקע'], ['נימוק', r.why]];
+    propTag(add(g, { floor: 'site', system: 'water', stage: 'finishes', layer: 'plProposal' },
+      { name: 'הצעה · גלגלון כיבוי אש והזנה', kind: 'plPropHose', plFloor: 'site', rows, source: 'tools/plumbing/propose_site.py + פרט עקרוני עמדת כיבוי אש', note: 'הצעה בלבד – אל-חוזר כפול ע"י מתקין מוסמך' }));
+  }
+
+  // meter connection: cap at the municipal stub end (UT-W); the pieces themselves are site runs
+  if (S.meter) {
+    const m = S.meter, g = new THREE.Group(), u = S.runs.find(x => x.id === 'CONN-UTW');
+    const p = L(u._p3[0]), ax = vecEN(m.axis);
+    g.add(collar(p, ax, 0.026, 0.07, brass)); g.add(hexNut(p.clone().addScaledVector(ax, -0.045), ax, 0.05, 0.02, brass));
+    label(g, p.clone().add(new THREE.Vector3(0, 0.75, 0)), 'קצה הכנת התאגיד (UT-W)', 'pt');
+    const rows = [['מעמד', 'הצעה – חיבור שלא משורטט בתוכנית'], ['UT-W', `${coords.fmtEN(m.utw[0], m.utw[1])} · ${m.utwToBoundary_m.toFixed(2)} מ' בתוך המגרש`], ['מקור', m.utwSource],
+      ['קטעים', S.runs.filter(x => x.id.startsWith('CONN')).map(x => `${x.id} ${Math.round(x.length_m * 100)} ס"מ`).join(' · ')], ['נימוק', m.why]];
+    propTag(add(g, { floor: 'site', system: 'water', stage: 'finishes', layer: 'plProposal' },
+      { name: 'הצעה · חיבור מערכת המדידה לקצה ההכנה', kind: 'plPropMeter', plFloor: 'site', rows, source: 'tools/plumbing/propose_site.py', note: 'הצעה בלבד – עומק ומיקום הקצה לאמת עם התאגיד' }));
+  }
 }

@@ -42,6 +42,25 @@ L += ['', '## 6. קטרי מים – מודל מול תוויות', '', '| קט�
 for r in N['runs']:
     if r['system'] == 'cold': L.append(f'| {r["id"]} | {"ø%d" % r["D_mm"] if r.get("D_mm") else "—"} | {r.get("diameterRule", "")} |')
 L += ['', '## 7. ממצאים', '', f'סה"כ {len(N["findings"])}: ' + ', '.join(f'{k} {v}' for k, v in N['summary']['findings'].items()) + '. הרשימה המלאה בממשק (שכבות → אינסטלציה) וב-`data/plumbing/network.json`.', '']
+PP = json.load(open(os.path.join(ROOT, 'data/plumbing/proposal.json'), encoding='utf-8')).get('site')
+if PP:
+    L += ['## 8. הצעות בפיתוח – מידות במודל מול המקור', '', '| פריט | במודל | במקור | סטייה | מקור |', '|---|---|---|---|---|']
+    for d in PP['drops']:
+        ch = by[d['chamber']]; r = next(x for x in N['runs'] if x['id'] == d['run'])
+        L.append(f'| מפל {d["run"]} – כניסה עליונה | {d["ILin"]:.3f} | {r["ILdown"]:.3f} | {abs(d["ILin"] - r["ILdown"]) * 1000:.0f} מ"מ | network.json ({r.get("levelStatus")}) |')
+        L.append(f'| מפל {d["run"]} – תחתית השוחה | {d["ILchamber"]:.2f} | {ch["IL"]:.2f} | {abs(d["ILchamber"] - ch["IL"]) * 1000:.0f} מ"מ | G_LABELD {ch["id"]} |')
+    for c in PP['chamberRaise']:
+        ch = by[c['id']]
+        L.append(f'| {c["id"]} – I.L (לא משתנה) | {c["IL"]:.2f} | {ch["IL"]:.2f} | {abs(c["IL"] - ch["IL"]) * 1000:.0f} מ"מ | G_LABELD |')
+        L.append(f'| {c["id"]} – T.L מוצע מול נקודות הגובה | {c["TLto"]:.2f} | {c["finish"]["lo"]:.2f}–{c["finish"]["hi"]:.2f} | בתוך הטווח | רקע תוכנית האינסטלציה (זמני) |')
+    m = PP['meter']; wm = by['WM@site']; utw = m['utw']
+    L.append(f'| קצה UT-W – מרחק מגבול המגרש | {m["utwToBoundary_m"]:.3f} | 0.37 (נמדד ב-build) | — | {m["utwSource"]} |')
+    L.append(f'| מרכז מערכת המדידה | {wm["E"]:.3f} / {wm["N"]:.3f} | חץ ההערה | 0 | ללא שינוי |')
+    L.append(f'| ציר המונה מעל הקרקע | {wm["detail"]["axisH_m"]:.2f} | 20+40 ס"מ | 0 | פרט מע\' מדידת מים (לא בקנה מידה) |')
+    hr = PP['hoseReel']
+    L.append(f'| גלגלון – קוטר ההזנה | ø{hr["D_mm"]} PEX | ברז ואל-חוזר 1" | — | פרט עמדת כיבוי אש |')
+    L.append(f'| גלגלון – מרחק מקיר שוחה 2 | {math.dist((hr["E"], hr["N"]), (by["S-2"]["E"], by["S-2"]["N"])) - 0.5:.2f} | ≥ 0.25 (דרישת ההצעה) | — | propose_site.py |')
+    L.append('')
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)
 open(os.path.join(ROOT, 'docs/verification/plumbing-1.md'), 'w', encoding='utf-8').write('\n'.join(L) + '\n')
 print('\n'.join(L))

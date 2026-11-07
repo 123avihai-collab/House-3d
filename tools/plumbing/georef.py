@@ -126,3 +126,20 @@ if __name__ == '__main__':
     G = load()
     for k, v in G['placement'].items(): print('dxf', k, v)
     for k, v in G['pdfFit'].items(): print('pdf', k, v)
+
+
+def finish_level(spots, lot, E, N, near=1.5, far=3.5, slope=0.015):
+    """Finished (development) level at a point from the architect's spot levels in the plumbing DXF background:
+    spots inside the lot within `near` m -> inverse-distance (1/d²) mean, range = min..max of those spots;
+    else the nearest inside the lot within `far` m, range = ±slope·d (paving slopes 1.5% in the drawing)."""
+    from shapely.geometry import Point
+    S = sorted(((math.dist((s['E'], s['N']), (E, N)), s) for s in spots if lot.contains(Point(s['E'], s['N']))), key=lambda z: z[0])
+    use = [z for z in S if z[0] <= near]
+    if use:
+        w = [1 / max(d, 0.05) ** 2 for d, _ in use]
+        H = sum(wi * s['H'] for wi, (d, s) in zip(w, use)) / sum(w)
+        return {'H': r3(H), 'lo': min(s['H'] for _, s in use), 'hi': max(s['H'] for _, s in use), 'spots': [[s['H'], r3(d)] for d, s in use], 'rule': f'ממוצע משוקלל (1/d²) של נקודות הגובה עד {near} מ\''}
+    if S and S[0][0] <= far:
+        d, s = S[0]
+        return {'H': s['H'], 'lo': r3(s['H'] - slope * d), 'hi': r3(s['H'] + slope * d), 'spots': [[s['H'], r3(d)]], 'rule': f'נקודת הגובה הקרובה ({d:.1f} מ\'), טווח ±{slope * 100:.1f}% על המרחק'}
+    return None

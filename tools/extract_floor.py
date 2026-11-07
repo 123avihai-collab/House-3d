@@ -647,9 +647,11 @@ def main():
     # owner corrections to the zone slabs (tools/ground-zones.json "slabCuts")
     for cut in ZN.get('slabCuts', []):
         cp = Polygon(cut['ringITM']).buffer(0)
+        zs = cut.get('zones') or [cut['zone']]
         for p in panels21:
-            if p['zone'] == cut['zone'] and p['poly'].intersection(cp).area > 0.01:
+            if p['zone'] in zs and p['poly'].intersection(cp).area > 0.01:
                 p['poly'] = max(polys(p['poly'].difference(cp)), key=lambda g: g.area); p['note'] = (p.get('note', '') + ' ' + cut['note']).strip()
+        if cut.get('openZone'): open21.append({'poly': cp, 'zone': cut['openZone']['zone'], 'override': cut['openZone']})
 
     out = {
         'floor': 'ground',
@@ -661,8 +663,9 @@ def main():
                   'topRel': p['top'], 'thickness_m': p['D'], 'bottomRel': r3(p['top'] - p['D']), 'status': p['status'], 'note': p['note'],
                   'source': f"{K21} IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K={p['top']:+.2f} D={round(p['D'] * 100)}; אזור: {ZN['source']}"}
                  for i, p in enumerate(sorted(panels21, key=lambda p: -p['poly'].area))],
-        'openZones': [{'zone': o['zone'], 'label': ZN['zones'][o['zone']]['label'], 'note': ZN['zones'][o['zone']]['note'],
-                       'footprintITM': ring(o['poly']), 'area_m2': r3(o['poly'].area), 'source': f"{K21} (קווים); {ZN['source']}"} for o in open21],
+        'openZones': [{'zone': o['zone'], 'label': (o.get('override') or ZN['zones'][o['zone']])['label'], 'note': (o.get('override') or ZN['zones'][o['zone']])['note'],
+                       'footprintITM': ring(o['poly']), 'area_m2': r3(o['poly'].area),
+                       'source': o['override']['source'] if o.get('override') else f"{K21} (קווים); {ZN['source']}"} for o in open21],
         'unclassifiedFaces': [{'footprintITM': ring(q), 'area_m2': r3(q.area)} for q in unclassified],
         'walls': wall_out, 'columns': col_out,
         'basementWallCaps': caps,

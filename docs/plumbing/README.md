@@ -33,7 +33,11 @@
   - 3 מפלים חיצוניים בכניסות לשוחה 1.
   - הזנה לגלגלון הכיבוי לפי פרט עמדת הכיבוי, והגלגלון מוזז מעל שוחה 2.
   - קטעי חיבור בין קצה הכנת התאגיד (UT-W), מערכת המדידה ותחילת הקו הראשי.
-- **מי גשם לא בהצעה** – החלטה PR1: בור החלחול של היועץ סותר את דוח הקרקע, ואין במגרש מקום שעומד בו.
+- **החלטות 07.11 לפי ההמלצות** (אושרו ע"י אביחי):
+  - PD1 – דוד חשמלי לכל יחידת מרתף בגג, אספקה וסחרור מבודדים בפיר (`propose.py`).
+  - PL3 – ענפי האסלות בקומה א' מתחת לתקרה (תקרה מונמכת בקרקע), ענפי ø50 במילוי (`propose_first.py`).
+  - PB6 – תא שאיבה נפרד PS-1 לשפכי היחידות, קווים מתחת לרצפת המרתף, סניקה עם גמל ואוורור (`propose_units.py`).
+- **מי גשם – 3 חלופות להשוואה** (PR1, `propose_rain.py`): בור היועץ, שוחת ניקוז בחזית, בור חדש רחוק. בורר בפאנל: "מי גשם (להשוואה)".
 
 הפירוט המלא: [03-proposal.md](03-proposal.md). הקוד: `tools/plumbing/propose.py` (קלטים ב-`proposal-inputs.json`), והדוח: `tools/plumbing/report_proposal.py`.
 
@@ -42,6 +46,9 @@
 ארטיפקט של הענף (נפרד מהארטיפקט של המודל הראשי): https://claude.ai/artifact/6ir8Jknqx5JcbrD2fHLzVP . פורסם עם אותם קבצים כמו האתר, ועם ה-HDRI בקידוד base64 (ראו README הראשי).
 
 ## שימוש
+
+**איך רואים את הצנרת:** רוב הצנרת מתחת לקרקע ובתוך השלד, ולכן בתצוגה הרגילה היא מוסתרת. הכפתור הכתום **"🔧 הצג את כל הצנרת"** (פינה שמאלית עליונה; בטלפון – למטה) מדליק את כל שכבות האינסטלציה וההצעה, הופך את הקרקע לשקופה ומסתיר שלד וסביבה. בפתיחה הראשונה של כל גרסה זה קורה אוטומטית (חוץ מבדיקות אוטומטיות). ↶ מחזיר לתצוגה הרגילה.
+
 
 לשונית "שכבות" → קבוצת "אינסטלציה – תוכנית היועץ":
 - הדלקה וכיבוי לכל מערכת.
@@ -57,7 +64,7 @@
 python3 tools/plumbing/extract.py    # קריאת המקורות -> tools/plumbing/cache/raw.json
 python3 tools/plumbing/build.py      # רשת, מפלסים, קטרים, ממצאים -> data/plumbing/network.json
 python3 tools/plumbing/verify.py     # טבלת אימות -> docs/verification/plumbing-1.md
-python3 tools/plumbing/propose.py    # הצעת תכנון -> data/plumbing/proposal.json (כולל propose_site.py)
+python3 tools/plumbing/propose.py    # הצעת תכנון -> data/plumbing/proposal.json (כולל propose_site / first / units / rain; כדקה וחצי)
 python3 tools/plumbing/propose_site.py  # רק הצעות הפיתוח -> המפתח site ב-proposal.json
 python3 tools/plumbing/report_proposal.py  # -> docs/plumbing/03-proposal.md
 python3 tools/plumbing/debug_plot.py ground out.png   # תמונת בדיקה של הרשת (לא חלק מהמודל)

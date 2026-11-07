@@ -20,7 +20,24 @@ export function buildPanel(app, pl) {
     app.viewer.flyTo(p, p.clone().add({ x: 4, y: 3.5, z: 4 }));
     app.ui.showInfo({ title: it.meta.name, rows: it.meta.rows, tags: it.tags, source: it.meta.source, note: it.meta.note });
   };
+  // one click: every pipe visible – plumbing layers + proposal on, x-ray, structure / surroundings off, overview camera
+  const pipeView = () => {
+    const cur = app.store.get(), L = { ...cur.layers };
+    for (const g of app.data.layers.groups) for (const l of g.layers) {
+      if (g.id === 'plumbing') L[l.id] = l.id !== 'plFindings';
+      else if (g.id === 'site') L[l.id] = ['topoPlanned', 'plotBoundary'].includes(l.id);
+      else L[l.id] = false;
+    }
+    const lo = { ...(cur.labelsOff || {}) }; for (const id of ['plSewage', 'plCold', 'plRain', 'plPumped', 'plHot', 'plProposal', 'plChambers', 'plotBoundary']) lo[id] = true;
+    app.store.set({ layers: L, labelsOff: lo, plumbing: { ...st(), xray: true, proposal: true, floors: {} } }, { label: 'אינסטלציה – הצג את כל הצנרת' });
+    const c = app.plotCenter.clone(); app.viewer.flyTo(c, c.clone().add({ x: D.view.camOffset_m[0], y: D.view.camOffset_m[1], z: D.view.camOffset_m[2] }));
+  };
+  const fab = document.createElement('button');
+  fab.className = 'pl-fab'; fab.textContent = '🔧 הצג את כל הצנרת'; fab.title = 'מדליק את כל שכבות האינסטלציה וההצעה, קרקע שקופה, מסתיר שלד וסביבה (ביטול: ↶)';
+  fab.addEventListener('click', pipeView);
+  (document.getElementById('viewport') || document.body).append(fab);
   return {
+    pipeView,
     panel() {
       const s = st(); const floors = s.floors || {}; const sev = s.severity || {};
       const S = N.summary.findings;
@@ -28,6 +45,7 @@ export function buildPanel(app, pl) {
       const layers = app.store.get().layers;
       const anyOn = ids.some(id => layers[id] !== false);
       const box = h('div', { class: 'plbox' },
+        h('button', { class: 'pl-all', onclick: pipeView }, '🔧 הצג את כל הצנרת (רנטגן, בלי שלד וסביבה)'),
         h('label', { class: 'plmaster' }, h('input', { type: 'checkbox', checked: anyOn,
           onchange: (e) => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(ids.map(id => [id, e.target.checked])) } }, { label: 'plumbing' }) }),
           anyOn ? 'שכבת האינסטלציה מוצגת – לחיצה מכבה את כולה' : 'שכבת האינסטלציה כבויה – לחיצה מדליקה את כולה'),
@@ -37,6 +55,10 @@ export function buildPanel(app, pl) {
           h('label', {}, h('input', { type: 'radio', name: 'plprop', checked: !s.proposal, onchange: () => set({ proposal: false }) }), 'לפי היועץ'),
           h('label', {}, h('input', { type: 'radio', name: 'plprop', checked: !!s.proposal, onchange: () => { set({ proposal: true }); app.store.set({ layers: { ...app.store.get().layers, plProposal: true } }, { label: 'plumbing' }); } }),
             `עם ההצעה (${pl.proposal.summary.stacksMoved} קולטנים, ${pl.proposal.summary.points} נקודות, ${pl.proposal.summary.sleeves} מעברים${pl.proposal.summary.site ? `; פיתוח: ${pl.proposal.summary.site.chambers} מכסים, ${pl.proposal.summary.site.drops} מפלים, גלגלון, חיבור מונה` : ''})`)) : null,
+        pl.proposal && app.data.plumbingProposal?.rain ? h('div', { class: 'row plprop' }, h('b', {}, 'מי גשם (להשוואה): '),
+          ...app.data.plumbingProposal.rain.alternatives.map(a => h('label', { title: a.facts.join(' · ') }, h('input', { type: 'radio', name: 'plrain', checked: (s.rainAlt || 1) === a.id,
+            onchange: () => { set({ rainAlt: a.id, proposal: true }); app.store.set({ layers: { ...app.store.get().layers, plProposal: true } }, { label: 'plumbing' }); } }),
+            `${a.id} – ${a.title.split('–')[1].trim()} (${a.length_m.toFixed(0)} מ')`))) : null,
         h('div', { class: 'row plfl' }, h('b', {}, 'קומות: '), ...Object.entries(D.floors).map(([id, lbl]) =>
           h('label', {}, h('input', { type: 'checkbox', checked: floors[id] !== false, onchange: (e) => set({ floors: { ...floors, [id]: e.target.checked } }) }), lbl))),
         h('div', { class: 'btns' },

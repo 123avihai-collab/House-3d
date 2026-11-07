@@ -3,6 +3,7 @@ import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { cylBetween, collar, hexNut, seal, bend, sphere, box, ring, disk } from './geom.js';
 import { buildPanel } from './panel.js';
 import { buildProposal } from './proposal.js';
+import { buildProposal2 } from './proposal2.js';
 
 // Plumbing layer (separate module): the plumbing consultant's design as drawn – sewer, pumped line, rain water,
 // cold/hot water – with real fittings, precast chambers, and the engineering findings.
@@ -442,7 +443,8 @@ export function buildPlumbing(ctx) {
 
   // ---- design proposal (data/plumbing/proposal.json) – separate items, shown with the "with proposal" switch
   const proposal = data.plumbingProposal ? buildProposal({ data, coords, scene, registry, C, D, H0, mat, std, pipeMat, pipe, label, add, odOf, brass, rubber, iron, steel, concrete, redCap, ground, buildChamber }) : null;
-  const superseded = new Set(proposal?.superseded || []);
+  const proposal2 = data.plumbingProposal ? buildProposal2({ data, coords, C, H0, mat, std, pipeMat, pipe, label, add, brass, steel, iron, concrete, redCap, ground, buildChamber }) : null;
+  const superseded = new Set([...(proposal?.superseded || []), ...(proposal2?.superseded || [])]);
 
   const api = {
     items, findingItems, network: N, totalLen, chambersInfo, proposal,
@@ -450,6 +452,17 @@ export function buildPlumbing(ctx) {
       this.app = app;
       const ctl = buildPanel(app, this);
       this.panel = () => ctl.panel();
+      this.pipeView = ctl.pipeView;
+      // first open of this version: show every pipe right away (the pipes are underground / inside the structure and
+      // invisible in the default view). Once per version per browser; skipped in automated tests (navigator.webdriver).
+      const FLAG = 'house3d-plumbing-pipeview-v4';
+      let seen = null; try { seen = localStorage.getItem(FLAG); } catch (e) { /* private mode */ }
+      if (!seen && !navigator.webdriver) setTimeout(() => {
+        ctl.pipeView(); try { localStorage.setItem(FLAG, '1'); } catch (e) { /* private mode */ }
+        const t = document.createElement('div'); t.className = 'pl-toast';
+        t.textContent = 'מוצגת כל הצנרת: קרקע שקופה, בלי שלד וסביבה. ↶ (בטל) מחזיר לתצוגה הרגילה; הכפתור הכתום מחזיר לכאן.';
+        (document.getElementById('viewport') || document.body).append(t); setTimeout(() => t.remove(), 9000);
+      }, 800);
       // module filters (floor, severity, x-ray) applied after the registry's own visibility rules
       const terrain = app.registry.items.filter(i => i.meta.kind === 'terrain');
       app.registry.onChange(() => {
@@ -461,6 +474,7 @@ export function buildPlumbing(ctx) {
           if (it.meta.plSeverity && sev[it.meta.plSeverity] === false) it.object.visible = false;
           if (it.meta.plProposal && !s.proposal) it.object.visible = false;
           if (s.proposal && it.meta.netId && superseded.has(it.meta.netId)) it.object.visible = false;
+          if (it.meta.rainAlt && it.meta.rainAlt !== (s.rainAlt || 1)) it.object.visible = false;
         }
         const x = !!s.xray;
         for (const t of terrain) t.object.traverse(o => {

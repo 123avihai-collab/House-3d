@@ -181,6 +181,27 @@ export function buildProposal(h) {
     propTag(add(g, { floor: kind === 'pump' ? 'roof' : kind === 'meters' ? 'unit' : 'ground', system: 'water', stage: 'finishes', layer: 'plProposal' },
       { name: `הצעה · ${o.title}`, kind: 'plPropDevice', plFloor: kind === 'pump' ? 'roof' : kind === 'meters' ? 'unit' : 'ground', rows: [['מעמד', 'הצעה לאישור'], ['רכיב', o.title], ['רום', fmtH(o.H)]], source: 'tools/plumbing/propose.py', note: 'הצעה בלבד' }));
   }
+  // ---- PD1: electric heater per basement unit on the roof + recirculation pump where the loop is needed
+  if (P.unitHot) {
+    for (const t of P.unitHot.heaters) {
+      const g = new THREE.Group(), f = C.fixtures.heater, p = coords.toLocal(t.E, t.N, t.H + 0.6);
+      g.add(cylBetween(p.clone().add(new THREE.Vector3(-f.L_m / 2 * 0.75, 0, 0)), p.clone().add(new THREE.Vector3(f.L_m / 2 * 0.75, 0, 0)), f.D_m / 2 * 0.9, mat('heater', () => std('#e8e8e8', 0.4, 0.3))));
+      for (const dx of [-0.35, 0.35]) g.add(box(coords.toLocal(t.E, t.N, t.H + 0.2).add(new THREE.Vector3(dx, 0, 0)), 0.06, 0.4, 0.45, steel));
+      label(g, p.clone().add(new THREE.Vector3(0, 0.55, 0)), t.title, 'pt');
+      const lp = P.unitHot.loops.find(x => x.unit === t.unit);
+      const rows = [['מעמד', 'הצעה – החלטה PD1 לפי ההמלצה (אושר 07.11)'], ['דוד', `חשמלי ${t.volume_l} ל' (נפח טיפוסי – זמני)`], ['ITM', coords.fmtEN(t.E, t.N)],
+        ['אורך אספקה עד המחלק', `${lp.supply_m.toFixed(1)} מ' + ענף ארוך ${lp.farthestBranch_m.toFixed(1)} = ${lp.total_m.toFixed(1)} מ'`],
+        ['סחרור', lp.loop ? 'כן – מעל 25 מ\' (הערה 12 של היועץ): קו חזרה + משאבה עם טיימר' : 'לא נדרש – עד 25 מ\' (הערה 12 של היועץ)'], ['בידוד', `${P.unitHot.insulation_mm ?? 19} מ"מ על האספקה והחזרה (זמני)`]];
+      propTag(add(g, { floor: 'roof', system: 'water', stage: 'finishes', layer: 'plProposal' }, { name: `הצעה · ${t.title}`, kind: 'plPropHeater', plFloor: 'roof', rows, source: 'tools/plumbing/propose.py – PD1', note: 'הצעה – אישור היועץ' }));
+    }
+    for (const o of P.unitHot.pumps) {
+      const g = new THREE.Group(), c = coords.toLocal(o.E, o.N, o.H);
+      g.add(cylBetween(c.clone().add(new THREE.Vector3(-0.06, 0, 0)), c.clone().add(new THREE.Vector3(0.06, 0, 0)), 0.035, mat('pumpBody', () => std('#b71c1c', 0.4, 0.3))));
+      g.add(box(c.clone().add(new THREE.Vector3(0, 0.07, 0)), 0.08, 0.06, 0.06, mat('pumpMotor', () => std('#37474f', 0.5, 0.3))));
+      label(g, c.clone().add(new THREE.Vector3(0, 0.25, 0)), o.title, 'pt');
+      propTag(add(g, { floor: 'roof', system: 'water', stage: 'finishes', layer: 'plProposal' }, { name: `הצעה · ${o.title}`, kind: 'plPropDevice', plFloor: 'roof', rows: [['מעמד', 'הצעה – PD1'], ['רכיב', o.title], ['רום', fmtH(o.H)]], source: 'tools/plumbing/propose.py', note: 'הצעה בלבד' }));
+    }
+  }
   if (P.site) buildSite(h, { L, propTag, chrome, fmtH, groundAt });
   return { superseded: supersededSet, summary: P.summary };
 }

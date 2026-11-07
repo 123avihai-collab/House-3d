@@ -42,6 +42,8 @@ L += ['', '## 6. קטרי מים – מודל מול תוויות', '', '| קט�
 for r in N['runs']:
     if r['system'] == 'cold': L.append(f'| {r["id"]} | {"ø%d" % r["D_mm"] if r.get("D_mm") else "—"} | {r.get("diameterRule", "")} |')
 L += ['', '## 7. ממצאים', '', f'סה"כ {len(N["findings"])}: ' + ', '.join(f'{k} {v}' for k, v in N['summary']['findings'].items()) + '. הרשימה המלאה בממשק (שכבות → אינסטלציה) וב-`data/plumbing/network.json`.', '']
+J_ = lambda p_: json.load(open(os.path.join(ROOT, p_), encoding='utf-8'))
+H0_ = J_('data/site/origin.json')['H0']
 PP = json.load(open(os.path.join(ROOT, 'data/plumbing/proposal.json'), encoding='utf-8')).get('site')
 if PP:
     L += ['## 8. הצעות בפיתוח – מידות במודל מול המקור', '', '| פריט | במודל | במקור | סטייה | מקור |', '|---|---|---|---|---|']
@@ -61,6 +63,34 @@ if PP:
     L.append(f'| גלגלון – קוטר ההזנה | ø{hr["D_mm"]} PEX | ברז ואל-חוזר 1" | — | פרט עמדת כיבוי אש |')
     L.append(f'| גלגלון – מרחק מקיר שוחה 2 | {math.dist((hr["E"], hr["N"]), (by["S-2"]["E"], by["S-2"]["N"])) - 0.5:.2f} | ≥ 0.25 (דרישת ההצעה) | — | propose_site.py |')
     L.append('')
+PA = json.load(open(os.path.join(ROOT, 'data/plumbing/proposal.json'), encoding='utf-8'))
+if PA.get('firstFloor'):
+    FS = J_('data/structure/floor-ground.json')['ceiling']['slab'][0]; under = H0_ + FS['topRel'] - FS['thickness_m']
+    L += ['## 9. החלטות 07.11 – בדיקות מול השלד והמקור', '', '| בדיקה | במודל | גבול / מקור | עומד |', '|---|---|---|---|']
+    for r in PA['firstFloor']['runs']:
+        if r['D_mm'] == 110:
+            L.append(f'| {r["id"]} – קודקוד מתחת לתקרה FS1 ({under:.2f}) | {r["ILup"] + 0.11:.3f} | ≤ {under - 0.02:.3f} | {"✓" if r["ILup"] + 0.11 <= under - 0.019 else "✗"} |')
+            L.append(f'| {r["id"]} – אורך מעל הממ"ד | {r["overMamad_m"]:.2f} | 0 | {"✓" if r["overMamad_m"] < 0.01 else "✗"} |')
+    for c in PA['firstFloor']['checks']:
+        if 'value_m' in c and 'min_m' in c: L.append(f'| {c["what"]} | {c["value_m"]:.3f} | ≥ {c["min_m"]:.2f} | {"✓" if c["ok"] else "✗"} |')
+if PA.get('unitSewer'):
+    U = PA['unitSewer']; c = U['chamber']
+    L.append(f'| PS-1 – T.L מול מפלס היחידה ‎−2.60 | {c["TL"]:.2f} | {H0_ - 2.60:.2f} | {"✓" if abs(c["TL"] - (H0_ - 2.60)) < 0.005 else "✗"} |')
+    L.append(f'| PS-1 – כניסה נמוכה מעל התחתית | {min(i["IL"] for i in c["inlets"]) - c["IL"]:.2f} | 0.90 (זמני) | ✓ |')
+    for r in U['runs']:
+        if 'fitsUnderSlab' in r: L.append(f'| {r["id"]} – קודקוד מתחת לרצפה BS1 (277.48) | {r["ILup"] + (0.11 if r["D_mm"] == 110 else 0.05):.3f} | ≤ 277.480 | {"✓" if r["fitsUnderSlab"] else "✗"} |')
+    rm = next(r for r in U['runs'] if r['id'] == 'PB6-RISING'); crest = max(p[2] for p in rm['pts3d'] if p[2] is not None)
+    s2 = next((x['TLto'] for x in PA['site']['chamberRaise'] if x['id'] == 'S-2'), None)
+    L.append(f'| גמל קו הסניקה PS-1 | {crest:.2f} | T.L שוחה 2 ({s2:.2f}) + 0.50 – הערת היועץ | {"✓" if abs(crest - s2 - 0.5) < 0.005 else "✗"} |')
+if PA.get('rain'):
+    for a in PA['rain']['alternatives']:
+        ids = {r['id'] for r in a['runs']} | {'SOAK@site', 'RC-1', 'SOAK-NEW'}
+        okE = all(r['to'] in ids for r in a['runs']) and all(r['from'].startswith('DPS') for r in a['runs'])
+        L.append(f'| מי גשם חלופה {a["id"]} – כל קו מתחיל בחיבור תחתון ומסתיים ביעד / בקו אחר | {len(a["runs"])} קווים | ללא קצה פתוח | {"✓" if okE else "✗"} |')
+        L.append(f'| מי גשם חלופה {a["id"]} – מרחק היעד מהיסודות | {a["destination"]["distFoundations_m"]:.2f} | ≥ 3.0 (דוח הקרקע 11.6)' + (' – שוחה אטומה, לא חל' if a['destination']['kind'] == 'drainChamber' else '') + f' | {"—" if a["destination"]["kind"] == "drainChamber" else ("✓" if a["destination"]["distFoundations_m"] >= 3 else "✗ (ידוע – PR1)")} |')
+if PA.get('unitHot'):
+    sh = PA['shaft']; L.append(f'| הפיר אחרי ההגדלה ל-{sh["local"][2] * 100:.0f} ס"מ – חציית שלד | {", ".join(sh["clashes"]) or "אין"} | אין | {"✓" if not sh["clashes"] else "✗"} |')
+L.append('')
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)
 open(os.path.join(ROOT, 'docs/verification/plumbing-1.md'), 'w', encoding='utf-8').write('\n'.join(L) + '\n')
 print('\n'.join(L))

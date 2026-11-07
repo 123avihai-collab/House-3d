@@ -38,6 +38,7 @@
     "envDetails": "data/environment/details.json",
     "plumbing": "data/plumbing/network.json",
     "plumbingCatalog": "data/plumbing/catalog.json",
-    "plumbingDisplay": "data/plumbing/display.json"
+    "plumbingDisplay": "data/plumbing/display.json",
+    "plumbingProposal": "data/plumbing/proposal.json"
   }
 }

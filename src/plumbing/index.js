@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { cylBetween, collar, hexNut, seal, bend, sphere, box, ring, disk } from './geom.js';
 import { buildPanel } from './panel.js';
+import { buildProposal } from './proposal.js';
 
 // Plumbing layer (separate module): the plumbing consultant's design as drawn – sewer, pumped line, rain water,
 // cold/hot water – with real fittings, precast chambers, and the engineering findings.
@@ -17,6 +18,7 @@ export const LAYERS = [
   ['plCold', 'מים קרים: מערכת מדידה, קווים, ברזים', 'water'],
   ['plHot', 'מים חמים: דוד ומחלק בגג', 'water'],
   ['plFindings', 'ממצאי בדיקה הנדסית (סמנים)', 'plumbing'],
+  ['plProposal', 'הצעת תכנון (לאישור): פיר, מחלקים, צנרת לנקודות, הזזת קולטנים', 'plumbing'],
 ];
 const SYS_LAYER = { sewage: 'plSewage', pumped: 'plPumped', rain: 'plRain', cold: 'plCold', hot: 'plHot' };
 const SYS_TAG = { sewage: 'sewage', pumped: 'sewage', rain: 'drainage', cold: 'water', hot: 'water' };
@@ -190,7 +192,7 @@ export function buildPlumbing(ctx) {
     if (r.dropAtDownstream_m) rows.push(['מפל בכניסה לשוחה', `${r.dropAtDownstream_m.toFixed(2)} מ'`]);
     if (findingsOf[r.id]) rows.push(['ממצאים', findingsOf[r.id].join(', ')]);
     add(grp, { floor: r.floor, system: SYS_TAG[r.system], stage: stageOf(r.floor, r.system), layer: SYS_LAYER[r.system] },
-      { name: `${r.id} · ${sysLbl}${r.D_mm ? ` ø${r.D_mm}` : ''}`, kind: 'plRun', plFloor: r.drawnOn || r.floor, rows, source: r.source,
+      { name: `${r.id} · ${sysLbl}${r.D_mm ? ` ø${r.D_mm}` : ''}`, kind: 'plRun', netId: r.id, plFloor: r.drawnOn || r.floor, rows, source: r.source,
         note: st !== 'source' ? `מפלס ${statusTxt(r.levelStatus)}` : null, status: st === 'source' ? 'source' : 'provisional' });
   }
 
@@ -220,7 +222,7 @@ export function buildPlumbing(ctx) {
     if (l.ends) rows.push(['מאיפה → לאן', l.ends.map(title).join(' → ')]);
     if (findingsOf[l.id]) rows.push(['ממצאים', findingsOf[l.id].join(', ')]);
     add(grp, { floor, system: SYS_TAG[sys], stage: l.kind === 'stack' ? 'walls' : 'finishes', layer: SYS_LAYER[sys] },
-      { name: l.title || l.id, kind: 'plLine', plFloor: floor, rows, source: l.source, note: l.levelStatus === 'provisional' ? `מפלסים זמניים: ${l.levelRule}` : null });
+      { name: l.title || l.id, kind: 'plLine', netId: l.id, plFloor: floor, rows, source: l.source, note: l.levelStatus === 'provisional' ? `מפלסים זמניים: ${l.levelRule}` : null });
   }
 
   // ---- nodes
@@ -346,7 +348,7 @@ export function buildPlumbing(ctx) {
     if (n.TL != null && !rows.some(r => r[0].startsWith('T.L'))) rows.push(['T.L', fmtH(n.TL)]);
     if (findingsOf[n.id]) rows.push(['ממצאים', findingsOf[n.id].join(', ')]);
     add(grp, { floor, system: SYS_TAG[sys] || 'sewage', stage: stageOf(floor, sys), layer },
-      { name: `${n.title} (${n.id})`, kind: 'plNode', plFloor: n.floor === 'site' ? 'site' : n.floor, rows, source: n.source, note: extraNote, status: n.status });
+      { name: `${n.title} (${n.id})`, kind: 'plNode', netId: n.id, plFloor: n.floor === 'site' ? 'site' : n.floor, rows, source: n.source, note: extraNote, status: n.status });
   }
 
   // ---- precast chamber: base, rings, cover slab, adjustment rings, frame + cover, benching, connectors, steps
@@ -424,8 +426,12 @@ export function buildPlumbing(ctx) {
     it.meta.finding = f; findingItems.push(it);
   }
 
+  // ---- design proposal (data/plumbing/proposal.json) – separate items, shown with the "with proposal" switch
+  const proposal = data.plumbingProposal ? buildProposal({ data, coords, scene, registry, C, D, H0, mat, std, pipeMat, pipe, label, add, odOf, brass, rubber, iron, steel, concrete, redCap, ground }) : null;
+  const superseded = new Set(proposal?.superseded || []);
+
   const api = {
-    items, findingItems, network: N, totalLen, chambersInfo,
+    items, findingItems, network: N, totalLen, chambersInfo, proposal,
     attach(app) {
       this.app = app;
       const ctl = buildPanel(app, this);
@@ -439,6 +445,8 @@ export function buildPlumbing(ctx) {
           if (!it.object.visible) continue;
           if (floors[it.meta.plFloor] === false) it.object.visible = false;
           if (it.meta.plSeverity && sev[it.meta.plSeverity] === false) it.object.visible = false;
+          if (it.meta.plProposal && !s.proposal) it.object.visible = false;
+          if (s.proposal && it.meta.netId && superseded.has(it.meta.netId)) it.object.visible = false;
         }
         const x = !!s.xray;
         for (const t of terrain) t.object.traverse(o => {

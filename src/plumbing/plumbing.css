@@ -21,3 +21,6 @@
 /* info card above the plumbing labels */
 #info { z-index: 30; }
 .plbox .plmaster { display: block; font-weight: 700; padding: 6px 8px; margin: 4px 0 6px; background: #e3f2fd; border-radius: 6px; cursor: pointer; }
+.plbox .plprop { background: #f3e5f5; padding: 4px 6px; border-radius: 6px; }
+.plbox .plprop label { margin-inline-end: 10px; }
+.lbl.pl.pt { background: #e8f5e9; border-color: #2e7d32; font-size: 9px; }

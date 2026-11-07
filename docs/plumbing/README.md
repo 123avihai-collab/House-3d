@@ -19,6 +19,18 @@
 - **מים קרים** – מערכת מדידה, קו ראשי והסתעפויות עם הקטרים שבתוכנית (ø32/25/20/16), ברזי גן, ברז מילוי בריכה ועולים. **מים חמים** – דוד ומחלק בגג.
 - **ממצאי בדיקה הנדסית** – סמן בכל ממצא, עם הסבר והצעה. אף הצעה לא בוצעה במודל.
 
+## הצעת תכנון (לאישור)
+
+במצב **"עם ההצעה"** (שכבות → אינסטלציה → תצוגה) מוצגים, במקום הפריטים של היועץ שהם מחליפים:
+- פיר אינסטלציה מצפון לממ"ד.
+- 4 מחלקים (קרקע, קומה א', יחידה 1, יחידה 2) עם ברז לכל יציאה.
+- PEX בשרוול לכל נקודה, ובכל נקודה זווית קיר וברז זווית בגובה טיפוסי.
+- אספקה חמה וקו סחרור מבודדים מהדוד.
+- 6 קולטנים מוזזים מתוך הבטון.
+- סימון בכל מעבר בקיר ובתקרה.
+
+הפירוט המלא: [03-proposal.md](03-proposal.md). הקוד: `tools/plumbing/propose.py` (קלטים ב-`proposal-inputs.json`), והדוח: `tools/plumbing/report_proposal.py`.
+
 ## שימוש
 
 לשונית "שכבות" → קבוצת "אינסטלציה – תוכנית היועץ":
@@ -35,6 +47,8 @@
 python3 tools/plumbing/extract.py    # קריאת המקורות -> tools/plumbing/cache/raw.json
 python3 tools/plumbing/build.py      # רשת, מפלסים, קטרים, ממצאים -> data/plumbing/network.json
 python3 tools/plumbing/verify.py     # טבלת אימות -> docs/verification/plumbing-1.md
+python3 tools/plumbing/propose.py    # הצעת תכנון -> data/plumbing/proposal.json
+python3 tools/plumbing/report_proposal.py  # -> docs/plumbing/03-proposal.md
 python3 tools/plumbing/debug_plot.py ground out.png   # תמונת בדיקה של הרשת (לא חלק מהמודל)
 ```
 

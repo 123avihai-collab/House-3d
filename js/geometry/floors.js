@@ -73,13 +73,17 @@ export function buildFloorSkeleton(ctx, F) {
   // walls rising from the floor
   const wg = new THREE.Group(); const wNotes = new Set();
   for (const w of F.walls) {
-    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor));
+    // a wall with windows / doors (tools/extract_openings.py): its pieces around the openings + concrete sill / lintel in them
+    const g = new THREE.Group();
+    const pieces = w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
+    for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
+    for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls') }, {
       name: `קיר ${w.tag || w.id} – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
+        ...(w.openings?.length ? [['פתחים', `${w.openings.join(', ')} (אדן / משקוף בטון)`]] : []),
         ['נפח בטון', `${(w.area_m2 * (w.topRel - w.bottomRel)).toFixed(2)} מ"ק`]],
       note: w.note || 'תחתית = ראש האלמנט שמתחתיו (רצפה / קורה); ראש = תחתית תקרת K-31.', source: w.source,
     });

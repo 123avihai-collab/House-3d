@@ -102,3 +102,10 @@ python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 ```
 גאורפרנס שלב 3: k-31.dxf (וגם k-41.dxf) באותן קואורדינטות Revit כמו k-21.dxf – ההזזה של k-21 (framing.json) משמשת כמות שהיא (עמודים 4, 5 זהים עד 0.1 מ"מ). K-31 PDF מוצב על גיליון K-400 ב-ICP מול k-31.dxf (שארית חציונית 0.05 pt). גיליון האדריכלות "קומה קרקע – פיתוח היקפי" (1:100) מוצב על K-21 PDF ב-ICP (קנ"מ ×2, הזזה 2563.14, ‎-110.56 pt) – משמש **לזיהוי אזורים בלבד** (`tools/ground-zones.json`), לא למידות.
 קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.
+
+## פתחים – חלונות ודלתות (07.11.2026)
+
+| מקור | שימוש | מיקום / גאורפרנס |
+|---|---|---|
+| `plumbing/אינסטלציה חתכים הכל.dxf` – בלוקים `martef`, `pituah`, `alef` (תוכניות Revit של האדריכל) | מיקום, כיוון ורוחב כל דלת/חלון (שכבות A-DOOR / A-GLAZ), תגיות U.K/O.K; קירות האדריכל לבדיקה העצמית | ICP מול k-11 / k-21 / k-31 (שארית 0.1–2.5 מ"מ) – `tools/extract_openings.py` |
+| `permit/permit-sheet1-gramushka.dwg` (דרך `tools/cache/permit-sheet1.json`) | גובה אדן/משקוף מהחזיתות והחתכים (בלוק לכל מופע, עם מזהה Revit; ס"מ יחסית ל-±0.00) | התאמה לפי מזהה Revit |

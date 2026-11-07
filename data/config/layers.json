@@ -199,6 +199,16 @@
      "visible": true
     },
     {
+     "id": "windows",
+     "label": "חלונות וויטרינות",
+     "visible": true
+    },
+    {
+     "id": "doors",
+     "label": "דלתות",
+     "visible": true
+    },
+    {
      "id": "groundWalls",
      "label": "קירות קומת הקרקע (K-21)",
      "visible": true

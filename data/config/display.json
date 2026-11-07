@@ -96,5 +96,14 @@
   },
   "stairs": {
     "labelLift_m": 0.4
+  },
+  "openings": {
+    "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר)",
+    "frame_m": 0.05,
+    "frameDepth_m": 0.07,
+    "mullion_m": 0.05,
+    "glass_m": 0.02,
+    "doorLeaf_m": 0.045,
+    "defaultWallDepth_m": 0.2
   }
 }

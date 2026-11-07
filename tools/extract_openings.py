@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""Windows / doors -> data/architecture/openings.json, and the concrete walls cut around them.
+
+Plans    : sources/plumbing/אינסטלציה חתכים הכל.dxf – the architect's Revit plans as blocks 'martef' (basement), 'pituah'
+           (ground), 'alef' (first floor). Door / window families on layers A-DOOR / A-GLAZ (name, element id, insertion
+           point = centre of the opening on the wall, rotation = wall direction). Each block is placed on the structural DXF
+           of its floor (k-11 / k-21 / k-31, same Revit coordinates) by ICP translation on the wall lines -> ITM (stage-2 chain).
+Heights  : sources/permit (the permit sheet, tools/cache/permit-sheet1.json): every family instance is exported per view with
+           its Revit element id in the block name; in the sections / elevations (חתך א-א, ב-ב, חזית …) the block geometry is in
+           cm relative to ±0.00 -> sill / head (union over the views: a parapet can hide the lower part in one view).
+           Doors: height from the family name (96_210 -> 2.10). Checked against the U.K / O.K tags of the plans.
+Walls    : a concrete wall (k-21 / k-31 / k-11 walls of the model) hosting an opening is cut by the opening rectangle
+           (width × wall thickness) and refilled below the sill and above the head (concrete sill / lintel).
+Run after tools/extract_floor.py:  python3 tools/extract_openings.py
+"""
+import json, math, os, re, sys
+from collections import defaultdict
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ezdxf
+import numpy as np
+from shapely.geometry import Polygon, LineString, Point, box
+from shapely.ops import unary_union
+from shapely import affinity
+import extract_framing as F
+
+ROOT = F.ROOT; r3 = F.r3
+SRC = 'sources/plumbing/אינסטלציה חתכים הכל.dxf'
+PERMIT = 'tools/cache/permit-sheet1.json'
+PERMIT_SRC = 'sources/permit/permit-sheet1-gramushka.dwg'
+FLOORS = {   # block, structural DXF it is placed on, finished floor level (rel), model file with its concrete walls
+    'unit': ('martef', F.K11, -2.60, 'framing.json'),
+    'ground': ('pituah', F.K21, 0.00, 'floor-ground.json'),
+    'first': ('alef', 'sources/structure/k-31.dxf', 3.85, 'floor-first.json'),
+}
+NAME = re.compile(r'^(.*)-([A-Z]?\d+)-(.+)$')
+
+
+def place(msp, block, dxf):
+    ins = next(e for e in msp.query('INSERT') if e.dxf.name == block)
+    ents = list(ins.virtual_entities())
+    A = [(v.dxf.start.x, v.dxf.start.y) for v in ents if v.dxftype() == 'LINE' and v.dxf.layer in ('A-WALL', 'S-STRS', 'S-STRS-MBND')]
+    A += [(v.dxf.end.x, v.dxf.end.y) for v in ents if v.dxftype() == 'LINE' and v.dxf.layer in ('A-WALL', 'S-STRS', 'S-STRS-MBND')]
+    A = np.unique(np.round(np.array(A), 1), axis=0)
+    m = F.read_dxf(dxf); B = []
+    for e in m.query('LINE[layer=="IfcWall"]'): B += [(e.dxf.start.x, e.dxf.start.y), (e.dxf.end.x, e.dxf.end.y)]
+    B = np.unique(np.round(np.array(B), 1), axis=0)
+    sc, t, med = F.icp(A, B, tries=100)
+    t11 = F.basement['k11ToK400']['translation_pt']
+    to_itm = lambda x, y: F.sheet2itm((x + t[0]) * F.S_CM + t11[0], -(y + t[1]) * F.S_CM + t11[1])
+    return ents, to_itm, {'translation_cm': [r3(v) for v in t], 'inlierFraction': r3(sc), 'medianResidual_cm': r3(med)}
+
+
+def view_heights():
+    """{element id: {'sill': cm, 'head': cm, 'width': cm, 'views': [...]}} from the section / elevation views of the permit sheet"""
+    d = json.load(open(os.path.join(ROOT, PERMIT), encoding='utf-8'))
+    B = {b['name']: b for b in d['blocks']}
+    out = defaultdict(list)    # element id -> [(sill cm, head cm, width cm, view)]
+    fam = defaultdict(list)
+    for e in d['entities']:
+        if e['type'] != 'INSERT' or e['layer'] not in ('A-GLAZ', 'A-DOOR'): continue
+        m = NAME.match(e['name'])
+        if not m: continue
+        nm, eid, view = m.groups()
+        if not any(k in view for k in ('חזית', 'חתך')): continue
+        y0 = e['insertionPoint']['y']    # views are drawn at y = 0 (±0.00); a second instance of the same element sits at its offset
+        xs, ys = [], []
+        for g in B[e['name']]['entities']:
+            if g['type'] == 'LINE': xs += [g['startPoint']['x'], g['endPoint']['x']]; ys += [g['startPoint']['y'], g['endPoint']['y']]
+            elif g['type'] == 'HATCH':
+                for pth in g['boundaryPaths']:
+                    for ed in pth.get('edges', []):
+                        if 'start' in ed: xs += [ed['start']['x'], ed['end']['x']]; ys += [ed['start']['y'], ed['end']['y']]
+        if not ys or max(ys) - min(ys) < 20: continue          # seen edge-on
+        rec = (min(ys) + y0, max(ys) + y0, max(xs) - min(xs), view)
+        out[eid].append(rec); fam[nm.strip()].append(rec)
+    return dict(out), fam
+
+
+def kind_of(name, layer):
+    if layer == 'A-DOOR': return 'door'
+    if 'צינור' in name or 'Zinor' in name: return 'vent'
+    if 'ויטרינה' in name: return 'vitrine'
+    if 'הזזה' in name: return 'sliding'
+    return 'window'
+
+
+def main():
+    doc = ezdxf.readfile(os.path.join(ROOT, SRC)); msp = doc.modelspace()
+    H, FAM = view_heights()
+    openings, placement = [], {}
+    for floor, (blk, dxf, ffl, _) in FLOORS.items():
+        ents, to_itm, pl = place(msp, blk, dxf); placement[blk] = pl
+        txt = [(v.dxf.insert.x, v.dxf.insert.y, v.plain_text().strip()) for v in ents if v.dxftype() == 'MTEXT' and v.dxf.layer == 'A-GLAZ-IDEN']
+        num = lambda x0, y0: next((float(t) for x_, y_, t in txt if re.fullmatch(r'-?\d+', t) and 0 < x_ - x0 < 90 and abs(y_ - y0) < 5), None)
+        tagpairs = []   # (x, y, U.K cm, O.K cm): "U.K.=" + value, and "O.K=" + value ~31 cm below
+        for x_, y_, t in txt:
+            if t.startswith('U.K'):
+                ok = next(((x2, y2) for x2, y2, t2 in txt if t2.startswith('O.K') and abs(x2 - x_) < 5 and 20 < y_ - y2 < 45), None)
+                if ok and num(x_, y_) is not None and num(*ok) is not None: tagpairs.append((x_, y_, num(x_, y_), num(*ok)))
+        for v in ents:
+            if v.dxftype() != 'INSERT' or v.dxf.layer not in ('A-DOOR', 'A-GLAZ'): continue
+            m = NAME.match(v.dxf.name)
+            if not m: continue
+            nm, eid, view = m.groups(); nm = nm.strip(); kind = kind_of(nm, v.dxf.layer)
+            if kind == 'vent': continue                         # mamad ventilation sleeves – not an opening in the model
+            x, y = v.dxf.insert.x, v.dxf.insert.y; rot = math.radians(v.dxf.rotation)
+            c = to_itm(x, y); a2 = to_itm(x + 100 * math.cos(rot), y + 100 * math.sin(rot))
+            ax = ((a2[0] - c[0]) / 1.0, (a2[1] - c[1]) / 1.0); L = math.hypot(*ax); ax = (ax[0] / L, ax[1] / L)
+            dims = re.search(r'(\d{2,3})_(\d{3})', nm)
+            # plan geometry: an instance drawn as a flat projection (thickness < 10 cm) belongs to another level – skip
+            pts = [p for w in v.virtual_entities() if w.dxftype() in ('LINE',) for p in ((w.dxf.start.x, w.dxf.start.y), (w.dxf.end.x, w.dxf.end.y))]
+            along = [(p[0] - x) * math.cos(rot) + (p[1] - y) * math.sin(rot) for p in pts]; across = [-(p[0] - x) * math.sin(rot) + (p[1] - y) * math.cos(rot) for p in pts]
+            if pts and kind != 'door' and max(across) - min(across) < 10: continue
+            band = lambda r: ffl - 0.05 <= r[0] / 100 < ffl + 3.30
+            own = [r for r in H.get(eid, []) if band(r)]
+            famr = [r for r in FAM.get(nm, []) if band(r)]
+            st, note, hsrc = 'source', '', ''
+            if own:
+                sill, head, width = min(r[0] for r in own) / 100, max(r[1] for r in own) / 100, max(r[2] for r in own) / 100
+                hsrc = f"{PERMIT_SRC}: {', '.join(sorted({r[3] for r in own}))} (מזהה {eid})"
+            near = min(tagpairs, key=lambda q: math.dist(q[:2], (x, y))) if tagpairs else None
+            if own and near and kind == 'vitrine' and near[2] == 0 and sill > ffl + 0.05 and not any('חתך' in r[3] for r in own):
+                # seen only in an elevation behind a parapet: the plan tag gives the sill (U.K.=0)
+                sill = ffl; note += f' אדן לפי תגית התוכנית "U.K.={near[2]:.0f}" (בחזית החלק התחתון מוסתר במעקה).'
+            if own: pass
+            elif kind != 'door' and near and math.dist(near[:2], (x, y)) < 600:
+                sill, head, width = ffl + near[2] / 100, ffl + near[3] / 100, None
+                hsrc = f'תגית התוכנית "U.K.={near[2]:.0f} O.K={near[3]:.0f}" (הקרובה, בלוק {blk})'
+            elif kind == 'door' and dims:
+                sill, head, width = ffl, ffl + int(dims.group(2)) / 100, int(dims.group(1)) / 100; hsrc = f'שם המשפחה "{dims.group(0)}" (רוחב_גובה)'
+            else:
+                if famr:
+                    sill, head, width = min(r[0] for r in famr) / 100, max(r[1] for r in famr) / 100, max(r[2] for r in famr) / 100
+                    hsrc = f'{PERMIT_SRC}: אותה משפחה באותה קומה ("{nm}")'; st = 'approx'; note = 'מזהה Revit שונה בתוכנית – גובה לפי מופע אחר של אותה משפחה באותה קומה.'
+                else:
+                    sill, head, width = ffl, ffl + 2.10, None; st = 'provisional'; note = 'אין גובה במקורות (לא מופיע בחזיתות/חתכים) – זמני 2.10.'; hsrc = '—'
+            if width is None:   # plan width: extent of the family geometry along the wall
+                width = (max(along) - min(along)) / 100; note += ' רוחב לפי היקף המשפחה בתוכנית (כולל משקוף / כיס הזזה).'
+            openings.append({'id': f'{floor[0].upper()}{len([o for o in openings if o["floor"] == floor]) + 1:02d}', 'floor': floor, 'kind': kind, 'name': nm,
+                             'revitId': eid, 'centerITM': [r3(c[0]), r3(c[1])], 'axisITM': [round(ax[0], 6), round(ax[1], 6)], 'width_m': r3(width),
+                             'sillRel': r3(sill), 'headRel': r3(head), 'floorFinishRel': ffl, 'UK_cm': round((sill - ffl) * 100), 'OK_cm': round((head - ffl) * 100),
+                             'status': st, 'note': note, 'heightSource': hsrc,
+                             'source': f'{SRC} בלוק {blk}, שכבה {v.dxf.layer}, "{nm}" (מזהה {eid}); גובה: {hsrc}'})
+    # ---- host concrete walls: cut the opening rectangle, refill below the sill / above the head ----
+    files = {f: json.load(open(os.path.join(ROOT, 'data/structure', f), encoding='utf-8')) for f in ('framing.json', 'floor-ground.json', 'floor-first.json')}
+    walls = {'unit': files['framing.json']['basementWalls'], 'ground': files['floor-ground.json']['walls'], 'first': files['floor-first.json']['walls']}
+    for ws in walls.values():
+        for w in ws:
+            w.pop('partsITM', None); w.pop('infill', None); w.pop('openings', None)
+    stats = defaultdict(int)
+    for o in openings:
+        c = Point(o['centerITM']); ax = np.array(o['axisITM']); nrm = np.array([-ax[1], ax[0]])
+        best = None
+        for w in walls[o['floor']]:
+            g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
+            if g.distance(c) > 0.6: continue
+            probe = LineString([tuple(np.array(c.coords[0]) - nrm * 0.6), tuple(np.array(c.coords[0]) + nrm * 0.6)])
+            # wall thickness across the opening: the wall's cut by the normal line through the centre, or next to it along the axis
+            for sh in (0.0, -o['width_m'] / 2 - 0.15, o['width_m'] / 2 + 0.15):
+                pr = affinity.translate(probe, *(ax * sh)); seg = pr.intersection(g)
+                parts = [q for q in getattr(seg, 'geoms', [seg]) if not q.is_empty and q.length > 0.08]
+                if parts:
+                    seg = min(parts, key=lambda q: q.distance(Point(pr.interpolate(0.5, normalized=True))))
+                    t = seg.length
+                    if t > 0.45: continue               # running along a wall end / corner – not a cut through the wall
+                    mid = seg.interpolate(0.5, normalized=True)
+                    off = (np.array(mid.coords[0]) - np.array(pr.interpolate(0.5, normalized=True).coords[0])) @ nrm
+                    cand = (abs(sh), w, t, off)
+                    if best is None or cand[0] < best[0] or (cand[0] == best[0] and t > best[2]): best = cand
+                    break
+        if not best:
+            o['host'] = None; stats['noConcrete'] += 1; continue
+        _, w, t, off = best
+        c0 = np.array(c.coords[0]) + nrm * off; hw = o['width_m'] / 2
+        R = Polygon([tuple(c0 - ax * hw - nrm * t / 2), tuple(c0 + ax * hw - nrm * t / 2), tuple(c0 + ax * hw + nrm * t / 2), tuple(c0 - ax * hw + nrm * t / 2)])
+        g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
+        both_sides = g.intersects(affinity.translate(R, *(ax * (hw + 0.1)))) and g.intersects(affinity.translate(R, *(-ax * (hw + 0.1))))
+        covered = R.intersection(g).area / R.area
+        if covered < 0.5 and not both_sides:
+            neigh = [x for x in walls[o['floor']] if x is not w and Polygon(x['footprintITM'], x.get('holesITM') or []).buffer(0).distance(R) < 0.12]
+            if not neigh: o['host'] = None; stats['noConcrete'] += 1; continue
+        o['host'] = w['id']; o['hostThickness_m'] = r3(t); o['cutITM'] = [[r3(a), r3(b)] for a, b in R.exterior.coords[:-1]]
+        rest = g.difference(R.buffer(0.001))
+        w.setdefault('openings', []).append(o['id'])
+        prev = w.get('partsITM')
+        cur = unary_union([Polygon(p['ringITM'], p['holesITM']) for p in prev]) if prev else g
+        cur = cur.difference(R.buffer(0.001))
+        w['partsITM'] = [{'ringITM': [[r3(a), r3(b)] for a, b in p.exterior.coords[:-1]],
+                          'holesITM': [[[r3(a), r3(b)] for a, b in i.coords[:-1]] for i in p.interiors]}
+                         for p in getattr(cur, 'geoms', [cur]) if p.area > 0.002]
+        inf = w.setdefault('infill', [])
+        bot, top = w['bottomRel'], w['topRel']
+        ring = [[r3(a), r3(b)] for a, b in R.exterior.coords[:-1]]
+        if o['sillRel'] > bot + 0.01 and o['kind'] != 'door': inf.append({'kind': 'sill', 'opening': o['id'], 'ringITM': ring, 'bottomRel': bot, 'topRel': o['sillRel']})
+        if o['headRel'] < top - 0.01: inf.append({'kind': 'lintel', 'opening': o['id'], 'ringITM': ring, 'bottomRel': o['headRel'], 'topRel': top})
+        stats['hosted'] += 1; stats['cutContinuous' if covered >= 0.5 else 'filledGap'] += 1
+    for f, d in files.items():
+        json.dump(d, open(os.path.join(ROOT, 'data/structure', f), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    out = {'_doc': 'Windows and doors. Generated by tools/extract_openings.py – do not edit by hand. Levels relative to ±0.00 (finished floors: basement −2.60, ground 0.00, first +3.85).',
+           'placement': placement, 'openings': openings}
+    os.makedirs(os.path.join(ROOT, 'data/architecture'), exist_ok=True)
+    json.dump(out, open(os.path.join(ROOT, 'data/architecture/openings.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('placement', placement)
+    for o in openings:
+        print(o['id'], o['kind'], o['name'][:38], o['revitId'], 'w', o['width_m'], 'UK/OK', o['UK_cm'], o['OK_cm'], o['status'], 'host', o.get('host'), o.get('hostThickness_m'))
+    print(dict(stats))
+
+
+if __name__ == '__main__':
+    main()

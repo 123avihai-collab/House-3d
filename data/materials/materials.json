@@ -101,6 +101,26 @@
       "roughness": 0.45,
       "envMapIntensity": 1.0,
       "_note": "ארון חשמל (פח) – צבע ניטרלי זמני"
+    },
+    "glass": {
+      "color": "#a9cfe0",
+      "roughness": 0.05,
+      "transparent": true,
+      "opacity": 0.35,
+      "envMapIntensity": 1.2,
+      "_note": "זכוכית – זמני עד מפרט החלונות"
+    },
+    "windowFrame": {
+      "color": "#3f4448",
+      "roughness": 0.45,
+      "envMapIntensity": 1.0,
+      "_note": "מסגרת אלומיניום – צבע לפי מסמך העיצוב (חסר)"
+    },
+    "doorLeaf": {
+      "color": "#9a7b5c",
+      "roughness": 0.6,
+      "envMapIntensity": 0.9,
+      "_note": "כנף דלת – צבע לפי מסמך העיצוב (חסר)"
     }
   }
 }

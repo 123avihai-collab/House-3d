@@ -124,6 +124,29 @@ out += ['', 'היסט מקו המגרש פנימה (מ\'). צפון / מזרח /
 for w in PM['walls']:
     out.append(f"| {w['id']} | {w['side']} | {w['length_m']:.2f} | {w['thickness_m']:.2f} | {w['topAbs']:.2f} | {w['bottomRel']:+.2f} | {w['status']} |")
 out += ['']
+OPF = J('data/architecture/openings.json'); OPS = OPF['openings']
+FL = {'unit': 'מרתף', 'ground': 'קרקע', 'first': "א'"}
+out += ['## 10. פתחים, חלונות ודלתות (תוכניות Revit של האדריכל + חזיתות/חתכים בגרמושקה)', '',
+        '| תוכנית | מיקום (ICP מול) | שארית חציונית |', '|---|---|---|']
+for b, pl_ in OPF['placement'].items():
+    out.append(f"| {b} | {({'martef': 'k-11', 'pituah': 'k-21', 'alef': 'k-31'})[b]} | {pl_['medianResidual_cm'] * 10:.1f} מ\"מ |")
+out += ['', '| פתח | קומה | שם (Revit) | רוחב | U.K / O.K | מקור הגובה | קיר בטון | מעמד |', '|---|---|---|---|---|---|---|---|']
+for o in OPS:
+    out.append(f"| {o['id']} | {FL[o['floor']]} | {o['name']} | {o['width_m']:.2f} | {o['UK_cm']} / {o['OK_cm']} | {o['heightSource'].split(':')[-1].strip()[:60]} | {o.get('host') or '—'} | {o['status']} |")
+cnt = {f: sum(1 for o in OPS if o['floor'] == f) for f in FL}
+host = sum(1 for o in OPS if o.get('host'))
+out += ['', f"סה\"כ: מרתף {cnt['unit']}, קרקע {cnt['ground']}, א' {cnt['first']}. בקיר בטון: {host} (חיתוך + אדן / משקוף בטון); השאר בקירות בלוקים (שלב 4).", '',
+        '**בדיקות:** מרתף – כל החלונות U.K.=130 O.K=210 מהרצפה ‎-2.60, כמו 7 התגיות בתוכנית המרתף ובקובץ ה-PDF. '
+        'חלון המטבח 166, ויטרינת הסלון 500, יחידת הורים 230 – רוחב החזית = רוחב המשפחה בתוכנית. '
+        'בגבהים מהחזיתות נכלל ארגז התריס (למשל חלון מדרגות קומה א\': חזית 20–275, תגית "U.K.=20 O.K=240" ⇒ ארגז 35).', '']
+ovl = J('docs/verification/stage-3-overlay.json')
+out += ['## 11. בדיקה עצמית: קירות הבטון מול תוכניות האדריכל', '',
+        'תמונות: [מרתף](stage-3-overlay-unit.png) · [קרקע](stage-3-overlay-ground.png) · [קומה א\'](stage-3-overlay-first.png)', '',
+        f"תוקן: מקומה א' הוסרו {sum(x['areaRemoved_m2'] for x in FF['wallsRemovedAsBelow']['items']):.2f} מ\"ר קירות – קירות קומת הקרקע שמתחת לתקרה +3.70 (מילוי אפור \"מפסיק\" ב-K-31) שאין להם קיר בתוכנית קומה א'. "
+        f"מקומת הקרקע: {sum(x['areaRemoved_m2'] for x in G['wallsRemovedAsBelow']['items']):.2f} מ\"ר. "
+        'קירות מעל הגג (K-41) – מ-+6.65 (לפי "+8.00 / +6.65") ולא מקומה א\' לכל הגובה (כיסו את ויטרינות קומה א\').', '',
+        'קירות בטון שעדיין לא תואמים קיר באדריכלות:', ''] + [f'- {r}' for r in ovl] + [
+        '', 'שניהם עמודים/קטעי קיר בין חלון לויטרינה בחזית הצפונית (W3 בקרקע, W12 בקומה א\') – באדריכלות הם בתוך מסגרת הויטרינה; תקין.', '']
 missing = [b['id'] for b in C['beams'] if b['status'] == 'missing']
 out += [f"קורות בלי גיאומטריה (לא שורטטו): {', '.join(missing) or '—'}.", '']
 os.makedirs(os.path.join(ROOT, 'docs/verification'), exist_ok=True)

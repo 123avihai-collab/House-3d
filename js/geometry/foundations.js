@@ -47,8 +47,12 @@ export function buildFoundations(ctx) {
       area_m2: null, variant: { change: ch.id, show: 'changed' }, note: `${w.note} | ${ch.id}: בלי קיר ${ch.openWall.piece} (פתח מעבר)` }));
   }
   for (const w of wallList) {
-    const m = prism(w.footprintITM, w.holesITM, H(w.bottomRel), H(w.topRel), conc);
-    const g = new THREE.Group(); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor));
+    // windows / doors (tools/extract_openings.py): the wall around the openings + concrete sill / lintel in them
+    const g = new THREE.Group();
+    const own = !w.variant || w.variant.show === 'original';
+    const pieces = own && w.partsITM ? w.partsITM.map((p) => [p.ringITM, p.holesITM, w.bottomRel, w.topRel]) : [[w.footprintITM, w.holesITM, w.bottomRel, w.topRel]];
+    if (own) for (const f of w.infill || []) pieces.push([f.ringITM, [], f.bottomRel, f.topRel]);
+    for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (w.status === 'provisional') g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.area_m2 != null && w.variant?.show !== 'changed') stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
     registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
       name: `קירות מרתף (${w.id})${w.variant?.show === 'original' ? ' – לפי התוכניות' : ''}`, status: w.status, variant: w.variant,

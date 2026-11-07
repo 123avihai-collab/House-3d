@@ -142,6 +142,52 @@ def clip_to_beams(panels, beams):
     return [p for p in panels if p['poly'].area > 0.05]
 
 
+def pdf_grey(path, t, shades=(0.74, 0.81)):
+    """grey solid fill of a structural sheet ("קיר מפסיק" – wall that stops at this level = the wall below) -> ITM"""
+    p = pymupdf.open(os.path.join(ROOT, path))[0]; out = []
+    for d in p.get_drawings():
+        f = d.get('fill')
+        if f is None or not all(shades[0] <= c <= shades[1] for c in f) or max(f) - min(f) > 0.01: continue   # neutral grey only
+        rings, cur = [], []
+        for it in d['items']:          # one path may hold several sub-shapes: a new one starts where the pen jumps
+            if it[0] == 'l':
+                a, b = (it[1].x, it[1].y), (it[2].x, it[2].y)
+                if cur and math.dist(cur[-1], a) > 0.05: rings.append(cur); cur = []
+                if not cur: cur.append(a)
+                cur.append(b)
+            elif it[0] == 're':
+                R = it[1]; rings.append([(R.x0, R.y0), (R.x1, R.y0), (R.x1, R.y1), (R.x0, R.y1)])
+        if cur: rings.append(cur)
+        for rg in rings:
+            if len(rg) >= 3:
+                g = Polygon([F.sheet2itm(x + t[0], y + t[1]) for x, y in rg]).buffer(0)
+                if g.area > 0.01: out.append(g)
+    return unary_union(out)
+
+
+def arch_band(floor):
+    """the architect's walls of a floor (Revit plan in the plumbing DXF, placed by tools/extract_openings.place), ±13 cm"""
+    import ezdxf, extract_openings as O
+    blk, dxf, _, _ = O.FLOORS[floor]
+    ents, to_itm, _ = O.place(ezdxf.readfile(os.path.join(ROOT, O.SRC)).modelspace(), blk, dxf)
+    return unary_union([LineString([to_itm(v.dxf.start.x, v.dxf.start.y), to_itm(v.dxf.end.x, v.dxf.end.y)]) for v in ents
+                        if v.dxftype() == 'LINE' and v.dxf.layer in ('A-WALL', 'I-WALL', 'S-STRS', 'S-STRS-MBND')]).buffer(0.13)
+
+
+def drop_below(pieces, grey, arch):
+    """remove from the wall pieces of a floor what the sheet fills grey (wall below, stopping at the level) and the architect
+    does not have on that floor; returns (kept pieces, removed areas)"""
+    cut = grey.difference(arch)
+    kept, removed = [], []
+    for q in pieces:
+        r = q.difference(cut.buffer(0.02))
+        lost = q.area - r.area
+        parts = [x for x in polys(r) if x.area > 0.05 and 2 * x.area / x.length > 0.06]
+        if lost > 0.02: removed.append({'areaRemoved_m2': r3(lost), 'centroidITM': [r3(v) for v in q.centroid.coords[0]]})
+        kept += parts
+    return kept, removed
+
+
 def fill_thin(panels):
     """walls standing on a slab cut thin holes in its faces: the slab runs on under them"""
     for p in panels:
@@ -408,6 +454,9 @@ def main():
         if near_lot > 0.7: perimeter.append(q); continue
         if q.intersection(grey).area > 0.5 * q.area: stopping.append(q); continue
         walls.append(q)
+    # walls the sheet fills grey (stopping = basement walls below) and the architect's ground plan does not have
+    walls, removed21 = drop_below(walls, pdf_grey(F.K21P, K21P_T), arch_band('ground'))
+    print('ground: removed below-walls', removed21)
     cols = hatches(m21, 'IfcColumn', to)
     ctags = tag_texts(m21, 'Structural Column Tags', to)
 
@@ -578,6 +627,7 @@ def main():
 
     out = {
         'floor': 'ground',
+        'wallsRemovedAsBelow': {'items': removed21, 'note': 'חלקי קירות שב-K-21 ממולאים אפור ("מפסיק" = קיר המרתף שמתחת) ואין להם קיר בתוכנית האדריכל של הקרקע – הוסרו.'},
         'placement': {'k31dxf': 'k21dxf translation (same Revit coordinates)', 'k31_vs_k21_columns_m': [r3(v) for v in same_coords],
                       'K31pdf': {'translation_pt': [r3(v) for v in t31p], 'inlierFraction': r3(tp[0]), 'medianResidual_pt': r3(tp[2])}},
         'slab': [{'id': f'GS{i + 1}', 'zone': p['zone'], 'zoneLabel': 'ממ"ד' if p['zone'] == 'mamad' else ZN['zones'][p['zone']]['label'],
@@ -654,7 +704,12 @@ def main():
     # ---- first-floor walls (k-31 "Beton Ole" faces) ----
     W31, grey31 = rising_wall_pieces(m31, to)
     wtags31 = tag_texts(m31, 'Wall Tags', to)
-    W31 = sorted([q for q in W31 if q.intersection(grey31).area < 0.5 * q.area], key=lambda g: -g.area)
+    W31 = [q for q in W31 if q.intersection(grey31).area < 0.5 * q.area]
+    # K-31 also draws the ground-floor walls under the +3.70 slab (grey fill = "מפסיק"): keep only what rises – walls the
+    # sheet fills grey and the architect's first-floor plan does not have are removed
+    W31, removed31 = drop_below(W31, pdf_grey(K31P, t31p), arch_band('first'))
+    print('first: removed below-walls', removed31)
+    W31 = sorted(W31, key=lambda g: -g.area)
     wtag31 = {}
     for (xy, txt) in wtags31:
         if not re.match(r'^\d+$', txt) or not W31: continue
@@ -750,11 +805,11 @@ def main():
         sup += [(c['topRel'], f"עמוד {c['id']} של קומה א' (רציף)") for c in first_cols if q.intersection(Polygon(c['footprintITM'])).area > 0.25 * q.area]
         notes, st = [], 'source'
         if not sup:
-            # outside the roof slab (pergola band): the wall rises from the first-floor slab / beam below, full height
-            sup = [(p['top'], f"תקרת הקרקע +{p['top']:.2f} (מרפסת קומה א', לכל הגובה)") for p in panels31 if q.intersection(p['poly'].buffer(0.05)).area > 0.25 * q.area]
-            sup += [(b['topRel'], f"קורה {b['id']} (O.K {b['topRel']:+.2f}, לכל הגובה)") for P, b in beam31 if q.intersection(P).area > 0.25 * q.area]
-            # double height: the wall of the ground floor below runs up to the roof
-            sup += [(w['topRel'], f"קיר {w.get('tag') or w['id']} של קומת הקרקע (רציף, חלל כפול)") for w in out['walls'] if q.intersection(Polygon(w['footprintITM'])).area > 0.25 * q.area]
+            # outside the roof slab (façade band / pergola edge): K-41 writes "+8.00 / +6.65" next to its walls – the band
+            # between the roof-slab underside (+6.65) and the parapet top (+8.00). Below it: the first-floor walls / windows
+            # (a full-height wall from +3.70 covered the first-floor vitrines – corrected)
+            if any(w_[4] == '+6.65' for w_ in pg41.get_text('words')):
+                sup = [(6.65, 'רצועה ‎+6.65…+8.00 (מפלסי הנקודה "+8.00 / +6.65" ב-K-41) – מתחתיה קירות / חלונות קומה א\'')]
         if sup: bot, on = max(sup, key=lambda x: x[0])
         else: bot, on, st = max(panels41, key=lambda p: p['poly'].area)['top'], None, 'provisional'; notes.append('אין במקורות אלמנט נושא מתחתיו')
         near = min((sp.distance(q) for sp in spots), default=99)
@@ -773,7 +828,8 @@ def main():
     roof = dict(roof, beams=[])   # the K-41 beams sit on the roof walls -> drawn with the roof (floor "roof")
     first = {'floor': 'first', 'slab': [], 'walls': first_walls, 'columns': first_cols, 'ceiling': roof, 'ceilingLabel': 'תקרת הגג',
              'roofLevels': [{'topRel': t_['top'], 'thickness_m': t_['thickness_m']} for t_ in tags41],
-             'note': 'קומה א\': עמודים בלבד בשלב זה (בקשת אביחי). קירות קומה א\' ותקרת הגג – בהמשך (שלב 3ג/3ד).',
+             'wallsRemovedAsBelow': {'items': removed31, 'note': 'חלקי קירות שב-K-31 ממולאים אפור ("מפסיק" = קיר קומת הקרקע שמתחת לתקרה +3.70) ואין להם קיר בתוכנית האדריכל של קומה א\' – הוסרו (היו קירות קרקע שהועתקו בטעות לקומה א\').'},
+             'note': 'קומה א\': קירות ועמודים מ-K-31 (רק מה שעולה מהתקרה +3.70), תקרת הגג K-41.',
              'source': f'{K31}; {K41}'}
     json.dump(first, open(os.path.join(ROOT, 'data/structure/floor-first.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('first-floor walls', [(w['id'], w['tag'], w['thickness_m'], w['bottomRel'], w['topRel'], w['status']) for w in first_walls])

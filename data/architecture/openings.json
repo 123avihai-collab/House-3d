@@ -51,11 +51,7 @@
    "note": "",
    "heightSource": "sources/permit/permit-sheet1-gramushka.dwg: חזית מערבית, חתך ב-ב (מזהה 929916)",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק martef, שכבה A-GLAZ, \"הזזה-דו-כנפי - מרתף סלון 1\" (מזהה 929916); גובה: sources/permit/permit-sheet1-gramushka.dwg: חזית מערבית, חתך ב-ב (מזהה 929916)",
-   "host": null,
-   "alsoCut": [
-    "BW1",
-    "BW4"
-   ]
+   "host": null
   },
   {
    "id": "U02",
@@ -100,10 +96,6 @@
      179595.601,
      576235.546
     ]
-   ],
-   "alsoCut": [
-    "BW1",
-    "BW2"
    ]
   },
   {
@@ -149,10 +141,6 @@
      179591.61,
      576247.088
     ]
-   ],
-   "alsoCut": [
-    "BW1",
-    "BW3"
    ]
   },
   {
@@ -198,10 +186,6 @@
      179591.974,
      576247.988
     ]
-   ],
-   "alsoCut": [
-    "BW1",
-    "BW3"
    ]
   },
   {
@@ -228,11 +212,7 @@
    "note": " רוחב לפי היקף המשפחה בתוכנית (כולל משקוף / כיס הזזה).",
    "heightSource": "תגית התוכנית \"U.K.=130 O.K=210\" (הקרובה, בלוק martef)",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק martef, שכבה A-GLAZ, \"חלון חד כנפי - חדר מרתף\" (מזהה 930859); גובה: תגית התוכנית \"U.K.=130 O.K=210\" (הקרובה, בלוק martef)",
-   "host": null,
-   "alsoCut": [
-    "BW1",
-    "BW2"
-   ]
+   "host": null
   },
   {
    "id": "U06",
@@ -277,10 +257,6 @@
      179589.639,
      576241.695
     ]
-   ],
-   "alsoCut": [
-    "BW1",
-    "BW4"
    ]
   },
   {
@@ -801,11 +777,7 @@
    "note": "",
    "heightSource": "sources/permit/permit-sheet1-gramushka.dwg: חזית דרומית, חתך ב-ב (מזהה 1071027)",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"חלון חד כנפי  _ גלילה - מדרגות 2\" (מזהה 1071027); גובה: sources/permit/permit-sheet1-gramushka.dwg: חזית דרומית, חתך ב-ב (מזהה 1071027)",
-   "host": null,
-   "alsoCut": [
-    "GW14",
-    "GW19"
-   ]
+   "host": null
   },
   {
    "id": "G16",
@@ -1057,10 +1029,7 @@
    "note": "מזהה Revit שונה בתוכנית – גובה לפי מופע אחר של אותה משפחה באותה קומה.",
    "heightSource": "sources/permit/permit-sheet1-gramushka.dwg: אותה משפחה באותה קומה (\"חלון חד כנפי - שירותים מרתף\")",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק alef, שכבה A-GLAZ, \"חלון חד כנפי - שירותים מרתף\" (מזהה V172); גובה: sources/permit/permit-sheet1-gramushka.dwg: אותה משפחה באותה קומה (\"חלון חד כנפי - שירותים מרתף\")",
-   "host": null,
-   "alsoCut": [
-    "FW6"
-   ]
+   "host": null
   },
   {
    "id": "F03",
@@ -1294,11 +1263,7 @@
    "note": "",
    "heightSource": "sources/permit/permit-sheet1-gramushka.dwg: חזית דרומית (מזהה 1071027)",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק alef, שכבה A-GLAZ, \"חלון חד כנפי  _ גלילה - מדרגות 2\" (מזהה 1071027); גובה: sources/permit/permit-sheet1-gramushka.dwg: חזית דרומית (מזהה 1071027)",
-   "host": null,
-   "alsoCut": [
-    "FW2",
-    "FW10"
-   ]
+   "host": null
   }
  ]
 }

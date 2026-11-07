@@ -9,6 +9,9 @@ const SHEET_OF_FLOOR = { unit: 'K-12', ground: 'K-22', first: 'K-32', roof: 'K-4
 const SLAB_FLOOR = { slabs: 'unit', groundSlab: 'ground', groundOutdoorSlabs: 'ground', groundMamad: 'ground', groundCeiling: 'groundCeiling', firstCeiling: 'roof' };
 const LS = 'house3d.rebarChecks';
 const fmt = (t) => String(t).replace(/ï\s*/g, 'Ø').replace(/\s+/g, ' ').trim();
+// a callout without a number after Ø was not read from the sheet: say so instead of showing bare symbols (note 18)
+const rd = (t) => (/Ø\s*\d|\d+\s*Ø/.test(fmt(t)) ? fmt(t) : 'לא נקרא מהגיליון');
+const FLOOR_SHEET = { unit: 'K-12', ground: 'K-22', first: 'K-32', roof: 'K-42' };   // walls / columns: the sheet of their own floor
 
 export class RebarTool {
   constructor(app) {
@@ -63,10 +66,11 @@ export class RebarTool {
     }
     if (/Walls$|^basementWalls$|Columns$/.test(t.layer)) {   // wall / column
       const id = m.id;
-      const s = R.sections.find(x => (x.elements || []).includes(id));
-      const plan = R.plan.filter(p => p.element === id);
+      const sh = FLOOR_SHEET[t.floor];      // C4 / C5 exist on two floors: only the sheet of this floor
+      const s = R.sections.find(x => (x.elements || []).includes(id) && (!sh || x.sheet === sh)) || (sh ? null : R.sections.find(x => (x.elements || []).includes(id)));
+      const plan = R.plan.filter(p => p.element === id && (!sh || p.sheet === sh));
       if (!s && !plan.length) return null;
-      for (const p of plan) rows.push([p.kind === 'mesh' ? 'רשת' : 'ברזל אנכי', fmt(p.text)]);
+      for (const p of plan) rows.push([p.kind === 'mesh' ? 'רשת' : 'ברזל אנכי', rd(p.text)]);
       if (s) { sec(s.parsed); rows.push(['גיליון ברזל', `${s.sheet} · ${s.title.replace('עמודבחתך', 'עמוד בחתך ')}`]); }
       return [...new Map(rows.map(r => [r.join('|'), r])).values()];
     }
@@ -74,9 +78,9 @@ export class RebarTool {
       const fl = SLAB_FLOOR[t.layer]; const S = R.slabs.find(x => x.floor === fl); if (!S) return null;
       for (const pl of S.plans) {
         const mine = pl.items.filter(it => it.slab === m.id);
-        const mesh = [...new Set(pl.items.filter(it => /#/.test(it.text)).map(it => fmt(it.text)))];
+        const mesh = [...new Set(pl.items.filter(it => /#/.test(it.text)).map(it => rd(it.text)))];
         if (mesh.length) rows.push([`רשת ${pl.label}`, mesh.join(' · ')]);
-        const extra = mine.filter(it => !/#/.test(it.text)).map(it => fmt(it.text));
+        const extra = mine.filter(it => !/#/.test(it.text)).map(it => rd(it.text));
         if (extra.length) rows.push([`תוספות ${pl.label}`, extra.join(' · ')]);
       }
       if (rows.length) rows.push(['גיליון ברזל', S.sheet]);

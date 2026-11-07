@@ -22,7 +22,11 @@ export class FixTool {
     this.saveLocal = (arr) => { try { localStorage.setItem(LS, JSON.stringify(arr)); } catch {} };
     this.items = this.local(); this.render();
     this.connect();
+    // pins follow the pin switch (fixPins: open | all | off) and the global labels switch (🏷 off hides them too)
+    let last = '';
+    app.store.on((s) => { const k = `${s.fixPins || 'open'}|${s.quality?.labels !== false}`; if (k !== last) { last = k; this.render(); } });
   }
+  pinMode() { const s = this.app.store.get(); return s.quality?.labels === false ? 'off' : (s.fixPins || 'open'); }
   static actions() { return ACTIONS; }
   async connect() {
     const use = window.claude?.use;
@@ -85,7 +89,9 @@ export class FixTool {
   }
   render() {
     this.group.clear();
+    const mode = this.pinMode();
     this.items.forEach((n, i) => {
+      if (mode === 'off' || (mode === 'open' && n.state === 'done')) return;   // fixed notes stay in the list, not on the model
       const div = document.createElement('div');
       div.className = 'lbl fix-pin' + (n.state === 'done' ? ' done' : n.state === 'question' ? ' q' : '');
       div.textContent = `ק${i + 1}`; div.title = `${n.elementId || n.elementName}: ${n.text}`;

@@ -59,6 +59,41 @@ def text_lines(page):
     return out
 
 
+HEB = re.compile(r'[\u0590-\u05ff]')
+
+
+def join_fragments(lines, gap=3.0):
+    """the slab callouts are drawn as touching fragments ("#  בכל השטח" | "ï" | "8" | "@" | "10/10"): chain the fragments
+    of one baseline / column whose boxes touch (≤ gap pt) into one callout, the bar spec first: "#ï8@10/10 בכל השטח"
+    (Avihai's note 18 – FS1 showed "# בכל השטח" without diameter / spacing)"""
+    used, out = set(), []
+    horiz = lambda x: abs(x['dir'][0]) > 0.9
+    for i, a in enumerate(lines):
+        if i in used: continue
+        grp = [a]; used.add(i); grew = True
+        while grew:
+            grew = False
+            for j, b in enumerate(lines):
+                if j in used or horiz(b) != horiz(a): continue
+                for g in grp:
+                    if horiz(a):
+                        same = abs(g['bb'][1] - b['bb'][1]) < 2 and abs(g['bb'][3] - b['bb'][3]) < 2
+                        near = min(abs(b['bb'][0] - g['bb'][2]), abs(g['bb'][0] - b['bb'][2])) <= gap
+                    else:
+                        same = abs(g['bb'][0] - b['bb'][0]) < 2 and abs(g['bb'][2] - b['bb'][2]) < 2
+                        near = min(abs(b['bb'][1] - g['bb'][3]), abs(g['bb'][1] - b['bb'][3])) <= gap
+                    if same and near: grp.append(b); used.add(j); grew = True; break
+        if len(grp) == 1: out.append(a); continue
+        if horiz(a): grp.sort(key=lambda x: x['bb'][0])
+        else: grp.sort(key=lambda x: -x['bb'][1] if a['dir'][1] < 0 else x['bb'][1])
+        heb = ' '.join(x['t'].replace('#', '').strip() for x in grp if HEB.search(x['t']))
+        spec = ''.join(x['t'].replace(' ', '') for x in grp if not HEB.search(x['t']))
+        t = ('#' if any('#' in x['t'] for x in grp) else '') + spec + (' ' + heb if heb else '')
+        bb = [min(x['bb'][0] for x in grp), min(x['bb'][1] for x in grp), max(x['bb'][2] for x in grp), max(x['bb'][3] for x in grp)]
+        out.append({'t': t.strip(), 'bb': bb, 'dir': a['dir'], 'col': a['col'], 'c': ((bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2)})
+    return out
+
+
 def grey_lines(page):
     H, V = [], []
     for d in page.get_drawings():
@@ -319,7 +354,7 @@ def main(link_only=False):
         out['beams'] += bands
         # ---- slab sheet (K-x3): meshes and extra bars of the two plans (bottom / top) ----
         mp = pymupdf.open(os.path.join(ROOT, S['mesh']))[0]
-        ML = text_lines(mp)
+        ML = join_fragments(text_lines(mp))
         W = mp.rect.width
         halves = []
         for lab in ('ברזל תחתון', 'ברזל עליון'):

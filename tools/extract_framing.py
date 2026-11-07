@@ -180,7 +180,10 @@ def close_beam_corners(beams, tol=0.06):
             for k in (0, 1):
                 P = np.array(a['axisITM'][k]); out_dir = -ua if k == 0 else ua
                 # the beam goes on in line (another beam continues from this end): not a corner
+                # (at the same level: B-53 / B-47 at -0.17 meet where the parking beams B-54 / B-52 at -0.47 go on in line –
+                # the house corner is still an L corner, Avihai's note 17)
                 if any(c is not a and abs(abs(float(np.dot(ua, np.subtract(*c['axisITM'][::-1]) / math.dist(*c['axisITM'])))) - 1) < 0.01
+                       and abs(c.get('topRel', 0) - a.get('topRel', 0)) < 0.05
                        and min(math.dist(P, c['axisITM'][0]), math.dist(P, c['axisITM'][1])) < 0.2 for c in ax): continue
                 # b's axis line near this end of a, and one end of b near a's axis line (corner, not a T)
                 t = float(np.dot(P - q0, ub)); foot = np.array(q0) + ub * t

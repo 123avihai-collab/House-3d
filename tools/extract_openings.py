@@ -261,6 +261,11 @@ def main():
                 g = Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0)
                 reg = g.intersection(R0)
                 if reg.area > 0.005:
+                    # a wall that only touches the jamb (its end inside the cut box by a few cm) is not cut: that left a notch
+                    # the height of the window in W6 / FW2 / FW10 / GW19 (Avihai's note 16)
+                    ext = [float(np.dot(np.subtract(q, c), ax)) for q in (reg.exterior.coords if reg.geom_type == 'Polygon' else
+                                                                         [pt for gg in reg.geoms for pt in gg.exterior.coords])]
+                    if max(ext) - min(ext) < 0.10: stats['jambTouch'] += 1; continue
                     cut(w, reg, o); o.setdefault('alsoCut', []).append(w['id']); stats['extraCut'] += 1
     for f, d in files.items():
         json.dump(d, open(os.path.join(ROOT, 'data/structure', f), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

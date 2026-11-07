@@ -34,6 +34,7 @@ K21 = 'sources/structure/k-21.dxf'
 K11P = 'sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf'
 K21P = 'sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf'
 PLAN = (3000, 0, 4500, 1500)            # plan window on the K-400 sheet (pt)
+SD_REBAR = {'K-12': 'sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf', 'K-22': 'sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf'}
 
 piles = J('data/structure/piles.json'); basement = J('data/structure/basement.json')
 G = piles['georeference']['sheetToItm']; PT = G['ptPerM']; S_CM = PT / 100
@@ -163,6 +164,41 @@ def pdf_beam_tags(path, t):
     return out
 
 
+def close_beam_corners(beams, tol=0.06):
+    """L-corner of two perpendicular beams (each ends at the other): the drawn outlines stop at each other's axis /
+    inner face, leaving the corner square open. The beam is run on to the outer face of the other one (the corner is cast
+    with both). Returns the ids changed."""
+    done = []
+    ax = [b for b in beams if b.get('axisITM')]
+    for a in ax:
+        for b in ax:
+            if a is b: continue
+            (p0, p1), (q0, q1) = a['axisITM'], b['axisITM']
+            ua = np.subtract(p1, p0); la = np.linalg.norm(ua); ua = ua / la
+            ub = np.subtract(q1, q0); lb = np.linalg.norm(ub); ub = ub / lb
+            if abs(float(np.dot(ua, ub))) > 0.05: continue          # perpendicular only
+            for k in (0, 1):
+                P = np.array(a['axisITM'][k]); out_dir = -ua if k == 0 else ua
+                # the beam goes on in line (another beam continues from this end): not a corner
+                if any(c is not a and abs(abs(float(np.dot(ua, np.subtract(*c['axisITM'][::-1]) / math.dist(*c['axisITM'])))) - 1) < 0.01
+                       and min(math.dist(P, c['axisITM'][0]), math.dist(P, c['axisITM'][1])) < 0.2 for c in ax): continue
+                # b's axis line near this end of a, and one end of b near a's axis line (corner, not a T)
+                t = float(np.dot(P - q0, ub)); foot = np.array(q0) + ub * t
+                dist = float(np.linalg.norm(P - foot))
+                if dist > b['width_m'] / 2 + tol or not (-a['width_m'] / 2 - tol <= t <= lb + a['width_m'] / 2 + tol): continue
+                near_end = min(abs(t), abs(t - lb))
+                if near_end > a['width_m'] / 2 + tol: continue           # T-junction: b runs on past a – nothing to close
+                # the far face of b, seen from a
+                side = float(np.dot(foot - P, out_dir))
+                target = float(np.dot(foot - P, out_dir)) + b['width_m'] / 2
+                if target > 0.005 and target < b['width_m'] + tol and (side > -tol):
+                    newP = P + out_dir * target
+                    a['axisITM'][k] = [r3(newP[0]), r3(newP[1])]
+                    if 'length_m' in a: a['length_m'] = r3(math.dist(*a['axisITM']))
+                    done.append(f"{a['id']}+{target:.2f}")
+    return done
+
+
 def main():
     lines400, dots = k400_lines()
     # ---- placements ----
@@ -266,7 +302,7 @@ def main():
             # construction order: basement-level beams (K-11) first; ground-floor beams (K-21) are cast after the basement
             # walls and backfill, in one pour with the ground slab / the slab over the basement -> stage "ceiling"
             if t['sheet'] == 'K-21':
-                rec['stage'] = 'ceiling'
+                rec['stage'] = 'slab'           # cast with the ground slab (step "רצפת קרקע")
                 rec['layer'] = 'ceilingBeams' if rec['overBasement'] else 'groundFloorBeams'
             else:
                 rec['stage'] = 'groundBeams'; rec['layer'] = 'groundBeams'
@@ -275,7 +311,89 @@ def main():
     seen = set(); beams = [b for b in beams if not ((b['id'], tuple(map(tuple, b['axisITM'] or []))) in seen or seen.add((b['id'], tuple(map(tuple, b['axisITM'] or [])))))]
     unmatched = [k for k in range(len(S)) if not used[k]]
 
-    out = {'placement': placement, 'basementWalls': walls, 'slabs': slabs, 'groundBeams': beams,
+    # ---- beam outlines from the rebar plans K-12 / K-22 (tools/extract_rebar.py -> rebar.json): they show every beam with
+    # both edge lines and its ends, so they replace the K-400 stipple strips (which are shared between beams / cut short) ----
+    RB = J('data/structure/rebar.json') if os.path.exists(os.path.join(ROOT, 'data/structure/rebar.json')) else {'beams': []}
+    rmap = {'K-12': 'K-11', 'K-22': 'K-21'}
+    rebar_note = []
+    for rb in RB['beams']:
+        if rb['sheet'] not in rmap or not rb.get('axisITM'): continue
+        sheet = rmap[rb['sheet']]
+        same = [b for b in beams if b['id'] == rb['id'] and b['sheet'] == sheet]
+        if same:
+            b = same[0]
+            for extra in same[1:]: beams.remove(extra)            # the same beam picked from two stipple strips
+            if len(same) > 1: rebar_note.append(f"{rb['id']}: {len(same)} רשומות אוחדו")
+        else:
+            b = {'id': rb['id'], 'sheet': sheet, 'width_m': rb['width_m'], 'depth_m': rb['depth_m'], 'topRel': rb['topRel'],
+                 'bottomRel': r3(rb['topRel'] - rb['depth_m']),
+                 'source': f"{SD_REBAR[rb['sheet']]} " + (f"{rb.get('label')}" if rb.get('label') else f"תווית {rb['id']} ({round(rb['width_m'] * 100)}/{round(rb['depth_m'] * 100)}; O.K={rb['topRel']:+.2f})")}
+            if rb.get('label'): b.update(numbered=False, label=rb['label'])
+            beams.append(b)
+        old_len = math.dist(*b['axisITM']) if b.get('axisITM') else None
+        b['axisITM'] = rb['axisITM']
+        b['geometrySource'] = f"{SD_REBAR[rb['sheet']]} – שני קווי השפה של הקורה וקצותיה (מתאר אפור)" + (f"; {rb['note']}" if rb.get('note') else '')
+        b['status'] = rb['status']
+        b.pop('note', None); b.pop('matchDistance_pt', None)
+        if old_len is not None and abs(old_len - rb['length_m']) > 0.1:
+            rebar_note.append(f"{rb['id']}: {old_len:.2f} ← {rb['length_m']:.2f} מ'")
+        elif old_len is None:
+            rebar_note.append(f"{rb['id']}: חדש / בלי ציר קודם – {rb['length_m']:.2f} מ'")
+        ax = LineString(b['axisITM'])
+        b['overBasement'] = bsm.buffer(0.15).intersection(ax).length / max(ax.length, 1e-6) > 0.6
+        if sheet == 'K-21':
+            b['stage'] = 'slab'
+            b['layer'] = 'ceilingBeams' if b['overBasement'] else 'groundFloorBeams'
+        else:
+            b['stage'] = 'groundBeams'; b['layer'] = 'groundBeams'
+    # a K-11 "slab" face that is really a beam band (B-32 = BS4 0.22 wide): drop it
+    rb_polys = [LineString(b['axisITM']).buffer(b['width_m'] / 2 + 0.03, cap_style=2) for b in beams if b.get('axisITM') and b['sheet'] == 'K-11']
+    dropped = [s_['id'] for s_ in slabs if s_['status'] == 'missing' and any(Polygon(s_['outlineITM']).intersection(g).area > 0.7 * Polygon(s_['outlineITM']).area for g in rb_polys)]
+    slabs = [s_ for s_ in slabs if s_['id'] not in dropped]
+    if dropped: rebar_note.append(f"הוסר {', '.join(dropped)} – רצועת קורה, לא רצפה")
+    print('rebar outlines:', rebar_note)
+    cc = close_beam_corners([b for b in beams if b['sheet'] == 'K-21'])
+    if cc: rebar_note.append('פינות L נסגרו: ' + ', '.join(cc))
+    print('closed corners K-21', cc)
+
+    # ---- double pile caps (K-400: rectangle under the tag "80/60; O.K=-0.15" around two piles, detail "ראש כלונס כפול") ----
+    pg = pymupdf.open(os.path.join(ROOT, K400))[0]
+    rect_lines = []
+    for d in pg.get_drawings():
+        col = d.get('color')
+        if not col or max(col) > 0.05 or round(d.get('width') or 0, 2) != 0.51: continue
+        for it in d['items']:
+            if it[0] == 'l': rect_lines.append((it[1].x, it[1].y, it[2].x, it[2].y))
+    caps = []
+    for blk in pg.get_text('dict')['blocks']:
+        for l in blk.get('lines', []):
+            txt = ''.join(sp['text'] for sp in l['spans']).strip()
+            m = re.match(r'^(\d+)/(\d+); O\.K=([+-]\d\.\d+)$', txt)
+            if not m: continue
+            bb = l['bbox']; cx = (bb[0] + bb[2]) / 2
+            # top edge of the cap: a horizontal line just under the tag, spanning its centre
+            tops = [q for q in rect_lines if abs(q[1] - q[3]) < 0.2 and 0 < q[1] - bb[3] < 12 and min(q[0], q[2]) < cx < max(q[0], q[2])]
+            if not tops: continue
+            tl = min(tops, key=lambda q: q[1] - bb[3]); y0 = tl[1]; x0, x1 = sorted((tl[0], tl[2]))
+            sides = [q for q in rect_lines if abs(q[0] - q[2]) < 0.2 and min(q[1], q[3]) - 0.5 <= y0 and abs(q[0] - x0) < 0.5]
+            if not sides: continue
+            y1 = max(max(q[1], q[3]) for q in sides)
+            ring = [sheet2itm(x, y) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+            poly = Polygon(ring)
+            inside = [p_ for p_ in piles['piles'] if poly.contains(Point(p_['E'], p_['N']))]
+            if len(inside) < 2: continue
+            top = float(m[3]); depth = int(m[2]) / 100
+            heads = sorted({p_['headRel'] for p_ in inside})
+            ok = all(abs(h - (top - depth)) < 0.01 for h in heads)
+            caps.append({'id': 'PC' + '-'.join(p_['id'] for p_ in inside), 'piles': [p_['id'] for p_ in inside], 'ringITM': [[r3(x), r3(y)] for x, y in ring],
+                         'width_m': int(m[1]) / 100, 'depth_m': depth, 'topRel': top, 'bottomRel': r3(top - depth),
+                         'size_m': [r3((x1 - x0) / PT), r3((y1 - y0) / PT)], 'pileHeads': heads, 'status': 'source' if ok else 'provisional',
+                         'note': 'ראש כלונס כפול – ראשי הכלונסאות בתחתית הראש (-0.75) כמו בטבלה' if ok else
+                                 f"התווית {txt} לא מתאימה לראשי הכלונסאות שבתוך המלבן ({', '.join(f'{h:+.2f}' for h in heads)}) – לשאלה לקונסטרוקטור",
+                         'source': f'{K400} מלבן מתחת לתווית "{txt}" (pt {round(cx)},{round(bb[1])}) + "פרט ראש כלונס כפול קוטר60"'})
+    print('pile caps', [(c['id'], c['size_m'], c['topRel'], c['bottomRel'], c['status']) for c in caps])
+
+    out = {'placement': placement, 'basementWalls': walls, 'slabs': slabs, 'groundBeams': beams, 'pileCaps': caps, 'rebarChanges': rebar_note,
            'unmatchedStipple': {'count': len(unmatched), 'note': 'פסי נקודות ב-K-400 שלא שויכו לתווית קורה (בעיקר בתוך ראשי כלונס רחבים) – לא שורטטו'},
            'floorTags': {'k11': [{'top': t['top'], 'D': t['thickness_m'], 'itm': [r3(v) for v in t['itm']]} for t in tags11],
                          'k21': [{'top': t['top'], 'D': t['thickness_m'], 'itm': [r3(v) for v in t['itm']]} for t in tags21]},

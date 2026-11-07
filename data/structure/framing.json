@@ -5505,35 +5505,6 @@
    "thickness_m": 0.25,
    "status": "source",
    "source": "sources/structure/k-11.dxf IfcSlab (קווי רצפה) + Floor Tag O.K=-1.50 D=25"
-  },
-  {
-   "id": "BS4",
-   "level": "basement",
-   "outlineITM": [
-    [
-     179592.312,
-     576248.827
-    ],
-    [
-     179592.516,
-     576248.745
-    ],
-    [
-     179591.492,
-     576246.208
-    ],
-    [
-     179591.288,
-     576246.291
-    ]
-   ],
-   "holesITM": [],
-   "area_m2": 0.602,
-   "top": null,
-   "thickness_m": null,
-   "status": "missing",
-   "note": "0 תגיות – מפלס הרצפה לא נקבע מהשרטוט",
-   "source": "sources/structure/k-11.dxf IfcSlab"
   }
  ],
  "groundBeams": [
@@ -5551,19 +5522,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-40 (25/60; O.K=-0.15)",
    "axisITM": [
     [
-     179593.345,
-     576252.795
+     179593.353,
+     576252.834
     ],
     [
-     179591.864,
-     576249.126
+     179591.816,
+     576249.028
     ]
    ],
-   "matchDistance_pt": 7.238,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5580,19 +5550,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-39 (30/60; O.K=-0.15)",
    "axisITM": [
     [
-     179591.403,
-     576252.039
+     179590.792,
+     576252.304
     ],
     [
-     179598.764,
-     576249.067
+     179600.892,
+     576248.227
     ]
    ],
-   "matchDistance_pt": 9.329,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5609,19 +5578,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-37 (30/60; O.K=-0.15)",
    "axisITM": [
     [
-     179600.181,
-     576244.958
+     179597.876,
+     576245.862
     ],
     [
-     179606.708,
-     576242.323
+     179609.584,
+     576241.135
     ]
    ],
-   "matchDistance_pt": 0.339,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5638,19 +5606,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-53 (30/90; O.K=-0.17)",
    "axisITM": [
     [
-     179605.808,
-     576239.104
+     179606.964,
+     576242.031
     ],
     [
-     179604.046,
-     576234.741
+     179604.031,
+     576234.766
     ]
    ],
-   "matchDistance_pt": 1.781,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה רציפה x 2166–2183 מקורה B-37 (y 585.7) עד ציר הקורה החוצה B-47/B-52 (y 1029.9, בין קווי 1022.1 ו-1037.0). הקטע y 585.7–760 מקווקו מתחת לקיר (GW2) – חלק מאותה רצועה. גבול B-55/B-53 – לשאלה.",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5679,7 +5646,7 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5708,7 +5675,7 @@
    "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
    "status": "provisional",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5725,19 +5692,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-48 (25/90; O.K=-0.17)",
    "axisITM": [
     [
-     179598.39,
-     576235.399
+     179598.182,
+     576235.499
     ],
     [
-     179600.532,
-     576234.534
+     179600.538,
+     576234.548
     ]
    ],
-   "matchDistance_pt": 0.585,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5752,9 +5718,21 @@
     576247.398
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-44 (20/60; O.K=+0.20)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179592.685,
+     576249.431
+    ],
+    [
+     179591.404,
+     576246.257
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "overBasement": true,
+   "stage": "slab",
+   "layer": "ceilingBeams"
   },
   {
    "id": "B-46",
@@ -5768,9 +5746,21 @@
     576236.386
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-46 (20/60; O.K=+0.20)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179593.962,
+     576236.316
+    ],
+    [
+     179595.964,
+     576235.508
+    ]
+   ],
+   "status": "approx",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); קווים y 1156.5/1167.8 (20) x 1612.5–1734.9; החלק המקווקו 1612.5–1679.3 מתחת לעמוד 10 (20/80). ברזל 2Ø12 L=225",
+   "overBasement": true,
+   "stage": "slab",
+   "layer": "ceilingBeams"
   },
   {
    "id": "B-45",
@@ -5786,48 +5776,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-45 (20/60; O.K=+0.20)",
    "axisITM": [
     [
-     179593.344,
-     576235.958
+     179588.178,
+     576238.024
     ],
     [
-     179594.843,
-     576235.353
+     179594.651,
+     576235.41
     ]
    ],
-   "matchDistance_pt": 0.83,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": true,
-   "stage": "ceiling",
-   "layer": "ceilingBeams"
-  },
-  {
-   "id": "B-45",
-   "sheet": "K-21",
-   "width_m": 0.2,
-   "depth_m": 0.6,
-   "topRel": 0.2,
-   "bottomRel": -0.4,
-   "tagITM": [
-    179590.427,
-    576237.151
-   ],
-   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-45 (20/60; O.K=+0.20)",
-   "axisITM": [
-    [
-     179588.167,
-     576238.048
-    ],
-    [
-     179593.344,
-     576235.958
-    ]
-   ],
-   "matchDistance_pt": 0.83,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
-   "overBasement": true,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "ceilingBeams"
   },
   {
@@ -5844,19 +5804,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-43 (20/50; O.K=-0.15)",
    "axisITM": [
     [
-     179590.221,
-     576242.832
+     179590.229,
+     576242.836
     ],
     [
-     179589.366,
-     576240.715
+     179588.896,
+     576239.535
     ]
    ],
-   "matchDistance_pt": 0.553,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": true,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "ceilingBeams"
   },
   {
@@ -5871,9 +5830,21 @@
     576230.476
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-60 (20/60; O.K=-0.47)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179596.067,
+     576230.928
+    ],
+    [
+     179598.675,
+     576229.788
+    ]
+   ],
+   "status": "approx",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה מקווקווה (20) לאורך שפת הרצפה הדרומית, מעט משופעת: קווים y 1395.1/1406.5 ב-x 1846 ו-1398.6/1410.0 ב-x 1946; מ-B-59 עד B-51",
+   "overBasement": false,
+   "stage": "slab",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-54",
@@ -5889,19 +5860,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-54 (30/60; O.K=-0.47)",
    "axisITM": [
     [
-     179604.046,
-     576234.741
+     179604.031,
+     576234.766
     ],
     [
-     179601.911,
-     576229.452
+     179601.886,
+     576229.454
     ]
    ],
-   "matchDistance_pt": 3.208,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); המשך הרצועה מציר B-47/B-52 עד קצה הרצפה (y 1354.7); מפלס O.K -0.47",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5918,19 +5888,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-51 (32/60; O.K=-0.47)",
    "axisITM": [
     [
-     179600.381,
-     576234.595
+     179600.35,
+     576234.51
     ],
     [
-     179598.811,
-     576230.706
+     179598.441,
+     576229.781
     ]
    ],
-   "matchDistance_pt": 3.513,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5947,19 +5916,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-38 (25/60; O.K=-0.15)",
    "axisITM": [
     [
-     179600.474,
-     576252.669
+     179600.71,
+     576253.217
     ],
     [
-     179598.785,
-     576248.485
+     179598.786,
+     576248.451
     ]
    ],
-   "matchDistance_pt": 8.787,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -5976,19 +5944,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-42 (25/60; O.K=-0.31)",
    "axisITM": [
     [
-     179588.302,
-     576238.08
+     179588.313,
+     576238.077
     ],
     [
-     179587.397,
-     576235.839
+     179587.405,
+     576235.829
     ]
    ],
-   "matchDistance_pt": 2.274,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -6005,19 +5972,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-41 (25/60; O.K=-0.26)",
    "axisITM": [
     [
-     179586.383,
-     576238.755
+     179585.746,
+     576239.012
     ],
     [
-     179587.161,
-     576238.441
+     179587.213,
+     576238.419
     ]
    ],
-   "matchDistance_pt": 0.632,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -6034,19 +6000,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-52 (25/60; O.K=-0.47)",
    "axisITM": [
     [
-     179604.046,
-     576234.741
+     179604.17,
+     576234.71
     ],
     [
-     179606.658,
-     576233.687
+     179607.221,
+     576233.478
     ]
    ],
-   "matchDistance_pt": 0.7,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -6063,19 +6028,18 @@
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-56 (25/75; O.K=-0.31)",
    "axisITM": [
     [
-     179593.937,
-     576235.799
+     179593.632,
+     576235.223
     ],
     [
-     179592.892,
-     576233.211
+     179592.512,
+     576232.448
     ]
    ],
-   "matchDistance_pt": 4.352,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "status": "source",
    "overBasement": false,
-   "stage": "ceiling",
+   "stage": "slab",
    "layer": "groundFloorBeams"
   },
   {
@@ -6090,9 +6054,21 @@
     576234.281
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-57 (25/90; O.K=-0.17)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179597.578,
+     576234.335
+    ],
+    [
+     179597.177,
+     576233.343
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה אחת x 1837.5–1851.7 (25) לאורך 1189.5–1403.6, מחולקת לפי קווי רוחב y 1250.2 ו-1326.9 (שינוי מפלס הרצפה); B-57 O.K -0.17",
+   "overBasement": false,
+   "stage": "slab",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-58",
@@ -6106,9 +6082,21 @@
     576232.91
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-58 (25/75; O.K=-0.32)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179597.177,
+     576233.343
+    ],
+    [
+     179596.67,
+     576232.088
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); אותה רצועה; B-58 O.K -0.32",
+   "overBasement": false,
+   "stage": "slab",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-59",
@@ -6122,9 +6110,21 @@
     576231.581
    ],
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-59 (25/60; O.K=-0.47)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179596.67,
+     576232.088
+    ],
+    [
+     179596.144,
+     576230.785
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); אותה רצועה; B-59 O.K -0.47",
+   "overBasement": false,
+   "stage": "slab",
+   "layer": "groundFloorBeams"
   },
   {
    "id": "B-36",
@@ -6140,17 +6140,16 @@
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-36 (22/60; O.K=-2.40)",
    "axisITM": [
     [
-     179589.366,
-     576240.715
+     179589.637,
+     576241.393
     ],
     [
-     179588.949,
-     576239.682
+     179588.888,
+     576239.539
     ]
    ],
-   "matchDistance_pt": 0.991,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך (פס משותף לכמה קורות – חולק בין התוויות)",
-   "status": "provisional",
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); קטע לבן בקו הקיר x 442.9–455.4 בין y 786.4 ל-899.8 (2.00 מ'); חתך B-36 – קורה הפוכה 35 מעל רצפה -2.75",
+   "status": "source",
    "overBasement": true,
    "stage": "groundBeams",
    "layer": "groundBeams"
@@ -6167,9 +6166,21 @@
     576247.899
    ],
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-32 (22/45; O.K=-1.30)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179592.415,
+     576248.786
+    ],
+    [
+     179591.39,
+     576246.25
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה x 432–444.5 בין הקיר הצפוני (y 338.8) לקיר הדרומי (y 493.9) = 2.736 מ' – זו גם 'הרצפה' BS4 מ-K-11 (0.22 רוחב)",
+   "overBasement": true,
+   "stage": "groundBeams",
+   "layer": "groundBeams"
   },
   {
    "id": "B-34",
@@ -6185,18 +6196,17 @@
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-34 (20/45; O.K=-1.30)",
    "axisITM": [
     [
-     179593.989,
-     576236.413
+     179594.083,
+     576236.376
     ],
     [
-     179592.718,
-     576233.264
+     179593.62,
+     576235.23
     ]
    ],
-   "matchDistance_pt": 8.81,
-   "geometrySource": "sources/structure/K-400-תכנית יסודות.pdf פס נקודות בטון (stipple) – ציר ואורך",
-   "status": "provisional",
-   "overBasement": false,
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה x 784.3–794.4 לאורך השפה המערבית של BS3 (קופסה O.K -1.50)",
+   "status": "approx",
+   "overBasement": true,
    "stage": "groundBeams",
    "layer": "groundBeams"
   },
@@ -6212,9 +6222,21 @@
     576236.12
    ],
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-35 (22/45; O.K=-1.30)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179594.128,
+     576236.25
+    ],
+    [
+     179595.78,
+     576235.583
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); רצועה y 955.8–967.2 לאורך השפה הצפונית של BS3, מ-B-34 עד הקיר (x 895.4)",
+   "overBasement": true,
+   "stage": "groundBeams",
+   "layer": "groundBeams"
   },
   {
    "id": "B-31",
@@ -6228,9 +6250,21 @@
     576243.855
    ],
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-31 (40/25; O.K=-2.75)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179591.621,
+     576244.4
+    ],
+    [
+     179591.247,
+     576243.473
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור)",
+   "overBasement": true,
+   "stage": "groundBeams",
+   "layer": "groundBeams"
   },
   {
    "id": "B-33",
@@ -6244,10 +6278,172 @@
     576242.18
    ],
    "source": "sources/structure/K-11-‏תוכנית קומה מרתף- גיאומטריה.pdf תווית B-33 (22/25; O.K=-2.75)",
-   "axisITM": null,
-   "status": "missing",
-   "note": "לא נמצא פס קורה תואם ב-K-400 (קורה מעל המרתף / לא קורת יסוד)"
+   "axisITM": [
+    [
+     179590.146,
+     576242.655
+    ],
+    [
+     179589.753,
+     576241.681
+    ]
+   ],
+   "status": "source",
+   "geometrySource": "sources/structure/K-12-קומת מרתף - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); קטע לבן בקו הקיר x 442.9–455.4 בין סוף הקיר (y 709.3) לתחילת קטע קיר מקווקו (y 768.8)",
+   "overBasement": true,
+   "stage": "groundBeams",
+   "layer": "groundBeams"
+  },
+  {
+   "id": "B-55",
+   "sheet": "K-21",
+   "width_m": 0.3,
+   "depth_m": 0.9,
+   "topRel": -0.15,
+   "bottomRel": -1.05,
+   "source": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf תווית B-55 (30/90; O.K=-0.15)",
+   "axisITM": [
+    [
+     179607.48,
+     576243.309
+    ],
+    [
+     179607.076,
+     576242.309
+    ]
+   ],
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); בין מסגרת הבריכה (y 507.6) לשפה הצפונית של B-37 (y 568.7); תווית B-55 30/90 O.K=-0.15 וחתך B-55",
+   "status": "source",
+   "overBasement": false,
+   "stage": "slab",
+   "layer": "groundFloorBeams"
+  },
+  {
+   "id": "BU-1",
+   "sheet": "K-21",
+   "width_m": 0.3,
+   "depth_m": 0.6,
+   "topRel": -0.2,
+   "bottomRel": -0.8,
+   "source": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf קורה ללא מספר 30/60 (ממ\"ד)",
+   "numbered": false,
+   "label": "קורה ללא מספר 30/60 (ממ\"ד)",
+   "axisITM": [
+    [
+     179592.147,
+     576245.706
+    ],
+    [
+     179590.899,
+     576242.615
+    ]
+   ],
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); תווית K-21 \"30/60; O.K=-0.20\" (K-21 pt 1901,919) מתחת לקיר המערבי של הממ\"ד (x 1309.3–1326.3 ב-K-22); לכל אורך הקיר בין הקירות הצפוני והדרומי של הממ\"ד",
+   "status": "approx",
+   "overBasement": true,
+   "stage": "slab",
+   "layer": "ceilingBeams"
+  },
+  {
+   "id": "BU-2",
+   "sheet": "K-21",
+   "width_m": 0.25,
+   "depth_m": 0.6,
+   "topRel": -0.2,
+   "bottomRel": -0.8,
+   "source": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf קורה ללא מספר 25/60 (ממ\"ד)",
+   "numbered": false,
+   "label": "קורה ללא מספר 25/60 (ממ\"ד)",
+   "axisITM": [
+    [
+     179595.504,
+     576244.442
+    ],
+    [
+     179594.225,
+     576241.272
+    ]
+   ],
+   "geometrySource": "sources/structure/K-22-קומה קרקע - פריסת ברזל קורות.pdf – שני קווי השפה של הקורה וקצותיה (מתאר אפור); תווית K-21 \"25/60; O.K=-0.20\" (K-21 pt 2133,915) מתחת לקיר המזרחי של הממ\"ד (x 1514.0–1528.2 ב-K-22)",
+   "status": "approx",
+   "overBasement": true,
+   "stage": "slab",
+   "layer": "ceilingBeams"
   }
+ ],
+ "pileCaps": [
+  {
+   "id": "PC6-6A",
+   "piles": [
+    "6",
+    "6A"
+   ],
+   "ringITM": [
+    [
+     179599.722,
+     576245.543
+    ],
+    [
+     179602.129,
+     576244.571
+    ],
+    [
+     179601.83,
+     576243.829
+    ],
+    [
+     179599.422,
+     576244.801
+    ]
+   ],
+   "width_m": 0.8,
+   "depth_m": 0.6,
+   "topRel": -0.15,
+   "bottomRel": -0.75,
+   "size_m": [
+    2.596,
+    0.8
+   ],
+   "pileHeads": [
+    -0.75
+   ],
+   "status": "source",
+   "note": "ראש כלונס כפול – ראשי הכלונסאות בתחתית הראש (-0.75) כמו בטבלה",
+   "source": "sources/structure/K-400-תכנית יסודות.pdf מלבן מתחת לתווית \"80/60; O.K=-0.15\" (pt 3807,563) + \"פרט ראש כלונס כפול קוטר60\""
+  }
+ ],
+ "rebarChanges": [
+  "B-36: 1.11 ← 2.00 מ'",
+  "B-32: חדש / בלי ציר קודם – 2.73 מ'",
+  "B-34: 3.40 ← 1.24 מ'",
+  "B-35: חדש / בלי ציר קודם – 1.78 מ'",
+  "B-31: חדש / בלי ציר קודם – 1.00 מ'",
+  "B-33: חדש / בלי ציר קודם – 1.05 מ'",
+  "B-40: 3.96 ← 4.11 מ'",
+  "B-39: 7.94 ← 10.89 מ'",
+  "B-37: 7.04 ← 12.63 מ'",
+  "B-53: 4.71 ← 7.83 מ'",
+  "B-48: 2.31 ← 2.54 מ'",
+  "B-44: חדש / בלי ציר קודם – 3.42 מ'",
+  "B-46: חדש / בלי ציר קודם – 2.16 מ'",
+  "B-45: 2 רשומות אוחדו",
+  "B-45: 1.62 ← 6.98 מ'",
+  "B-43: 2.28 ← 3.56 מ'",
+  "B-60: חדש / בלי ציר קודם – 2.85 מ'",
+  "B-51: 4.19 ← 4.91 מ'",
+  "B-38: 4.51 ← 5.14 מ'",
+  "B-42: 2.42 ← 2.23 מ'",
+  "B-41: 0.84 ← 1.58 מ'",
+  "B-52: 2.82 ← 3.29 מ'",
+  "B-55: חדש / בלי ציר קודם – 1.08 מ'",
+  "B-57: חדש / בלי ציר קודם – 1.07 מ'",
+  "B-58: חדש / בלי ציר קודם – 1.35 מ'",
+  "B-56: 2.79 ← 2.99 מ'",
+  "B-59: חדש / בלי ציר קודם – 1.35 מ'",
+  "BU-1: חדש / בלי ציר קודם – 3.33 מ'",
+  "BU-2: חדש / בלי ציר קודם – 3.42 מ'",
+  "הוסר BS4 – רצועת קורה, לא רצפה",
+  "פינות L נסגרו: B-51+0.19, B-42+0.20, B-59+0.05"
  ],
  "unmatchedStipple": {
   "count": 35,

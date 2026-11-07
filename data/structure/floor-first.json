@@ -74,9 +74,8 @@
    "thickness_m": 0.43,
    "bottomRel": 3.7,
    "topRel": 6.65,
-   "standsOn": null,
-   "status": "provisional",
-   "note": "אין במקורות אלמנט נושא מתחתיו – תחתית במפלס תקרת הקרקע",
+   "standsOn": "תקרת הקרקע +3.70",
+   "status": "source",
    "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
    "partsITM": [
     {
@@ -199,7 +198,7 @@
   },
   {
    "id": "FW4",
-   "tag": "W8",
+   "tag": "W2",
    "footprintITM": [
     [
      179594.597,
@@ -241,7 +240,7 @@
    "topRel": 6.65,
    "standsOn": "תקרת הקרקע +3.70",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W8); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W2); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
   },
   {
    "id": "FW5",
@@ -1767,7 +1766,7 @@
   },
   {
    "id": "FW11",
-   "tag": "W10",
+   "tag": null,
    "footprintITM": [
     [
      179595.968,
@@ -1797,7 +1796,7 @@
    "topRel": 6.65,
    "standsOn": "תקרת הקרקע +3.70",
    "status": "source",
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\" (תווית W10); מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
+   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
   }
  ],
  "columns": [
@@ -1949,129 +1948,73 @@
    "id": "C9",
    "footprintITM": [
     [
-     179593.153,
-     576235.424
+     179593.151,
+     576235.419
+    ],
+    [
+     179593.151,
+     576235.419
     ],
     [
      179593.153,
      576235.424
     ],
     [
-     179593.314,
-     576235.822
+     179593.284,
+     576235.748
     ],
     [
-     179593.314,
-     576235.822
+     179593.315,
+     576235.827
     ],
     [
-     179593.314,
-     576235.822
+     179593.315,
+     576235.827
     ],
     [
-     179593.314,
-     576235.823
+     179593.315,
+     576235.827
     ],
     [
-     179593.314,
-     576235.823
+     179593.872,
+     576235.602
     ],
     [
-     179593.314,
-     576235.823
+     179593.872,
+     576235.602
     ],
     [
-     179593.314,
-     576235.823
+     179593.872,
+     576235.602
     ],
     [
-     179593.314,
-     576235.823
-    ],
-    [
-     179593.314,
-     576235.823
-    ],
-    [
-     179593.314,
-     576235.823
-    ],
-    [
-     179593.389,
-     576236.008
-    ],
-    [
-     179593.389,
-     576236.008
-    ],
-    [
-     179593.396,
-     576236.026
-    ],
-    [
-     179593.396,
-     576236.026
-    ],
-    [
-     179593.396,
-     576236.026
-    ],
-    [
-     179593.952,
-     576235.802
-    ],
-    [
-     179593.952,
-     576235.802
-    ],
-    [
-     179593.952,
-     576235.802
-    ],
-    [
-     179593.87,
-     576235.598
-    ],
-    [
-     179593.782,
-     576235.38
+     179593.84,
+     576235.524
     ],
     [
      179593.709,
      576235.199
     ],
     [
-     179593.709,
-     576235.199
+     179593.707,
+     576235.194
     ],
     [
-     179593.709,
-     576235.199
+     179593.707,
+     576235.194
     ],
     [
-     179593.704,
-     576235.201
+     179593.707,
+     576235.194
     ],
     [
-     179593.524,
-     576235.274
-    ],
-    [
-     179593.519,
-     576235.276
-    ],
-    [
-     179593.519,
-     576235.276
-    ],
-    [
-     179593.191,
-     576235.408
+     179593.151,
+     576235.419
     ]
    ],
    "size_cm": [
-    60,
-    65
+    44,
+    60
    ],
    "tagSize_cm": [
     60,
@@ -2081,7 +2024,7 @@
    "topRel": 7.45,
    "standsOn": "עמוד C9 של קומת הקרקע (רציף)",
    "status": "source",
-   "note": "משורטט 44/60 (חלקו מוסתר בקיר) מול תווית 60/65 – לפי התווית, רציף עם C9 שמתחתיו; נושא את קורה B-7 – ראש העמוד בתחתית הקורה (+7.45)",
+   "note": "תווית 60/65 מול ההאצ' ב-k-31.dxf 44/60: לפי ה-DXF וחתך \"עמוד בחתך 60/44\" בגיליונות הברזל K-32/K-42 (ב-K-41 מסומן \"3\"); נושא את קורה B-7 – ראש העמוד בתחתית הקורה (+7.45)",
    "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
    "carries": "B-7"
   },
@@ -2173,9 +2116,9 @@
     20,
     50
    ],
-   "bottomRel": 3.7,
+   "bottomRel": 4.15,
    "topRel": 6.65,
-   "standsOn": "תקרת הקרקע +3.70",
+   "standsOn": "קורה קורה ללא מספר 30/70 (30/70, O.K +4.15)",
    "status": "source",
    "source": "sources/structure/k-31.dxf HATCH IfcColumn + Structural Column Tags; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags"
   }

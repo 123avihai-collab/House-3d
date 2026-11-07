@@ -69,7 +69,7 @@ if 'framing' in D:
     for k in ('basementWalls', 'slabs', 'groundBeams'):
         for r in D['framing'][k]:
             if 'source' not in r: errors.append(f'framing {k} {r.get("id")} without source')
-            if r.get('status') not in ('source', 'provisional', 'missing'): errors.append(f'framing {k} {r.get("id")} bad status')
+            if r.get('status') not in ('source', 'provisional', 'approx', 'missing'): errors.append(f'framing {k} {r.get("id")} bad status')
 if 'floorGround' in D:
     G = D['floorGround']
     recs = [('slab', r) for r in G['slab']] + [('walls', r) for r in G['walls']] + [('columns', r) for r in G['columns']] + \

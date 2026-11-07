@@ -20,9 +20,14 @@ export function buildPanel(app, pl) {
     app.viewer.flyTo(p, p.clone().add({ x: 4, y: 3.5, z: 4 }));
     app.ui.showInfo({ title: it.meta.name, rows: it.meta.rows, tags: it.tags, source: it.meta.source, note: it.meta.note });
   };
-  // one click: every pipe visible – plumbing layers + proposal on, x-ray, structure / surroundings off, overview camera
+  // quick access: every pipe visible – plumbing layers + proposal on, x-ray, structure / surroundings off, overview camera.
+  // A second click restores the view that was there before (toggle).
+  let before = null;
+  const isOn = () => !!before;
   const pipeView = () => {
-    const cur = app.store.get(), L = { ...cur.layers };
+    const cur = app.store.get();
+    before = { layers: { ...cur.layers }, labelsOff: { ...(cur.labelsOff || {}) }, plumbing: { ...(cur.plumbing || {}) } };
+    const L = { ...cur.layers };
     for (const g of app.data.layers.groups) for (const l of g.layers) {
       if (g.id === 'plumbing') L[l.id] = l.id !== 'plFindings';
       else if (g.id === 'site') L[l.id] = ['topoPlanned', 'plotBoundary'].includes(l.id);
@@ -31,13 +36,23 @@ export function buildPanel(app, pl) {
     const lo = { ...(cur.labelsOff || {}) }; for (const id of ['plSewage', 'plCold', 'plRain', 'plPumped', 'plHot', 'plProposal', 'plChambers', 'plotBoundary']) lo[id] = true;
     app.store.set({ layers: L, labelsOff: lo, plumbing: { ...st(), xray: true, proposal: true, floors: {} } }, { label: 'אינסטלציה – הצג את כל הצנרת' });
     const c = app.plotCenter.clone(); app.viewer.flyTo(c, c.clone().add({ x: D.view.camOffset_m[0], y: D.view.camOffset_m[1], z: D.view.camOffset_m[2] }));
+    sync();
   };
+  const normalView = () => { if (!before) return; app.store.set(before, { label: 'אינסטלציה – תצוגה רגילה' }); before = null; sync(); };
+  const toggle = () => (isOn() ? normalView() : pipeView());
   const fab = document.createElement('button');
-  fab.className = 'pl-fab'; fab.textContent = '🔧 הצג את כל הצנרת'; fab.title = 'מדליק את כל שכבות האינסטלציה וההצעה, קרקע שקופה, מסתיר שלד וסביבה (ביטול: ↶)';
-  fab.addEventListener('click', pipeView);
+  fab.className = 'pl-fab'; fab.addEventListener('click', toggle);
   (document.getElementById('viewport') || document.body).append(fab);
+  const tbtn = document.createElement('button');
+  tbtn.className = 'pl-tool'; tbtn.innerHTML = '🔧<small>צנרת</small>'; tbtn.addEventListener('click', toggle);
+  const tb = document.getElementById('toolbar'); if (tb) tb.prepend(tbtn);
+  function sync() {
+    fab.textContent = isOn() ? '↩ חזרה לתצוגה רגילה' : '🔧 הצג את כל הצנרת';
+    tbtn.classList.toggle('on', isOn()); tbtn.title = isOn() ? 'צנרת: חזרה לתצוגה הרגילה' : 'צנרת: הצג את כל הצנרת (קרקע שקופה, בלי שלד וסביבה)';
+  }
+  sync();
   return {
-    pipeView,
+    pipeView, toggle,
     panel() {
       const s = st(); const floors = s.floors || {}; const sev = s.severity || {};
       const S = N.summary.findings;
@@ -45,7 +60,7 @@ export function buildPanel(app, pl) {
       const layers = app.store.get().layers;
       const anyOn = ids.some(id => layers[id] !== false);
       const box = h('div', { class: 'plbox' },
-        h('button', { class: 'pl-all', onclick: pipeView }, '🔧 הצג את כל הצנרת (רנטגן, בלי שלד וסביבה)'),
+        h('button', { class: 'pl-all', onclick: toggle }, '🔧 הצג את כל הצנרת / חזרה לתצוגה רגילה'),
         h('label', { class: 'plmaster' }, h('input', { type: 'checkbox', checked: anyOn,
           onchange: (e) => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(ids.map(id => [id, e.target.checked])) } }, { label: 'plumbing' }) }),
           anyOn ? 'שכבת האינסטלציה מוצגת – לחיצה מכבה את כולה' : 'שכבת האינסטלציה כבויה – לחיצה מדליקה את כולה'),

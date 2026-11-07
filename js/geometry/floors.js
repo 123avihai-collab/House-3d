@@ -5,7 +5,7 @@ import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 // that rise from it, and its ceiling (slab + beams of the sheet above). No dimensions here – all come from the data.
 // Tags: slab = {floor, stage 'slab'}; walls/columns = {floor, stage 'walls'}; ceiling slab/beams = {floor, stage 'ceiling'}.
 export function buildFloorSkeleton(ctx, F) {
-  const { coords, registry, scene, materials, display } = ctx;
+  const { data, coords, registry, scene, materials, display } = ctx;
   if (!F) return null;
   const D = display.framing; const floor = F.floor;
   const H = (rel) => coords.H0 + rel;
@@ -64,7 +64,7 @@ export function buildFloorSkeleton(ctx, F) {
   for (const c of F.basementWallCaps || []) {
     const m = prism(c.footprintITM, c.holesITM, H(c.bottomRel), H(c.topRel), conc);
     const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
-    registry.add(g, { floor: 'unit', system: 'structure', stage: 'walls', layer: 'basementWalls' }, {
+    registry.add(g, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'groundSlab' }, {   // cast with the ground slab (ק9/ק10)
       name: `ראש קיר מרתף (${c.wall}) עד מפלס הקרקע`, status: c.status,
       rows: [['תחתית / ראש', `${coords.fmtH(H(c.bottomRel))} / ${coords.fmtH(H(c.topRel))}`]], note: c.note, source: c.source,
     });
@@ -80,7 +80,7 @@ export function buildFloorSkeleton(ctx, F) {
     for (const [r, h, b, t] of pieces) { const m = prism(r, h, H(b), H(t), conc); g.add(m); if (flagged(w.status)) g.add(edges(m, D.provisionalEdgeColor)); }
     if (w.tag) g.add(label(w.tag, w.footprintITM, H(w.topRel) + D.labelLift_m));
     stats.walls_m3 += w.area_m2 * (w.topRel - w.bottomRel);
-    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls') }, {
+    registry.add(g, { floor, system: 'structure', stage: 'walls', layer: L('Walls'), ...(floor === 'roof' && w.bottomRel < (data.tags.floors.find(f => f.id === 'roof')?.level ?? 99) - 0.5 ? { step: 'firstWalls' } : {}) }, {
       id: w.id, name: `קיר ${w.tag || w.id} (${w.id}) – ${({ ground: 'קומת קרקע', first: "קומה א'", roof: 'מעל הגג' })[floor] || floor}`, status: w.status,
       rows: [['תחתית / ראש', `${coords.fmtH(H(w.bottomRel))} / ${coords.fmtH(H(w.topRel))}`], ['יושב על', w.standsOn || '— (חסר במקורות)'], ['עובי (מהשרטוט)', `${Math.round(w.thickness_m * 100)} ס"מ`],
         ...(w.openings?.length ? [['פתחים', `${w.openings.join(', ')} (אדן / משקוף בטון)`]] : []),

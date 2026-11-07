@@ -82,7 +82,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('owner-change toggle: ' + info.ownerChange);
     // per-layer label switch: piles stay visible, their labels hide
     info.labelsOff = await page.evaluate(() => {
-      const a = window.__app; a.store.set({ stageIndex: a.data.tags.sequence.findIndex(s => s.id === 'piles'), labelsOff: { piles: true } });
+      const a = window.__app; a.store.set({ stageIndex: a.data.tags.sequence.findIndex(s => s.id === 'pilesBasement'), labelsOff: { piles: true } });
       const it = a.registry.items.filter(i => i.tags.layer === 'piles' && i.meta.kind === 'pile');
       let lab = 0; it.forEach(i => i.object.traverse(o => { if (o.isCSS2DObject && o.visible) lab++; }));
       const vis = it.filter(i => i.object.visible).length; a.store.undo();
@@ -98,6 +98,24 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return r.slab.slab > 0 && r.slab.walls === 0 && r.walls.walls > 0 && r.walls.ceil === 0 && r.ceil.ceil > 0 ? 'ok' : JSON.stringify(r);
     });
     if (info.sequence !== 'ok') errors.push('construction sequence: ' + info.sequence);
+    // load path: nothing appears before what it stands on (walls / columns -> the beam, wall or column under them; the
+    // K-21 beams no later than the ground slab; every component on some step)
+    info.loadPath = await page.evaluate(() => {
+      const a = window.__app, R = a.registry, bad = [];
+      const byId = {}; for (const it of R.items) if (it.meta.id && it.meta.kind !== 'ghost') (byId[it.meta.id] ||= []).push(it);
+      const step = (it) => R.range(it.tags)[0];
+      for (const it of R.items) {
+        const [from, to] = R.range(it.tags);
+        if (from < 0 || to < from) { if (it.meta.kind !== 'ghost' || from < 0) bad.push(`${it.meta.id || it.meta.name}: no step (${from}..${to})`); continue; }
+        const on = (it.meta.rows || []).find(r => r[0] === 'יושב על')?.[1] || '';
+        const m = on.match(/^(?:קורה|עמוד|קיר) ([A-Z]+-?\d+[A-Z]?)/);
+        if (m && byId[m[1]]) { const s = Math.min(...byId[m[1]].map(step)); if (s > from) bad.push(`${it.meta.id} (שלב ${from}) על ${m[1]} (שלב ${s})`); }
+      }
+      const gs = (byId.GS1 || []).map(step)[0];
+      for (const it of R.items) if (['groundFloorBeams', 'ceilingBeams'].includes(it.tags.layer) && it.meta.kind !== 'ghost' && step(it) > gs && !it.tags.step) bad.push(`${it.meta.id} after GS1`);
+      return bad.length ? bad.slice(0, 12).join(' | ') : 'ok';
+    });
+    if (info.loadPath !== 'ok') errors.push('load path: ' + info.loadPath);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

@@ -25,12 +25,15 @@ export function buildTerrain(ctx) {
     const name = role === 'plot' ? 'מגרש 5187 – פני קרקע מתוכננים (סופי)'
       : role === 'neighbor' ? `מגרש שכן – חלקה ${region.parcel}`
       : role === 'sidewalk' ? 'מדרכה (פיתוח מתוכנן)' : 'כביש (פיתוח מתוכנן)';
-    registry.add(mesh, tags, {
-      name, kind: 'terrain', role, parcel: region.parcel, ring: region.ring,
-      area: Math.abs(ringArea(region.ring)), hMin: mesh.userData.hMin, hMax: mesh.userData.hMax,
-      interp: interp.kind, controlCount: interp.count, note: region.note, source: region.source,
-    });
-    scene.add(mesh);
+    // lot 5187: the planned surface is drawn by the excavation module (development step), cut around the structure
+    if (role !== 'plot') {
+      registry.add(mesh, tags, {
+        name, kind: 'terrain', role, parcel: region.parcel, ring: region.ring,
+        area: Math.abs(ringArea(region.ring)), hMin: mesh.userData.hMin, hMax: mesh.userData.hMax,
+        interp: interp.kind, controlCount: interp.count, note: region.note, source: region.source,
+      });
+      scene.add(mesh);
+    }
     ground.add(region.ring, interp, role === 'plot' ? 'final' : 'env', region.id);
     built.push({ region, interp, mesh });
   }
@@ -42,7 +45,7 @@ export function buildTerrain(ctx) {
     const interp25 = makeInterpolator(pts);
     const lot = data.plot.ring;
     const m = regionMesh(lot, interp25, coords, materials.get('soilPlot'), materials.get('soilCut'), T, []);
-    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stageTo: 'existing', layer: 'topoExisting2025' }, {
+    registry.add(m, { floor: 'site', system: 'site', stage: 'existing', stepTo: 'pilesOutside', layer: 'topoExisting2025' }, {
       name: 'מגרש 5187 – קרקע קיימת (מדידה 25.09.2025)', kind: 'terrain', role: 'plotExisting', ring: lot,
       area: Math.abs(ringArea(lot)), hMin: m.userData.hMin, hMax: m.userData.hMax, interp: interp25.kind, controlCount: interp25.count,
       source: s25.source, note: `נקודות הגובה הועתקו מסריקה; דיוק מיקום ±${s25.positionAccuracy_m} מ'`,

@@ -192,7 +192,7 @@ def main():
         yW = [y for i, y in enumerate(yW) if not (i and y - yW[i - 1] < 1.0)]
     assert len(yW) == 14, yW
     W = flight(fb, 358.04, 381.44, yW, rel['outBottom'], rise3, 'floor', WAIST, 'south')
-    st3 = {'id': 'ST3', 'name': 'מדרגות חוץ: ירידה ליחידת הדיור', 'kind': 'concrete', 'floor': 'unit', 'step': 'groundSlab',
+    st3 = {'id': 'ST3', 'name': 'מדרגות חוץ: ירידה ליחידת הדיור', 'kind': 'concrete', 'floor': 'unit', 'step': 'outdoorSlabs',
            'rise_m': r3(rise3), 'risers': 14, 'waist_m': WAIST, 'flights': [dict(W, id='ST3-A', numbers='1–14')], 'landings': [],
            'status': 'approx',
            'note': 'במרווח המערבי (חצר המדרגות, בין קירות המרתף). למטה: משטח הכניסה ‎-2.62 על רצפת המרתף; למעלה: השביל הדרומי 280.31. עובי השיפוע כמו במדרגות הפנים (לא כתוב).',
@@ -220,7 +220,7 @@ def main():
     cabR = Polygon([tuple(v) for v in np.array(cab)]).convex_hull
     thick = [r3(2 * g.area / g.length / PT_M) for g in wall_parts]
     room_m2 = [r3(g.area / PT_M ** 2) for g in sorted(rooms, key=lambda g: -g.area)]
-    pillar = {'id': 'PIL1', 'name': 'פילר מערכות + חדר אשפה (360 ל\')', 'floor': 'site', 'step': 'perimeter',
+    pillar = {'id': 'PIL1', 'name': 'פילר מערכות + חדר אשפה (360 ל\')', 'floor': 'site', 'step': 'perimeterWalls',
               'wallsITM': [to_itm(g) for g in wall_parts], 'wallHolesITM': [[[[r3(v) for v in fg(x, y)] for x, y in i.coords[:-1]] for i in g.interiors] for g in wall_parts],
               'wallThickness_m': thick, 'innerAreas_m2': room_m2,
               'bottomRel': rel['pillarBase'], 'topRel': rel['pillarTop'],

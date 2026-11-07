@@ -857,7 +857,7 @@
    "name": "מדרגות חוץ: ירידה ליחידת הדיור",
    "kind": "concrete",
    "floor": "unit",
-   "step": "groundSlab",
+   "step": "outdoorSlabs",
    "rise_m": 0.174,
    "risers": 14,
    "waist_m": 0.2,
@@ -1047,7 +1047,7 @@
   "id": "PIL1",
   "name": "פילר מערכות + חדר אשפה (360 ל')",
   "floor": "site",
-  "step": "perimeter",
+  "step": "perimeterWalls",
   "wallsITM": [
    [
     [

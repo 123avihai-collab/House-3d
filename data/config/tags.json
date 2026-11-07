@@ -10,23 +10,70 @@
    "id": "unit",
    "label": "יחידת דיור",
    "level": -2.6,
-   "levelSource": "user brief (יחידת דיור -2.60); permit sections show -2.60 — to be verified from DXF at stage 3"
+   "levelSource": "K-11: רצפת המרתף O.K ‎-2.75 (פני בטון); ‎-2.60 = פני ריצוף (אדריכלות)",
+   "ceilingLayers": [
+    "groundSlab",
+    "groundMamad",
+    "groundOutdoorSlabs",
+    "groundFloorBeams",
+    "ceilingBeams",
+    "pileCaps"
+   ],
+   "ceilingLabel": "רצפת הקרקע K-21 + קורות K-21 (גם רצפת קומת הקרקע)",
+   "floorLayers": [
+    "slabs",
+    "groundBeams"
+   ],
+   "floorLabel": "רצפת המרתף BS (K-11) וקורות המרתף"
   },
   {
    "id": "ground",
    "label": "קרקע",
    "level": 0.0,
-   "levelSource": "±0.00 = 280.50 (data/site/origin.json)"
+   "levelSource": "±0.00 = 280.50 (data/site/origin.json)",
+   "ceilingLayers": [
+    "groundCeiling",
+    "groundCeilingBeams"
+   ],
+   "ceilingLabel": "תקרה ‎+3.70 + קורות K-31",
+   "floorLayers": [
+    "groundSlab",
+    "groundMamad",
+    "groundOutdoorSlabs",
+    "groundFloorBeams",
+    "ceilingBeams",
+    "pileCaps"
+   ],
+   "floorLabel": "רצפת הקרקע K-21 וקורות K-21 (אותה יציקה כמו תקרת יחידת הדיור)"
   },
   {
    "id": "first",
    "label": "קומה א'",
-   "level": null
+   "level": 3.7,
+   "ceilingLayers": [
+    "firstCeiling"
+   ],
+   "ceilingLabel": "תקרת הגג ‎+6.90 (K-41)",
+   "levelSource": "K-31: תקרת הקרקע O.K ‎+3.70",
+   "floorLayers": [
+    "groundCeiling",
+    "groundCeilingBeams"
+   ],
+   "floorLabel": "תקרה ‎+3.70 וקורות K-31 (אותה יציקה כמו תקרת הקרקע)"
   },
   {
    "id": "roof",
    "label": "גג",
-   "level": null
+   "level": 6.9,
+   "ceilingLayers": [
+    "roofCeilingBeams"
+   ],
+   "ceilingLabel": "קורות הגג והפרגולות ‎+8.00 (K-41)",
+   "levelSource": "K-41: תקרת הגג O.K ‎+6.90",
+   "floorLayers": [
+    "firstCeiling"
+   ],
+   "floorLabel": "תקרת הגג ‎+6.90 (אותה יציקה כמו תקרת קומה א')"
   }
  ],
  "systems": [
@@ -48,13 +95,11 @@
   {
    "id": "walls",
    "label": "קירות",
-   "hint": "קירות המרתף (גובה זמני עד IFC).",
    "color": "#c8b89a"
   },
   {
    "id": "finishes",
    "label": "גמרים",
-   "hint": "גמרים – בשלבים הבאים.",
    "color": "#d9cbb3"
   },
   {
@@ -92,47 +137,47 @@
   {
    "id": "existing",
    "label": "מצב קיים",
-   "hint": "מצב קיים: קרקע לפי מדידת 2025, בלי עבודות."
+   "hint": "מצב קיים."
   },
   {
    "id": "excavation",
    "label": "חפירה",
-   "hint": "חפירה: בור המרתף, דיפון (זמני) ותעלות לקורות."
+   "hint": "חפירה ודיפון."
   },
   {
    "id": "piles",
    "label": "כלונסאות",
-   "hint": "כלונסאות (בשקיפות דרך הקרקע). קורות, רצפות וקירות – בשלבים הבאים."
+   "hint": "כלונסאות."
   },
   {
    "id": "groundBeams",
    "label": "קורות יסוד",
-   "hint": "קורות יסוד (בקירוב, מסומנות בכתום). רצפות וקירות – בשלבים הבאים."
+   "hint": "קורות יסוד / קורות מרתף."
   },
   {
    "id": "slab",
    "label": "רצפה",
-   "hint": "רצפת המרתף התלויה. קירות המרתף – בשלב הבא."
+   "hint": "רצפה."
   },
   {
    "id": "walls",
    "label": "קירות",
-   "hint": "קירות המרתף (גובה זמני עד IFC)."
+   "hint": "קירות ועמודים."
   },
   {
    "id": "ceiling",
    "label": "תקרה",
-   "hint": "תקרות – יתווספו בשלב 3."
+   "hint": "תקרה וקורות תקרה."
   },
   {
    "id": "finishes",
    "label": "גמרים",
-   "hint": "גמרים – בשלבים הבאים."
+   "hint": "גמרים."
   },
   {
    "id": "furniture",
    "label": "ריהוט",
-   "hint": "הכול."
+   "hint": "ריהוט."
   }
  ],
  "skeletonStages": [
@@ -161,9 +206,15 @@
    ]
   },
   {
+   "id": "pilesOutside",
+   "label": "כלונסאות חוץ",
+   "hint": "כלונסאות מחוץ לבור המרתף (קומת הקרקע, החומות, הבריכה) – נקדחים מפני הקרקע הקיימת, לפני החפירה.",
+   "includes": []
+  },
+  {
    "id": "excavation",
    "label": "חפירה",
-   "hint": "חפירה: בור המרתף, דיפון (זמני) ותעלות לקורות.",
+   "hint": "חפירת בור המרתף בשיפוע 1:2, דיפון זמני היכן שהשיפוע לא נכנס במגרש, בור הבריכה וחדר המכונות.",
    "includes": [
     {
      "stage": "excavation"
@@ -171,9 +222,9 @@
    ]
   },
   {
-   "id": "piles",
-   "label": "כלונסאות",
-   "hint": "כלונסאות (בשקיפות דרך הקרקע). קורות, רצפות וקירות – בשלבים הבאים.",
+   "id": "pilesBasement",
+   "label": "כלונסאות מרתף",
+   "hint": "כלונסאות המרתף – נקדחים מתחתית הבור (ראש ‎-3.00).",
    "includes": [
     {
      "stage": "piles"
@@ -181,9 +232,9 @@
    ]
   },
   {
-   "id": "groundBeams",
-   "label": "קורות יסוד",
-   "hint": "קורות יסוד (בקירוב, מסומנות בכתום). רצפות וקירות – בשלבים הבאים.",
+   "id": "basementBeams",
+   "label": "קורות מרתף",
+   "hint": "קורות קומת המרתף (K-11 / K-12): קורות הסף ומעל הקופסאות ‎-1.30.",
    "includes": [
     {
      "stage": "groundBeams"
@@ -193,9 +244,10 @@
   {
    "id": "basementSlab",
    "label": "רצפת מרתף",
-   "hint": "רצפת המרתף התלויה, רצפת הבריכה וחדר המכונות.",
+   "hint": "רצפת המרתף התלויה (על ארגזי הפרדה), רצפת הבריכה וחדר המכונות, תא השאיבה PC-1.",
    "includes": [
     {
+     "floor": "unit",
      "stage": "slab"
     }
    ]
@@ -203,7 +255,7 @@
   {
    "id": "basementWalls",
    "label": "קירות מרתף",
-   "hint": "קירות המרתף, הבריכה, תעלות וחדר המכונות; שוחות וצנרת ביוב.",
+   "hint": "קירות המרתף והבריכה, תעלות וחדר המכונות.",
    "includes": [
     {
      "stage": "walls"
@@ -211,15 +263,27 @@
    ]
   },
   {
+   "id": "backfill",
+   "label": "מילוי חוזר",
+   "hint": "איטום וניקוז מאחורי הקירות, מילוי חוזר ויישור כל המגרש לגובה העבודה: תחתית הקורות והרצפות של קומת הקרקע (הערת אביחי ק8).",
+   "includes": []
+  },
+  {
+   "id": "underSlab",
+   "label": "צנרת ותעלות",
+   "hint": "צנרת ביוב מתחת לרצפת הקרקע ושרוולים, וחפירת תעלות לקורות K-21 במילוי.",
+   "includes": []
+  },
+  {
    "id": "groundSlab",
    "label": "רצפת קרקע",
-   "hint": "קורות K-21 ורצפת קומת הקרקע (תקרת המרתף) – נוצקות יחד.",
+   "hint": "קורות K-21 של הבית, ראשי קירות המרתף, ראש הכלונס הכפול ורצפת הבית (כולל התקרה מעל המרתף, הכניסה והממ\"ד) – יציקה אחת; מדרגות הבטון מרתף←קרקע.",
    "includes": [
     {
-     "stage": "ceiling"
+     "floor": "ground",
+     "stage": "slab"
     },
     {
-     "floor": "ground",
      "stage": "slab"
     }
    ]
@@ -227,7 +291,7 @@
   {
    "id": "groundWalls",
    "label": "קירות קרקע",
-   "hint": "קירות ועמודי קומת הקרקע (K-21).",
+   "hint": "קירות ועמודי קומת הקרקע (K-21), עד תחתית התקרה / הקורה שמעליהם.",
    "includes": [
     {
      "floor": "ground",
@@ -236,26 +300,103 @@
    ]
   },
   {
-   "id": "perimeter",
-   "label": "חומות",
-   "hint": "חומות היקפיות – יתווספו אחרי אישור שלד הקרקע.",
-   "includes": []
-  },
-  {
    "id": "groundCeiling",
    "label": "תקרת קרקע",
-   "hint": "קורות ותקרת קומת הקרקע (K-31).",
+   "hint": "קורות ותקרת קומת הקרקע ‎+3.70 (K-31).",
    "includes": [
     {
      "floor": "ground",
+     "stage": "ceiling"
+    },
+    {
      "stage": "ceiling"
     }
    ]
   },
   {
+   "id": "firstWalls",
+   "label": "קירות קומה א'",
+   "hint": "קירות ועמודי קומה א' (K-31) – מראש התקרה / הקורה / העמוד שמתחתם עד תחתית תקרת הגג (K-41).",
+   "includes": [
+    {
+     "floor": "first",
+     "stage": "walls"
+    }
+   ]
+  },
+  {
+   "id": "firstCeiling",
+   "label": "תקרת גג",
+   "hint": "תקרת הגג ‎+6.90 (K-41).",
+   "includes": [
+    {
+     "floor": "first",
+     "stage": "ceiling"
+    }
+   ]
+  },
+  {
+   "id": "roofWalls",
+   "label": "מעקות",
+   "hint": "קירות ומעקות מעל הגג עד ‎+8.00 (K-41).",
+   "includes": [
+    {
+     "floor": "roof",
+     "stage": "walls"
+    }
+   ]
+  },
+  {
+   "id": "roofBeams",
+   "label": "קורות גג",
+   "hint": "קורות הגג והפרגולות ‎+8.00 (K-41 / K-42).",
+   "includes": [
+    {
+     "floor": "roof",
+     "stage": "ceiling"
+    }
+   ]
+  },
+  {
+   "id": "perimeterFootings",
+   "label": "יסודות חומות",
+   "hint": "יסודות החומות ההיקפיות על כלונסאות 100–118 (K-400).",
+   "includes": []
+  },
+  {
+   "id": "perimeterWalls",
+   "label": "חומות",
+   "hint": "החומות ההיקפיות עד ראש החומה (חזיתות החומות), פילר המערכות וחדר האשפה.",
+   "includes": []
+  },
+  {
+   "id": "siteSewer",
+   "label": "ביוב חוץ",
+   "hint": "שוחות הביוב 1–5 וקווי הביוב שמחוץ לבית, עד שוחה 0 (חיבור לעירוני).",
+   "includes": []
+  },
+  {
+   "id": "outdoorBeams",
+   "label": "קורות חוץ",
+   "hint": "קורות הגינה והרצפות החיצוניות (K-21) בין הבית לחומות – נשענות על הכלונסאות, על יסודות החומות ועל קורות הבית, ולכן אחרי החומות.",
+   "includes": []
+  },
+  {
+   "id": "outdoorSlabs",
+   "label": "רצפות חוץ",
+   "hint": "הרצפות החיצוניות התלויות: משטח צפוני ומרפסות, חצרות, מרווח מערבי, חניה; מדרגות החוץ ליחידת הדיור.",
+   "includes": []
+  },
+  {
+   "id": "development",
+   "label": "פיתוח",
+   "hint": "פיתוח: יישור סופי של הגינה והרצועות לפני הקרקע המתוכננים (מפה למשתכן).",
+   "includes": []
+  },
+  {
    "id": "finishes",
    "label": "גמרים",
-   "hint": "גמרים – בשלבים הבאים.",
+   "hint": "גמרים: מדרגות קלות קרקע←קומה א', ארון חשמל. חלונות ודלתות – בהמתנה עד סיום השלד.",
    "includes": [
     {
      "stage": "finishes"
@@ -263,8 +404,8 @@
    ]
   },
   {
-   "id": "furniture",
-   "label": "ריהוט",
+   "id": "all",
+   "label": "הכול",
    "hint": "הכול.",
    "includes": [
     {
@@ -273,5 +414,13 @@
    ]
   }
  ],
- "_docSequence": "Construction-step slider. A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) up to its stageTo (same rule) or, with tag stepTo, up to that step id (\"skeletonEnd\" = the step before finishes). Optional tag step overrides the start step. Tags themselves follow CLAUDE.md §3."
+ "_docSequence": "Construction-step slider (24 steps). A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) or from its explicit tag \"step\", up to its stageTo / stepTo (\"skeletonEnd\" = the step before finishes). Steps with no includes are reached only by explicit \"step\" tags (piles outside the pit, backfill, under-slab pipes, perimeter, site sewer, outdoor beams, development).",
+ "outdoorZones": [
+  "terrace",
+  "eastYard",
+  "southYard",
+  "westYard",
+  "parking"
+ ],
+ "_docCeiling": "floors[].ceilingLayers / floorLayers: the layers that form the ceiling / the floor slab of that floor – the \"תקרה\" / \"רצפה\" switches of the floors tab hide them (state.floors[id].ceiling / .slab = false). A layer can belong to two switches (the ground slab is the ceiling of the unit and the floor of the ground floor): it is hidden when either is off."
 }

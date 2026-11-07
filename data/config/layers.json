@@ -9,7 +9,7 @@
    "layers": [
     {
      "id": "topoPlanned",
-     "label": "טופוגרפיה מתוכננת (סופית)",
+     "label": "פני קרקע מתוכננים (פיתוח – סופי)",
      "visible": true
     },
     {
@@ -19,7 +19,12 @@
     },
     {
      "id": "excavation",
-     "label": "חפירה ליחידת הדיור (מרתף)",
+     "label": "חפירה ליחידת הדיור (מרתף) ותעלות",
+     "visible": true
+    },
+    {
+     "id": "backfill",
+     "label": "מילוי חוזר ויישור לגובה העבודה",
      "visible": true
     },
     {
@@ -60,6 +65,16 @@
     {
      "id": "pavedEntries",
      "label": "משטחי כניסה מתוכננים",
+     "visible": true
+    },
+    {
+     "id": "pillar",
+     "label": "פילר מערכות + חדר אשפה",
+     "visible": true
+    },
+    {
+     "id": "electricCabinet",
+     "label": "ארון חשמל (פילר)",
      "visible": true
     }
    ]
@@ -175,17 +190,22 @@
     },
     {
      "id": "groundBeams",
-     "label": "קורות יסוד – מפלס המרתף (מיקום בקירוב – מ-PDF)",
+     "label": "קורות מרתף (K-11 / גיליון ברזל K-12)",
+     "visible": true
+    },
+    {
+     "id": "pileCaps",
+     "label": "ראשי כלונסאות כפולים (K-400)",
      "visible": true
     },
     {
      "id": "groundFloorBeams",
-     "label": "קורות קומת קרקע על כלונסאות (מיקום בקירוב – מ-PDF)",
+     "label": "קורות קומת הקרקע על כלונסאות (K-21 / גיליון ברזל K-22)",
      "visible": true
     },
     {
      "id": "ceilingBeams",
-     "label": "קורות תקרת המרתף (מיקום בקירוב – מ-PDF)",
+     "label": "קורות מעל המרתף (K-21 / גיליון ברזל K-22)",
      "visible": true
     },
     {
@@ -204,13 +224,58 @@
      "visible": true
     },
     {
+     "id": "underSlabFormers",
+     "label": "בטון רזה + ארגזי פוליביד מתחת לרצפת הקרקע",
+     "visible": true
+    },
+    {
      "id": "groundSlab",
-     "label": "רצפת קומת הקרקע (K-21)",
+     "label": "רצפת הבית – קומת קרקע (K-21)",
+     "visible": true
+    },
+    {
+     "id": "groundOutdoorSlabs",
+     "label": "רצפות חוץ: מרפסות, חצרות, חניה (K-21)",
+     "visible": true
+    },
+    {
+     "id": "groundMamad",
+     "label": "ממ\"ד (זמני – תוכנית הג\"א חסרה)",
+     "visible": true
+    },
+    {
+     "id": "groundOpenZones",
+     "label": "חצרות אנגליות / מדרגות למרתף / גינה (בלי רצפה)",
+     "visible": true
+    },
+    {
+     "id": "perimeterFootings",
+     "label": "יסודות החומות ההיקפיות (על כלונסאות 100–118)",
+     "visible": true
+    },
+    {
+     "id": "perimeterWalls",
+     "label": "חומות היקפיות",
+     "visible": true
+    },
+    {
+     "id": "stairs",
+     "label": "מדרגות בטון (מרתף←קרקע, ירידה ליחידה)",
+     "visible": true
+    },
+    {
+     "id": "stairsLight",
+     "label": "מדרגות קלות (קרקע←קומה א')",
      "visible": true
     },
     {
      "id": "groundWalls",
      "label": "קירות קומת הקרקע (K-21)",
+     "visible": true
+    },
+    {
+     "id": "mamadFrames",
+     "label": "משקופי חלון ודלת הממ\"ד (נוצקים עם הקירות)",
      "visible": true
     },
     {
@@ -226,6 +291,31 @@
     {
      "id": "groundCeilingBeams",
      "label": "קורות תקרת הקרקע (K-31)",
+     "visible": true
+    },
+    {
+     "id": "firstColumns",
+     "label": "עמודי קומה א' (K-31)",
+     "visible": true
+    },
+    {
+     "id": "firstWalls",
+     "label": "קירות קומה א' (K-31)",
+     "visible": true
+    },
+    {
+     "id": "firstCeiling",
+     "label": "תקרת הגג +6.90 (K-41)",
+     "visible": true
+    },
+    {
+     "id": "roofWalls",
+     "label": "קירות מעל הגג עד +8.00 (K-41)",
+     "visible": true
+    },
+    {
+     "id": "roofCeilingBeams",
+     "label": "קורות גג ופרגולות (K-41)",
      "visible": true
     },
     {

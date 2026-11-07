@@ -7,6 +7,12 @@ export class Registry {
     this.stages = tagsConfig.stages.map(s => s.id);
     this.steps = tagsConfig.sequence;            // construction-step slider (data/config/tags.json)
     this.listeners = [];
+    // "תקרה" / "רצפה" switches of the floors tab: layer -> [[floor, 'ceiling' | 'slab'], …]
+    this.switchOf = {};
+    for (const f of tagsConfig.floors) {
+      for (const l of f.ceilingLayers || []) (this.switchOf[l] ||= []).push([f.id, 'ceiling']);
+      for (const l of f.floorLayers || []) (this.switchOf[l] ||= []).push([f.id, 'slab']);
+    }
   }
   add(object3d, tags, meta = {}) {
     for (const k of ['floor', 'system', 'stage', 'layer']) {
@@ -35,6 +41,8 @@ export class Registry {
   }
   apply(state) {
     const si = state.stageIndex;   // index into the step sequence
+    const sec = state.section || {};
+    const cutFloor = sec.hOn && sec.hideBeams !== false ? this.cutFloor(sec.hLevel) : null;
     for (const it of this.items) {
       const t = it.tags;
       const [from, to] = this.range(t);
@@ -44,27 +52,39 @@ export class Registry {
       // owner-change variants: "original" shows while the change is off, "changed" while it is on
       const v = it.meta.variant;
       const varOn = !v || ((state.ownerChanges?.[v.change] ?? true) === (v.show === 'changed'));
-      const visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
+      let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
+      // horizontal floor section: the beams of the floor being cut (the ceiling beams under / on the slab you stand on) are hidden
+      if (visible && cutFloor && /[cC]eilingBeams$/.test(t.layer) && t.floor === cutFloor) visible = false;
+      // "תקרה" / "רצפה" switches of the floors tab (tags.json floors[].ceilingLayers / floorLayers)
+      if (visible && this.switchOf[t.layer]?.some(([f, k]) => state.floors[f]?.[k] === false)) visible = false;
       it.object.visible = visible;
-      // per-layer label switch: hide only the labels and marking lines (userData.annotation) of the layer, keep the objects
-      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.isCSS2DObject || o.userData.annotation) o.visible = !lo; }); }
+      // per-layer label switch: the marking lines (userData.annotation) here; the CSS labels are filtered every frame by
+      // js/core/labels.js (step / distance / section / selection)
+      if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.userData.annotation && !o.isCSS2DObject) o.visible = !lo; }); }
       if (visible) this.applyOpacity(it, floor.opacity);
     }
     this.listeners.forEach(f => f());
   }
   applyOpacity(it, opacity) {
+    // materials are shared between components of all floors (one concrete for every wall/slab): a floor's transparency
+    // must not leak to the others, so a component gets its own copy of a material the first time it is made transparent
     it.object.traverse(o => {
-      const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
-      for (const m of mats) {
-        if (m.userData.baseOpacity === undefined) {
-          m.userData.baseOpacity = m.opacity;
-          m.userData.baseTransparent = m.transparent;
-        }
-        const op = m.userData.baseOpacity * opacity;
-        m.opacity = op;
-        m.transparent = m.userData.baseTransparent || op < 0.999;
-        m.depthWrite = !m.transparent || m.userData.baseTransparent === false;
+      if (!o.material) return;
+      if (opacity < 0.999 && !o.userData.ownMat) {
+        o.userData.sharedMat = o.material;
+        o.material = Array.isArray(o.material) ? o.material.map(m => m.clone()) : o.material.clone();
+        o.userData.ownMat = true;
       }
+      if (!o.userData.ownMat) return;   // fully opaque and never changed: keep the shared material untouched
+      const base = Array.isArray(o.userData.sharedMat) ? o.userData.sharedMat : [o.userData.sharedMat];
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach((m, i) => {
+        const b = base[i] || base[0];
+        m.opacity = b.opacity * opacity;
+        m.transparent = b.transparent || m.opacity < 0.999;
+        m.depthWrite = b.transparent ? b.depthWrite : !m.transparent;
+        m.needsUpdate = true;
+      });
     });
   }
   pickables() {
@@ -74,6 +94,21 @@ export class Registry {
       it.object.traverse(o => { if (o.isMesh && o.visible) out.push(o); });
     }
     return out;
+  }
+  // floor levels of the slabs that carry ceiling beams: { floorTag: slab top (rel) } – e.g. ground ceiling = floor A slab
+  beamLevels() {
+    if (!this._beamLevels) {
+      this._beamLevels = {};
+      for (const it of this.items) if (it.tags.layer.endsWith('CeilingBeams') && it.meta.ceilTopRel != null)
+        this._beamLevels[it.tags.floor] = Math.max(this._beamLevels[it.tags.floor] ?? -Infinity, it.meta.ceilTopRel);
+    }
+    return this._beamLevels;
+  }
+  // the floor whose slab is the highest one at or below the cut level
+  cutFloor(hLevel) {
+    let best = null, bz = -Infinity;
+    for (const [f, z] of Object.entries(this.beamLevels())) if (z <= hLevel + 0.01 && z > bz) { best = f; bz = z; }
+    return best;
   }
   byKind(kind) { return this.items.filter(i => i.meta.kind === kind); }
   onChange(f) { this.listeners.push(f); }

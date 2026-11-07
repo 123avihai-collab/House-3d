@@ -73,7 +73,7 @@
     {
      "id": "street",
      "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborLots",
@@ -88,27 +88,27 @@
     {
      "id": "streetHeightOutline",
      "label": "קו כתום – גובה רחוב משוער",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborHouses",
      "label": "בתי השכנים – מפורט (חלונות, דלתות, חניות)",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborFences",
      "label": "חומות ושערים (חיפוי אבן, טיח, קופינג)",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborYards",
      "label": "חצרות: דשא, שבילים, חניות",
-     "visible": true
+     "visible": false
     },
     {
      "id": "streetFurniture",
      "label": "פיתוח רחוב: עצים, תאורה, אבני שפה, חניות",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborEnvelopes",
@@ -133,7 +133,7 @@
     {
      "id": "neighborBuildingLines",
      "label": "קווי בניין של השכנים",
-     "visible": true
+     "visible": false
     },
     {
      "id": "neighborLabels",

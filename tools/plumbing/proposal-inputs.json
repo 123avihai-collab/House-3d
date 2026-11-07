@@ -325,5 +325,47 @@
   "loopIfOver_m": 25,
   "heaterSpacing_m": 0.9,
   "pump": "משאבת סחרור לכל יחידה + אל-חוזר + ברז ניתוק, טיימר (הערה 2 בפרט הסחרור)"
+ },
+ "firstFloor": {
+  "_doc": "PL3 לפי המלצה (אושר 07.11). ערכים טיפוסיים – זמני",
+  "slope": 0.02,
+  "hangerGap_m": 0.02,
+  "hangerBelow_m": 0.05,
+  "wyeAboveSlab_m": 0.01,
+  "minCover_m": 0.04,
+  "keep": [
+   "SW16@first"
+  ],
+  "_keep": "SW16 – הסטת צ.א 3 (PL7), לא ענף"
+ },
+ "unitSewer": {
+  "_doc": "PB6 לפי המלצה (אושר 07.11): תא שאיבה נפרד לשפכי היחידות. ערכים טיפוסיים – זמני",
+  "slope": 0.02,
+  "hangerGap_m": 0.02,
+  "pileClear_m": 0.15,
+  "chamberGap_m": 0.15,
+  "sumpDepth_m": 0.9,
+  "risingD_mm": 75,
+  "risingOffset_m": 0.3,
+  "pumps": "2 משאבות טבולות גורסות (עבודה + רזרבה, החלפה אוטומטית), 20 מק\"ש בעומד 10 מ' – לפי מפרט המשאבה בפרט \"תא איסוף עם משאבה\" של היועץ; מצופים + התראת מפלס גבוה (צופר + הודעה)",
+  "cover": "מכסה ב.י. אטום לריח (אטם כפול) B125"
+ },
+ "rain": {
+  "_doc": "PR1 – 3 חלופות להשוואה (אביחי 07.11). ערכים טיפוסיים – זמני",
+  "D_mm": 110,
+  "slope": 0.01,
+  "cell_m": 0.1,
+  "hangerGap_m": 0.02,
+  "coverMin_m": 0.3,
+  "pileClear_m": 0.2,
+  "poolClear_m": 0.3,
+  "utilClear_m": 0.5,
+  "boundaryClear_m": 0.5,
+  "frontInset_m": 0.8,
+  "underSlabCost": 2.0,
+  "joinIfCloser_m": 3.0,
+  "minCrossClear_m": 0.05,
+  "pitDepth_m": 3.0,
+  "pitRingH_m": 0.5
  }
 }

@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from proposal_common import *
 import georef as G
 from georef_basement_sketch import fit as sketch_fit, SKETCH
-import propose_site
+import propose_site, propose_first, propose_units, propose_rain
 
 r3 = lambda v: round(float(v), 3)
 I = J('tools/plumbing/proposal-inputs.json')
@@ -299,11 +299,16 @@ def main():
     print('shaft clashes:', SH['clashes'])
     SM = move_stacks(SH)
     for s in SM: print('stack', s['stack'], s.get('displacement_m'), s.get('clashesBefore'), '->', s.get('clashesAfter'))
+    PL3 = propose_first.build(SM)                      # first-floor branches: WC under the slab, ø50 in the build-up
+    for s in SM:
+        if s.get('connectors'): s['connectors'] = [c for c in s['connectors'] if c['run'] not in PL3['replacesConnectors']]
     new_stack_pts = [Point(p[0], p[1]) for s in SM if s.get('pts3d') for p in s['pts3d']]
     kept = [Point(p[0], p[1]) for l in N['lines3d'] if l.get('kind') == 'stack' and not any(s.get('replaces') == l['id'] for s in SM) for p in l['pts3d']]
     dp = [Point(p[0], p[1]) for l in N['lines3d'] if l.get('kind') == 'downpipe' for p in l['pts3d']]
     keepouts = [p.buffer(I['routing']['keepout_m']) for p in new_stack_pts + kept + dp] + [SH['poly'].buffer(0.01)]
 
+    site = propose_site.build()
+    s2TL = next((c['TLto'] for c in site['chamberRaise'] if c['id'] == 'S-2'), NODES['S-2']['TL'])
     # regions + walls per floor
     gs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['slab']])
     fs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['ceiling']['slab']] + [MAMAD.buffer(0.01)])
@@ -315,6 +320,13 @@ def main():
              'first': Grid(fs, walls['first'], conc['first'], [], keepouts),
              'unit': Grid(bs, walls['unit'], conc['unit'], [], keepouts)}
 
+    def make_grid(region, walls_, conc_, forb_, keep_, cell):
+        old = I['routing']['cell_m']; I['routing']['cell_m'] = cell
+        try: return Grid(region, walls_, conc_, forb_, keep_)
+        finally: I['routing']['cell_m'] = old
+    PR1 = propose_rain.build(make_grid)
+    PB6 = propose_units.build(Grid, unary_union(walls['ground']), unary_union(walls['first']), SH['poly'],
+                              [(p.x, p.y) for p in new_stack_pts + kept + dp], s2TL)
     # fixtures -> supply points
     PT = I['points']; points = []
     fix = [n for n in N['nodes'] if n['floor'] in ('ground', 'first') and n['kind'] in ('wc', 'basin', 'shower', 'sink', 'washer')]
@@ -477,11 +489,13 @@ def main():
            'sleeves': sleeves, 'superseded': sup,
            'submeters': {'E': r3(bcold[0]), 'N': r3(bcold[1]), 'H': r3(zu + 0.60), 'title': 'מוני משנה ליחידות 1 ו-2 + ברזי ניתוק (בבסיס הפיר)'},
            'mainValve': {'E': r3(c[0]), 'N': r3(c[1]), 'H': r3(zg + I['mainEntry']['valveH']), 'title': 'ברז ראשי + מז"ח/אל-חוזר לבית (בפיר, קומת קרקע)'},
-           'unitHot': unit_hot,
+           'unitHot': unit_hot, 'firstFloor': PL3,
            'recircPump': {'E': r3(htr['E'] + 0.25), 'N': r3(htr['N']), 'H': r3(zr + 0.25), 'title': 'משאבת סחרור + אל-חוזר + ברז ניתוק (פרט הסחרור של היועץ)'},
            'summary': {'runs': len(runs), 'pex_m': r3(sum(r['length_m'] for r in runs)), 'points': len(pt_out), 'sleeves': len(sleeves),
-                       'stacksMoved': sum(1 for s in SM if s.get('status') == 'proposal'), 'unitHot': bool(unit_hot)}}
-    out['site'] = propose_site.build()
+                       'stacksMoved': sum(1 for s in SM if s.get('status') == 'proposal'), 'unitHot': bool(unit_hot), 'firstFloorRuns': len(PL3['runs']), 'unitSewerRuns': len(PB6['runs'])}}
+    out['site'] = site
+    out['unitSewer'] = PB6
+    out['rain'] = PR1
     out['summary']['site'] = {'chambers': len(out['site']['chamberRaise']), 'drops': len(out['site']['drops']), 'hoseReel': 1, 'meterConn': 2}
     json.dump(out, open(os.path.join(ROOT, 'data/plumbing/proposal.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(json.dumps(out['summary'], ensure_ascii=False)); print('superseded', sup)

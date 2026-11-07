@@ -2,7 +2,7 @@
  "_doc": "קבועי תצוגה לשכבת האינסטלציה (לא מידות של הבית).",
  "radialSegments": 18, "bendSegments": 10,
  "labelMinLength_m": 1.2,
- "xrayTerrainOpacity": 0.28,
+ "xrayTerrainOpacity": 0.12,
  "severity": {"critical": {"color": "#e53935", "label": "חמור"}, "major": {"color": "#fb8c00", "label": "מהותי"}, "minor": {"color": "#fdd835", "label": "קל"}, "info": {"color": "#42a5f5", "label": "מידע"}},
  "status": {"source": "מהתוכנית", "derived": "נגזר מהתוכנית", "provisional": "זמני – אין נתון בתוכנית", "missing": "חסר בתוכנית", "catalog": "קטלוג (לאימות מול ספק)"},
  "markerRadius_m": 0.12,

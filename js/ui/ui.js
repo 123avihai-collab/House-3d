@@ -251,8 +251,8 @@ export class UI {
     const allGroups = () => [...wrap.querySelectorAll('details.grp')];
     wrap.append(h('div', { class: 'ltools' }, q,
       h('label', { title: 'להציג רק שכבות דלוקות' }, only, 'רק הדלוקות'),
-      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = true; P?.setOpen(d.dataset.id, true); }) }, 'פתח הכול'),
-      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = false; P?.setOpen(d.dataset.id, false); }) }, 'כווץ הכול')));
+      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = true; (this.grpOpen ||= {})[d.dataset.id] = true; P?.setOpen(d.dataset.id, true); }) }, 'פתח הכול'),
+      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = false; (this.grpOpen ||= {})[d.dataset.id] = false; P?.setOpen(d.dataset.id, false); }) }, 'כווץ הכול')));
     // ---- groups: header checkbox = all its layers (partly on = –) ----
     for (const g of app.data.layers.groups) {
       const L = implLayers(g), n = L.filter(l => s.layers[l.id] !== false).length;
@@ -265,8 +265,10 @@ export class UI {
           L.length ? h('small', { class: 'cnt' }, ` ${n}/${L.length}`) : soon(),
           L.length ? h('button', { class: 'small solo', title: 'רק הקבוצה הזו', onclick: (e) => { e.preventDefault(); e.stopPropagation();
             const all = app.data.layers.groups.flatMap(implLayers); setLayers(Object.fromEntries(all.map(l => [l.id, L.includes(l)])), 'solo'); } }, 'רק זו') : ''));
-      box.open = P ? P.isOpen(g.id, false) : g.implemented;
-      box.addEventListener('toggle', () => P?.setOpen(g.id, box.open));
+      // open / collapsed: what was set in this session wins over the saved state (it loads a moment after opening)
+      this.grpOpen ||= {};
+      box.open = this.grpOpen[g.id] ?? (P ? P.isOpen(g.id, false) : g.implemented);
+      box.addEventListener('toggle', () => { if (!box.isConnected) return; this.grpOpen[g.id] = box.open; P?.setOpen(g.id, box.open); });
       for (const l of g.layers) {
         const impl = g.implemented && l.implemented !== false;
         const on = s.layers[l.id] !== false;

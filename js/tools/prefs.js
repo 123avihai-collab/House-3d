@@ -50,7 +50,8 @@ export class Prefs {
       const snap = await this.ref.get();
       if (snap.exists) {
         const d = snap.data();
-        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: d.open || {} };
+        // groups opened / closed before the account answered keep this session's state
+        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) } };
         this.restore(this.p); this.writeLocal();
       } else await this.ref.set({ ...this.p, updatedAt: Date.now() });   // first time: carry this browser's views over
       this.where = 'db'; this.lastSaved = JSON.stringify(this.snapshot(true));
@@ -86,5 +87,5 @@ export class Prefs {
   setStart(id) { this.p.start = this.p.start === id ? null : id; this.persist(); }
   // ---- expanded groups ----
   isOpen(g, dflt) { return this.p.open[g] ?? dflt; }
-  setOpen(g, v) { if (this.p.open[g] === v) return; this.p.open[g] = v; this.persist(); }
+  setOpen(g, v) { (this.sessionOpen ||= {})[g] = v; if (this.p.open[g] === v) return; this.p.open[g] = v; this.persist(); }
 }

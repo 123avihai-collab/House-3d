@@ -36,7 +36,15 @@ export class Prefs {
     if (v.stageIndex != null && v.stageIndex < this.app.data.tags.sequence.length) patch.stageIndex = v.stageIndex;
     this.app.store.set(patch, { record, label: 'view' });
   }
+  // one-time fix (08.11): a "last" saved while the automatic pipe view was on hides the whole skeleton – drop it once
+  heal(p) {
+    if (p.healed1) return;
+    p.healed1 = true;
+    const ids = (this.app.data.layers.groups.find(g => g.id === 'structure')?.layers || []).map(l => l.id);
+    if (p.last?.layers && ids.length && ids.every(id => p.last.layers[id] === false)) p.last = null;
+  }
   restore(p) {
+    this.heal(p);
     const start = p.start && p.presets.find(x => x.id === p.start);
     this.apply(start ? start.view : p.last, { record: false });
   }
@@ -51,8 +59,8 @@ export class Prefs {
       if (snap.exists) {
         const d = snap.data();
         // groups opened / closed before the account answered keep this session's state
-        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) } };
-        this.restore(this.p); this.writeLocal();
+        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) }, healed1: d.healed1 };
+        this.restore(this.p); this.writeLocal(); this.persist();
       } else await this.ref.set({ ...this.p, updatedAt: Date.now() });   // first time: carry this browser's views over
       this.where = 'db'; this.lastSaved = JSON.stringify(this.snapshot(true));
       this.app.ui.refreshPanel('layers');

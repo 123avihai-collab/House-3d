@@ -457,7 +457,9 @@ export function buildPlumbing(ctx) {
       // invisible in the default view). Once per version per browser; skipped in automated tests (navigator.webdriver).
       const FLAG = 'house3d-plumbing-pipeview-v4';
       let seen = null; try { seen = localStorage.getItem(FLAG); } catch (e) { /* private mode */ }
-      if (!seen && !navigator.webdriver) setTimeout(() => {
+      // no automatic pipe view any more: it hid the skeleton, and the saved view (js/tools/prefs.js) then kept it hidden
+      // on every later open (Avihai 08.11: "why can't I see the model?"). The orange button shows / restores it.
+      if (false && !seen && !navigator.webdriver) setTimeout(() => {
         ctl.pipeView(); try { localStorage.setItem(FLAG, '1'); } catch (e) { /* private mode */ }
         const t = document.createElement('div'); t.className = 'pl-toast';
         t.textContent = 'מוצגת כל הצנרת: קרקע שקופה, בלי שלד וסביבה. ↶ (בטל) מחזיר לתצוגה הרגילה; הכפתור הכתום מחזיר לכאן.';

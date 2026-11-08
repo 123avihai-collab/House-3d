@@ -21,8 +21,15 @@ export function buildPanel(app, pl) {
     app.ui.showInfo({ title: it.meta.name, rows: it.meta.rows, tags: it.tags, source: it.meta.source, note: it.meta.note });
   };
   // one click: every pipe visible – plumbing layers + proposal on, x-ray, structure / surroundings off, overview camera
+  // the orange button toggles: pipe view <-> the view it replaced (Avihai 08.11: "the model is gone")
+  let before = null;
+  const restore = () => {
+    if (!before) return;
+    app.store.set({ ...before }, { label: 'אינסטלציה – חזרה לתצוגה הקודמת' }); before = null; sync();
+  };
   const pipeView = () => {
     const cur = app.store.get(), L = { ...cur.layers };
+    before = { layers: structuredClone(cur.layers), labelsOff: structuredClone(cur.labelsOff || {}), plumbing: structuredClone(cur.plumbing || {}) };
     for (const g of app.data.layers.groups) for (const l of g.layers) {
       if (g.id === 'plumbing') L[l.id] = l.id !== 'plFindings';
       else if (g.id === 'site') L[l.id] = ['topoPlanned', 'plotBoundary'].includes(l.id);
@@ -31,10 +38,16 @@ export function buildPanel(app, pl) {
     const lo = { ...(cur.labelsOff || {}) }; for (const id of ['plSewage', 'plCold', 'plRain', 'plPumped', 'plHot', 'plProposal', 'plChambers', 'plotBoundary']) lo[id] = true;
     app.store.set({ layers: L, labelsOff: lo, plumbing: { ...st(), xray: true, proposal: true, floors: {} } }, { label: 'אינסטלציה – הצג את כל הצנרת' });
     const c = app.plotCenter.clone(); app.viewer.flyTo(c, c.clone().add({ x: D.view.camOffset_m[0], y: D.view.camOffset_m[1], z: D.view.camOffset_m[2] }));
+    sync();
   };
   const fab = document.createElement('button');
-  fab.className = 'pl-fab'; fab.textContent = '🔧 הצג את כל הצנרת'; fab.title = 'מדליק את כל שכבות האינסטלציה וההצעה, קרקע שקופה, מסתיר שלד וסביבה (ביטול: ↶)';
-  fab.addEventListener('click', pipeView);
+  fab.className = 'pl-fab';
+  const sync = () => {
+    fab.textContent = before ? '↺ חזרה למודל' : '🔧 הצג את כל הצנרת';
+    fab.title = before ? 'מחזיר את השכבות שהיו לפני תצוגת הצנרת' : 'מדליק את כל שכבות האינסטלציה וההצעה, קרקע שקופה, מסתיר שלד וסביבה (לחיצה נוספת מחזירה)';
+  };
+  sync();
+  fab.addEventListener('click', () => (before ? restore() : pipeView()));
   (document.getElementById('viewport') || document.body).append(fab);
   return {
     pipeView,

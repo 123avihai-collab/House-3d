@@ -275,6 +275,12 @@ def main():
         o = next(x for x in OPN['openings'] if x['id'] == b['opening'])
         same = [x for x in boxes_out if x['box_m'] is not None and fam(next(y for y in OPN['openings'] if y['id'] == x['opening'])['name']) == fam(o['name'])]
         if same: b.update(box_m=same[0]['box_m'], status='approx', source=f"כמו {same[0]['opening']} (אותו סוג משפחה) – אין חתך / חזית למשפחה בגרמושקה")
+    # box depth = the thickness of the block wall the opening sits in (Avihai 08.11: a built-in box as deep as the wall –
+    # such boxes are on the market); width = the opening, height = above
+    for b in boxes_out:
+        w = next((w for w in walls if any(o['id'] == b['opening'] for o in w['openings'])), None)
+        b['depth_m'] = w['thickness_m'] if w else None; b['hostWall'] = w['id'] if w else None
+        b['depthSource'] = 'החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר' + (' (עובי הקיר approx)' if w and w['status'] != 'source' else '')
     out = {'_doc': 'נוצר ע"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.',
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
@@ -321,9 +327,10 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
           [[w['id'], FL[w['floor']], round(w['thickness_m'] * 100), w['length_m'], w['bottomRel'], w['topRel'], w['courses'], w['blocksFull'], w['blocksCut'], w['area_m2'],
             ', '.join(o['id'] for o in w['openings']), w['status']] for w in D['walls']], [9, 12, 10, 10, 9, 9, 9, 9, 9, 14, 18, 10])
     OPN = {o['id']: o for o in J('data/architecture/openings.json')['openings']}
-    sheet(wb.create_sheet('ארגזי תריס'), ['פתח', 'קומה', 'משפחה', 'רוחב (ס"מ)', 'גובה ארגז (ס"מ)', 'סטטוס', 'מקור'],
-          [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '', b['status'], b['source']] for b in D['shutterBoxes']],
-          [8, 12, 44, 11, 15, 10, 60])
+    sheet(wb.create_sheet('ארגזי תריס'), ['פתח', 'קומה', 'משפחה', 'רוחב (ס"מ)', 'גובה ארגז (ס"מ)', 'עומק ארגז (ס"מ)', 'קיר', 'סטטוס', 'מקור הגובה', 'מקור העומק'],
+          [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '',
+            round(b['depth_m'] * 100) if b.get('depth_m') else '', b.get('hostWall') or '', b['status'], b['source'], b.get('depthSource', '')] for b in D['shutterBoxes']],
+          [8, 12, 44, 11, 15, 15, 10, 10, 60, 40])
     os.makedirs(os.path.dirname(path), exist_ok=True); wb.save(path); print('xlsx', path)
 
 

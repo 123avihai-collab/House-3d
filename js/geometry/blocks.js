@@ -56,10 +56,10 @@ export function buildBlocks(ctx) {
     });
     scene.add(g);
   }
-  // roller-shutter boxes: inside the top of the opening, the wall's depth (box depth not drawn in the plans – approx)
+  // roller-shutter boxes: inside the top of the opening; depth = the host wall (blocks.json depth_m – built-in box, Avihai 08.11)
   for (const b of B.shutterBoxes) {
     const o = data.openings?.openings?.find(x => x.id === b.opening); if (!o || b.box_m == null) continue;
-    const w = B.walls.find(x => x.openings.some(y => y.id === b.opening)); const t = w ? w.thickness_m : display.openings.defaultWallDepth_m;
+    const w = B.walls.find(x => x.openings.some(y => y.id === b.opening)); const t = b.depth_m ?? (w ? w.thickness_m : display.openings.defaultWallDepth_m);
     const [E, N] = o.centerITM, c = coords.toLocal(E, N, coords.H0 + b.headRel - b.box_m / 2);
     const [x1, z1] = coords.xz(E + o.axisITM[0], N + o.axisITM[1]), dir = new THREE.Vector3(x1 - c.x, 0, z1 - c.z).normalize();
     const m = new THREE.Mesh(unit, boxM); m.scale.set(o.width_m, b.box_m, t); m.position.copy(c); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
@@ -67,9 +67,9 @@ export function buildBlocks(ctx) {
     const d = document.createElement('div'); d.className = 'lbl beam'; d.textContent = `ארגז תריס ${b.opening} · ${Math.round(b.box_m * 100)}`;
     const lo = new CSS2DObject(d); lo.position.copy(c).add(new THREE.Vector3(0, b.box_m / 2 + DB.labelLift_m, 0)); g.add(lo);
     registry.add(g, { floor: b.floor, system: 'finishes', stage: 'walls', layer: 'shutterBoxes', step: 'blockWalls' }, {
-      id: `SB-${b.opening}`, name: `ארגז תריס גלילה – ${b.opening}`, status: b.status === 'source' ? 'approx' : b.status,
-      rows: [['רוחב', `${Math.round(o.width_m * 100)} ס"מ`], ['גובה הארגז', `${Math.round(b.box_m * 100)} ס"מ (בתוך גובה הפתח, מתחת ל-O.K)`], ['עומק', `${Math.round(t * 100)} ס"מ – עובי הקיר (לא משורטט)`]],
-      note: 'גובה הארגז מהמשפחה בחתך / חזית בגרמושקה; עומק – לפי עובי הקיר עד פרט יצרן.', source: b.source,
+      id: `SB-${b.opening}`, name: `ארגז תריס גלילה – ${b.opening}`, status: b.status,
+      rows: [['רוחב', `${Math.round(o.width_m * 100)} ס"מ`], ['גובה הארגז', `${Math.round(b.box_m * 100)} ס"מ (בתוך גובה הפתח, מתחת ל-O.K)`], ['עומק', `${Math.round(t * 100)} ס"מ – ארגז מובנה בעובי הקיר ${b.hostWall ?? ''}`]],
+      note: `גובה: ${b.status === 'source' ? 'מהתוכניות / הגרמושקה' : 'משוער'}. עומק: ${b.depthSource ?? 'עובי הקיר'}. רוחב: רוחב הפתח.`, source: b.source,
     });
     scene.add(g); stats.boxes++;
   }

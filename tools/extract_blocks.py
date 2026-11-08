@@ -261,6 +261,13 @@ def main():
         else: w['status'] = 'approx'; w['note'] = f'עובי {t} ס"מ לא תואם לעוביי הקירות בתוכנית ({dom}) – לבדיקה'
         tc = round(w['thickness_m'] * 100)
         Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
+    # the box height written in the permit plans' dimension chains ("220 +35") wins over the family elevation measure
+    PL = J('tools/shutter-box-plans.json')
+    for r in PL['readings']:
+        for b in boxes_out:
+            if b['opening'] in r['openings']:
+                if b['box_m'] is not None and abs(b['box_m'] * 100 - r['box_cm']) > 0.5: b['elevationBox_m'] = b['box_m']
+                b.update(box_m=r['box_cm'] / 100, status='source', source=f"{PL['source_folder']} / {r['sheet']}: \"{r['text']}\" ({r['where']})")
     # a family with no section / elevation band in the permit sheet: the box of the same family type (approx)
     fam = lambda o: re.sub(r'\s*-\s*[^-]*$', '', o).strip()
     for b in boxes_out:

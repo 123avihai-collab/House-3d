@@ -208,19 +208,72 @@ export class UI {
   }
 
   panel_layers() {
-    const { app } = this; const s = app.store.get();
-    const wrap = h('div', {}, h('p', { class: 'muted' }, 'הדלקה וכיבוי לכל שכבה. 🏷 = הסתרת התוויות וקווי הסימון של השכבה בלבד (למשל הקו האדום של הדיפון) – הרכיבים נשארים. מערכות שעוד אין להן נתונים מסומנות "בקרוב".'));
+    const { app } = this; const s = app.store.get(); const P = app.prefs;
     const colors = Object.fromEntries(app.data.tags.systems.map(x => [x.id, x.color]));
+    const setLayers = (patch, label = 'layers') => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label });
+    const implLayers = (g) => g.implemented ? g.layers.filter(l => l.implemented !== false) : [];
+    const wrap = h('div', { class: 'layers' });
+    // ---- saved views ----
+    if (P) {
+      const vs = P.list();
+      const name = h('input', { type: 'text', placeholder: 'שם לתצוגה חדשה (למשל: שלד בלבד, אינסטלציה)', class: 'vname' });
+      const stage = h('input', { type: 'checkbox' });
+      const save = () => { const n = name.value.trim(); if (!n) { name.focus(); return; } P.current = P.save(n, stage.checked); this.refreshPanel('layers'); };
+      name.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+      wrap.append(h('div', { class: 'views' },
+        h('h4', {}, 'תצוגות שמורות ', h('small', { class: 'muted' }, P.where === 'db' ? '· נשמר בחשבון שלך – בכל מכשיר' : '· נשמר בדפדפן הזה')),
+        vs.length ? h('div', { class: 'vlist' }, ...vs.map(v => h('div', { class: 'vrow' + (P.current === v.id ? ' cur' : '') },
+          h('button', { class: 'vuse', title: 'הצג את התצוגה', onclick: () => { P.use(v.id); this.refreshPanel('layers'); } }, v.name, v.withStage ? h('small', {}, ' · כולל שלב') : ''),
+          h('button', { class: 'small' + (P.p.start === v.id ? ' on' : ''), title: P.p.start === v.id ? 'נפתחת אוטומטית – לחץ לביטול' : 'פתח את המודל תמיד בתצוגה הזו', onclick: () => { P.setStart(v.id); this.refreshPanel('layers'); } }, '★'),
+          h('button', { class: 'small', title: 'עדכן לפי הבחירה הנוכחית', onclick: () => { P.update(v.id); this.hint(`"${v.name}" עודכנה`); } }, '⟳'),
+          h('button', { class: 'small', title: 'שנה שם', onclick: () => { const n = prompt('שם חדש', v.name); if (n?.trim()) { P.rename(v.id, n.trim()); this.refreshPanel('layers'); } } }, '✎'),
+          h('button', { class: 'small', title: 'מחק', onclick: () => { if (confirm(`למחוק את "${v.name}"?`)) { P.remove(v.id); this.refreshPanel('layers'); } } }, '🗑'))))
+          : h('p', { class: 'muted' }, 'עוד אין תצוגות. סמן שכבות ושמור כאן בשם – תחזור אליהן בלחיצה. ★ = התצוגה שבה המודל נפתח.'),
+        h('div', { class: 'row vsave' }, name, h('label', { title: 'לשמור גם את שלב הבנייה' }, stage, 'כולל שלב'), h('button', { onclick: save }, 'שמור תצוגה')),
+        h('p', { class: 'muted' }, 'הבחירה האחרונה נשמרת אוטומטית ותחזור בפתיחה הבאה' + (P.p.start ? ' (אלא אם סומנה ★ – אז נפתחת התצוגה המסומנת).' : '.'))));
+    }
+    // ---- navigation tools ----
+    const q = h('input', { type: 'search', placeholder: 'חיפוש שכבה…', class: 'lsearch', value: this.layerQ || '' });
+    const only = h('input', { type: 'checkbox', checked: !!this.layerOnlyOn });
+    const filter = () => {
+      this.layerQ = q.value; this.layerOnlyOn = only.checked; const t = q.value.trim();
+      for (const d of wrap.querySelectorAll('details.grp')) {
+        let any = false;
+        for (const r of d.querySelectorAll('.lrow')) {
+          const ok = (!t || r.dataset.label.includes(t) || d.dataset.label.includes(t)) && (!only.checked || r.dataset.on === '1');
+          r.style.display = ok ? '' : 'none'; any ||= ok;
+        }
+        d.style.display = any || (!t && !only.checked) ? '' : 'none';
+        if ((t || only.checked) && any) d.open = true;
+      }
+    };
+    q.addEventListener('input', filter); only.addEventListener('change', filter);
+    const allGroups = () => [...wrap.querySelectorAll('details.grp')];
+    wrap.append(h('div', { class: 'ltools' }, q,
+      h('label', { title: 'להציג רק שכבות דלוקות' }, only, 'רק הדלוקות'),
+      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = true; P?.setOpen(d.dataset.id, true); }) }, 'פתח הכול'),
+      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = false; P?.setOpen(d.dataset.id, false); }) }, 'כווץ הכול')));
+    // ---- groups: header checkbox = all its layers (partly on = –) ----
     for (const g of app.data.layers.groups) {
-      const sw = h('i', { class: 'sw', style: `background:${colors[g.system]}` });
-      const box = h('details', { class: 'grp', open: g.implemented }, h('summary', {}, sw, g.label, g.implemented ? '' : soon()));
+      const L = implLayers(g), n = L.filter(l => s.layers[l.id] !== false).length;
+      const gcb = h('input', { type: 'checkbox', checked: L.length > 0 && n === L.length, disabled: !L.length, title: 'סמן / בטל את כל השכבות בקבוצה',
+        onclick: (e) => e.stopPropagation(),
+        onchange: (e) => setLayers(Object.fromEntries(L.map(l => [l.id, e.target.checked])), 'group') });
+      gcb.indeterminate = n > 0 && n < L.length;
+      const box = h('details', { class: 'grp', 'data-id': g.id, 'data-label': g.label },
+        h('summary', {}, gcb, h('i', { class: 'sw', style: `background:${colors[g.system] || '#888'}` }), g.label,
+          L.length ? h('small', { class: 'cnt' }, ` ${n}/${L.length}`) : soon(),
+          L.length ? h('button', { class: 'small solo', title: 'רק הקבוצה הזו', onclick: (e) => { e.preventDefault(); e.stopPropagation();
+            const all = app.data.layers.groups.flatMap(implLayers); setLayers(Object.fromEntries(all.map(l => [l.id, L.includes(l)])), 'solo'); } }, 'רק זו') : ''));
+      box.open = P ? P.isOpen(g.id, false) : g.implemented;
+      box.addEventListener('toggle', () => P?.setOpen(g.id, box.open));
       for (const l of g.layers) {
         const impl = g.implemented && l.implemented !== false;
         const on = s.layers[l.id] !== false;
         const lblOff = !!(s.labelsOff || {})[l.id];
-        box.append(h('div', { class: 'row lrow' + (impl ? '' : ' na') },
+        box.append(h('div', { class: 'row lrow' + (impl ? '' : ' na'), 'data-label': l.label, 'data-on': impl && on ? '1' : '0' },
           h('label', {}, h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
-            onchange: (e) => app.store.set({ layers: { ...s.layers, [l.id]: e.target.checked } }, { label: 'layer' }) }), l.label, impl ? '' : soon()),
+            onchange: (e) => setLayers({ [l.id]: e.target.checked }, 'layer') }), l.label, impl ? '' : soon()),
           impl ? h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
             onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
       }
@@ -230,8 +283,11 @@ export class UI {
     }
     wrap.append(h('div', { class: 'btns' },
       h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, true])) }, { label: 'layers' }) }, 'הצג הכול'),
+      h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, false])) }, { label: 'layers' }) }, 'הסתר הכול'),
       h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל'),
-      h('button', { onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')));
+      h('button', { onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')),
+      h('p', { class: 'muted' }, '🏷 = הסתרת התוויות וקווי הסימון של השכבה בלבד – הרכיבים נשארים. "בקרוב" = מערכות שעוד אין להן נתונים.'));
+    if (this.layerQ || this.layerOnlyOn) setTimeout(filter);
     return wrap;
   }
 

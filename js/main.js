@@ -27,6 +27,7 @@ import { SectionTool } from './tools/section.js';
 import { NotesTool } from './tools/notes.js';
 import { FixTool } from './tools/fixes.js';
 import { RebarTool } from './tools/rebar.js';
+import { Prefs } from './tools/prefs.js';
 import { SearchTool } from './tools/search.js';
 import { LabelManager } from './core/labels.js';
 import { Navigation, Minimap } from './tools/navigation.js';
@@ -155,6 +156,7 @@ async function main() {
     if (s.mode === 'edit') { app.setTool('fix'); app.ui.openTab('fixes', !app.ui.isMobile()); } else if (app.activeTool === 'fix') app.setTool('inspect');
   });
   applyState(store.get());
+  app.prefs = new Prefs(app);   // last layers / saved views – restored on open (Avihai 08.11)
   app.ui.refreshPanel();
   app.setTool(store.get().mode === 'edit' ? 'fix' : 'inspect');
 

@@ -217,3 +217,19 @@ body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
 #modes button[data-mode="edit"].on { background: #00b8d4; color: #fff; }
 /* the info card and the hint stay above the 3D labels / fix pins (ק12 covered the area row) */
 .label-layer { z-index: 4 !important; }
+
+/* layers panel: saved views, search, group checkboxes (08.11.2026) */
+.layers .views { background: rgba(255,255,255,.04); border-radius: 8px; padding: 6px 8px; margin-bottom: 8px; }
+.layers .views h4 { margin: 2px 0 6px; }
+.layers .vlist { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
+.layers .vrow { display: flex; gap: 4px; align-items: center; }
+.layers .vrow .vuse { flex: 1; text-align: right; }
+.layers .vrow.cur .vuse { outline: 2px solid #ff7a45; }
+.layers .vrow .on { color: #ffc107; }
+.layers .vsave { gap: 6px; flex-wrap: wrap; }
+.layers .vsave .vname { flex: 1; min-width: 140px; }
+.layers .ltools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+.layers .ltools .lsearch { flex: 1; min-width: 120px; }
+.layers details.grp > summary { display: flex; align-items: center; gap: 6px; }
+.layers details.grp > summary .cnt { opacity: .7; }
+.layers details.grp > summary .solo { margin-inline-start: auto; }

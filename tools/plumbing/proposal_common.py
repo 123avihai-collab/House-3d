@@ -57,3 +57,17 @@ def world(q, o):  # building frame -> ITM
 
 def rect(o, x0, y0, x1, y1):
     return Polygon([world((x0, y0), o), world((x1, y0), o), world((x1, y1), o), world((x0, y1), o)])
+
+
+def orthoize(pts, o=None, tol=0.02):
+    """Insert a right-angle corner (building axes) into every horizontal segment that is not parallel to UX / UY.
+    pts: [(E, N, H|None)]; segments with equal H (or both None) only."""
+    o = o or (0.0, 0.0); out = [pts[0]]
+    for b in pts[1:]:
+        a = out[-1]
+        if (a[2] is None and b[2] is None) or (a[2] is not None and b[2] is not None and abs(a[2] - b[2]) < 1e-6):
+            la, lb = local(a, o), local(b, o)
+            if abs(lb[0] - la[0]) > tol and abs(lb[1] - la[1]) > tol:
+                c = world((lb[0], la[1]), o); out.append((c[0], c[1], a[2]))
+        out.append(b)
+    return out

@@ -38,7 +38,7 @@ def build(make_grid):
     region = lot.buffer(-0.3)
     g0 = make_grid(region, [P for _, P, _, _ in beams], [], forb, piles + chambers, RI['cell_m'])
     slabU = unary_union([P for _, P, _ in slabs])
-    X, Y = np.meshgrid(g0.x0 + (np.arange(g0.nx) + 0.5) * g0.c, g0.y0 + (np.arange(g0.ny) + 0.5) * g0.c, indexing='ij')
+    X, Y = g0.centers_world()
     m = np.isfinite(g0.base) & (g0.base == 1.0) & shapely.contains_xy(slabU, X, Y); g0.base[m] = RI['underSlabCost']
     shoes = [by[k] for k in ('DPS1@ground', 'DPS2@ground', 'DPS3@ground')]
     sewer = [r for r in N['runs'] if r['system'] in ('sewage', 'pumped') and r['drawnOn'] in ('ground', 'site') and r.get('ILup') is not None]

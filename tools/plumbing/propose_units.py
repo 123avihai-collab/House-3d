@@ -15,7 +15,7 @@ import numpy as np
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union, nearest_points
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from proposal_common import J, H0, FG, FR, BAS, MAMAD, concrete
+from proposal_common import J, H0, FG, FR, BAS, MAMAD, concrete, orthoize
 
 r3 = lambda v: round(float(v), 3)
 
@@ -107,6 +107,7 @@ def build(Grid, walls_g, walls_f, shaft_poly, stack_pts, s2_TL):
     s2in = (s2['E'] + (oc[-2][0] - s2['E']) / math.dist(oc[-2], (s2['E'], s2['N'])) * 0.38, s2['N'] + (oc[-2][1] - s2['N']) / math.dist(oc[-2], (s2['E'], s2['N'])) * 0.38)
     rm = [[r3(ps[0]), r3(ps[1]), r3(IL + 0.35)], [r3(ps[0]), r3(ps[1]), r3(TL - 0.25)], [r3(riser[0]), r3(riser[1]), r3(TL - 0.25)], [r3(riser[0]), r3(riser[1]), r3(crest)],
           [r3(oc[0][0]), r3(oc[0][1]), r3(crest)], [r3(oc[0][0]), r3(oc[0][1]), None]] + [[r3(x), r3(y), None] for x, y in oc[1:-1]] + [[r3(s2in[0]), r3(s2in[1]), r3(s2_TL - 0.35)]]
+    rm = [list(p) for p in orthoize([tuple(p) for p in rm])]
     runs.append({'id': 'PB6-RISING', 'system': 'pumped', 'D_mm': Dp, 'material': 'HDPE', 'pts3d': rm, 'cover_m': I['site']['hoseReel']['cover_m'], 'from': 'PS-1', 'to': 'S-2',
                  'length_m': r3(sum(math.dist(rm[i][:2], rm[i + 1][:2]) for i in range(len(rm) - 1)) + (crest - IL)), 'floor': 'unit', 'status': 'proposal',
                  'note': f'קו סניקה HDPE ø{Dp} (כמו פרט "תא איסוף עם משאבה"), אל-חוזר + ברז ניתוק לכל משאבה, עולה ליד העולה של PC-1, גמל ב-{crest:.2f} (50 ס"מ מעל מכסה שוחה 2), '

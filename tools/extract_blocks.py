@@ -275,6 +275,23 @@ def main():
         o = next(x for x in OPN['openings'] if x['id'] == b['opening'])
         same = [x for x in boxes_out if x['box_m'] is not None and fam(next(y for y in OPN['openings'] if y['id'] == x['opening'])['name']) == fam(o['name'])]
         if same: b.update(box_m=same[0]['box_m'], status='approx', source=f"כמו {same[0]['opening']} (אותו סוג משפחה) – אין חתך / חזית למשפחה בגרמושקה")
+    # manual checks of the odd-thickness runs against the permit plans (tools/blocks-plan-checks.json)
+    for c in J('tools/blocks-plan-checks.json')['checks']:
+        for w in walls:
+            (x0, y0), (x1, y1) = w['axisITM']
+            if w['floor'] != c['floor'] or math.dist(((x0 + x1) / 2, (y0 + y1) / 2), c['centerITM']) > 0.10: continue
+            if c['thickness_m']:
+                if c.get('insidePointITM'):   # the extra drawn depth is outside (cladding): keep the inner face
+                    L = w['length_m']; nx, ny = -(y1 - y0) / L, (x1 - x0) / L; ix, iy = c['insidePointITM']
+                    if (ix - x0) * nx + (iy - y0) * ny < 0: nx, ny = -nx, -ny
+                    d = (w['thickness_m'] - c['thickness_m']) / 2
+                    w['axisITM'] = [[r3(x0 + nx * d), r3(y0 + ny * d)], [r3(x1 + nx * d), r3(y1 + ny * d)]]
+                w['thickness_m'] = c['thickness_m']
+            w['status'] = c['status']; w['note'] = 'בדיקה מול תוכנית ההיתר (08.11): ' + c['finding']
+    Q.clear()
+    for w in walls:
+        tc = round(w['thickness_m'] * 100)
+        Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
     # box depth = the thickness of the block wall the opening sits in (Avihai 08.11: a built-in box as deep as the wall –
     # such boxes are on the market); width = the opening, height = above
     for b in boxes_out:

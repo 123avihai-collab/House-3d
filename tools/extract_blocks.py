@@ -60,6 +60,12 @@ def rect_runs(g, ang, min_area=0.02):
         x0, y0, x1, y1 = p.bounds; w, h = x1 - x0, y1 - y0
         if min(w, h) < 0.05: continue
         along_x = w >= h
+        fill = p.area / (w * h)
+        if fill < 0.85:   # could not be cut into a clean rectangle (a stub on its side): mean thickness, centred on the bulk
+            L = max(w, h); t = p.area / L
+            if along_x: yc = p.centroid.y; y0, y1 = yc - t / 2, yc + t / 2
+            else: xc = p.centroid.x; x0, x1 = xc - t / 2, xc + t / 2
+            w, h = x1 - x0, y1 - y0
         a = ((x0, (y0 + y1) / 2), (x1, (y0 + y1) / 2)) if along_x else (((x0 + x1) / 2, y0), ((x0 + x1) / 2, y1))
         A = [affinity.rotate(Point(*pt), ang, origin=c) for pt in a]
         res.append({'axisITM': [[r3(A[0].x), r3(A[0].y)], [r3(A[1].x), r3(A[1].y)]], 'length_m': r3(max(w, h)), 'thickness_m': r3(min(w, h)),
@@ -148,16 +154,24 @@ def main():
             if fl_.is_empty: continue
             # the wall the opening sits in = the pieces just beside the jambs, along the opening axis (a wall meeting the
             # jamb at right angles, or a parallel wall nearby, spans the whole probe depth and is ignored)
+            # cross-section of the wall a few cm past each jamb (a wall meeting the jamb would widen a whole-piece measure)
             ext = []
-            for g in polys(fl_.difference(rect(o['width_m'], 1.0))):
-                nn = [(x - E) * (-uy) + (y - N) * ux for x, y in g.exterior.coords]
-                if max(nn) - min(nn) <= 0.45: ext.append((g.area, min(nn), max(nn)))
+            for sd in (-1, 1):
+                for dt in (0.04, 0.08, 0.12):
+                    tt = sd * (o['width_m'] / 2 + dt)
+                    line = LineString([(E + ux * tt - uy * 0.4, N + uy * tt + ux * 0.4), (E + ux * tt + uy * 0.4, N + uy * tt - ux * 0.4)])
+                    for seg in [g for g in getattr(R.intersection(line), 'geoms', [R.intersection(line)]) if g.geom_type == 'LineString' and g.length > 0.04]:
+                        nn = [(x - E) * (-uy) + (y - N) * ux for x, y in seg.coords]
+                        if max(nn) - min(nn) <= 0.45: ext.append((abs((min(nn) + max(nn)) / 2), min(nn), max(nn)))
             if not ext: continue
-            _, a, b = max(ext); mid = (a + b) / 2
+            _, a, b = min(ext); mid = (a + b) / 2          # the section nearest the opening's centre line
             f = rect(o['width_m'] + 0.02, b - a); fills.append(affinity.translate(f, -uy * mid, ux * mid))
         R = unary_union([R] + fills)
         C = unary_union(conc[fl]).buffer(0.01)
-        pieces = [g for g in polys(R.difference(C).intersection(inside[fl])) if g.area > 0.03 and 2 * g.area / g.length > 0.05]
+        # morphological opening: drawing slivers < 4 cm (line ends, hatch seams) are not wall – they made a 10 cm partition at a
+        # door look 45 cm thick
+        pieces = [q for g in polys(R.difference(C).intersection(inside[fl])) for q in polys(g.buffer(-0.02, join_style=2).buffer(0.02, join_style=2))
+                  if q.area > 0.03 and 2 * q.area / q.length > 0.05]
         for g in pieces:
             for run in rect_runs(g, ang):
                 rp = run['poly']

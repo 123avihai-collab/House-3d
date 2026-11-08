@@ -24,6 +24,20 @@ export class Registry {
     this.items.push(item);
     return item;
   }
+  // deferred builders: components of layers that are off on open are created only when one of their layers is first
+  // switched on (lighter start, same model). onBuilt hooks get the new items (main.js compacts them, environment re-applies opacity)
+  defer(layers, build) { (this.pending ||= []).push({ layers, build }); }
+  onBuilt(f) { (this.builtHooks ||= []).push(f); }
+  runDeferred(state) {
+    const due = (this.pending || []).filter(p => p.layers.some(l => state.layers?.[l] !== false)); if (!due.length) return;
+    this.pending = this.pending.filter(p => !due.includes(p));
+    for (const p of due) {
+      const n = this.items.length; p.build();
+      const fresh = this.items.slice(n); (this.builtHooks || []).forEach(f => f(fresh)); this.compactor?.(fresh);   // compacted last – as on open, after the modules set up their materials
+    }
+    this._beamLevels = null;
+  }
+  buildAll() { this.runDeferred({ layers: {} }); }
   stageIndex(id) { return this.stages.indexOf(id); }
   stepById(id) {
     if (id === 'skeletonEnd') return this.steps.findIndex(s => s.id === 'finishes') - 1;
@@ -40,6 +54,7 @@ export class Registry {
     return [from, to];
   }
   apply(state) {
+    this.runDeferred(state);
     const si = state.stageIndex;   // index into the step sequence
     const sec = state.section || {};
     const cutFloor = sec.hOn && sec.hideBeams !== false ? this.cutFloor(sec.hLevel) : null;

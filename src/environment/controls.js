@@ -75,6 +75,7 @@ export function buildControls(app, env) {
     app.viewer.invalidate();
   };
   app.store.on(applyOpacity);
+  app.registry.onBuilt(applyOpacity);   // neighbour volumes / houses built on first use (registry.defer)
   applyOpacity();
 
   return {

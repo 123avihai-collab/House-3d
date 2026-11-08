@@ -49,12 +49,18 @@ async function main() {
   const lineMats = [];
   const ctx = { data, coords, viewer, registry, materials, scene: viewer.scene, display, lineMats };
 
-  ctx.ground = buildTerrain(ctx);
-  buildSite(ctx);
-  const environment = buildEnvironment(ctx);
-  const quantities = { excavation: buildExcavation(ctx), piles: buildPiles(ctx), foundations: buildFoundations(ctx), plumbing: buildPlumbingFoundations(ctx), pool: buildPool(ctx), groundFloor: buildFloorSkeleton(ctx, data.floorGround), firstFloor: buildFloorSkeleton(ctx, data.floorFirst), roof: buildFloorSkeleton(ctx, data.floorRoof), stairs: buildStairs(ctx), perimeter: buildPerimeter(ctx), mamadFrames: buildMamadFrames(ctx), starters: buildStarters(ctx), proposals: buildWallProposals(ctx), props: buildProps(ctx), blocks: buildBlocks(ctx) };   // windows / doors: on hold (Avihai 07.11 – skeleton first) – only the mamad frames, cast with the walls (ק15); data in data/architecture/openings.json, module js/geometry/openings.js
+  // build timings (window.__buildMs) – to see what the model spends its loading time on
+  const T = (window.__buildMs = {}); const tm = (k, f) => { const t0 = performance.now(); const r = f(); T[k] = Math.round(performance.now() - t0); return r; };
+  ctx.ground = tm('terrain', () => buildTerrain(ctx));
+  tm('site', () => buildSite(ctx));
+  const environment = tm('environment', () => buildEnvironment(ctx));
+  const quantities = { excavation: tm('excavation', () => buildExcavation(ctx)), piles: tm('piles', () => buildPiles(ctx)), foundations: tm('foundations', () => buildFoundations(ctx)),
+    plumbing: tm('plumbingFoundations', () => buildPlumbingFoundations(ctx)), pool: tm('pool', () => buildPool(ctx)), groundFloor: tm('groundFloor', () => buildFloorSkeleton(ctx, data.floorGround)),
+    firstFloor: tm('firstFloor', () => buildFloorSkeleton(ctx, data.floorFirst)), roof: tm('roof', () => buildFloorSkeleton(ctx, data.floorRoof)), stairs: tm('stairs', () => buildStairs(ctx)),
+    perimeter: tm('perimeter', () => buildPerimeter(ctx)), mamadFrames: tm('mamadFrames', () => buildMamadFrames(ctx)), starters: tm('starters', () => buildStarters(ctx)),
+    proposals: tm('proposals', () => buildWallProposals(ctx)), props: tm('props', () => buildProps(ctx)), blocks: tm('blocks', () => buildBlocks(ctx)) };   // windows / doors: on hold (Avihai 07.11 – skeleton first) – only the mamad frames, cast with the walls (ק15); data in data/architecture/openings.json, module js/geometry/openings.js
   buildOwnerChangeZones(ctx);
-  const plumbing = buildPlumbing(ctx);   // plumbing layer (separate module, src/plumbing)
+  const plumbing = tm('plumbing', () => buildPlumbing(ctx));   // plumbing layer (separate module, src/plumbing)
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));
@@ -94,7 +100,9 @@ async function main() {
   app.environment = environment;
   environment.attach(app);
   app.modules = { plumbing }; plumbing?.attach(app);
-  app.compacted = compactRegistry(registry, viewer.scene);   // same picture, far fewer objects / draw calls (Avihai 08.11 – after every module built its parts)
+  app.compacted = tm('compact', () => compactRegistry(registry, viewer.scene));   // same picture, far fewer objects / draw calls (Avihai 08.11 – after every module built its parts)
+  MaterialLibrary.onTexture = () => viewer.invalidate();
+  registry.compactor = (fresh) => { compactRegistry(registry, viewer.scene, fresh); viewer.invalidate(); };   // layers built later (registry.defer) – compacted the same way
   app.ui = new UI(app);
   app.nav = new Navigation(app);
   app.tools.inspect = new InspectTool(app);

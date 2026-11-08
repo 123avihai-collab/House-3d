@@ -56,7 +56,9 @@ export function buildExcavation(ctx) {
     }
     return z;
   };
-  const pitOnly = pitZ;
+  // the same grid points are sampled by several surfaces (pit, trenches, working space, backfill…): pitZ is pure – cache it
+  const pitMemo = new Map();
+  const pitOnly = (E, N) => { const k = E + ',' + N; let z = pitMemo.get(k); if (z === undefined) { z = pitZ(E, N); pitMemo.set(k, z); } return z; };
   // local pits for chambers below the excavation bottom (plumbing plan: I.L. of the chamber)
   const chambers = (data.plumbingFoundations?.chambers || []).filter(c => c.kind !== 'sewerManhole' && c.IL < existing(c.E, c.N));
   const chamberZ = (E, N) => { let z = Infinity; for (const c of chambers) if (Math.hypot(E - c.E, N - c.N) <= c.diameter_m / 2) z = Math.min(z, c.IL); return z; };

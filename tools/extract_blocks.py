@@ -178,7 +178,15 @@ def main():
                 if run['thickness_m'] < 0.06 or run['length_m'] < 0.10: continue
                 bot = [z for s, z in under[fl] if s.intersection(rp).area > 0.3 * rp.area]
                 top = [z for s, z in over[fl] if s.intersection(rp).area > 0.3 * rp.area]
-                st = 'source'
+                st = 'source'; note = None
+                # an exterior wall carries the slab / beam whose edge runs along its inner face (the slab outline stops at
+                # the wall – K-41 RS1 over the first floor): a slab / beam touching the run along ≥ half its length counts
+                # as over / under it (permit plans: these walls are block, red, 22 / 30 cm)
+                touch = lambda lst: [z for s, z in lst if s.buffer(0.03).intersection(rp).area >= 0.5 * run['length_m'] * 0.02]
+                if not top:
+                    top = touch(over[fl])
+                    if top: note = 'רום עליון: תחתית התקרה / הקורה הצמודה לפאה הפנימית של הקיר (שפת התקרה נגמרת בקיר)'
+                if not bot and top: bot = touch(under[fl])
                 if not top: outside.append({'floor': fl, 'axisITM': run['axisITM'], 'length_m': run['length_m'], 'thickness_m': run['thickness_m']}); continue   # no ceiling over it: garden / fence wall (development)
                 if not bot: bot = [max(z for _, z in under[fl])]; st = 'approx'
                 zb, zt = max(bot), min(top)
@@ -214,13 +222,32 @@ def main():
                 Q[fl][f't{tcm}_full'] += nfull; Q[fl][f't{tcm}_cut'] += ncut; Q[fl][f't{tcm}_m2'] += area
                 walls.append({'id': f'BK-{fl[0].upper()}{len(walls) + 1}', 'floor': fl, 'axisITM': run['axisITM'], 'length_m': L, 'thickness_m': run['thickness_m'],
                               'bottomRel': r3(zb), 'topRel': r3(zt), 'openings': wo, 'courses': k, 'blocksFull': nfull, 'blocksCut': ncut, 'area_m2': r3(area),
-                              'status': st, 'source': f'{O.SRC} (תוכנית Revit {blk}: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל'})
+                              'status': st, 'source': f'{O.SRC} (תוכנית Revit {blk}: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל',
+                              **({'levelNote': note} if note else {})})
         for o in ops:
             if not ('גלילה' in o['name'] or 'תריס' in o['name']): continue
             b = boxes.get(str(o['revitId']))
             boxes_out.append({'opening': o['id'], 'floor': fl, 'width_m': o['width_m'], 'headRel': o['headRel'],
                               'box_m': r3(b['box_cm'] / 100) if b else None, 'frameTop_m': r3(b['familyTopOverBox_cm'] / 100) if b else None,
                               'status': 'source' if b else 'missing', 'source': f"{O.PERMIT_SRC}: {b['block']}" if b else 'אין חזית למשפחה בגרמושקה'})
+    # a wall drawn as two parallel hatch strips (seam line, e.g. 30 = 20 + 10): the strip with no slab of its own lies beside
+    # a block run on the same floor along ≥ half its length -> one run, as thick as both (levels / blocks from the run)
+    def strip(a, t, L):
+        (x0, y0), (x1, y1) = a; return LineString(a).buffer(t / 2, cap_style=2), ((x1 - x0) / L, (y1 - y0) / L)
+    for o in list(outside):
+        po, (ox, oy) = strip(o['axisITM'], o['thickness_m'], o['length_m'])
+        for w in walls:
+            if w['floor'] != o['floor']: continue
+            pw, (wx, wy) = strip(w['axisITM'], w['thickness_m'], w['length_m'])
+            if abs(ox * wy - oy * wx) > 0.05 or po.distance(pw) > 0.01: continue
+            if po.buffer(0.01).intersection(pw).area < 0.5 * min(o['length_m'], w['length_m']) * 0.01: continue
+            m = unary_union([pw, po.buffer(0.005, join_style=2)]).minimum_rotated_rectangle
+            (x0, y0), (x1, y1) = w['axisITM']; nx, ny = -wy, wx
+            off = [(px - x0) * nx + (py - y0) * ny for px, py in m.exterior.coords]
+            lo, hi = min(off), max(off); mid = (lo + hi) / 2
+            w['axisITM'] = [[r3(x0 + nx * mid), r3(y0 + ny * mid)], [r3(x1 + nx * mid), r3(y1 + ny * mid)]]
+            w['thickness_m'] = r3(hi - lo - 0.01)
+            w['mergedStrip_m'] = o['thickness_m']; outside.remove(o); break
     # drawn thickness -> the dominant wall thicknesses of the plans (≥ 5 m of wall each), ±2 cm (joint slivers / hatch
     # tolerance); quantities are recomputed per snapped thickness
     tl = defaultdict(float)
@@ -234,6 +261,13 @@ def main():
         else: w['status'] = 'approx'; w['note'] = f'עובי {t} ס"מ לא תואם לעוביי הקירות בתוכנית ({dom}) – לבדיקה'
         tc = round(w['thickness_m'] * 100)
         Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
+    # the box height written in the permit plans' dimension chains ("220 +35") wins over the family elevation measure
+    PL = J('tools/shutter-box-plans.json')
+    for r in PL['readings']:
+        for b in boxes_out:
+            if b['opening'] in r['openings']:
+                if b['box_m'] is not None and abs(b['box_m'] * 100 - r['box_cm']) > 0.5: b['elevationBox_m'] = b['box_m']
+                b.update(box_m=r['box_cm'] / 100, status='source', source=f"{PL['source_folder']} / {r['sheet']}: \"{r['text']}\" ({r['where']})")
     # a family with no section / elevation band in the permit sheet: the box of the same family type (approx)
     fam = lambda o: re.sub(r'\s*-\s*[^-]*$', '', o).strip()
     for b in boxes_out:
@@ -241,6 +275,29 @@ def main():
         o = next(x for x in OPN['openings'] if x['id'] == b['opening'])
         same = [x for x in boxes_out if x['box_m'] is not None and fam(next(y for y in OPN['openings'] if y['id'] == x['opening'])['name']) == fam(o['name'])]
         if same: b.update(box_m=same[0]['box_m'], status='approx', source=f"כמו {same[0]['opening']} (אותו סוג משפחה) – אין חתך / חזית למשפחה בגרמושקה")
+    # manual checks of the odd-thickness runs against the permit plans (tools/blocks-plan-checks.json)
+    for c in J('tools/blocks-plan-checks.json')['checks']:
+        for w in walls:
+            (x0, y0), (x1, y1) = w['axisITM']
+            if w['floor'] != c['floor'] or math.dist(((x0 + x1) / 2, (y0 + y1) / 2), c['centerITM']) > 0.10: continue
+            if c['thickness_m']:
+                if c.get('insidePointITM'):   # the extra drawn depth is outside (cladding): keep the inner face
+                    L = w['length_m']; nx, ny = -(y1 - y0) / L, (x1 - x0) / L; ix, iy = c['insidePointITM']
+                    if (ix - x0) * nx + (iy - y0) * ny < 0: nx, ny = -nx, -ny
+                    d = (w['thickness_m'] - c['thickness_m']) / 2
+                    w['axisITM'] = [[r3(x0 + nx * d), r3(y0 + ny * d)], [r3(x1 + nx * d), r3(y1 + ny * d)]]
+                w['thickness_m'] = c['thickness_m']
+            w['status'] = c['status']; w['note'] = 'בדיקה מול תוכנית ההיתר (08.11): ' + c['finding']
+    Q.clear()
+    for w in walls:
+        tc = round(w['thickness_m'] * 100)
+        Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
+    # box depth = the thickness of the block wall the opening sits in (Avihai 08.11: a built-in box as deep as the wall –
+    # such boxes are on the market); width = the opening, height = above
+    for b in boxes_out:
+        w = next((w for w in walls if any(o['id'] == b['opening'] for o in w['openings'])), None)
+        b['depth_m'] = w['thickness_m'] if w else None; b['hostWall'] = w['id'] if w else None
+        b['depthSource'] = 'החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר' + (' (עובי הקיר approx)' if w and w['status'] != 'source' else '')
     out = {'_doc': 'נוצר ע"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.',
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
@@ -287,9 +344,10 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
           [[w['id'], FL[w['floor']], round(w['thickness_m'] * 100), w['length_m'], w['bottomRel'], w['topRel'], w['courses'], w['blocksFull'], w['blocksCut'], w['area_m2'],
             ', '.join(o['id'] for o in w['openings']), w['status']] for w in D['walls']], [9, 12, 10, 10, 9, 9, 9, 9, 9, 14, 18, 10])
     OPN = {o['id']: o for o in J('data/architecture/openings.json')['openings']}
-    sheet(wb.create_sheet('ארגזי תריס'), ['פתח', 'קומה', 'משפחה', 'רוחב (ס"מ)', 'גובה ארגז (ס"מ)', 'סטטוס', 'מקור'],
-          [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '', b['status'], b['source']] for b in D['shutterBoxes']],
-          [8, 12, 44, 11, 15, 10, 60])
+    sheet(wb.create_sheet('ארגזי תריס'), ['פתח', 'קומה', 'משפחה', 'רוחב (ס"מ)', 'גובה ארגז (ס"מ)', 'עומק ארגז (ס"מ)', 'קיר', 'סטטוס', 'מקור הגובה', 'מקור העומק'],
+          [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '',
+            round(b['depth_m'] * 100) if b.get('depth_m') else '', b.get('hostWall') or '', b['status'], b['source'], b.get('depthSource', '')] for b in D['shutterBoxes']],
+          [8, 12, 44, 11, 15, 15, 10, 10, 60, 40])
     os.makedirs(os.path.dirname(path), exist_ok=True); wb.save(path); print('xlsx', path)
 
 

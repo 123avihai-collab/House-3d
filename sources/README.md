@@ -139,7 +139,7 @@ python3 tools/extract_floor.py     # -> data/structure/floor-ground.json (k-21, 
 python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 ```
 גאורפרנס שלב 3: k-31.dxf (וגם k-41.dxf) באותן קואורדינטות Revit כמו k-21.dxf – ההזזה של k-21 (framing.json) משמשת כמות שהיא (עמודים 4, 5 זהים עד 0.1 מ"מ). K-31 PDF מוצב על גיליון K-400 ב-ICP מול k-31.dxf (שארית חציונית 0.05 pt). גיליון האדריכלות "קומה קרקע – פיתוח היקפי" (1:100) מוצב על K-21 PDF ב-ICP (קנ"מ ×2, הזזה 2563.14, ‎-110.56 pt) – משמש **לזיהוי אזורים בלבד** (`tools/ground-zones.json`), לא למידות.
-קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`.
+קריאות ידניות (מתועדות, עם מקור): `tools/pile-table-xlsx.json`, `tools/permit-georef.json`, `tools/contour-levels.json`, `tools/survey-2025-points.json`, `tools/survey-2025-georef.json`, `tools/verification-sources.json`, `tools/shutter-box-plans.json` `tools/blocks-plan-checks.json` (בדיקת עובי ריצות חריגות מול תוכניות ההיתר), (גובה ארגזי התריס משרשראות המידות בתוכניות ההיתר, תיקיית הדרייב "תוכניות חזיתות ושטחים מהגרמושקא").
 
 ## פתחים – חלונות ודלתות (07.11.2026)
 

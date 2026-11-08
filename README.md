@@ -46,7 +46,7 @@ js/
     props.js               תמיכות תקרת הגג וקורות ההיקף – המחשה, עד אחרי יציקת חומת הגג (K-43 הערה 12)
     proposals.js           הצעות בעלים שמבטלות אלמנט (OC-2: קיר הפרגולה → קורת זיז), מצב קיים/מוצע
     (js/tools/prefs.js     תצוגות שמורות + שחזור השכבות האחרונות – לכל משתמש ב-db של הארטיפקט, data/users/<id>/prefs)
-    blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx)
+    blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס + משקופי דלתות מבלוק משקוף (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx)
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
     measure.js             מדידה חופשית בין שתי נקודות

@@ -104,6 +104,7 @@ def shutter_boxes():
 def main():
     CFG = J('data/config/blocks.json')
     BL, BH = CFG['block']['length_m'], CFG['block']['height_m']
+    LT = CFG['lintel']; BEAR = LT['bearing_m']['value']
     FR, FG, FF, FRF = J('data/structure/framing.json'), J('data/structure/floor-ground.json'), J('data/structure/floor-first.json'), J('data/structure/floor-roof.json')
     PER, OPN = J('data/structure/perimeter.json'), J('data/architecture/openings.json')
     ang = house_axis(FG)
@@ -190,14 +191,36 @@ def main():
                     if rp.buffer(0.05).contains(c) and abs(o['axisITM'][0] * uy - o['axisITM'][1] * ux) / (math.hypot(*o['axisITM']) or 1) < 0.3:
                         s = (c.x - x0) * ux + (c.y - y0) * uy
                         wo.append({'id': o['id'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': o['sillRel'], 'z1': o['headRel'],
+                                   'clip': [sd for sd, c in (('L', s - o['width_m'] / 2 < -0.005), ('R', s + o['width_m'] / 2 > L + 0.005)) if c],
                                    'shutter': ('גלילה' in o['name'] or 'תריס' in o['name'])})
-                # courses (bond: half a block on every other course), blocks clipped by openings
+                # door lintels (owner's choice 08.11: lintel block): one course high on the head, bearing into the blocks on both
+                # sides (data/config/blocks.json lintel.bearing_m – common practice, provisional); a side with less block than
+                # that (the door next to concrete) rests on the concrete. No lintel when the head is (almost) at the concrete above.
+                lts = []
+                # a door wider than this run (the run starts inside the door): what is just past the run end – concrete or
+                # the next block run
+                def near_conc(sd, o):
+                    sp = -0.03 if sd == 'L' else L + 0.03
+                    return C.buffer(0.03).contains(Point(x0 + ux * sp, y0 + uy * sp))
+                for o in wo:
+                    od = next(x for x in ops if x['id'] == o['id'])
+                    if od['kind'] not in LT['kinds']: continue
+                    gap = zt - o['z1']
+                    if gap < LT['minHeadGap_m']: continue
+                    bl, br = min(BEAR, o['s0']), min(BEAR, L - o['s1'])
+                    nth = sum(1 for w_ in walls for x in w_.get('lintels', []) if x['opening'] == o['id'])
+                    lts.append({'id': f"LT-{o['id']}" + (f"-{nth + 1}" if nth or o['clip'] else ''), 'opening': o['id'], 's0': r3(o['s0'] - bl), 's1': r3(o['s1'] + br), 'z0': o['z1'], 'z1': r3(o['z1'] + min(BH, gap)),
+                                'bearL_m': r3(bl), 'bearR_m': r3(br), 'onConcrete': [sd for sd, b in (('L', bl), ('R', br)) if b < BEAR - 0.005 and (sd not in o['clip'] or near_conc(sd, o))],
+                                'continues': [sd for sd in o['clip'] if not near_conc(sd, o)],   # checked below: another run holds the rest of the door
+                                'length_m': r3(o['s1'] - o['s0'] + bl + br), 'status': 'provisional'})
+                cut = wo + lts
+                # courses (bond: half a block on every other course), blocks clipped by openings and lintels
                 nfull = ncut = 0; area = L * (zt - zb)
                 k = 0; z = zb
                 while z < zt - 0.005:
                     h = min(BH, zt - z); off = (BL / 2) * (k % 2)
                     segs = [(0.0, L)]
-                    for o in wo:
+                    for o in cut:
                         if o['z0'] < z + h - 0.005 and o['z1'] > z + 0.005:
                             segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
                     for a, b in segs:
@@ -209,11 +232,11 @@ def main():
                                 else: ncut += 1
                             x += BL
                     k += 1; z += h
-                for o in wo: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])
+                for o in cut: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])   # net block area (lintels counted apart)
                 tcm = round(run['thickness_m'] * 100)
                 Q[fl][f't{tcm}_full'] += nfull; Q[fl][f't{tcm}_cut'] += ncut; Q[fl][f't{tcm}_m2'] += area
                 walls.append({'id': f'BK-{fl[0].upper()}{len(walls) + 1}', 'floor': fl, 'axisITM': run['axisITM'], 'length_m': L, 'thickness_m': run['thickness_m'],
-                              'bottomRel': r3(zb), 'topRel': r3(zt), 'openings': wo, 'courses': k, 'blocksFull': nfull, 'blocksCut': ncut, 'area_m2': r3(area),
+                              'bottomRel': r3(zb), 'topRel': r3(zt), 'openings': wo, 'lintels': lts, 'courses': k, 'blocksFull': nfull, 'blocksCut': ncut, 'area_m2': r3(area),
                               'status': st, 'source': f'{O.SRC} (תוכנית Revit {blk}: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל'})
         for o in ops:
             if not ('גלילה' in o['name'] or 'תריס' in o['name']): continue
@@ -234,6 +257,16 @@ def main():
         else: w['status'] = 'approx'; w['note'] = f'עובי {t} ס"מ לא תואם לעוביי הקירות בתוכנית ({dom}) – לבדיקה'
         tc = round(w['thickness_m'] * 100)
         Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
+        for lt in w['lintels']: Q[w['floor']][f't{tc}_lintels'] += 1; Q[w['floor']][f't{tc}_lintel_m'] += lt['length_m']
+    # door split over two runs: the cut side continues in the other piece; a short side with nothing there (door at the end
+    # of the wall, next to a crossing block wall) is flagged – the lintel has no bearing on that side
+    for w in walls:
+        for lt in w['lintels']:
+            n = sum(1 for w_ in walls for x in w_['lintels'] if x['opening'] == lt['opening'])
+            short = [sd for sd, b in (('L', lt['bearL_m']), ('R', lt['bearR_m'])) if b < BEAR - 0.005 and sd not in lt['onConcrete']]
+            lt['continues'] = [sd for sd in lt['continues'] if n > 1]
+            lt['shortBearing'] = [sd for sd in short if sd not in lt['continues']]
+            if n == 1 and lt['id'].endswith('-1'): lt['id'] = lt['id'][:-2]
     # a family with no section / elevation band in the permit sheet: the box of the same family type (approx)
     fam = lambda o: re.sub(r'\s*-\s*[^-]*$', '', o).strip()
     for b in boxes_out:
@@ -245,10 +278,11 @@ def main():
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
            'dominantThickness_cm': dom,
-           'quantities': {fl: {k: (round(v, 2) if k.endswith('m2') else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
+           'quantities': {fl: {k: (round(v, 2) if k.endswith(('m2', '_m')) else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
     json.dump(out, open(os.path.join(ROOT, 'data/architecture/blocks.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('walls', len(walls), {fl: sum(1 for w in walls if w['floor'] == fl) for fl in O.FLOORS})
     print('quantities', json.dumps(out['quantities'], ensure_ascii=False))
+    print('lintels', [(lt['id'], lt['length_m'], lt['onConcrete'], lt['continues'], lt['shortBearing']) for w in walls for lt in w['lintels']])
     print('boxes', [(b['opening'], b['box_m'], b['status']) for b in boxes_out])
 
 
@@ -290,6 +324,19 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
     sheet(wb.create_sheet('ארגזי תריס'), ['פתח', 'קומה', 'משפחה', 'רוחב (ס"מ)', 'גובה ארגז (ס"מ)', 'סטטוס', 'מקור'],
           [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '', b['status'], b['source']] for b in D['shutterBoxes']],
           [8, 12, 44, 11, 15, 10, 60])
+    LT = CFG['lintel']; byO = {}; SD = {'L': 'שמאל', 'R': 'ימין'}
+    bear_note = lambda lt: '; '.join([f"{SD[x]}: על הבטון" for x in lt['onConcrete']] + [f"{SD[x]}: המשך בקטע הקיר הסמוך" for x in lt.get('continues', [])]
+                                     + [f"{SD[x]}: בלי הישענות – לבדיקה" for x in lt.get('shortBearing', [])]) or '—'
+    for w in D['walls']:
+        for lt in w.get('lintels', []): byO[lt['id']] = (w, lt)
+    lrows = [[lt['id'], lt['opening'], FL[w['floor']], w['id'], round(w['thickness_m'] * 100), LT['type'] if w['thickness_m'] >= LT['thinBelow_m'] else LT['typeThin'],
+              round((lt['length_m'] - lt['bearL_m'] - lt['bearR_m']) * 100), round(lt['bearL_m'] * 100), round(lt['bearR_m'] * 100), round(lt['length_m'] * 100),
+              round((lt['z1'] - lt['z0']) * 100), bear_note(lt), lt['status']] for w, lt in byO.values()]
+    n = len(lrows) + 1
+    lrows.append(['סה"כ', f'=COUNTA(A2:A{n})', '', '', '', '', '', '', '', f'=SUM(J2:J{n})'])
+    sheet(wb.create_sheet('משקופים'), ['מזהה', 'פתח', 'קומה', 'קיר', 'עובי (ס"מ)', 'סוג', 'פתח נטו (ס"מ)', 'הישענות שמאל', 'הישענות ימין', 'אורך משקוף (ס"מ)', 'גובה (ס"מ)', 'הישענות – הערה', 'סטטוס'],
+          lrows, [10, 7, 12, 8, 9, 40, 12, 12, 12, 15, 9, 34, 11])
+    ws = wb['משקופים']; ws.append([]); ws.append([f"הישענות {round(LT['bearing_m']['value'] * 100)} ס\"מ בכל צד – {LT['bearing_m']['source']}. גובה = נדבך אחד."])
     os.makedirs(os.path.dirname(path), exist_ok=True); wb.save(path); print('xlsx', path)
 
 

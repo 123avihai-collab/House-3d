@@ -28,6 +28,7 @@ import { NotesTool } from './tools/notes.js';
 import { FixTool } from './tools/fixes.js';
 import { RebarTool } from './tools/rebar.js';
 import { Prefs } from './tools/prefs.js';
+import { compactRegistry } from './core/compact.js';
 import { SearchTool } from './tools/search.js';
 import { LabelManager } from './core/labels.js';
 import { Navigation, Minimap } from './tools/navigation.js';
@@ -93,6 +94,7 @@ async function main() {
   app.environment = environment;
   environment.attach(app);
   app.modules = { plumbing }; plumbing?.attach(app);
+  app.compacted = compactRegistry(registry, viewer.scene);   // same picture, far fewer objects / draw calls (Avihai 08.11 – after every module built its parts)
   app.ui = new UI(app);
   app.nav = new Navigation(app);
   app.tools.inspect = new InspectTool(app);

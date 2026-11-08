@@ -16,8 +16,19 @@ export class Viewer {
     this.updaters = [];
     this.needsRender = true;
 
-    const r = this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-    r.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
+    // WebGL may be refused on a busy tablet / phone (GPU memory taken by other tabs): fall back to lighter settings
+    // before giving up (Avihai 08.11: "Error creating WebGL context")
+    const tries = [{ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' },
+      { antialias: false, preserveDrawingBuffer: true, powerPreference: 'default' },
+      { antialias: false, preserveDrawingBuffer: false, powerPreference: 'low-power', failIfMajorPerformanceCaveat: false }];
+    let r = null, lastErr = null;
+    for (const [i, o] of tries.entries()) {
+      try { r = new THREE.WebGLRenderer(o); this.lite = i > 0; break; } catch (e) { lastErr = e; }
+    }
+    if (!r) throw Object.assign(new Error('webgl'), { webgl: true, cause: lastErr });
+    this.renderer = r;
+    r.setPixelRatio(Math.min(window.devicePixelRatio, this.lite ? 1 : mobile ? 1.5 : 2));
+    r.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('house3d-glLost')); });
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.ACESFilmicToneMapping;
     r.toneMappingExposure = 1.0;

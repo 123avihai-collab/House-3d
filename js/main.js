@@ -238,5 +238,20 @@ async function main() {
 main().catch(err => {
   console.error(err);
   window.__errors.push(String(err.message || err));
-  document.getElementById('loading').textContent = 'שגיאה בטעינה: ' + err.message;
+  const el = document.getElementById('loading');
+  if (err.webgl || /WebGL/i.test(err.message || '')) glHelp(el, 'הדפדפן לא הצליח לפתוח את הגרפיקה התלת-ממדית (WebGL).');
+  else el.textContent = 'שגיאה בטעינה: ' + err.message;
+});
+// WebGL refused / lost (busy GPU on a tablet or phone): explain and offer a reload
+function glHelp(el, why) {
+  el.replaceChildren();
+  const b = document.createElement('button'); b.textContent = '↻ נסה שוב'; b.onclick = () => location.reload();
+  b.style.cssText = 'margin-top:12px;padding:8px 18px;font-size:16px;border-radius:8px;border:0;background:#ff7a45;color:#fff';
+  const p = document.createElement('div'); p.style.cssText = 'direction:rtl;text-align:center;line-height:1.6;max-width:520px';
+  p.innerHTML = `<b>${why}</b><br>זה קורה בדרך כלל כשיש הרבה טאבים או אפליקציות פתוחים עם גרפיקה וזיכרון הגרפיקה נגמר.<br>` +
+    'לסגור טאבים / אפליקציות אחרים ולנסות שוב. אם לא עוזר – לסגור את הדפדפן לגמרי ולפתוח מחדש.';
+  p.append(document.createElement('br'), b); el.append(p); document.body.classList.add('loading');
+}
+window.addEventListener('house3d-glLost', () => {
+  const el = document.getElementById('loading'); if (el) glHelp(el, 'הגרפיקה התלת-ממדית נעצרה (הדפדפן שחרר את זיכרון הגרפיקה).');
 });

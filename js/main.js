@@ -248,8 +248,9 @@ function glHelp(el, why) {
   const b = document.createElement('button'); b.textContent = '↻ נסה שוב'; b.onclick = () => location.reload();
   b.style.cssText = 'margin-top:12px;padding:8px 18px;font-size:16px;border-radius:8px;border:0;background:#ff7a45;color:#fff';
   const p = document.createElement('div'); p.style.cssText = 'direction:rtl;text-align:center;line-height:1.6;max-width:520px';
-  p.innerHTML = `<b>${why}</b><br>זה קורה בדרך כלל כשיש הרבה טאבים או אפליקציות פתוחים עם גרפיקה וזיכרון הגרפיקה נגמר.<br>` +
-    'לסגור טאבים / אפליקציות אחרים ולנסות שוב. אם לא עוזר – לסגור את הדפדפן לגמרי ולפתוח מחדש.';
+  p.innerHTML = `<b>${why}</b><br>אחרי קריסה של כרטיס הגרפיקה Chrome חוסם את הגרפיקה לאתר עד שהדפדפן נסגר לגמרי – רענון לא מספיק.<br>` +
+    '<b>באנדרואיד:</b> הגדרות ← אפליקציות ← Chrome ← <b>עצירה בכפייה</b> (או החלקת Chrome מרשימת האפליקציות הפתוחות), ואז לפתוח מחדש. ' +
+    'אם עדיין לא – להפעיל מחדש את הטאבלט.<br><small>בדיקה: לפתוח chrome://gpu ולוודא ש-WebGL מופיע כ-Hardware accelerated.</small>';
   p.append(document.createElement('br'), b); el.append(p); document.body.classList.add('loading');
 }
 window.addEventListener('house3d-glLost', () => {

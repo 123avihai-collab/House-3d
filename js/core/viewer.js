@@ -27,7 +27,7 @@ export class Viewer {
     }
     if (!r) throw Object.assign(new Error('webgl'), { webgl: true, cause: lastErr });
     this.renderer = r;
-    r.setPixelRatio(Math.min(window.devicePixelRatio, this.lite ? 1 : mobile ? 1.5 : 2));
+    r.setPixelRatio(Math.min(window.devicePixelRatio, this.lite ? 1 : mobile ? 1.25 : 2));
     r.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('house3d-glLost')); });
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.ACESFilmicToneMapping;
@@ -57,7 +57,7 @@ export class Viewer {
     const s = display.sun;
     this.sun = new THREE.DirectionalLight(0xffffff, s.intensity);
     this.sun.castShadow = true;
-    const sz = mobile ? Math.min(2048, s.shadowMapSize) : s.shadowMapSize;
+    const sz = mobile ? Math.min(1024, s.shadowMapSize) : s.shadowMapSize;   // tablets / phones: less GPU memory (WebGL was blocked after GPU crashes, 08.11)
     this.sun.shadow.mapSize.set(sz, sz);
     const ext = s.shadowExtent_m;
     Object.assign(this.sun.shadow.camera, { left: -ext, right: ext, top: ext, bottom: -ext, near: 1, far: 600 });

@@ -7,7 +7,7 @@ export class MaterialLibrary {
     this.def = def.materials;
     this.cache = new Map();
     this.loader = new THREE.TextureLoader();
-    this.maxAniso = renderer.capabilities.getMaxAnisotropy();
+    this.maxAniso = Math.min(renderer.capabilities.getMaxAnisotropy(), matchMedia('(pointer: coarse)').matches ? 4 : 16);   // less texture memory on tablets / phones
     this.base = base;
   }
   get(name) {

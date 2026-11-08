@@ -9,7 +9,7 @@ ROOT = G.ROOT
 J = lambda p: json.load(open(os.path.join(ROOT, p), encoding='utf-8'))
 H0 = J('data/site/origin.json')['H0']
 FG, FR, BAS = J('data/structure/floor-ground.json'), J('data/structure/framing.json'), J('data/structure/basement.json')
-MAMAD = Polygon(FG['ceiling']['openings'][0]['footprintITM'])          # K-31 "rectangle with diagonal" = ממ"ד (see open-issues PH3)
+MAMAD = Polygon((FG['ceiling']['openings'] or FG['ceiling']['mamad'])[0]['footprintITM'])          # K-31 "rectangle with diagonal" = ממ"ד (see open-issues PH3)
 _c = list(MAMAD.exterior.coords)
 UX = ((_c[2][0] - _c[1][0]), (_c[2][1] - _c[1][1])); _l = math.hypot(*UX); UX = (-UX[0] / _l, -UX[1] / _l)   # building "east"
 UY = (-UX[1], UX[0])                                                                                        # building "north"

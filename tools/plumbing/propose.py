@@ -142,7 +142,9 @@ class Grid:
 
     def route(self, a, b):
         R = I['routing']; s, t = self.ij(a), self.ij(b)
-        cost = self.base + self.used * R['usedCost']
+        # cells already used by a pipe of the same manifold are CHEAPER (bundle: pipes run side by side, Avihai 08.11),
+        # unless the inputs ask for the old repulsion (usedCost > 0 and no bundleCost)
+        cost = np.where(self.used > 0, self.base * R['bundleCost'], self.base) if R.get('bundleCost') is not None else self.base + self.used * R['usedCost']
         free = lambda ij: ij in (s, t) or np.isfinite(cost[ij])
         D = {s: 0.0}; prev = {}; Q = [(0.0, s)]
         nb = [(1, 0, 1), (-1, 0, 1), (0, 1, 1), (0, -1, 1), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
@@ -162,6 +164,7 @@ class Grid:
         path = [t]
         while path[-1] != s: path.append(prev[path[-1]])
         path = path[::-1]
+        self.lastCells = path
         for ij in path:
             i, j = ij; self.used[max(0, i - 1):i + 2, max(0, j - 1):j + 2] = 1
         return self.smooth(path, a, b)
@@ -194,6 +197,40 @@ class Grid:
         return res
 
 
+# ------------------------------------------------------------------ bundles (Avihai 08.11.2026: PEX laid side by side,
+# a clear ribbon with a small gap, peeling off to the points – not on top of each other)
+def bundle(jobs, grid, gap):
+    """jobs: [{cells, start, tgt, pitch}] of one manifold (routed with attraction -> they share cells). Every shared grid
+    edge gets one lane per pipe, ordered by where each pipe is heading (left / right of the edge), so they fan out without
+    crossing; lane offset = (rank - (n-1)/2) × (conduit OD + gap). Corners rounded (Chaikin)."""
+    from collections import defaultdict
+    users = defaultdict(list)
+    for k, j in enumerate(jobs):
+        for a, b in zip(j['cells'], j['cells'][1:]): users[frozenset((a, b))].append(k)
+    out = []
+    for k, j in enumerate(jobs):
+        C = j['cells']; P = [grid.xy(c) for c in C]; offs = []
+        for i in range(len(C)):
+            e = (C[i], C[i + 1]) if i < len(C) - 1 else (C[i - 1], C[i])
+            (x0, y0), (x1, y1) = grid.xy(e[0]), grid.xy(e[1]); L = math.hypot(x1 - x0, y1 - y0) or 1
+            nx, ny = -(y1 - y0) / L, (x1 - x0) / L
+            us = users[frozenset(e)]
+            side = lambda q: (jobs[q]['tgt'][0] - x0) * nx + (jobs[q]['tgt'][1] - y0) * ny
+            rank = sorted(us, key=lambda q: (side(q), q)).index(k)
+            pitch = max(jobs[q]['pitch'] for q in us) + gap
+            off = (rank - (len(us) - 1) / 2) * pitch
+            offs.append((nx * off, ny * off))
+        Q = [(x + ox, y + oy) for (x, y), (ox, oy) in zip(P, offs)]
+        Q[0], Q[-1] = j['start'], j['tgt']
+        Q = list(LineString(Q).simplify(0.035).coords)   # grid stair-steps on the diagonals out, then round the corners
+        for _ in range(3):   # Chaikin: round the corners, keep the ends
+            R_ = [Q[0]]
+            for a, b in zip(Q, Q[1:]): R_ += [(0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]), (0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1])]
+            R_.append(Q[-1]); Q = R_
+        out.append([(r3(x), r3(y)) for x, y in Q])
+    return out
+
+
 # ------------------------------------------------------------------ helpers
 def snap_to_wall(p, walls, maxd=0.9, into=0.05):
     best = None
@@ -212,6 +249,7 @@ def snap_to_wall(p, walls, maxd=0.9, into=0.05):
 
 def sketch_walls():
     import pymupdf
+    if not os.path.exists(os.path.join(ROOT, SKETCH)): return None   # local-only source (owner's private sketch) – see main()
     T, _ = sketch_fit(); p = pymupdf.open(os.path.join(ROOT, SKETCH))[0]; out = []
     for d in p.get_drawings():
         if tuple(round(v, 2) for v in (d.get('color') or ())) != (0.0, 0.0, 0.0) or round(d.get('width') or 0, 2) < 0.7: continue
@@ -313,7 +351,9 @@ def main():
     gs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['slab']])
     fs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['ceiling']['slab']] + [MAMAD.buffer(0.01)])
     bs = Polygon(BAS['outlineITM']).buffer(-0.02)
-    walls = {'ground': arch_walls(GG, 'ground'), 'first': arch_walls(GG, 'first'), 'unit': sketch_walls()}
+    SW = sketch_walls()
+    if SW is None: print('WARNING: basement sketch not on this machine – the unit floor keeps its last proposal (data/plumbing/proposal.json)')
+    walls = {'ground': arch_walls(GG, 'ground'), 'first': arch_walls(GG, 'first'), 'unit': SW or []}
     conc = {'ground': [P for k, e, P, b, t, s in CON if k in ('קיר בטון', 'עמוד')],
             'first': [], 'unit': [P for k, e, P, b, t, s in CON if k == 'קיר מרתף']}
     grids = {'ground': Grid(gs, walls['ground'], conc['ground'], [MAMAD.buffer(0.02)], keepouts),
@@ -379,7 +419,8 @@ def main():
         mine.sort(key=lambda a: (a[3][0] - m['E']) * m['axis'][0] + (a[3][1] - m['N']) * m['axis'][1])
         n_c = sum(1 for a in mine if PT[a[2]]['cold']); n_h = sum(1 for a in mine if PT[a[2]]['hot'])
         m['outlets'] = {'cold': [], 'hot': []}
-        ci = hi = 0
+        ci = hi = 0; jobs = []
+        grids[fl].used[:] = 0   # attraction only to the pipes of this manifold
         for a in mine:
             _, fl_, kind, sp, fr, fid, title = a; spec = PT[kind]
             pt_out.append({'id': fid, 'floor': fl_, 'kind': kind, 'title': spec['title'], 'fixture': fid, 'E': r3(sp[0]), 'N': r3(sp[1]),
@@ -400,12 +441,17 @@ def main():
                         if path is not None: tgt = alt; break
                 if path is None: print('NO ROUTE', mk, fid, sysn); continue
                 rid = f'{"C" if sysn == "cold" else "H"}-{fid}'
-                pts3d = [(ox, oy, zf + H), (start[0], start[1], zf + H), (start[0], start[1], z)] + [(x, y, z) for x, y in path[1:-1]] + [(tgt[0], tgt[1], z), (tgt[0], tgt[1], zf + spec['H'])]
-                add_run(rid, sysn, fl, spec['D'], pts3d, m['id'], fid, f'{spec["title"]} – PEX ø{spec["D"]} בשרוול, ברז ניתוק במחלק')
-                sleeves.extend(crossings(path, grids[fl], rid, spec['D'], z, fl))
+                jobs.append({'rid': rid, 'sysn': sysn, 'spec': spec, 'fid': fid, 'ox': ox, 'oy': oy, 'H': H, 'start': start, 'tgt': tgt,
+                             'cells': grids[fl].lastCells, 'pitch': next_sleeve(spec['D'], 8) / 1000})
                 m['outlets'][sysn].append({'E': r3(ox), 'N': r3(oy), 'to': fid, 'D_mm': spec['D']})
                 if sysn == 'cold': ci += 1
                 else: hi += 1
+        for j, path in zip(jobs, bundle(jobs, grids[fl], I['routing'].get('bundleGap_m', 0.015))):
+            spec = j['spec']
+            pts3d = [(j['ox'], j['oy'], zf + j['H']), (j['start'][0], j['start'][1], zf + j['H']), (j['start'][0], j['start'][1], z)] + [(x, y, z) for x, y in path[1:-1]] \
+                    + [(j['tgt'][0], j['tgt'][1], z), (j['tgt'][0], j['tgt'][1], zf + spec['H'])]
+            add_run(j['rid'], j['sysn'], fl, spec['D'], pts3d, m['id'], j['fid'], f'{spec["title"]} – PEX ø{spec["D"]} בשרוול, ברז ניתוק במחלק; בצרור עם שאר הצינורות מהמחלק')
+            sleeves.extend(crossings(path, grids[fl], j['rid'], spec['D'], z, fl))
 
     # supply chain: main entry -> shaft -> manifolds; hot from the roof heater -> shaft -> manifolds, return
     F = I['feeds']; inner = SH['inner']; ent = NODES[I['mainEntry']['from']]
@@ -497,6 +543,15 @@ def main():
     out['unitSewer'] = PB6
     out['rain'] = PR1
     out['summary']['site'] = {'chambers': len(out['site']['chamberRaise']), 'drops': len(out['site']['drops']), 'hoseReel': 1, 'meterConn': 2}
+    if SW is None:   # keep the unit-floor design of the last run (it was routed against the sketch walls)
+        prev = J('data/plumbing/proposal.json')
+        for k in ('runs', 'points', 'sleeves'):
+            if isinstance(out.get(k), list) and isinstance(prev.get(k), list):
+                out[k] = [x for x in out[k] if x.get('floor') != 'unit'] + [x for x in prev[k] if x.get('floor') == 'unit']
+        if isinstance(out.get('manifolds'), list):
+            out['manifolds'] = [x for x in out['manifolds'] if x.get('floor') != 'unit'] + [x for x in prev.get('manifolds', []) if x.get('floor') == 'unit']
+        for k in ('unitHot', 'unitSewer'):
+            if k in prev: out[k] = prev[k]
     json.dump(out, open(os.path.join(ROOT, 'data/plumbing/proposal.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(json.dumps(out['summary'], ensure_ascii=False)); print('superseded', sup)
     for m in mans: print(m['id'], m['E'], m['N'], len(m['outlets']['cold']), len(m['outlets']['hot']))

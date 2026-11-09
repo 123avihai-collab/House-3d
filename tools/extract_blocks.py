@@ -144,6 +144,23 @@ def layout(L, zb, zt, wo, BL, BH, bond=None, datum=None):
     return blocks, k
 
 
+def bonding_q(w, BL, BH, BD):
+    """mortar / adhesive of one run (data/config/blocks.json bonding): the first course (pieces standing on the concrete)
+    on a cement-mortar bed; every other bed joint and – if headJoints – one head joint per piece in thin-bed adhesive."""
+    t = w['thickness_m']; segs = w.get('segments') or [{'s0': 0, 's1': w['length_m'], 'bottomRel': w['bottomRel']}]
+    base = lambda x: next((sg['bottomRel'] for sg in segs if sg['s0'] - 0.005 <= x <= sg['s1'] + 0.005), w['bottomRel'])
+    bl, _ = layout(w['length_m'], w['bottomRel'], w['topRel'], w['openings'] + w.get('lintels', []) + w.get('voids', []), BL, BH, w.get('bond'), w.get('courseDatum'))
+    first = bed = head = 0.0
+    for _f, pcs in bl:
+        for x0, x1, z0, z1 in pcs:
+            if z0 <= base((x0 + x1) / 2) + 0.005: first += x1 - x0
+            else: bed += (x1 - x0) * t
+            head += (z1 - z0) * t
+    hj = BD['adhesive']['headJoints']['value']
+    return {'firstCourse_m': r3(first), 'mortar_l': r3(first * t * BD['firstCourse']['calc_m'] * 1000), 'bedJoints_m2': r3(bed), 'headJoints_m2': r3(head if hj else 0),
+            'adhesive_l': r3((bed + (head if hj else 0)) * BD['adhesive']['calc_m'] * 1000)}
+
+
 def count_blocks(L, zb, zt, wo, BL, BH, bond=None, datum=None):
     """-> full, cut, courses, net area (see layout)"""
     blocks, k = layout(L, zb, zt, wo, BL, BH, bond, datum)
@@ -693,6 +710,7 @@ def main():
         if (w.get('variant') or {}).get('show') == 'changed': continue
         tc = round(w['thickness_m'] * 100)
         Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
+    for w in walls: w['bonding'] = bonding_q(w, BL, BH, CFG['bonding'])
     out = {'_doc': 'נוצר ע"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.',
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
@@ -784,6 +802,35 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
     json.dump({'_doc': 'נוצר ע"י tools/extract_blocks.py --xlsx – כמות בלוקים להזמנה לפי קומה ועובי (לפני פחת). הנחות: data/config/blocks.json cutting.', 'waste_pct': W, 'cutting': CUT, 'rows': order,
                'total': {'full': sum(o['full'] for o in order), 'blocksForCuts': sum(o['blocksForCuts'] for o in order), 'blocks': sum(o['blocks'] for o in order), 'area_m2': round(sum(o['area_m2'] for o in order), 2)}},
               open(os.path.join(ROOT, 'docs/quantities/blocks-order.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    # ---- mortar / adhesive sheet + the execution steps (Avihai 09.11) ----
+    BD = CFG['bonding']; FC, AD = BD['firstCourse'], BD['adhesive']; bg = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0, 0.0])
+    for w in D['walls']:
+        q_ = w.get('bonding') or bonding_q(w, BL, BH, BD); g_ = bg[(w['floor'], round(w['thickness_m'] * 100))]
+        for i_, k_ in enumerate(('firstCourse_m', 'mortar_l', 'bedJoints_m2', 'headJoints_m2', 'adhesive_l')): g_[i_] += q_[k_]
+    brows = []
+    for (fl, t), g_ in sorted(bg.items(), key=lambda x: (list(FL).index(x[0][0]), x[0][1])):
+        brows.append([FL[fl], t, round(g_[0], 2), round(g_[1], 1), round(g_[2], 2), round(g_[3], 2), round(g_[4], 1)])
+    n = len(brows) + 1
+    brows.append(['סה"כ', ''] + [f'=SUM({c}2:{c}{n})' for c in 'CDEFG'])
+    ws = wb.create_sheet('טיט ודבק', 1)
+    sheet(ws, ['קומה', 'עובי (ס"מ)', 'אורך נדבך ראשון (מ\')', f'טיט מלט לנדבך ראשון (ליטר, {round(FC["calc_m"] * 100)} ס"מ)', 'מישקים אופקיים בדבק (מ"ר)', 'מישקים אנכיים בדבק (מ"ר)', f'דבק בלוקים (ליטר, {round(AD["calc_m"] * 1000)} מ"מ)'],
+          brows, [14, 11, 22, 34, 26, 26, 28])
+    for c in ws[ws.max_row]: c.font = Font(bold=True)
+    r_ = ws.max_row; W2 = 1 + W / 100
+    ws.append([])
+    ws.append(['סיכום להזמנה', '', 'כמות נטו', f'עם פחת {W}%', 'ק"ג (משוער)', f'שקים {FC["bagKg"]["value"]} ק"ג', 'מחיר לשק (₪) – למלא', 'עלות (₪)'])
+    for c in ws[ws.max_row]: c.font = Font(bold=True)
+    ws.append(['טיט מלט (ליטר)', '', f'=D{r_}', f'=C{r_ + 3}*{W2}', f'=D{r_ + 3}*{FC["kgPerLitre"]["value"]}', f'=ROUNDUP(E{r_ + 3}/{FC["bagKg"]["value"]},0)', None, f'=F{r_ + 3}*G{r_ + 3}'])
+    ws.append(['דבק בלוקים (ליטר)', '', f'=G{r_}', f'=C{r_ + 4}*{W2}', f'=D{r_ + 4}*{AD["kgPerLitre"]["value"]}', f'=ROUNDUP(E{r_ + 4}/{AD["bagKg"]["value"]},0)', None, f'=F{r_ + 4}*G{r_ + 4}'])
+    ws.column_dimensions['H'].width = 12
+    ws.append([]); ws.append([f'הנחות: טיט {round(FC["calc_m"] * 100)} ס"מ מתחת לנדבך הראשון (טווח 1–3 ס"מ); דבק {round(AD["calc_m"] * 1000)} מ"מ במישקים האופקיים' + (' ובמישקים האנכיים (הנחה: בלוק בלי לשון-חריץ)' if AD['headJoints']['value'] else '') + f'. ק"ג לליטר: טיט {FC["kgPerLitre"]["value"]}, דבק {AD["kgPerLitre"]["value"]} – משוער, לעדכן לפי השק של היצרן.'])
+    ws.append(['מחברים לעמודים / קירות בטון: המרווח לא נקבע – לפי פרט יצרן / מהנדס (לא נכלל).'])
+    ws2 = wb.create_sheet('שלבי ביצוע', 2)
+    sheet(ws2, ['#', 'שלב'], [[i_ + 1, st_] for i_, st_ in enumerate(BD['steps'])], [5, 110])
+    json.dump({'_doc': 'נוצר ע"י tools/extract_blocks.py --xlsx – טיט לנדבך הראשון ודבק בלוקים, נטו (לפני פחת). הנחות: data/config/blocks.json bonding.',
+               'rows': [{'floor': fl, 'thickness_cm': t, 'firstCourse_m': round(g_[0], 2), 'mortar_l': round(g_[1], 1), 'bedJoints_m2': round(g_[2], 2), 'headJoints_m2': round(g_[3], 2), 'adhesive_l': round(g_[4], 1)} for (fl, t), g_ in sorted(bg.items())],
+               'total': {'firstCourse_m': round(sum(g_[0] for g_ in bg.values()), 2), 'mortar_l': round(sum(g_[1] for g_ in bg.values()), 1), 'adhesive_l': round(sum(g_[4] for g_ in bg.values()), 1)}},
+              open(os.path.join(ROOT, 'docs/quantities/blocks-bonding.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     LT = CFG['lintel']; byO = {}; SD = {'L': 'שמאל', 'R': 'ימין'}
     bear_note = lambda lt: '; '.join([f"{SD[x]}: על הבטון" for x in lt['onConcrete']] + [f"{SD[x]}: המשך בקטע הקיר הסמוך" for x in lt.get('continues', [])]
                                      + [f"{SD[x]}: נכנס לקיר הבלוקים הניצב" for x in lt.get('intoCrossWall', [])]

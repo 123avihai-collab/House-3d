@@ -53,7 +53,14 @@
     "sign": 1,
     "g": 0.38
    },
-   "courseDatum": -2.75
+   "courseDatum": -2.75,
+   "bonding": {
+    "firstCourse_m": 2.0,
+    "mortar_l": 8.8,
+    "bedJoints_m2": 2.2,
+    "headJoints_m2": 1.276,
+    "adhesive_l": 10.428
+   }
   },
   {
    "id": "BK-G2",
@@ -118,7 +125,14 @@
     "sign": 1,
     "g": 0.19
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.222,
+    "mortar_l": 0.444,
+    "bedJoints_m2": 0.669,
+    "headJoints_m2": 0.72,
+    "adhesive_l": 4.166
+   }
   },
   {
    "id": "BK-G3",
@@ -151,7 +165,14 @@
     "sign": 1,
     "g": 0.02
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.329,
+    "mortar_l": 4.658,
+    "bedJoints_m2": 3.261,
+    "headJoints_m2": 1.615,
+    "adhesive_l": 14.627
+   }
   },
   {
    "id": "BK-G4",
@@ -216,7 +237,14 @@
     "sign": 1,
     "g": 0.15
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.731,
+    "mortar_l": 3.216,
+    "bedJoints_m2": 1.494,
+    "headJoints_m2": 1.364,
+    "adhesive_l": 8.575
+   }
   },
   {
    "id": "BK-G5",
@@ -250,7 +278,14 @@
     "sign": 1,
     "g": 0.08
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.791,
+    "mortar_l": 3.48,
+    "bedJoints_m2": 2.268,
+    "headJoints_m2": 1.43,
+    "adhesive_l": 11.095
+   }
   },
   {
    "id": "BK-G6",
@@ -341,7 +376,14 @@
     "BK-G6",
     "BK-G20",
     "BK-G21"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 5.086,
+    "mortar_l": 22.378,
+    "bedJoints_m2": 11.288,
+    "headJoints_m2": 5.962,
+    "adhesive_l": 51.749
+   }
   },
   {
    "id": "BK-G7",
@@ -534,7 +576,14 @@
     "BK-G7",
     "BK-G8",
     "BK-G10"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 3.871,
+    "mortar_l": 17.032,
+    "bedJoints_m2": 11.397,
+    "headJoints_m2": 6.842,
+    "adhesive_l": 54.716
+   }
   },
   {
    "id": "BK-G9",
@@ -567,7 +616,14 @@
     "sign": 1,
     "g": 0.07
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.037,
+    "mortar_l": 4.074,
+    "bedJoints_m2": 2.852,
+    "headJoints_m2": 1.44,
+    "adhesive_l": 12.875
+   }
   },
   {
    "id": "BK-G11",
@@ -670,7 +726,14 @@
    "mergedFrom": [
     "BK-G11",
     "BK-G13"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 1.555,
+    "mortar_l": 3.11,
+    "bedJoints_m2": 2.621,
+    "headJoints_m2": 1.55,
+    "adhesive_l": 12.513
+   }
   },
   {
    "id": "BK-G12",
@@ -724,7 +787,14 @@
    "mergedFrom": [
     "BK-G12",
     "BK-G17"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 1.348,
+    "mortar_l": 2.696,
+    "bedJoints_m2": 1.888,
+    "headJoints_m2": 1.08,
+    "adhesive_l": 8.904
+   }
   },
   {
    "id": "BK-G14",
@@ -829,7 +899,14 @@
    "mergedFrom": [
     "BK-G14",
     "BK-G15"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 1.794,
+    "mortar_l": 3.588,
+    "bedJoints_m2": 2.951,
+    "headJoints_m2": 1.725,
+    "adhesive_l": 14.027
+   }
   },
   {
    "id": "BK-G16",
@@ -934,7 +1011,14 @@
    "mergedFrom": [
     "BK-G16",
     "BK-G18"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 0.337,
+    "mortar_l": 0.674,
+    "bedJoints_m2": 0.819,
+    "headJoints_m2": 0.745,
+    "adhesive_l": 4.691
+   }
   },
   {
    "id": "BK-G19",
@@ -967,7 +1051,14 @@
     "sign": 1,
     "g": 0.02
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.18,
+    "mortar_l": 4.36,
+    "bedJoints_m2": 3.052,
+    "headJoints_m2": 1.615,
+    "adhesive_l": 14.001
+   }
   },
   {
    "id": "BK-G22",
@@ -1000,7 +1091,14 @@
     "sign": 1,
     "g": 0.37
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.455,
+    "mortar_l": 2.002,
+    "bedJoints_m2": 1.401,
+    "headJoints_m2": 1.177,
+    "adhesive_l": 7.735
+   }
   },
   {
    "id": "BK-G23",
@@ -1033,7 +1131,14 @@
     "sign": 1,
     "g": 0.05
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.699,
+    "mortar_l": 1.398,
+    "bedJoints_m2": 0.979,
+    "headJoints_m2": 0.72,
+    "adhesive_l": 5.096
+   }
   },
   {
    "id": "BK-G24",
@@ -1080,7 +1185,14 @@
     "sign": 1,
     "g": 0.4
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.25,
+    "mortar_l": 7.5,
+    "bedJoints_m2": 1.5,
+    "headJoints_m2": 1.125,
+    "adhesive_l": 7.875
+   }
   },
   {
    "id": "BK-G25",
@@ -1129,7 +1241,14 @@
     "change": "OC-4",
     "show": "original"
    },
-   "ownerChange": "OC-4"
+   "ownerChange": "OC-4",
+   "bonding": {
+    "firstCourse_m": 4.332,
+    "mortar_l": 25.992,
+    "bedJoints_m2": 14.281,
+    "headJoints_m2": 7.605,
+    "adhesive_l": 65.659
+   }
   },
   {
    "id": "BK-G26",
@@ -1162,7 +1281,14 @@
     "sign": 1,
     "g": 0.13
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.107,
+    "mortar_l": 9.271,
+    "bedJoints_m2": 6.477,
+    "headJoints_m2": 3.168,
+    "adhesive_l": 28.936
+   }
   },
   {
    "id": "BK-G27",
@@ -1195,7 +1321,14 @@
     "sign": 1,
     "g": 0.02
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.31,
+    "mortar_l": 5.764,
+    "bedJoints_m2": 4.022,
+    "headJoints_m2": 2.376,
+    "adhesive_l": 19.195
+   }
   },
   {
    "id": "BK-G28",
@@ -1228,7 +1361,14 @@
     "sign": 1,
     "g": 0.0
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.4,
+    "mortar_l": 0.8,
+    "bedJoints_m2": 0.56,
+    "headJoints_m2": 0.54,
+    "adhesive_l": 3.3
+   }
   },
   {
    "id": "BK-G29",
@@ -1318,7 +1458,14 @@
    "mergedFrom": [
     "BK-G29",
     "BK-G30"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 0.889,
+    "mortar_l": 3.912,
+    "bedJoints_m2": 4.684,
+    "headJoints_m2": 3.399,
+    "adhesive_l": 24.248
+   }
   },
   {
    "id": "BK-G31",
@@ -1383,7 +1530,14 @@
     "sign": 1,
     "g": 0.01
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.137,
+    "mortar_l": 0.822,
+    "bedJoints_m2": 0.538,
+    "headJoints_m2": 2.1,
+    "adhesive_l": 7.915
+   }
   },
   {
    "id": "BK-G32",
@@ -1471,7 +1625,14 @@
    "mergedFrom": [
     "BK-G32",
     "BK-G33"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 1.826,
+    "mortar_l": 8.034,
+    "bedJoints_m2": 6.035,
+    "headJoints_m2": 3.245,
+    "adhesive_l": 27.839
+   }
   },
   {
    "id": "BK-G34",
@@ -1505,7 +1666,14 @@
     "sign": 1,
     "g": 0.21
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.347,
+    "mortar_l": 1.11,
+    "bedJoints_m2": 0.781,
+    "headJoints_m2": 0.856,
+    "adhesive_l": 4.91
+   }
   },
   {
    "id": "BK-G35",
@@ -1539,7 +1707,14 @@
     "sign": 1,
     "g": 0.17
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.302,
+    "mortar_l": 0.906,
+    "bedJoints_m2": 0.632,
+    "headJoints_m2": 0.54,
+    "adhesive_l": 3.516
+   }
   },
   {
    "id": "BK-G36",
@@ -1603,7 +1778,14 @@
     "sign": 1,
     "g": 0.46
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.378,
+    "mortar_l": 14.268,
+    "bedJoints_m2": 4.883,
+    "headJoints_m2": 3.579,
+    "adhesive_l": 25.385
+   }
   },
   {
    "id": "BK-G37",
@@ -1636,7 +1818,14 @@
     "sign": 1,
     "g": 0.03
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 2.043,
+    "mortar_l": 8.989,
+    "bedJoints_m2": 6.292,
+    "headJoints_m2": 3.168,
+    "adhesive_l": 28.381
+   }
   },
   {
    "id": "BK-G38",
@@ -1670,7 +1859,14 @@
     "g": 0.18
    },
    "courseDatum": -0.15,
-   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-G39) – בשרטוט היא חוצה אותו."
+   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-G39) – בשרטוט היא חוצה אותו.",
+   "bonding": {
+    "firstCourse_m": 0.513,
+    "mortar_l": 1.026,
+    "bedJoints_m2": 0.722,
+    "headJoints_m2": 0.535,
+    "adhesive_l": 3.77
+   }
   },
   {
    "id": "BK-G39",
@@ -1734,7 +1930,14 @@
     "sign": 1,
     "g": 0.03
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.117,
+    "mortar_l": 6.702,
+    "bedJoints_m2": 6.026,
+    "headJoints_m2": 3.165,
+    "adhesive_l": 27.573
+   }
   },
   {
    "id": "BK-G40",
@@ -1799,7 +2002,14 @@
     "sign": 1,
     "g": 0.05
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.281,
+    "mortar_l": 0.562,
+    "bedJoints_m2": 0.844,
+    "headJoints_m2": 0.78,
+    "adhesive_l": 4.871
+   }
   },
   {
    "id": "BK-G41",
@@ -1832,7 +2042,14 @@
     "sign": 1,
     "g": 0.05
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.999,
+    "mortar_l": 3.998,
+    "bedJoints_m2": 2.799,
+    "headJoints_m2": 1.44,
+    "adhesive_l": 12.716
+   }
   },
   {
    "id": "BK-G42",
@@ -1970,7 +2187,14 @@
     "BK-G44",
     "BK-G45",
     "BK-G46"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 2.955,
+    "mortar_l": 13.002,
+    "bedJoints_m2": 7.837,
+    "headJoints_m2": 4.246,
+    "adhesive_l": 36.251
+   }
   },
   {
    "id": "BK-G43",
@@ -2034,7 +2258,14 @@
     "sign": 1,
     "g": 0.56
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.598,
+    "mortar_l": 1.196,
+    "bedJoints_m2": 1.196,
+    "headJoints_m2": 0.705,
+    "adhesive_l": 5.702
+   }
   },
   {
    "id": "BK-G47",
@@ -2095,7 +2326,14 @@
    "mergedFrom": [
     "BK-G47",
     "BK-G48"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 0.94,
+    "mortar_l": 4.136,
+    "bedJoints_m2": 2.77,
+    "headJoints_m2": 1.958,
+    "adhesive_l": 14.185
+   }
   },
   {
    "id": "BK-G49",
@@ -2128,7 +2366,14 @@
     "sign": 1,
     "g": 0.18
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.886,
+    "mortar_l": 8.298,
+    "bedJoints_m2": 5.809,
+    "headJoints_m2": 3.168,
+    "adhesive_l": 26.931
+   }
   },
   {
    "id": "BK-G50",
@@ -2161,7 +2406,14 @@
     "sign": 1,
     "g": 0.01
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 0.747,
+    "mortar_l": 1.494,
+    "bedJoints_m2": 1.047,
+    "headJoints_m2": 0.72,
+    "adhesive_l": 5.302
+   }
   },
   {
    "id": "BK-G51",
@@ -2194,7 +2446,14 @@
     "sign": 1,
     "g": 0.04
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "bonding": {
+    "firstCourse_m": 1.689,
+    "mortar_l": 3.378,
+    "bedJoints_m2": 2.365,
+    "headJoints_m2": 1.255,
+    "adhesive_l": 10.859
+   }
   },
   {
    "id": "BK-F52",
@@ -2259,7 +2518,14 @@
     "sign": 1,
     "g": 0.01
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 0.139,
+    "mortar_l": 0.834,
+    "bedJoints_m2": 0.369,
+    "headJoints_m2": 1.35,
+    "adhesive_l": 5.158
+   }
   },
   {
    "id": "BK-F53",
@@ -2323,7 +2589,14 @@
     "sign": 1,
     "g": 0.29
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.137,
+    "mortar_l": 2.274,
+    "bedJoints_m2": 1.383,
+    "headJoints_m2": 1.005,
+    "adhesive_l": 7.163
+   }
   },
   {
    "id": "BK-F54",
@@ -2389,7 +2662,14 @@
     "sign": 1,
     "g": 0.44
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.919,
+    "mortar_l": 8.444,
+    "bedJoints_m2": 4.045,
+    "headJoints_m2": 2.409,
+    "adhesive_l": 19.361
+   }
   },
   {
    "id": "BK-F55",
@@ -2444,7 +2724,14 @@
    "mergedFrom": [
     "BK-F55",
     "BK-F75"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 4.193,
+    "mortar_l": 8.386,
+    "bedJoints_m2": 4.615,
+    "headJoints_m2": 2.21,
+    "adhesive_l": 20.476
+   }
   },
   {
    "id": "BK-F56",
@@ -2498,7 +2785,14 @@
    "mergedFrom": [
     "BK-F56",
     "BK-F60"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 4.722,
+    "mortar_l": 9.444,
+    "bedJoints_m2": 5.194,
+    "headJoints_m2": 2.505,
+    "adhesive_l": 23.098
+   }
   },
   {
    "id": "BK-F57",
@@ -2590,7 +2884,14 @@
     "BK-F57",
     "BK-F78",
     "BK-F80"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 3.624,
+    "mortar_l": 21.744,
+    "bedJoints_m2": 11.83,
+    "headJoints_m2": 6.585,
+    "adhesive_l": 55.246
+   }
   },
   {
    "id": "BK-F58",
@@ -2789,7 +3090,14 @@
     "BK-F59",
     "BK-F61",
     "BK-F64"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 5.467,
+    "mortar_l": 10.934,
+    "bedJoints_m2": 6.283,
+    "headJoints_m2": 3.34,
+    "adhesive_l": 28.869
+   }
   },
   {
    "id": "BK-F62",
@@ -2827,7 +3135,14 @@
     "change": "OC-5",
     "show": "original"
    },
-   "ownerChange": "OC-5"
+   "ownerChange": "OC-5",
+   "bonding": {
+    "firstCourse_m": 0.398,
+    "mortar_l": 2.388,
+    "bedJoints_m2": 1.197,
+    "headJoints_m2": 1.155,
+    "adhesive_l": 7.056
+   }
   },
   {
    "id": "BK-F63",
@@ -2865,7 +3180,14 @@
     "change": "OC-5",
     "show": "original"
    },
-   "ownerChange": "OC-5"
+   "ownerChange": "OC-5",
+   "bonding": {
+    "firstCourse_m": 0.709,
+    "mortar_l": 4.254,
+    "bedJoints_m2": 2.34,
+    "headJoints_m2": 1.77,
+    "adhesive_l": 12.329
+   }
   },
   {
    "id": "BK-F65",
@@ -2898,7 +3220,14 @@
     "sign": 1,
     "g": 0.09
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 0.719,
+    "mortar_l": 4.314,
+    "bedJoints_m2": 2.588,
+    "headJoints_m2": 1.92,
+    "adhesive_l": 13.525
+   }
   },
   {
    "id": "BK-F66",
@@ -2932,7 +3261,14 @@
     "sign": 1,
     "g": 0.0
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 0.428,
+    "mortar_l": 3.073,
+    "bedJoints_m2": 1.69,
+    "headJoints_m2": 1.58,
+    "adhesive_l": 9.809
+   }
   },
   {
    "id": "BK-F67",
@@ -3054,7 +3390,14 @@
     "BK-F67",
     "BK-F68",
     "BK-F70"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 2.998,
+    "mortar_l": 13.191,
+    "bedJoints_m2": 6.774,
+    "headJoints_m2": 3.608,
+    "adhesive_l": 31.147
+   }
   },
   {
    "id": "BK-F69",
@@ -3138,7 +3481,14 @@
    "mergedFrom": [
     "BK-F69",
     "BK-F76"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 1.236,
+    "mortar_l": 2.472,
+    "bedJoints_m2": 1.494,
+    "headJoints_m2": 1.055,
+    "adhesive_l": 7.647
+   }
   },
   {
    "id": "BK-F71",
@@ -3192,7 +3542,14 @@
    "mergedFrom": [
     "BK-F71",
     "BK-F72"
-   ]
+   ],
+   "bonding": {
+    "firstCourse_m": 2.22,
+    "mortar_l": 9.768,
+    "bedJoints_m2": 5.372,
+    "headJoints_m2": 2.915,
+    "adhesive_l": 24.862
+   }
   },
   {
    "id": "BK-F73",
@@ -3225,7 +3582,14 @@
     "sign": 1,
     "g": 0.12
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.55,
+    "mortar_l": 6.82,
+    "bedJoints_m2": 3.751,
+    "headJoints_m2": 2.266,
+    "adhesive_l": 18.051
+   }
   },
   {
    "id": "BK-F74",
@@ -3289,7 +3653,14 @@
     "sign": 1,
     "g": 0.17
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 0.666,
+    "mortar_l": 3.996,
+    "bedJoints_m2": 2.093,
+    "headJoints_m2": 2.16,
+    "adhesive_l": 12.758
+   }
   },
   {
    "id": "BK-F77",
@@ -3322,7 +3693,14 @@
     "sign": 1,
     "g": 0.46
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.798,
+    "mortar_l": 7.911,
+    "bedJoints_m2": 4.36,
+    "headJoints_m2": 2.266,
+    "adhesive_l": 19.879
+   }
   },
   {
    "id": "BK-F79",
@@ -3355,7 +3733,14 @@
     "sign": 1,
     "g": 0.17
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.174,
+    "mortar_l": 2.348,
+    "bedJoints_m2": 1.291,
+    "headJoints_m2": 0.74,
+    "adhesive_l": 6.094
+   }
   },
   {
    "id": "BK-F81",
@@ -3419,7 +3804,14 @@
     "sign": 1,
     "g": 0.09
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 3.023,
+    "mortar_l": 18.138,
+    "bedJoints_m2": 9.079,
+    "headJoints_m2": 5.085,
+    "adhesive_l": 42.494
+   }
   },
   {
    "id": "BK-F82",
@@ -3452,7 +3844,14 @@
     "sign": 1,
     "g": 0.12
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 2.106,
+    "mortar_l": 9.266,
+    "bedJoints_m2": 4.624,
+    "headJoints_m2": 2.288,
+    "adhesive_l": 20.737
+   }
   },
   {
    "id": "BK-F83",
@@ -3485,7 +3884,14 @@
     "sign": 1,
     "g": 0.21
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 1.31,
+    "mortar_l": 5.764,
+    "bedJoints_m2": 2.882,
+    "headJoints_m2": 1.716,
+    "adhesive_l": 13.794
+   }
   },
   {
    "id": "BK-F84",
@@ -3518,7 +3924,14 @@
     "sign": 1,
     "g": 0.03
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 2.339,
+    "mortar_l": 4.678,
+    "bedJoints_m2": 2.574,
+    "headJoints_m2": 1.325,
+    "adhesive_l": 11.696
+   }
   },
   {
    "id": "BK-F85",
@@ -3551,7 +3964,14 @@
     "sign": 1,
     "g": 0.32
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 2.039,
+    "mortar_l": 8.972,
+    "bedJoints_m2": 4.486,
+    "headJoints_m2": 2.288,
+    "adhesive_l": 20.321
+   }
   },
   {
    "id": "BK-F86",
@@ -3619,7 +4039,14 @@
     "sign": 1,
     "g": 0.0
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "bonding": {
+    "firstCourse_m": 0.0,
+    "mortar_l": 0.0,
+    "bedJoints_m2": 0.0,
+    "headJoints_m2": 0.0,
+    "adhesive_l": 0.0
+   }
   },
   {
    "id": "BK-G25~OC-4",
@@ -3668,7 +4095,14 @@
     "change": "OC-4",
     "show": "changed"
    },
-   "ownerChange": "OC-4"
+   "ownerChange": "OC-4",
+   "bonding": {
+    "firstCourse_m": 4.332,
+    "mortar_l": 25.992,
+    "bedJoints_m2": 14.281,
+    "headJoints_m2": 7.605,
+    "adhesive_l": 65.659
+   }
   },
   {
    "id": "BK-F62~OC-5",
@@ -3741,7 +4175,14 @@
     "change": "OC-5",
     "show": "changed"
    },
-   "ownerChange": "OC-5"
+   "ownerChange": "OC-5",
+   "bonding": {
+    "firstCourse_m": 0.0,
+    "mortar_l": 0.0,
+    "bedJoints_m2": 0.119,
+    "headJoints_m2": 0.06,
+    "adhesive_l": 0.538
+   }
   },
   {
    "id": "BK-F63~OC-5",
@@ -3814,7 +4255,14 @@
     "change": "OC-5",
     "show": "changed"
    },
-   "ownerChange": "OC-5"
+   "ownerChange": "OC-5",
+   "bonding": {
+    "firstCourse_m": 0.709,
+    "mortar_l": 4.254,
+    "bedJoints_m2": 0.425,
+    "headJoints_m2": 0.33,
+    "adhesive_l": 2.266
+   }
   }
  ],
  "shutterBoxes": [

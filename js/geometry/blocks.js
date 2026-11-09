@@ -20,6 +20,10 @@ export function buildBlocks(ctx) {
   const ocTag = (text, pos) => { const d = document.createElement('div'); d.className = 'lbl oc-tag'; d.textContent = text; const o = new CSS2DObject(d); o.position.copy(pos); return o; };
   const vmeta = (x) => (x.variant ? { variant: x.variant } : {});
   const lintM = new THREE.MeshStandardMaterial({ color: DB.lintelColor, roughness: 0.85 });
+  // bonding (data/config/blocks.json bonding, Avihai 09.11): the adhesive shows grey in the joints (a grey body just inside
+  // the block faces), the cement-mortar bed of the first course as a darker band at the foot of the wall
+  const BD = data.blocksCfg?.bonding; const mortM = new THREE.MeshStandardMaterial({ color: DB.mortarColor, roughness: 1 });
+  const bedM = new THREE.MeshStandardMaterial({ color: DB.bedColor, roughness: 1 });
   const LT = data.blocksCfg?.lintel; const SIDE = { L: 'שמאל', R: 'ימין' };
   const unit = new THREE.BoxGeometry(1, 1, 1);
   const FLOOR = { unit: 'יחידת דיור', ground: 'קומת קרקע', first: "קומה א'" };
@@ -48,7 +52,8 @@ export function buildBlocks(ctx) {
       if (o.z1 < zb - 0.005) out.push([a, b, o.z1, zb]);
       return out.filter(r => r[1] - r[0] > 0.005 && r[3] - r[2] > 0.005);
     });
-    let nFull = 0, nCut = 0;
+    let nFull = 0, nCut = 0; const glue = [], bed = [];
+    const baseAt = (x) => (w.segments || []).find(sg => sg.s0 - 0.005 <= x && x <= sg.s1 + 0.005)?.bottomRel ?? w.bottomRel;
     while (z < w.topRel - 0.005) {
       const kk = D != null ? Math.round((z - D) / BH) : k;
       let nxt = D != null ? D + (kk + 1) * BH : z + BH; if (nxt - z < 0.005) nxt += BH;
@@ -61,6 +66,7 @@ export function buildBlocks(ctx) {
         if (!pcs.length) continue;
         const isFull = pcs.length === 1 && xb - xa >= BL - TB && h >= BH - TB && pcs[0][0] === xa && pcs[0][1] === xb && pcs[0][2] === z && pcs[0][3] === z + h;
         if (isFull) { nFull++; full.push([xa, xb, z, h]); } else { nCut++; for (const [a, b, za, zb] of pcs) cut.push([a, b, za, zb - za]); }
+        for (const [a, b, za, zb] of pcs) { glue.push([a, b, za, zb - za]); if (BD && za <= baseAt((a + b) / 2) + 0.005) bed.push([a, b, za, BD.firstCourse.calc_m]); }
       }
       k++; z += h;
     }
@@ -74,6 +80,12 @@ export function buildBlocks(ctx) {
       });
       im.castShadow = im.receiveShadow = true; g.add(im);
     }
+    if (BD) for (const [list, mat, tk, jt] of [[glue, mortM, t * DB.mortarInset, 0], [bed, bedM, t + DB.bedProud_m, 0]]) {
+      if (!list.length) continue;
+      const im = new THREE.InstancedMesh(unit, mat, list.length), M = new THREE.Matrix4(), S = new THREE.Vector3();
+      list.forEach(([xa, xb, zz, h], i) => { const c = p0.clone().addScaledVector(dir, (xa + xb) / 2); c.y = zz + h / 2; S.set(xb - xa - jt, h, tk); M.compose(c, q, S); im.setMatrixAt(i, M); });
+      im.receiveShadow = true; im.userData.noSnap = true; g.add(im);
+    }
     // with the change: the new / changed opening is filled red, half transparent (as the removed beam of OC-2) – Avihai 09.11
     if (w.ownerChange && w.variant?.show === 'changed') for (const o of w.openings) {
       const c = p0.clone().addScaledVector(dir, (o.s0 + o.s1) / 2); c.y = (o.z0 + o.z1) / 2;
@@ -86,14 +98,16 @@ export function buildBlocks(ctx) {
     } else if (w.status !== 'source') g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
     const asDrawn = w.variant?.show !== 'changed';
     const tc = Math.round(t * 100);
-    if (asDrawn) { stats.full += nFull; stats.cut += nCut; stats.area_m2 += w.area_m2; }
+    if (asDrawn) { stats.full += nFull; stats.cut += nCut; stats.area_m2 += w.area_m2; if (w.bonding) { stats.mortar_l = (stats.mortar_l || 0) + w.bonding.mortar_l; stats.adhesive_l = (stats.adhesive_l || 0) + w.bonding.adhesive_l; } }
     if (asDrawn) { const bt = (stats.byThickness[tc] ||= { full: 0, cut: 0, area_m2: 0 }); bt.full += nFull; bt.cut += nCut; bt.area_m2 += w.area_m2; }
     registry.add(g, { floor: w.floor, system: 'walls', stage: 'walls', layer: 'blockWalls', step: 'blockWalls' }, {
       id: w.id, name: `קיר בלוקים ${tc} ס"מ – ${FLOOR[w.floor] || w.floor}${w.ownerChange ? ` · ${w.ownerChange} ${w.variant?.show === 'changed' ? '(עם השינוי)' : '(לפי התוכניות)'}` : ''}`, status: w.status, ...vmeta(w),
       rows: [['בלוק', `${B.block.type} ${Math.round(BL * 100)}×${Math.round(BH * 100)}, עובי ${tc}`], ['אורך × גובה', `${L.toFixed(2)} × ${(w.topRel - w.bottomRel).toFixed(2)} מ'`],
         ['נדבכים', `${w.courses}`], ['בלוקים', `${nFull} שלמים + ${nCut} חתוכים (בלוק חתוך = בלוק אחד, גם כשנחתך לכמה חלקים)`], ['שטח נטו', `${w.area_m2.toFixed(2)} מ"ר`],
+        ...(w.bonding && BD ? [['נדבך ראשון על טיט', `${w.bonding.firstCourse_m.toFixed(2)} מ' · ${w.bonding.mortar_l.toFixed(1)} ליטר טיט מלט (${Math.round(BD.firstCourse.calc_m * 100)} ס"מ)`],
+          ['דבק בלוקים', `${w.bonding.adhesive_l.toFixed(1)} ליטר (${Math.round(BD.adhesive.calc_m * 1000)} מ"מ; אופקי ${w.bonding.bedJoints_m2.toFixed(2)} + אנכי ${w.bonding.headJoints_m2.toFixed(2)} מ"ר)`]] : []),
         ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
-      note: [w.note, 'פריסת הנדבכים: חצי בלוק בדילוג בכל נדבך שני; נדבך עליון חתוך לגובה התקרה / הקורה.'].filter(Boolean).join(' '), source: w.source,
+      note: [w.note, 'הדבקה בשכבה דקה: נדבך ראשון על טיט מלט מפולס (הפס הכהה), מהנדבך השני דבק בלוקים 2–3 מ"מ (האפור במישקים). פריסת הנדבכים: חצי בלוק בדילוג בכל נדבך שני; נדבך עליון חתוך לגובה התקרה / הקורה.'].filter(Boolean).join(' '), source: w.source,
     });
     scene.add(g);
     // lintels (doors and windows): lintel block, one course on the head, bearing into the blocks (tools/extract_blocks.py)

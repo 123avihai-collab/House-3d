@@ -1517,11 +1517,12 @@
   },
   "OC-7": {
    "terrain": {
-    "zone": "garden",
-    "surfaceRel": -0.25,
-    "belowSlabTop_m": 0.1,
-    "slabTopRel": -0.15,
-    "source": "data/structure/floor-ground.json openZones zone garden (גבול הגינה); מפלס לפי בקשת אביחי 09.11.2026: 10 ס\"מ מתחת לראש הרצפה ‎−0.15 (GS1 / GS2)"
+    "zones": [
+     "garden",
+     "OC-8"
+    ],
+    "surfaceRel": -0.4,
+    "source": "גבול הגינה: data/structure/floor-ground.json openZones zone garden; הרצועה מאחורי הבריכה: אותו היקף כמו OC-8 (owner-changes-geometry.json OC-8 slab ringITM); מפלס ‎−0.40 = תחתית בטון הרצפות GS1 / GS2 (floor-ground.json bottomRel) – לפי בקשת אביחי 09.11.2026"
    }
   },
   "OC-8": {

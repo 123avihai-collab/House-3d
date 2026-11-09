@@ -66,7 +66,9 @@ export class Registry {
       const sysOn = !state.systemFilter || state.systemFilter.includes(t.system);
       // owner-change variants: "original" shows while the change is off, "changed" while it is on
       const v = it.meta.variant;
-      const varOn = !v || ((state.ownerChanges?.[v.change] ?? false) === (v.show === 'changed'));
+      // variant.all = several changes at once (a zone touched by two owner changes): every condition must match
+      const varOk = (c) => (state.ownerChanges?.[c.change] ?? false) === (c.show === 'changed');
+      const varOn = !v || (v.all ? v.all.every(varOk) : varOk(v));
       let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       // "צנרת מוסתרת": pipes hidden by the pour (meta.concealed) are shown again from their own step on
       if (!visible && state.showHidden && it.meta.concealed && layerOn && floor.visible && sysOn && varOn && si >= from) visible = true;

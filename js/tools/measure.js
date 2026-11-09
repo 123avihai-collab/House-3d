@@ -77,7 +77,14 @@ export class MeasureTool {
     const l = new Line2(g, m); l.computeLineDistances(); l.renderOrder = 11; return l;
   }
   label(html, cls, at) { const d = document.createElement('div'); d.className = 'lbl measure ' + (cls || ''); d.innerHTML = html; const o = new CSS2DObject(d); o.position.copy(at); return o; }
-  dot(p, color = this.col.direct) { const m = new THREE.Mesh(this.dotGeo, this.mat(color)); m.position.copy(p); m.renderOrder = 12; return m; }
+  // dots: small on screen (dotPx at the point's depth) and never bigger than a share of the measured line (a 15 cm
+  // measurement must stay readable – Avihai 09.11); dotRadius_m is the upper bound
+  perPx(p) {
+    const cam = this.app.viewer.camera, h = this.app.viewer.renderer.domElement.clientHeight || 800;
+    return cam.isPerspectiveCamera ? 2 * cam.position.distanceTo(p) * Math.tan(THREE.MathUtils.degToRad(cam.fov) / 2) / h : (cam.top - cam.bottom) / cam.zoom / h;
+  }
+  dotR(p, len = Infinity) { const R = this.C.dotRadius_m ?? 0.06; return Math.max(0.002, Math.min(R, this.perPx(p) * (this.C.dotPx ?? 4), len * (this.C.dotShare ?? 0.04))); }
+  dot(p, color = this.col.direct, r = this.dotR(p)) { const m = new THREE.Mesh(this.dotGeo, this.mat(color)); m.position.copy(p); m.scale.setScalar(r / (this.C.dotRadius_m ?? 0.06)); m.renderOrder = 12; return m; }
   disposeObj(o) { o.geometry?.dispose?.(); if (o.material && this.lineMats.includes(o.material)) { o.material.dispose(); this.lineMats.splice(this.lineMats.indexOf(o.material), 1); } o.element?.remove?.(); }
 
   // components of b - a along the current axes
@@ -181,7 +188,9 @@ export class MeasureTool {
   build(a, b, ka, kb, extra = [], ax = null) {
     const sp = this.split(a, b, this.axes({ ax })); const n = this.axisNames(); const Z = this.C.zeroComponent_m ?? 0.005;
     const mn = this.meaning(sp);
-    const objs = [...extra, this.dot(b), this.line([a, b], this.col.direct, { width: 3 })];
+    const r = Math.min(this.dotR(a, sp.d3), this.dotR(b, sp.d3));
+    extra.forEach(o => { if (o.isMesh) o.scale.setScalar(r / (this.C.dotRadius_m ?? 0.06)); });   // the first dot, now that the length is known
+    const objs = [...extra, this.dot(b, this.col.direct, r), this.line([a, b], this.col.direct, { width: 3 })];
     const val = mn.k === 'd' ? sp.d3 : Math.abs({ x: sp.dx, y: sp.dy, z: sp.dz }[mn.k]);
     objs.push(this.label(`<b>${mn.k === 'd' ? '' : mn.name + ' '}${this.fmt(val)} מ'</b>` + (mn.k === 'd' && Math.abs(sp.dz) > Z && sp.dh > Z ? `<br><small>אופקי ${this.fmt(sp.dh)}</small>` : ''), 'main', a.clone().lerp(b, 0.5)));
     // legs A -> X -> Y -> Z -> B (corners of the split)

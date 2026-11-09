@@ -162,10 +162,22 @@ export function buildExcavation(ctx) {
   // development surface and drawn twice – as in the plans / with the change (data/changes/owner-changes-geometry.json)
   const OCG = data.ownerChangesGeometry?.changes || {};
   const garden = (FG?.openZones || []).find(o => o.zone === 'garden')?.footprintITM;
-  const ocZones = [];
-  for (const [id, g] of Object.entries(OCG)) {
-    if (g.terrain?.zone === 'garden' && garden) ocZones.push({ id, ring: garden, changed: () => coords.H0 + g.terrain.surfaceRel, g });
-    if (g.slab?.ringITM) ocZones.push({ id, ring: g.slab.ringITM, changed: () => coords.H0 + g.slab.topRel - g.slab.thickness_m, g, slab: g.slab });
+  // zone = one ring with its versions (variant conditions + surface); a ring touched by a terrain change (OC-7) and a
+  // slab change (OC-8) gets 3 versions: plans / OC-7 soil level / OC-8 slab (soil under it)
+  const ocZones = []; const zoneOf = new Map();
+  const zone = (key, ring) => { if (!zoneOf.has(key)) { const z = { key, ring, terrain: null, slab: null }; zoneOf.set(key, z); ocZones.push(z); } return zoneOf.get(key); };
+  for (const [id, g] of Object.entries(OCG)) if (g.slab?.ringITM) { const z = zone(id, g.slab.ringITM); z.slab = { id, g, s: g.slab, fn: () => coords.H0 + g.slab.topRel - g.slab.thickness_m }; }
+  for (const [id, g] of Object.entries(OCG)) for (const k of g.terrain?.zones || []) {
+    const ring = k === 'garden' ? garden : OCG[k]?.slab?.ringITM; if (!ring) continue;
+    zone(k, ring).terrain = { id, g, fn: () => coords.H0 + g.terrain.surfaceRel };
+  }
+  for (const z of ocZones) {
+    const T = z.terrain, S = z.slab, V = (id, show) => ({ change: id, show });
+    z.versions = [];
+    const plansVar = T && S ? { all: [V(S.id, 'original'), V(T.id, 'original')] } : V((T || S).id, 'original');
+    z.versions.push({ variant: plansVar, fn: finalZ, plans: true, ids: [T?.id, S?.id].filter(Boolean) });
+    if (T) z.versions.push({ variant: S ? { all: [V(S.id, 'original'), V(T.id, 'changed')] } : V(T.id, 'changed'), fn: T.fn, oc: T });
+    if (S) z.versions.push({ variant: V(S.id, 'changed'), fn: S.fn, oc: S });
   }
   for (const z of ocZones) ctrlB.push(...edgePts(z.ring));
   const ctrlL = ctrlB.filter(p => pointInRing(p.x, p.y, lot));
@@ -326,29 +338,32 @@ const exMeta = {
   registry.add(gF, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: 'topoPlanned' }, { ...fillMeta,
     name: 'מגרש 5187 – פני קרקע מתוכננים (פיתוח)', role: 'plot', hMax: meshF.userData.hMax,
     rows: [['גינה / רצועות', 'פני הקרקע המתוכננים (מפה למשתכן)'], ['מתחת לרצפות', 'נשאר מתחת למבנה']],
-    ocZones: ocZones.map(z => z.id),
+    ocZones: ocZones.map(z => z.key),
     note: 'פני הקרקע הסופיים בגינה וברצועות – לפי גבהי הפיתוח בתוכנית קומת הקרקע של ההיתר (הערת אביחי 09.11.2026); בתוך הבית, הרצפות, הבריכה והחצרות – המבנה.', source: 'data/site/development-heights.json; data/structure/floor-ground.json' });
   // the two versions of every owner-change zone of the final surface
   const ocById = Object.fromEntries((data.ownerChanges?.changes || []).map(c => [c.id, c]));
   const ocColor = display.framing.ownerChangeColor;
   for (const z of ocZones) {
-    const c = ocById[z.id] || { title: z.id, description: '' };
     const zCtrl = ctrlL.filter(p => pointInRing(p.x, p.y, z.ring));
-    for (const show of ['original', 'changed']) {
-      const fn = show === 'original' ? finalZ : z.changed;
-      const m = regionMesh(z.ring, fn, coords, materials.get('soilPlot'), null, T, show === 'original' ? zCtrl : []);
+    for (const v of z.versions) {
+      const c = v.oc ? (ocById[v.oc.id] || { title: v.oc.id, description: '' }) : null;
+      const m = regionMesh(z.ring, v.fn, coords, materials.get('soilPlot'), null, T, v.plans ? zCtrl : []);
       const gz = new THREE.Group(); gz.add(m);
-      if (show === 'changed') {
-        const pts = z.ring.concat([z.ring[0]]).map(([E, N]) => coords.toLocal(E, N, fn(E, N) + 0.02));
+      if (!v.plans) {
+        const pts = z.ring.concat([z.ring[0]]).map(([E, N]) => coords.toLocal(E, N, v.fn(E, N) + 0.02));
         gz.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: ocColor })));
       }
       registry.add(gz, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: 'topoPlanned' }, { ...fillMeta,
-        name: show === 'original' ? `מגרש 5187 – פני קרקע מתוכננים (${z.id}: לפי התוכניות)` : `${z.id} – ${c.title}`,
+        name: v.plans ? `מגרש 5187 – פני קרקע מתוכננים (${v.ids.join(' / ')}: לפי התוכניות)` : `${v.oc.id} – ${c.title}${v.oc === z.slab ? ' (הקרקע מתחת לרצפה)' : ''}`,
         role: 'plot', hMax: m.userData.hMax, hMin: m.userData.hMin, area: Math.abs(ringArea(z.ring)),
-        status: show === 'changed' ? 'owner-change' : 'source', variant: { change: z.id, show },
-        note: show === 'changed' ? c.description : 'לפי גבהי הפיתוח בהיתר (data/site/development-heights.json).', source: show === 'changed' ? (z.g.terrain || z.g.slab).source : fillMeta.source });
+        status: v.plans ? 'source' : 'owner-change', variant: v.variant,
+        note: v.plans ? 'לפי גבהי הפיתוח בהיתר (data/site/development-heights.json).' : c.description,
+        source: v.plans ? fillMeta.source : (v.oc.g.terrain || v.oc.g.slab).source });
       scene.add(gz);
     }
+    if (!z.slab) continue;
+    const c = ocById[z.slab.id] || { title: z.slab.id, description: '' };
+    z.id = z.slab.id; z.slab = z.slab.s;
     if (z.slab) {   // the concrete slab of OC-8 (with the change only)
       const toV = ([E, N]) => { const [x, zz] = coords.xz(E, N); return new THREE.Vector2(x, -zz); };
       const geo = new THREE.ExtrudeGeometry(new THREE.Shape(z.ring.map(toV)), { depth: z.slab.thickness_m, bevelEnabled: false });

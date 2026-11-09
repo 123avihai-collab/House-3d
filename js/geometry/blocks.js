@@ -24,12 +24,16 @@ export function buildBlocks(ctx) {
     const dir = new THREE.Vector3().subVectors(p1, p0).normalize(), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
     const full = [], cut = [];
     let k = 0, z = w.bottomRel;
-    while (z < w.topRel - 0.005) {   // same coursing as tools/extract_blocks.py
-      const h = Math.min(BH, w.topRel - z), off = (BL / 2) * (k % 2);
+    const D = w.courseDatum, bond = w.bond, mod = (a, m) => ((a % m) + m) % m;
+    while (z < w.topRel - 0.005) {   // same coursing as tools/extract_blocks.py: one course line per floor, one block grid per wall line
+      const kk = D != null ? Math.round((z - D) / BH) : k;
+      let nxt = D != null ? D + (kk + 1) * BH : z + BH; if (nxt - z < 0.005) nxt += BH;
+      const h = Math.min(nxt - z, w.topRel - z), off = (BL / 2) * (mod(kk, 2));
       let segs = [[0, L]];
       for (const o of [...w.openings, ...(w.lintels || [])]) if (o.z0 < z + h - 0.005 && o.z1 > z + 0.005)
         segs = segs.flatMap(([a, b]) => [[a, Math.min(b, o.s0)], [Math.max(a, o.s1), b]]).filter(([a, b]) => b - a > 0.005);
-      for (const [a, b] of segs) for (let x = -off; x < b - 0.005; x += BL) {
+      const x0 = bond ? mod(bond.sign * (off - bond.p0), BL) - BL : -off;
+      for (const [a, b] of segs) for (let x = x0; x < b - 0.005; x += BL) {
         const xa = Math.max(x, a), xb = Math.min(x + BL, b); if (xb - xa <= 0.005) continue;
         (xb - xa >= BL - 0.005 && h >= BH - 0.005 ? full : cut).push([xa, xb, z, h]);
       }
@@ -64,7 +68,7 @@ export function buildBlocks(ctx) {
       m.castShadow = m.receiveShadow = true;
       const lg = new THREE.Group(); lg.add(m); lg.add(new THREE.BoxHelper(m, DF.provisionalEdgeColor));
       const net = lt.length_m - lt.bearL_m - lt.bearR_m;
-      const bear = [...lt.onConcrete.map(x => `${SIDE[x]} – על הבטון`), ...(lt.continues || []).map(x => `${SIDE[x]} – המשך בקטע הסמוך`), ...(lt.intoCrossWall || []).map(x => `${SIDE[x]} – נכנס לקיר הבלוקים הניצב`), ...(lt.shortBearing || []).map(x => `${SIDE[x]} – בלי הישענות, לבדיקה`)];
+      const bear = [...lt.onConcrete.map(x => `${SIDE[x]} – על הבטון`), ...(lt.continues || []).map(x => `${SIDE[x]} – המשך בקטע הסמוך`), ...(lt.intoCrossWall || []).map(x => `${SIDE[x]} – נכנס לקיר הבלוקים הניצב`), ...(lt.pier || []).map(x => `${SIDE[x]} – עד אמצע הפילר בין שני פתחים`), ...(lt.shortBearing || []).map(x => `${SIDE[x]} – בלי הישענות, לבדיקה`)];
       registry.add(lg, { floor: w.floor, system: 'walls', stage: 'walls', layer: 'lintels', step: 'blockWalls' }, {
         id: lt.id, name: `משקוף ${lt.opening} – ${t >= (LT?.thinBelow_m ?? 0) ? LT?.type : LT?.typeThin}`, status: lt.status,
         rows: [['אורך משקוף', `${Math.round(lt.length_m * 100)} ס"מ (פתח ${Math.round(net * 100)} + הישענות ${Math.round(lt.bearL_m * 100)} / ${Math.round(lt.bearR_m * 100)})`],

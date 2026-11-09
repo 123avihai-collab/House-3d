@@ -9,6 +9,7 @@ import { snapPoint, hitTest } from './pick.js';
 import { Layers, buildPanel } from './layers.js';
 import { RouteStore } from './store.js';
 import * as OP from './ops.js';
+import { askConfirm } from '../core/dialog.js';
 import { buildObstacles, checkRun, checkConnections } from './checks.js';
 import { drawIssues } from './draw.js';
 
@@ -48,10 +49,22 @@ async function start() {
   const visibleItems = () => cur.items.filter(it => L.on(it.p.layer + '.' + it.p.system) && (it.p.layer !== 'cons' || !it.p.superseded || L.on('cons.superseded')));
   // edited only on the floor where it is drawn in plan (a riser passing through another floor is shown there, not edited)
   const editable = (p) => p && p.layer === 'prop' && store.canEdit && !L.locked('prop.' + p.system) && cur.items.some(it => it.mode === 'plan' && it.p.layer === 'prop' && it.p.id === p.id);
+  const nodeEditable = (n) => n && store.canEdit && !L.locked('nodes');
+  const nodeRuns = (n) => {   // proposal runs connected to the point (by name or by an end within connectTol)
+    const P = n.xy, tol = cfg.checks.connectTol_m;
+    const water = ['cold', 'hot', 'return'];   // a manifold pulls only water lines that end at it (risers in the shaft pass right by)
+    return store.runs().filter(r => r.from === n.id || r.to === n.id || ((n.kind !== 'manifold' || water.includes(r.system)) && [r.vertices[0], r.vertices[r.vertices.length - 1]].some(v => { const q = fr.toLocal(v[0], v[1]); return Math.hypot(q[0] - P[0], q[1] - P[1]) <= tol; })));
+  };
+  const moveNode = (n, dx, dy) => OP.moveNodeSystem(n, nodeRuns(n), dx, dy, { fr, opt: opt(), zone: n.kind === 'manifold' ? E.manifoldZone_m : E.stationTol_m, connectTol: cfg.checks.connectTol_m, stationTol: E.stationTol_m });
+  const commitNodeMove = (n, res, label) => {
+    const ch = { ['node:' + n.id]: res.node, ...res.runs };
+    store.apply(ch, label || `${n.id}: הזזה עם ${Object.keys(res.runs).length} צינורות`);
+  };
   const refresh = () => {   // rebuild after a store change, keep the selection by id
-    M.setRuns(store.runs()); recheck();
+    M.setRuns(store.runs()); M.setNodes(store.nodes()); recheck();
     const selId = S.sel?.type === 'pipe' ? S.sel.obj.id : null, selLayer = S.sel?.obj?.layer;
-    cur.items = itemsOf(S.floor);
+    cur.items = itemsOf(S.floor); cur.nodes = nodesOf(S.floor);
+    if (S.sel?.type === 'node') { const n = cur.nodes.find(x => x.id === S.sel.obj.id); if (n) { S.sel.obj = n; showInfo(S.sel); } else { S.sel = null; hideInfo(); } }
     if (selId) {
       const it = cur.items.find(i => i.p.id === selId && i.p.layer === selLayer);
       if (it) { S.sel.obj = it.p; if (S.sel.vtx != null && S.sel.vtx >= stOf(it.p).length) S.sel.vtx = null; showInfo(S.sel); } else { S.sel = null; hideInfo(); }
@@ -183,14 +196,19 @@ async function start() {
     drawStructure(ctx, v, cfg, cur.F.structure, on);
     let items = visibleItems(), selP = S.sel?.type === 'pipe' ? S.sel.obj : null;
     if (S.preview) { items = items.map(it => it.p.id === S.preview.p.id && it.p.layer === 'prop' ? { ...it, p: S.preview.p } : it); selP = S.preview.p; }
+    if (S.npreview) { const R = S.npreview.res.runs; items = items.map(it => it.p.layer === 'prop' && R[it.p.id] ? { ...it, p: { ...it.p, ref: R[it.p.id], pts: R[it.p.id].vertices.map(q => fr.toLocal(q[0], q[1])), verticals: [] } } : it); }
     // pipes with an error are drawn red (live for the run being dragged)
     const liveRun = S.preview ? checkRun(S.preview.run, CH) : null;
     const errIds = new Set(Object.entries(issues.runs).filter(([id, l]) => (S.preview && id === S.preview.run.id ? liveRun : l).some(i => i.sev === 'error')).map(([id]) => id));
     if (S.preview && liveRun.some(i => i.sev === 'error')) errIds.add(S.preview.run.id);
+    const nLive = S.npreview ? Object.fromEntries(Object.entries(S.npreview.res.runs).map(([id, r]) => [id, checkRun(r, CH)])) : {};
+    for (const [id, li] of Object.entries(nLive)) { if (li.some(i => i.sev === 'error')) errIds.add(id); else errIds.delete(id); }
     drawPipes(ctx, v, cfg, items, sys, selP, S.hover?.type === 'pipe' ? S.hover.obj : null, errIds);
     let fi = floorIssues(); if (S.preview) fi = [...fi.filter(i => i.run !== S.preview.run.id), ...liveRun];
+    if (S.npreview) for (const [id, li] of Object.entries(nLive)) fi = [...fi.filter(i => i.run !== id), ...li];
     drawIssues(ctx, v, cfg, fi, S.flash);
-    if (on('nodes')) drawNodes(ctx, v, cfg, cur.nodes, S.sel?.type === 'node' ? S.sel.obj : null, S.hover?.type === 'node' ? S.hover.obj : null);
+    const nodesNow = S.npreview ? cur.nodes.map(n => n.id === S.npreview.n.id ? { ...n, xy: S.npreview.xy } : n) : cur.nodes;
+    if (on('nodes')) drawNodes(ctx, v, cfg, nodesNow, S.sel?.type === 'node' ? (S.npreview ? nodesNow.find(n => n.id === S.sel.obj.id) : S.sel.obj) : null, S.hover?.type === 'node' ? S.hover.obj : null);
     if (selP && editable(selP)) drawHandles(ctx, v, cfg, S.preview ? S.preview.S : stOf(selP), S.sel.vtx, S.sel.seg, (sys[selP.system] || {}).color);
     if (S.draft) drawDraft(ctx, v, S.draft.pts, S.snap ? draftCursor(S.snap) : null, sys[draw.system].color);
     drawSnap(ctx, v, S.snap);
@@ -213,6 +231,13 @@ async function start() {
       if (n.D_mm) rows.push(['קוטר', `ø${n.D_mm}`]);
       if (n.cold != null) rows.push(['מים', [n.cold && 'קרים', n.hot && 'חמים'].filter(Boolean).join(' + ') || '–']);
       rows.push(['סטטוס', n.status]);
+      if (nodeEditable(n)) {
+        const conn = nodeRuns(n);
+        rows.push(['מחובר', conn.length ? conn.map(r => r.id.split('@')[0]).join(', ') : '–']);
+        form = `<div class="form">
+          <label>הזזה בצירי הבית</label><div class="row2"><input id="nf-dx" type="number" step="0.01" placeholder="x מ'"><input id="nf-dy" type="number" step="0.01" placeholder="y מ'"><button id="nf-go">הזז</button></div></div>`;
+        acts = `<div class="note">${n.kind === 'manifold' ? 'גרירת המחלק מזיזה אותו יחד עם כל היציאות והצנרת שמחוברת אליו (כמערכת אחת); הצנרת נשארת מחוברת.' : 'גרירת הנקודה מזיזה איתה את קצוות הצנרת שמחוברים אליה.'}</div>`;
+      }
     } else {
       const p = hit.obj, r = p.ref; color = (sys[p.system] || {}).color; title = `${p.id} – ${(sys[p.system] || {}).label || p.system}`;
       const plan = p.pts.reduce((s, q, i) => i ? s + Math.hypot(q[0] - p.pts[i - 1][0], q[1] - p.pts[i - 1][1]) : 0, 0);
@@ -269,6 +294,11 @@ async function start() {
   }
   const change = (run, label) => store.apply({ [run.id]: run }, label);
   function wireForm(hit) {
+    if (hit.type === 'node') {
+      const go = $('ed-info').querySelector('#nf-go'); if (!go) return;
+      go.onclick = () => { const dx = +$('nf-dx').value || 0, dy = +$('nf-dy').value || 0; if (!dx && !dy) return; commitNodeMove(hit.obj, moveNode(hit.obj, dx, dy)); toast(`${hit.obj.id} הוזז עם הצנרת שמחוברת אליו`); };
+      return;
+    }
     const box = $('ed-info'), p = hit.obj, r = p?.ref; if (!r) return;
     box.querySelectorAll('[data-f]').forEach(el => el.onchange = () => {
       const f = el.dataset.f; let val = el.value; if (f === 'D_mm') val = val === '' ? null : +val; if (val === '' && f !== 'D_mm') val = null;
@@ -283,7 +313,7 @@ async function start() {
     on('pf-del-v', () => delVertex());
     on('pf-rev', () => { const x = store.get(r.id); change({ ...x, vertices: [...x.vertices].reverse(), from: x.to, to: x.from }, `${r.id}: היפוך כיוון`); });
     on('pf-revert', () => { store.revert(r.id); toast('הוחזר למקור'); });
-    on('pf-del', () => { if (!confirm(`למחוק את ${r.id}?`)) return; store.apply({ [r.id]: null }, `מחיקת ${r.id}`); S.sel = null; hideInfo(); toast(`נמחק ${r.id} (ביטול: Ctrl+Z)`); });
+    on('pf-del', async () => { if (!(await askConfirm(`למחוק את ${r.id}?`, { ok: 'מחק', danger: true }))) return; store.apply({ [r.id]: null }, `מחיקת ${r.id}`); S.sel = null; hideInfo(); toast(`נמחק ${r.id} (ביטול: Ctrl+Z)`); });
     on('pf-copy', () => copyToProposal(p));
   }
   function delVertex() {
@@ -331,7 +361,10 @@ async function start() {
     canvas.setPointerCapture(e.pointerId); const p = local(e); pts.set(e.pointerId, p);
     if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] }; gesture = null; S.preview = null; return; }
     const [x, y] = v.toLocal(...p), touch = e.pointerType === 'touch';
-    const h = S.mode === 'select' ? handleHit(x, y, touch) : null;
+    let h = S.mode === 'select' ? handleHit(x, y, touch) : null;
+    if (!h && S.mode === 'select' && S.sel?.type === 'node' && nodeEditable(S.sel.obj)) {
+      const n = S.sel.obj; if (Math.hypot(n.xy[0] - x, n.xy[1] - y) <= (E.hitHandle_px * (touch ? 1.7 : 1)) / v.k) h = { kind: 'node', node: n };
+    }
     gesture = { p0: p, p: p, moved: 0, xy0: [x, y], handle: h, touch };
   });
   canvas.addEventListener('pointermove', (e) => {
@@ -340,6 +373,13 @@ async function start() {
     const [x, y] = v.toLocal(...p);
     if (gesture) {
       gesture.moved += Math.abs(p[0] - gesture.p[0]) + Math.abs(p[1] - gesture.p[1]);
+      if (gesture.handle?.kind === 'node' && gesture.moved > E.dragThreshold_px) {   // move a point with its pipes
+        S.drag = true; const n = gesture.handle.node;
+        let tx = x - gesture.xy0[0] + n.xy[0], ty = y - gesture.xy0[1] + n.xy[1];
+        if (S.snapOn && S.step) { tx = Math.round(tx / S.step) * S.step; ty = Math.round(ty / S.step) * S.step; }
+        const res = moveNode(n, tx - n.xy[0], ty - n.xy[1]);
+        S.npreview = { n, res, xy: [tx, ty] }; status({ kind: S.snapOn ? 'grid' : 'free', x: tx, y: ty }); redraw(); gesture.p = p; return;
+      }
       if (gesture.handle && gesture.moved > E.dragThreshold_px) {          // edit drag
         S.drag = true; const sel = S.sel.obj, st = stOf(sel), sp = snapAt(x, y, sel); S.snap = sp; status(sp);
         let S2;
@@ -355,7 +395,8 @@ async function start() {
     S.snap = snapAt(x, y); status(S.snap);
     if (S.mode === 'select') {
       S.hover = hitTest(x, y, cfg.snap.radius_px / v.k, visibleItems(), L.on('nodes') ? cur.nodes : [], (k) => L.locked(k));
-      const hh = handleHit(x, y, false); canvas.style.cursor = hh ? (hh.kind === 'vtx' ? 'move' : 'grab') : S.hover ? 'pointer' : 'crosshair';
+      const hh = handleHit(x, y, false), onNode = S.sel?.type === 'node' && nodeEditable(S.sel.obj) && Math.hypot(S.sel.obj.xy[0] - x, S.sel.obj.xy[1] - y) <= E.hitHandle_px / v.k;
+      canvas.style.cursor = hh || onNode ? (onNode || hh.kind === 'vtx' ? 'move' : 'grab') : S.hover ? 'pointer' : 'crosshair';
     } else canvas.style.cursor = 'crosshair';
     redraw();
   });
@@ -364,6 +405,7 @@ async function start() {
     if (pts.size < 2) pinch = null;
     const g = gesture; if (pts.size) return; gesture = null;
     if (!g) return;
+    if (S.npreview) { const { n, res } = S.npreview; S.npreview = null; S.drag = false; commitNodeMove(n, res); return; }
     if (S.preview) {   // commit a drag
       const pr = S.preview, id = pr.run.id; S.preview = null; S.drag = false;
       const same = pr.S.length === stOf(S.sel.obj).length; S.sel.vtx = g.handle.kind === 'vtx' && same ? g.handle.i : null; S.sel.seg = g.handle.kind === 'seg' && same ? g.handle.i : null;
@@ -379,7 +421,7 @@ async function start() {
     S.sel = hit ? { ...hit, vtx: null, seg: null } : null; if (hit) showInfo(S.sel); else hideInfo(); redraw();
   };
   canvas.addEventListener('pointerup', up);
-  canvas.addEventListener('pointercancel', (e) => { pts.delete(e.pointerId); gesture = null; pinch = null; S.preview = null; S.drag = false; redraw(); });
+  canvas.addEventListener('pointercancel', (e) => { pts.delete(e.pointerId); gesture = null; pinch = null; S.preview = null; S.npreview = null; S.drag = false; redraw(); });
   canvas.addEventListener('pointerleave', () => { if (!gesture) { S.snap = null; S.hover = null; redraw(); } });
   canvas.addEventListener('dblclick', (e) => {
     const [x, y] = v.toLocal(...local(e));
@@ -409,7 +451,7 @@ async function start() {
   $('ed-loading').classList.add('hidden');
   store.connect().then(() => refresh());
   // hooks for tests (tests/editor.mjs)
-  window.__editor = { D, M, S, L, v, cfg, store, OP, CH, handleHit: (x, y) => handleHit(x, y, false), issues: () => issues, floorIssues, checkRun, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
+  window.__editor = { D, M, S, L, v, cfg, store, OP, CH, nodeRuns, moveNode, handleHit: (x, y) => handleHit(x, y, false), issues: () => issues, floorIssues, checkRun, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
   window.__editorReady = true;
 }
 

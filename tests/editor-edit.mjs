@@ -121,6 +121,36 @@ await page.mouse.click(np.x, np.y); await page.mouse.click(np.x + 120, np.y + 7)
 const nr = await page.evaluate(() => { const E = window.__editor, runs = E.store.runs().filter(r => r.id.startsWith(E.cfg.edit.newIdPrefix + '-')); const r = runs[runs.length - 1]; if (!r) return null; const st = E.OP.stations(r, E.M.frame, 0.02); return { id: r.id, n: r.vertices.length, H: r.vertices.map(v => +(v[2] - E.M.H0).toFixed(3)), axis: st.slice(1).every((q, i) => E.OP.isAxisAligned(st[i], q, 0.5)) }; });
 check('newPipe', nr && nr.n === 3 && nr.axis && nr.H.every(h => h === 0.3), nr);
 
+// 8b. manifold as one system: drag MAN-ground 50 px along x → the node and the start of every connected run move by the
+// same vector, the far ends stay, one undo step restores all
+const man = await page.evaluate(() => {
+  const E = window.__editor; E.setMode('select'); E.setFloor('ground'); const n = E.M.nodes.find(x => x.id === 'MAN-ground');
+  E.v.cx = n.xy[0]; E.v.cy = n.xy[1]; E.v.k = 100; E.S.snapOn = false; E.setFloor('ground', false);
+  E.S.sel = { type: 'node', obj: E.current().nodes.find(x => x.id === 'MAN-ground'), vtx: null, seg: null }; E.showInfo(E.S.sel);
+  const runs = E.nodeRuns(E.S.sel.obj).map(r => ({ id: r.id, first: r.vertices[0], last: r.vertices[r.vertices.length - 1], from: r.from }));
+  const rc = document.getElementById('ed-canvas').getBoundingClientRect(), [sx, sy] = E.toScreen(...n.xy);
+  return { x: sx + rc.left, y: sy + rc.top, k: E.v.k, E: n.E, N: n.N, runs, undo: E.store.undoS.length };
+});
+await page.mouse.move(man.x, man.y); await page.mouse.down();
+for (let t = 1; t <= 10; t++) await page.mouse.move(man.x + 5 * t, man.y);
+await page.mouse.up(); await page.waitForTimeout(150);
+const manAfter = await page.evaluate((ids) => { const E = window.__editor, n = E.store.nodes().find(x => x.id === 'MAN-ground'); return { E: n.E, N: n.N, runs: ids.map(id => { const r = E.store.get(id); return { id, first: r.vertices[0], last: r.vertices[r.vertices.length - 1] }; }), undo: E.store.undoS.length }; }, man.runs.map(r => r.id));
+const dM = 50 / man.k, ux = await page.evaluate(() => window.__editor.D.routes.frame.ux);
+const wantM = [man.E + dM * ux[0], man.N + dM * ux[1]], near = (a, b, t = 0.0015) => Math.hypot(a[0] - b[0], a[1] - b[1]) <= t;
+const okNode = near([manAfter.E, manAfter.N], wantM);
+const okRuns = man.runs.filter(r => r.from === 'MAN-ground').every(r => { const a = manAfter.runs.find(x => x.id === r.id); return near(a.first, [r.first[0] + dM * ux[0], r.first[1] + dM * ux[1]]) && Math.abs(a.first[2] - r.first[2]) < 1e-6 && near(a.last, r.last, 1e-6); });
+check('manifoldSystem', okNode && okRuns && man.runs.length >= 10 && manAfter.undo === man.undo + 1, { okNode, okRuns, n: man.runs.length });
+await page.keyboard.press('Control+z'); await page.waitForTimeout(100);
+const manUndo = await page.evaluate((ids) => { const E = window.__editor, n = E.store.nodes().find(x => x.id === 'MAN-ground'); return { E: n.E, N: n.N, first: ids.map(id => E.store.get(id).vertices[0]) }; }, man.runs.map(r => r.id));
+check('manifoldUndo', manUndo.E === man.E && manUndo.N === man.N && manUndo.first.every((f, i) => JSON.stringify(f) === JSON.stringify(man.runs[i].first)), {});
+
+// 8c. delete a pipe: 🗑 → in-page dialog (window.confirm is blocked in the artifact frame) → מחק
+const delId = await page.evaluate(() => { const E = window.__editor; const it = E.current().items.find(i => i.p.layer === 'prop' && i.mode === 'plan' && i.p.system === 'hot'); E.S.sel = { type: 'pipe', obj: it.p, vtx: null, seg: null }; E.showInfo(E.S.sel); return it.p.id; });
+await page.evaluate(() => { window.confirm = () => { throw new Error('window.confirm used'); }; });
+await page.click('#pf-del'); await page.waitForSelector('.dlg button.ok'); await page.click('.dlg button.ok'); await page.waitForTimeout(100);
+check('deleteDialog', await page.evaluate((id) => !window.__editor.store.get(id), delId), { delId });
+await page.keyboard.press('Control+z'); await page.waitForTimeout(80);
+
 // 9. reload: the edits come back from storage
 const before = await page.evaluate(() => window.__editor.store.exportJson());
 await page.reload(); await ready(); await page.waitForTimeout(200);

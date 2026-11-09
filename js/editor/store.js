@@ -21,11 +21,13 @@ export class RouteStore {
     return out;
   }
   get(id) { return this.runs().find(r => r.id === id) || null; }
+  nodes() { return this.base.nodes.map(n => this.over['node:' + n.id]?.node || n); }
   editedCount() { return Object.keys(this.over).length; }
   // ---- changes: map id -> new run | null (deleted); one undo step
   apply(changes, label) {
     const before = {}, after = {};
-    for (const [id, run] of Object.entries(changes)) { before[id] = this.over[id] ? structuredClone(this.over[id]) : null; after[id] = run ? { run: this.stamp(run) } : { deleted: true, at: new Date().toISOString(), by: this.uid || 'local' }; }
+    // keys: a run id, or "node:<id>" for a point (manifold, fixture …) – same collection, same undo step
+    for (const [id, val] of Object.entries(changes)) { before[id] = this.over[id] ? structuredClone(this.over[id]) : null; after[id] = val ? (id.startsWith('node:') ? { node: this.stamp(val) } : { run: this.stamp(val) }) : { deleted: true, at: new Date().toISOString(), by: this.uid || 'local' }; }
     this.undoS.push({ before, after, label }); if (this.undoS.length > 200) this.undoS.shift(); this.redoS = [];
     this.setOver(after);
   }
@@ -81,8 +83,8 @@ export class RouteStore {
   }
   // ---- export: baseline + overrides -> routes.json content
   exportJson() {
-    const out = { ...this.base, runs: this.runs(), exportedAt: new Date().toISOString(),
-      edits: Object.entries(this.over).map(([id, o]) => ({ id, deleted: !!o.deleted, at: o.run?.edited?.at || o.at })) };
+    const out = { ...this.base, runs: this.runs(), nodes: this.nodes(), exportedAt: new Date().toISOString(),
+      edits: Object.entries(this.over).map(([id, o]) => ({ id, deleted: !!o.deleted, at: (o.run || o.node)?.edited?.at || o.at })) };
     delete out.__path; return JSON.stringify(out, null, 1);
   }
 }

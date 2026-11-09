@@ -98,6 +98,7 @@ export function buildModel(D) {
   const nodes = D.routes.nodes.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N) }));
   const M = { frame: fr, H0, floors, pipes, nodes, showsOn, levels };
   // the proposal part is rebuilt from the store after every edit; the consultant part never changes
+  M.setNodes = (list) => { M.nodes = list.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N) })); };
   M.setRuns = (runs) => { M.pipes = [...runs.map(propPipe), ...pipes.filter(p => p.layer === 'cons')]; };
   return M;
 }

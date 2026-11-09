@@ -113,7 +113,7 @@ async function main() {
   app.tools.search = new SearchTool(app);
   app.labels = new LabelManager(app);
   app.tools.section = new SectionTool(app);
-  const minimap = new Minimap(app, document.getElementById('minimap'));
+  const minimap = app.minimap = new Minimap(app, document.getElementById('minimap'));
   viewer.afterRender = () => { minimap.draw(); updateCompass(); };
 
   app.setTool = (id) => {
@@ -208,7 +208,7 @@ async function main() {
     if (!down) return;
     const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6;
     down = null;
-    if (moved || app.nav.walking) return;
+    if (moved) return;   // a drag = orbit / look around; a click works in walk mode too (inspect, note, measure, fix)
     const hit = pick(e);
     const map = { inspect: 'inspect', measure: 'measure', note: 'notes', fix: 'fixes' };
     if (app.activeTool === 'measure') app.tools.measure.handleClick(hit, e); else app.tools[map[app.activeTool]]?.handleClick(hit);

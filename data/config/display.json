@@ -73,7 +73,11 @@
  },
  "minimap": {
   "size_px": 180,
-  "extent_m": 90
+  "extent_m": 90,
+  "size_px_mobile": 120,
+  "bigSize_px": 340,
+  "houseMargin_m": 2,
+  "_doc": "js/tools/navigation.js Minimap: size of the map (desktop / phone / enlarged), extent of the site map, margin around the plot in the house plan – display constants"
  },
  "excavation": {
   "sampleSpacing_m": 0.25,

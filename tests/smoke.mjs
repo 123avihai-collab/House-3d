@@ -178,6 +178,24 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return Math.abs(feetRel - gs.topRel) < 0.06 || feetRel > gs.topRel ? 'ok' : `feet ${feetRel.toFixed(2)} vs GS1 ${gs.topRel}`;
     });
     if (info.walk !== 'ok') errors.push('walk on slab: ' + info.walk);
+    // house map: a plan per floor, a click on the ground slab starts walk mode there; a click while walking opens the inspect card
+    info.mapWalk = await (async () => {
+      const r = await page.evaluate(() => {
+        const a = window.__app, mm = a.minimap; if (!mm || mm.mode !== 'house' || mm.plans.length < 3) return { err: 'plans ' + (mm?.plans.length) };
+        const gs = a.data.floorGround.slab.find(s => s.id === 'GS1').footprintITM; const c = gs.reduce((s, q) => [s[0] + q[0] / gs.length, s[1] + q[1] / gs.length], [0, 0]);
+        const [x, z] = a.coords.xz(c[0], c[1]); const [px, py] = mm.toPx(x, z); const back = mm.toWorld(px, py);
+        if (Math.hypot(back[0] - x, back[1] - z) > 1e-6) return { err: 'map px <-> world' };
+        document.getElementById('info').classList.add('hidden'); a.setTool('inspect');
+        return { ok: a.nav.walkAt(x, z, 0), walking: a.nav.walking };
+      });
+      if (!r.ok || !r.walking) return JSON.stringify(r);
+      await page.waitForTimeout(300);
+      const box = await page.locator('#viewport > canvas:not(#minimap)').boundingBox();
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 + 40); await page.waitForTimeout(300);
+      const shown = await page.evaluate(() => { const v = !document.getElementById('info').classList.contains('hidden'); window.__app.nav.stopWalk(); return v; });
+      return shown ? 'ok' : 'no inspect card while walking';
+    })();
+    if (info.mapWalk !== 'ok') errors.push('map walk: ' + info.mapWalk);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

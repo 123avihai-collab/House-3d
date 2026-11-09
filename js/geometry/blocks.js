@@ -61,6 +61,12 @@ export function buildBlocks(ctx) {
       });
       im.castShadow = im.receiveShadow = true; g.add(im);
     }
+    // with the change: the new / changed opening is filled red, half transparent (as the removed beam of OC-2) – Avihai 09.11
+    if (w.ownerChange && w.variant?.show === 'changed') for (const o of w.openings) {
+      const c = p0.clone().addScaledVector(dir, (o.s0 + o.s1) / 2); c.y = (o.z0 + o.z1) / 2;
+      const m = new THREE.Mesh(unit, ocM); m.position.copy(c); m.quaternion.copy(q); m.scale.set(o.s1 - o.s0, o.z1 - o.z0, t * 1.02); m.renderOrder = 3; g.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(unit), new THREE.LineBasicMaterial({ color: DF.ownerChangeColor })); e.position.copy(c); e.quaternion.copy(q); e.scale.copy(m.scale); g.add(e);
+    }
     if (w.ownerChange) {
       g.add(new THREE.BoxHelper(g, DF.ownerChangeColor));
       if (w.variant?.show === 'changed') { const bb = new THREE.Box3().setFromObject(g); g.add(ocTag(w.ownerChange, new THREE.Vector3((bb.min.x + bb.max.x) / 2, bb.max.y + DB.labelLift_m, (bb.min.z + bb.max.z) / 2))); }

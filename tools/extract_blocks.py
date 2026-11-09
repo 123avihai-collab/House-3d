@@ -127,7 +127,10 @@ def main():
                 + [(bpoly(b), b['bottomRel']) for b in FR['groundBeams'] if b.get('axisITM') and b.get('sheet') == 'K-21'],
         'ground': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FG['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FG['ceiling']['beams'] if b.get('axisITM')]
                   + [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']],
-        'first': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FRF['ceiling']['beams'] if b.get('axisITM')],
+        'first': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FRF['ceiling']['beams'] if b.get('axisITM')]
+                 # the outer walls of the first floor stand just outside the roof slab outline, under the roof perimeter
+                 # walls (RW, K-41): the block wall closes to the roof slab underside there, like the concrete walls (+6.65)
+                 + [(P(w['footprintITM']), min([w['bottomRel']] + [s['bottomRel'] for s in FF['ceiling']['slab']])) for w in FRF['walls'] if w['bottomRel'] >= 6],
     }
     inside = {fl: unary_union([g for g, _ in over[fl]] + [g for g, _ in under[fl]]).buffer(0.35) for fl in over}
     walls, Q = [], defaultdict(lambda: defaultdict(float))

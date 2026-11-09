@@ -30,7 +30,9 @@ srcmap = {}
 for r in P['runs']: srcmap[r['id']] = r['pts3d']
 for k in ('unitSewer', 'firstFloor', 'site'): [srcmap.__setitem__(r['id'], r['pts3d']) for r in P[k]['runs']]
 for r in P['site']['drops']: srcmap[r['id']] = r['pts3d']
-for s in P['stackMoves']: srcmap[s['id']] = s['pts3d']
+for s in P['stackMoves']:
+    srcmap[s['id']] = s['pts3d']
+    for k, c in enumerate(s.get('connectors') or []): srcmap[f"{s['id']}-C{k + 1}"] = c['pts3d']
 for a in P['rain']['alternatives']:
     if a['id'] == P['rain']['default']: [srcmap.__setitem__(r['id'], r['pts3d']) for r in a['runs']]
 out += ['', '## 2. routes.json מול proposal.json', '',

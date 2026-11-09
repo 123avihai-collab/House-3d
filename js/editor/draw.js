@@ -43,7 +43,7 @@ export function drawStructure(ctx, v, cfg, S, on) {
   }
 }
 
-export function drawPipes(ctx, v, cfg, items, sys, sel, hover) {
+export function drawPipes(ctx, v, cfg, items, sys, sel, hover, errIds) {
   const sc = cfg.systems;
   // consultant first (under), then proposal
   for (const pass of ['cons', 'prop']) for (const it of items) {
@@ -56,6 +56,7 @@ export function drawPipes(ctx, v, cfg, items, sys, sel, hover) {
     if (it.mode === 'plan' && p.pts.length > 1) {
       if (p.layer === 'cons' && p.superseded) ctx.setLineDash([4, 4]);
       ctx.beginPath(); path(ctx, v, p.pts, false); ctx.stroke(); ctx.setLineDash([]);
+      if (errIds && p.layer === 'prop' && errIds.has(p.id)) { ctx.save(); ctx.globalAlpha = 0.9; ctx.strokeStyle = cfg.checks.colors.error; ctx.lineWidth = ctx.lineWidth + 2.5; ctx.setLineDash([]); ctx.beginPath(); path(ctx, v, p.pts, false); ctx.stroke(); ctx.restore(); }
       if (p.manual) { ctx.save(); ctx.globalAlpha = 0.25; ctx.lineWidth = ctx.lineWidth + 5; ctx.strokeStyle = '#8e24aa'; ctx.beginPath(); path(ctx, v, p.pts, false); ctx.stroke(); ctx.restore(); }
       if (p.layer === 'prop' && (cfg.edit.gravitySystems || []).includes(p.system)) drawArrows(ctx, v, cfg, p.pts);
       if (chosen) for (const q of p.pts) { ctx.beginPath(); ctx.arc(v.sx(q[0]), v.sy(q[1]), 3.2, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.5; ctx.stroke(); }
@@ -119,5 +120,18 @@ export function drawDraft(ctx, v, pts, cursor, color) {
   ctx.beginPath(); ctx.moveTo(v.sx(pts[0][0]), v.sy(pts[0][1])); for (const q of pts.slice(1)) ctx.lineTo(v.sx(q[0]), v.sy(q[1])); if (cursor) ctx.lineTo(v.sx(cursor[0]), v.sy(cursor[1])); ctx.stroke();
   ctx.setLineDash([]); ctx.fillStyle = color; for (const q of pts) { ctx.beginPath(); ctx.arc(v.sx(q[0]), v.sy(q[1]), 3.5, 0, 7); ctx.fill(); }
   if (cursor && pts.length) { const a = pts[pts.length - 1], L = Math.hypot(cursor[0] - a[0], cursor[1] - a[1]); ctx.font = '11px system-ui'; ctx.fillStyle = '#1d2329'; ctx.fillText(`${L.toFixed(2)} מ'`, v.sx(cursor[0]) + 10, v.sy(cursor[1]) - 8); }
+  ctx.restore();
+}
+
+// check markers: ⛔ error / ⚠ warning / ℹ info at the place of the finding
+export function drawIssues(ctx, v, cfg, list, flash) {
+  const C = cfg.checks, r = C.marker_px; ctx.save();
+  for (const i of list) {
+    const x = v.sx(i.at[0]), y = v.sy(i.at[1]); ctx.fillStyle = C.colors[i.sev]; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (i.sev === 'error') { ctx.arc(x, y, r, 0, 7); } else { ctx.moveTo(x, y - r - 1); ctx.lineTo(x + r, y + r - 1); ctx.lineTo(x - r, y + r - 1); ctx.closePath(); }
+    ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = `bold ${r + 3}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i.sev === 'error' ? '!' : i.sev === 'warn' ? '!' : 'i', x, y + (i.sev === 'error' ? 0.5 : 1));
+  }
+  if (flash) { const x = v.sx(flash.at[0]), y = v.sy(flash.at[1]); ctx.strokeStyle = '#ff6f00'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 18, 0, 7); ctx.stroke(); }
   ctx.restore();
 }

@@ -562,6 +562,39 @@
    "title": "משאבת סחרור + אל-חוזר + ברז ניתוק (פרט הסחרור של היועץ)",
    "status": "proposal",
    "source": "data/plumbing/proposal.json → recircPump recircPump"
+  },
+  {
+   "id": "PS-1",
+   "kind": "pumpChamber",
+   "floor": "site",
+   "E": 179590.458,
+   "N": 576241.433,
+   "H": 277.9,
+   "title": "תא שאיבה לשפכי היחידות (T.L)",
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → unitSewer.chamber PS-1"
+  },
+  {
+   "id": "HOSE-REEL",
+   "kind": "hoseReel",
+   "floor": "site",
+   "E": 179585.739,
+   "N": 576238.933,
+   "H": null,
+   "title": "גלגלון כיבוי",
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → site.hoseReel HOSE-REEL"
+  },
+  {
+   "id": "UT-W",
+   "kind": "utilityWater",
+   "floor": "site",
+   "E": 179586.361,
+   "N": 576235.702,
+   "H": null,
+   "title": "קצה הכנת המים של התאגיד",
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → site.meter.utw UT-W"
   }
  ],
  "runs": [
@@ -8724,8 +8757,8 @@
    "floor": "site",
    "D_mm": 110,
    "material": "HDPE",
-   "from": null,
-   "to": null,
+   "from": "SW5@ground",
+   "to": "S-1",
    "vertices": [
     [
      179588.838,
@@ -8760,8 +8793,8 @@
    "floor": "site",
    "D_mm": 160,
    "material": "PVC SN-8",
-   "from": null,
-   "to": null,
+   "from": "SW6@ground",
+   "to": "S-1",
    "vertices": [
     [
      179589.697,
@@ -8795,8 +8828,8 @@
    "floor": "site",
    "D_mm": 160,
    "material": "PVC SN-8",
-   "from": null,
-   "to": null,
+   "from": "SW7@ground",
+   "to": "S-1",
    "vertices": [
     [
      179588.557,
@@ -8867,6 +8900,66 @@
    }
   },
   {
+   "id": "PSTACK1-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW5@ground",
+   "to": "PSTACK1",
+   "vertices": [
+    [
+     179588.491,
+     576237.88,
+     279.246
+    ],
+    [
+     179588.603,
+     576238.05,
+     279.246
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK1].connectors[0] PSTACK1-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK1-C2",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW13@ground",
+   "to": "PSTACK1",
+   "vertices": [
+    [
+     179588.491,
+     576237.88,
+     279.246
+    ],
+    [
+     179588.603,
+     576238.05,
+     279.246
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK1].connectors[1] PSTACK1-C2",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
    "id": "PSTACK2",
    "kind": "stack",
    "system": "sewage",
@@ -8906,6 +8999,96 @@
     "ptsBefore": 5,
     "ptsAfter": 4,
     "maxDev_m": 0.001
+   }
+  },
+  {
+   "id": "PSTACK2-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW2@ground",
+   "to": "PSTACK2",
+   "vertices": [
+    [
+     179591.351,
+     576246.143,
+     279.601
+    ],
+    [
+     179591.611,
+     576246.254,
+     279.601
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK2].connectors[0] PSTACK2-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK2-C2",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 50,
+   "material": "HDPE",
+   "from": "SW26@ground",
+   "to": "PSTACK2",
+   "vertices": [
+    [
+     179591.351,
+     576246.143,
+     279.571
+    ],
+    [
+     179591.611,
+     576246.254,
+     279.571
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK2].connectors[1] PSTACK2-C2",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK2-C3",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 50,
+   "material": "HDPE",
+   "from": "SW29@ground",
+   "to": "PSTACK2",
+   "vertices": [
+    [
+     179591.394,
+     576246.161,
+     279.571
+    ],
+    [
+     179591.654,
+     576246.272,
+     279.571
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK2].connectors[2] PSTACK2-C3",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
    }
   },
   {
@@ -8961,6 +9144,156 @@
    }
   },
   {
+   "id": "PSTACK3-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW32@ground",
+   "to": "PSTACK3",
+   "vertices": [
+    [
+     179592.148,
+     576248.118,
+     277.76
+    ],
+    [
+     179591.963,
+     576248.193,
+     277.76
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK3].connectors[0] PSTACK3-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK3-C2",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW32@ground",
+   "to": "PSTACK3",
+   "vertices": [
+    [
+     179592.018,
+     576247.796,
+     277.753
+    ],
+    [
+     179591.833,
+     576247.871,
+     277.753
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK3].connectors[1] PSTACK3-C2",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK3-C3",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "first",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW16@first",
+   "to": "PSTACK3",
+   "vertices": [
+    [
+     179592.947,
+     576247.79,
+     284.272
+    ],
+    [
+     179592.762,
+     576247.865,
+     284.272
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK3].connectors[2] PSTACK3-C3",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK3-C4",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "first",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW16@first",
+   "to": "PSTACK3",
+   "vertices": [
+    [
+     179592.146,
+     576248.119,
+     284.255
+    ],
+    [
+     179591.961,
+     576248.194,
+     284.255
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK3].connectors[3] PSTACK3-C4",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK3-C5",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "unit",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW6@unit",
+   "to": "PSTACK3",
+   "vertices": [
+    [
+     179592.014,
+     576247.801,
+     277.753
+    ],
+    [
+     179591.829,
+     576247.876,
+     277.753
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK3].connectors[4] PSTACK3-C5",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
    "id": "PSTACK4",
    "kind": "stack",
    "system": "sewage",
@@ -8990,6 +9323,66 @@
     "ptsBefore": 3,
     "ptsAfter": 2,
     "maxDev_m": 0.002
+   }
+  },
+  {
+   "id": "PSTACK4-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW4@ground",
+   "to": "PSTACK4",
+   "vertices": [
+    [
+     179595.884,
+     576235.559,
+     279.37
+    ],
+    [
+     179596.069,
+     576235.484,
+     279.37
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK4].connectors[0] PSTACK4-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK4-C2",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SWX-WC3@ground",
+   "to": "PSTACK4",
+   "vertices": [
+    [
+     179595.881,
+     576235.562,
+     279.37
+    ],
+    [
+     179596.066,
+     576235.487,
+     279.37
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK4].connectors[1] PSTACK4-C2",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
    }
   },
   {
@@ -9025,6 +9418,36 @@
    }
   },
   {
+   "id": "PSTACK5-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "unit",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW7@unit",
+   "to": "PSTACK5",
+   "vertices": [
+    [
+     179595.944,
+     576235.724,
+     277.812
+    ],
+    [
+     179596.129,
+     576235.649,
+     277.812
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK5].connectors[0] PSTACK5-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
    "id": "PSTACK6",
    "kind": "stack",
    "system": "sewage",
@@ -9054,6 +9477,66 @@
     "ptsBefore": 3,
     "ptsAfter": 2,
     "maxDev_m": 0.002
+   }
+  },
+  {
+   "id": "PSTACK6-C1",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW9@ground",
+   "to": "PSTACK6",
+   "vertices": [
+    [
+     179605.836,
+     576239.259,
+     279.644
+    ],
+    [
+     179605.613,
+     576239.349,
+     279.644
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK6].connectors[0] PSTACK6-C1",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
+   }
+  },
+  {
+   "id": "PSTACK6-C2",
+   "kind": "connector",
+   "system": "sewage",
+   "floor": "ground",
+   "D_mm": 110,
+   "material": "HDPE",
+   "from": "SW12@ground",
+   "to": "PSTACK6",
+   "vertices": [
+    [
+     179605.836,
+     576239.259,
+     279.644
+    ],
+    [
+     179605.613,
+     576239.349,
+     279.644
+    ]
+   ],
+   "status": "proposal",
+   "source": "data/plumbing/proposal.json → stackMoves[PSTACK6].connectors[1] PSTACK6-C2",
+   "simplify": {
+    "tol_m": 0.01,
+    "ptsBefore": 2,
+    "ptsAfter": 2,
+    "maxDev_m": 0.0
    }
   },
   {

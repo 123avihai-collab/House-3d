@@ -9,6 +9,8 @@ import { snapPoint, hitTest } from './pick.js';
 import { Layers, buildPanel } from './layers.js';
 import { RouteStore } from './store.js';
 import * as OP from './ops.js';
+import { buildObstacles, checkRun, checkConnections } from './checks.js';
+import { drawIssues } from './draw.js';
 
 const $ = (id) => document.getElementById(id);
 window.__editorErrors = [];
@@ -22,6 +24,11 @@ async function start() {
   const D = await loadEditorData();
   const cfg = D.planEditor, E = cfg.edit, M = buildModel(D), sys = systemsOf(D), fr = M.frame;
   const store = new RouteStore(D.routes);
+  // ---- live checks (stage 3): per run + connections, recomputed after every change, and for the dragged run live
+  const CH = { fr, H0: M.H0, obstacles: buildObstacles(D, fr), cfg, cat: D.plumbingCatalog.pipes };
+  let issues = { runs: {}, conn: [] };
+  const recheck = () => { const runs = store.runs(), t0 = performance.now(); issues = { runs: Object.fromEntries(runs.map(r => [r.id, checkRun(r, CH)])), conn: checkConnections(runs, M.nodes, D.plumbing.nodes, CH, [...D.plumbing.runs, ...D.plumbing.lines3d]) }; window.__checkMs = performance.now() - t0; };
+  recheck();
   M.setRuns(store.runs());
   const defaults = { 'cons.superseded': false, nodes: true, grid: true };
   for (const [k, st] of Object.entries(cfg.background)) defaults['bg.' + k] = st.on;
@@ -42,15 +49,33 @@ async function start() {
   // edited only on the floor where it is drawn in plan (a riser passing through another floor is shown there, not edited)
   const editable = (p) => p && p.layer === 'prop' && store.canEdit && !L.locked('prop.' + p.system) && cur.items.some(it => it.mode === 'plan' && it.p.layer === 'prop' && it.p.id === p.id);
   const refresh = () => {   // rebuild after a store change, keep the selection by id
-    M.setRuns(store.runs());
+    M.setRuns(store.runs()); recheck();
     const selId = S.sel?.type === 'pipe' ? S.sel.obj.id : null, selLayer = S.sel?.obj?.layer;
     cur.items = itemsOf(S.floor);
     if (selId) {
       const it = cur.items.find(i => i.p.id === selId && i.p.layer === selLayer);
       if (it) { S.sel.obj = it.p; if (S.sel.vtx != null && S.sel.vtx >= stOf(it.p).length) S.sel.vtx = null; showInfo(S.sel); } else { S.sel = null; hideInfo(); }
     }
-    syncTools(); redraw();
+    renderIssues(); syncTools(); redraw();
   };
+  // issues shown on this floor: of runs drawn here in plan, and of points on this floor
+  const floorIssues = () => {
+    const here = new Set(cur.items.filter(it => it.mode === 'plan' && it.p.layer === 'prop').map(it => it.p.id)), nodeIds = new Set(cur.nodes.map(n => n.id));
+    return [...[...here].flatMap(id => issues.runs[id] || []), ...issues.conn.filter(i => (i.run && here.has(i.run)) || (i.node && nodeIds.has(i.node)))];
+  };
+  function renderIssues() {
+    let box = $('ed-issues'); if (!box) { box = document.createElement('div'); box.id = 'ed-issues'; $('ed-panel').prepend(box); }
+    const list = floorIssues(), n = { error: 0, warn: 0, info: 0 }; list.forEach(i => n[i.sev]++);
+    const icon = { error: '⛔', warn: '⚠', info: 'ℹ' };
+    box.innerHTML = `<h4>בדיקות בקומה <span class="ct">⛔ ${n.error} · ⚠ ${n.warn}${n.info ? ' · ℹ ' + n.info : ''}</span></h4>` +
+      (list.length ? `<ol class="issues">${list.slice(0, 200).map((i, k) => `<li class="sev-${i.sev}" data-k="${k}">${icon[i.sev]} <b>${esc((i.run || i.node || '').split('@')[0])}</b> ${esc(i.text)}</li>`).join('')}</ol>` : '<p class="note">✓ אין ממצאים בקומה</p>');
+    box.querySelectorAll('li').forEach(li => li.onclick = () => {
+      const i = list[+li.dataset.k]; v.cx = i.at[0]; v.cy = i.at[1]; v.k = Math.max(v.k, cfg.zoom.max_pxPerM / 6);
+      const it = i.run && cur.items.find(x => x.p.id === i.run && x.p.layer === 'prop');
+      if (it) { S.sel = { type: 'pipe', obj: it.p, vtx: null, seg: null }; showInfo(S.sel); }
+      S.flash = { at: i.at, t: performance.now() }; redraw(); document.body.classList.remove('panel-open');
+    });
+  }
   store.onChange(() => { if (!S.drag) refresh(); else syncTools(); });
   const setFloor = (fid, fit = true) => {
     S.floor = fid; S.sel = null; S.draft = null; hideInfo();
@@ -61,7 +86,7 @@ async function start() {
     for (const [k, list] of Object.entries(cur.F.structure)) counts['st.' + k] = list.length || null;
     for (const [k, list] of Object.entries(cur.F.background)) counts['bg.' + k] = list.length || null;
     counts.nodes = cur.nodes.length; counts['cons.superseded'] = cur.items.filter(it => it.p.superseded).length;
-    buildPanel($('ed-panel'), L, cfg, sys, counts);
+    buildPanel($('ed-panel'), L, cfg, sys, counts); renderIssues();
     if (fit) fitFloor();
     try { history.replaceState(null, '', `?floor=${fid}`); } catch { /* sandboxed */ }
     syncDrawbar(); redraw();
@@ -158,7 +183,13 @@ async function start() {
     drawStructure(ctx, v, cfg, cur.F.structure, on);
     let items = visibleItems(), selP = S.sel?.type === 'pipe' ? S.sel.obj : null;
     if (S.preview) { items = items.map(it => it.p.id === S.preview.p.id && it.p.layer === 'prop' ? { ...it, p: S.preview.p } : it); selP = S.preview.p; }
-    drawPipes(ctx, v, cfg, items, sys, selP, S.hover?.type === 'pipe' ? S.hover.obj : null);
+    // pipes with an error are drawn red (live for the run being dragged)
+    const liveRun = S.preview ? checkRun(S.preview.run, CH) : null;
+    const errIds = new Set(Object.entries(issues.runs).filter(([id, l]) => (S.preview && id === S.preview.run.id ? liveRun : l).some(i => i.sev === 'error')).map(([id]) => id));
+    if (S.preview && liveRun.some(i => i.sev === 'error')) errIds.add(S.preview.run.id);
+    drawPipes(ctx, v, cfg, items, sys, selP, S.hover?.type === 'pipe' ? S.hover.obj : null, errIds);
+    let fi = floorIssues(); if (S.preview) fi = [...fi.filter(i => i.run !== S.preview.run.id), ...liveRun];
+    drawIssues(ctx, v, cfg, fi, S.flash);
     if (on('nodes')) drawNodes(ctx, v, cfg, cur.nodes, S.sel?.type === 'node' ? S.sel.obj : null, S.hover?.type === 'node' ? S.hover.obj : null);
     if (selP && editable(selP)) drawHandles(ctx, v, cfg, S.preview ? S.preview.S : stOf(selP), S.sel.vtx, S.sel.seg, (sys[selP.system] || {}).color);
     if (S.draft) drawDraft(ctx, v, S.draft.pts, S.snap ? draftCursor(S.snap) : null, sys[draw.system].color);
@@ -198,6 +229,7 @@ async function start() {
       if (r.insulation_mm) rows.push(['בידוד', `${r.insulation_mm} מ"מ`]);
       if (p.layer === 'prop') { const st = stOf(p), bad = st.slice(1).filter((q, i) => !OP.isAxisAligned(st[i], q, E.axisEps_deg)).length; rows.push(['מקטעים', `${st.length - 1}${bad ? ` (${bad} לא בצירי הבית)` : ' – כולם בצירי הבית'}`]); }
       if (p.superseded) warn = 'ההצעה מחליפה קו זה';
+      if (p.layer === 'prop') { const li = [...(issues.runs[p.id] || []), ...issues.conn.filter(i => i.run === p.id)]; if (li.length) rows.push(['בדיקות', li.map(i => ({ error: '⛔', warn: '⚠', info: 'ℹ' }[i.sev] + ' ' + i.text)).join(' | ')]); else rows.push(['בדיקות', '✓ תקין']); }
       if (r.levelStatus && r.levelStatus !== 'source') warn = (warn ? warn + ' · ' : '') + `מפלס: ${r.levelStatus}`;
       src = r.source;
       if (editable(p)) {
@@ -377,7 +409,7 @@ async function start() {
   $('ed-loading').classList.add('hidden');
   store.connect().then(() => refresh());
   // hooks for tests (tests/editor.mjs)
-  window.__editor = { D, M, S, L, v, cfg, store, OP, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
+  window.__editor = { D, M, S, L, v, cfg, store, OP, CH, handleHit: (x, y) => handleHit(x, y, false), issues: () => issues, floorIssues, checkRun, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
   window.__editorReady = true;
 }
 

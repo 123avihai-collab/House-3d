@@ -21,6 +21,7 @@ python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, ר
 python3 tools/plumbing/extract_plan_background.py  # עורך הצנרת: רקע אדריכלי לכל קומה (מה-DXF של היועץ) -> data/plumbing/plan-background.json
 python3 tools/plumbing/seed_routes.py              # עורך הצנרת: זריעה חד-פעמית של data/plumbing/routes.json מההצעה (לא דורס עריכות)
 python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבלת אימות -> docs/verification/editor-stage-1.md
+node tools/plumbing/editor_findings.mjs            # עורך הצנרת: ממצאי הבדיקות בהצעה -> docs/verification/editor-stage-3-findings.md
 ```
 
 **עורך צנרת דו-ממדי:** `editor.html` – מבט על לפי קומה, רקע אדריכלי, שלד, שכבות הצעה ויועץ. מקור האמת לתוואי: `data/plumbing/routes.json`. פירוט ושלבים: [docs/plumbing/editor.md](docs/plumbing/editor.md).
@@ -65,7 +66,7 @@ js/
     notes.js               הערות ורשימת תיקונים
     navigation.js          נקודות מבט, מבטים שמורים, הליכה בגובה עיניים (לחיצה על רכיבים עובדת גם בהליכה), מפה קטנה: תוכנית הבית לפי קומה (מסובבת לצירי הבית, אוטו / מרתף / קרקע / א' / גג, הגדלה) – לחיצה על חדר = הליכה משם; מצב מגרשים
   ui/ui.js                 סרגל עליון, פאנלים, סרגל שלבים, כרטיס מידע
-  editor/                  עורך הצנרת הדו-ממדי: view.js (צירי הבית ⇄ מסך), model.js (שכבות לכל קומה מהנתונים), draw.js, pick.js (הצמדה ובחירה), layers.js (הצג/הסתר/נעילה), ops.js (פעולות עריכה על התוואי), store.js (בסיס routes.json + עריכות במסד הארטיפקט, ביטול/חזרה, ייצוא), main.js
+  editor/                  עורך הצנרת הדו-ממדי: view.js (צירי הבית ⇄ מסך), model.js (שכבות לכל קומה מהנתונים), draw.js, pick.js (הצמדה ובחירה), layers.js (הצג/הסתר/נעילה), ops.js (פעולות עריכה על התוואי), checks.js (בדיקות: התנגשות בעמוד/קורה, קיר לא בניצב, שיפוע, חיבורים), store.js (בסיס routes.json + עריכות במסד הארטיפקט, ביטול/חזרה, ייצוא), main.js
 src/environment/           סביבה (שכונה): מחליף את משטחי השכנים/הרחוב של שלב 1
   index.js                 בנייה + חיבור לממשק (קבוצת "סביבה" בפאנל השכבות)
   lots.js                  13 מגרשים שכנים: פני קרקע סופיים, גבול, קווי בניין, תוויות
@@ -86,6 +87,7 @@ vendor/                    three.js 0.186.1, delaunator 5.1.0 (ללא שלב bui
 tools/                     צינור חילוץ מקבצי המקור + אימות
 tests/smoke.mjs            בדיקת דפדפן headless
 tests/editor.mjs           בדיקת דפדפן של עורך הצנרת (קומות, בחירה, שכבות, הצמדה)
+tests/editor-checks.mjs    בדיקות העורך מול שלד אמיתי (עמוד, קורה, קיר, שיפוע, חיבורים, בזמן גרירה)
 tests/editor-edit.mjs      בדיקת עריכה: יישור, גרירת מקטע ופינה, ביטול/חזרה, נקודות, מאפיינים, שיפוע, צינור חדש, שמירה
 docs/                      אימות, שאלות פתוחות
 sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit – ראו sources/README.md)

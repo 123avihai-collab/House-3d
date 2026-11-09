@@ -36,23 +36,31 @@ export function buildBlocks(ctx) {
     const full = [], cut = [];
     let k = 0, z = w.bottomRel;
     const D = w.courseDatum, bond = w.bond, mod = (a, m) => ((a % m) + m) % m;
-    while (z < w.topRel - 0.005) {   // same coursing as tools/extract_blocks.py: one course line per floor, one block grid per wall line
+    // same layout as tools/extract_blocks.py layout(): every block position is one block – full, or cut around the
+    // openings / lintels / run ends / partial courses (its pieces drawn); the grid of the run is shifted by bond.g
+    const holes = [...w.openings, ...(w.lintels || [])];
+    const sub = (rects, o) => rects.flatMap(([xa, xb, za, zb]) => {
+      if (o.s0 >= xb - 0.005 || o.s1 <= xa + 0.005 || o.z0 >= zb - 0.005 || o.z1 <= za + 0.005) return [[xa, xb, za, zb]];
+      const out = [], a = Math.max(xa, o.s0), b = Math.min(xb, o.s1);
+      if (o.s0 > xa + 0.005) out.push([xa, o.s0, za, zb]);
+      if (o.s1 < xb - 0.005) out.push([o.s1, xb, za, zb]);
+      if (o.z0 > za + 0.005) out.push([a, b, za, o.z0]);
+      if (o.z1 < zb - 0.005) out.push([a, b, o.z1, zb]);
+      return out.filter(r => r[1] - r[0] > 0.005 && r[3] - r[2] > 0.005);
+    });
+    let nFull = 0, nCut = 0;
+    while (z < w.topRel - 0.005) {
       const kk = D != null ? Math.round((z - D) / BH) : k;
       let nxt = D != null ? D + (kk + 1) * BH : z + BH; if (nxt - z < 0.005) nxt += BH;
       const h = Math.min(nxt - z, w.topRel - z), off = (BL / 2) * (mod(kk, 2));
-      const x0 = bond ? mod(bond.sign * (off - bond.p0), BL) - BL : -off;
-      const holes = [...w.openings, ...(w.lintels || [])];
-      // an opening / lintel edge inside the course splits it into bands – blocks cut at the head / lintel underside
-      const cuts = [...new Set([z, z + h, ...holes.flatMap(o => [o.z0, o.z1]).filter(c => c > z + 0.005 && c < z + h - 0.005)])].sort((a, b) => a - b);
-      for (let i = 0; i < cuts.length - 1; i++) {
-        const zb = cuts[i], zt = cuts[i + 1], hb = zt - zb;
-        let segs = [[0, L]];
-        for (const o of holes) if (o.z0 < zt - 0.005 && o.z1 > zb + 0.005)
-          segs = segs.flatMap(([a, b]) => [[a, Math.min(b, o.s0)], [Math.max(a, o.s1), b]]).filter(([a, b]) => b - a > 0.005);
-        for (const [a, b] of segs) for (let x = x0; x < b - 0.005; x += BL) {
-          const xa = Math.max(x, a), xb = Math.min(x + BL, b); if (xb - xa <= 0.005) continue;
-          (xb - xa >= BL - 0.005 && hb >= BH - 0.005 ? full : cut).push([xa, xb, zb, hb]);
-        }
+      const r3 = (v) => Math.round(v * 1000) / 1000, TB = 0.008;   // same tolerance as tools/extract_blocks.py TOLB
+      const x0 = bond ? r3(mod(bond.sign * (off + (bond.g || 0) - bond.p0), BL) - BL) : -off;
+      for (let x = x0; x < L - TB; x += BL) {
+        const xa = r3(Math.max(x, 0)), xb = r3(Math.min(x + BL, L)); if (xb - xa <= TB) continue;
+        let pcs = [[xa, xb, z, z + h]]; for (const o of holes) pcs = sub(pcs, o);
+        if (!pcs.length) continue;
+        const isFull = pcs.length === 1 && xb - xa >= BL - TB && h >= BH - TB && pcs[0][0] === xa && pcs[0][1] === xb && pcs[0][2] === z && pcs[0][3] === z + h;
+        if (isFull) { nFull++; full.push([xa, xb, z, h]); } else { nCut++; for (const [a, b, za, zb] of pcs) cut.push([a, b, za, zb - za]); }
       }
       k++; z += h;
     }
@@ -78,12 +86,12 @@ export function buildBlocks(ctx) {
     } else if (w.status !== 'source') g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
     const asDrawn = w.variant?.show !== 'changed';
     const tc = Math.round(t * 100);
-    if (asDrawn) { stats.full += full.length; stats.cut += cut.length; stats.area_m2 += w.area_m2; }
-    if (asDrawn) { const bt = (stats.byThickness[tc] ||= { full: 0, cut: 0, area_m2: 0 }); bt.full += full.length; bt.cut += cut.length; bt.area_m2 += w.area_m2; }
+    if (asDrawn) { stats.full += nFull; stats.cut += nCut; stats.area_m2 += w.area_m2; }
+    if (asDrawn) { const bt = (stats.byThickness[tc] ||= { full: 0, cut: 0, area_m2: 0 }); bt.full += nFull; bt.cut += nCut; bt.area_m2 += w.area_m2; }
     registry.add(g, { floor: w.floor, system: 'walls', stage: 'walls', layer: 'blockWalls', step: 'blockWalls' }, {
       id: w.id, name: `קיר בלוקים ${tc} ס"מ – ${FLOOR[w.floor] || w.floor}${w.ownerChange ? ` · ${w.ownerChange} ${w.variant?.show === 'changed' ? '(עם השינוי)' : '(לפי התוכניות)'}` : ''}`, status: w.status, ...vmeta(w),
       rows: [['בלוק', `${B.block.type} ${Math.round(BL * 100)}×${Math.round(BH * 100)}, עובי ${tc}`], ['אורך × גובה', `${L.toFixed(2)} × ${(w.topRel - w.bottomRel).toFixed(2)} מ'`],
-        ['נדבכים', `${w.courses}`], ['בלוקים', `${full.length} שלמים + ${cut.length} חתוכים`], ['שטח נטו', `${w.area_m2.toFixed(2)} מ"ר`],
+        ['נדבכים', `${w.courses}`], ['בלוקים', `${nFull} שלמים + ${nCut} חתוכים (בלוק חתוך = בלוק אחד, גם כשנחתך לכמה חלקים)`], ['שטח נטו', `${w.area_m2.toFixed(2)} מ"ר`],
         ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
       note: [w.note, 'פריסת הנדבכים: חצי בלוק בדילוג בכל נדבך שני; נדבך עליון חתוך לגובה התקרה / הקורה.'].filter(Boolean).join(' '), source: w.source,
     });
@@ -93,7 +101,7 @@ export function buildBlocks(ctx) {
       const c = p0.clone().addScaledVector(dir, (lt.s0 + lt.s1) / 2); c.y = (lt.z0 + lt.z1) / 2;
       const m = new THREE.Mesh(unit, lintM); m.scale.set(lt.s1 - lt.s0 - DB.joint_m, lt.z1 - lt.z0 - DB.joint_m, t); m.position.copy(c); m.quaternion.copy(q);
       m.castShadow = m.receiveShadow = true;
-      const lg = new THREE.Group(); lg.add(m); lg.add(new THREE.BoxHelper(m, DF.provisionalEdgeColor));
+      const lg = new THREE.Group(); lg.add(m);   // no outline (Avihai 09.11: the yellow lines around lintels / boxes)
       const net = lt.length_m - lt.bearL_m - lt.bearR_m;
       const bear = [...lt.onConcrete.map(x => `${SIDE[x]} – על הבטון`), ...(lt.continues || []).map(x => `${SIDE[x]} – המשך בקטע הסמוך`), ...(lt.intoCrossWall || []).map(x => `${SIDE[x]} – נכנס לקיר הבלוקים הניצב`), ...(lt.pier || []).map(x => `${SIDE[x]} – עד אמצע הפילר בין שני פתחים`), ...(lt.shortBearing || []).map(x => `${SIDE[x]} – בלי הישענות, לבדיקה`)];
       registry.add(lg, { floor: w.floor, system: 'walls', stage: 'walls', layer: 'lintels', step: 'blockWalls' }, {
@@ -113,7 +121,7 @@ export function buildBlocks(ctx) {
     const [E, N] = o.centerITM, c = coords.toLocal(E, N, coords.H0 + b.headRel - b.box_m / 2);
     const [x1, z1] = coords.xz(E + o.axisITM[0], N + o.axisITM[1]), dir = new THREE.Vector3(x1 - c.x, 0, z1 - c.z).normalize();
     const m = new THREE.Mesh(unit, b.clash ? clashM : b.variant?.show === 'changed' ? ocM : boxM); m.scale.set(o.width_m, b.box_m, t); m.position.copy(c); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);
-    m.castShadow = true; const g = new THREE.Group(); g.add(m); g.add(new THREE.BoxHelper(m, b.ownerChange ? DF.ownerChangeColor : DF.provisionalEdgeColor));
+    m.castShadow = true; const g = new THREE.Group(); g.add(m); if (b.ownerChange) g.add(new THREE.BoxHelper(m, DF.ownerChangeColor));
     const d = document.createElement('div'); d.className = 'lbl ' + (b.ownerChange ? 'oc-tag' : 'beam'); d.textContent = b.clash ? `התנגשות: ארגז ${b.opening} חודר ${Math.round(b.clash.into_m * 100)} ס"מ ל-B-27 · ${b.ownerChange}` : `ארגז תריס ${b.opening} · ${Math.round(b.box_m * 100)}${b.variant?.show === 'changed' ? ' · ' + b.ownerChange : ''}`;
     const lo = new CSS2DObject(d); lo.position.copy(c).add(new THREE.Vector3(0, b.box_m / 2 + DB.labelLift_m, 0)); g.add(lo);
     registry.add(g, { floor: b.floor, system: 'finishes', stage: 'walls', layer: 'shutterBoxes', step: 'blockWalls' }, {

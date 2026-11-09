@@ -101,38 +101,55 @@ def shutter_boxes():
     return out
 
 
-def count_blocks(L, zb, zt, wo, BL, BH, bond=None, datum=None):
-    """courses (bond: half a block on every other course), blocks clipped by the openings -> full, cut, courses, net area.
-    bond = {'p0', 'sign'}: the run's start on the wall line's own axis – every run of one straight wall shares one block
-    grid (head joints line up across runs, Avihai 09.11); datum = the floor's course line – every course boundary sits
-    on datum + k x BH (the first course is cut to fit). js/geometry/blocks.js lays the same grid."""
-    nfull = ncut = 0; area = L * (zt - zb); z = zb; k = 0
+TOLB = 0.008   # a sliver below one joint (8 mm) is not a block; a block short of BL by less than a joint is full
+
+
+def _sub(rects, h):
+    """rectangles (xa, xb, za, zb) minus hole h {s0, s1, z0, z1}"""
+    out = []
+    for xa, xb, za, zb in rects:
+        if h['s0'] >= xb - 0.005 or h['s1'] <= xa + 0.005 or h['z0'] >= zb - 0.005 or h['z1'] <= za + 0.005: out.append((xa, xb, za, zb)); continue
+        if h['s0'] > xa + 0.005: out.append((xa, h['s0'], za, zb))
+        if h['s1'] < xb - 0.005: out.append((h['s1'], xb, za, zb))
+        a, b = max(xa, h['s0']), min(xb, h['s1'])
+        if h['z0'] > za + 0.005: out.append((a, b, za, h['z0']))
+        if h['z1'] < zb - 0.005: out.append((a, b, h['z1'], zb))
+    return [r for r in out if r[1] - r[0] > 0.005 and r[3] - r[2] > 0.005]
+
+
+def layout(L, zb, zt, wo, BL, BH, bond=None, datum=None):
+    """the blocks of a run, course by course on the floor's course lines (datum + k x BH), half-block bond on every other
+    course, on the wall line's block grid (bond {p0, sign, g}: g = the grid shift chosen for the whole wall line).
+    Every block position is ONE block: full when nothing cuts it (full length and course height), else cut – the cut
+    pieces (around an opening / lintel, at a run end, the first / top course) are the pieces of that one block
+    (Avihai 09.11: before, a course crossing a head level was cut along the whole wall). js/geometry/blocks.js lays the same."""
+    blocks = []; z = zb; k = 0
     while z < zt - 0.005:
-        kk = round((z - datum) / BH) if datum is not None else k            # course number on the floor grid
+        kk = round((z - datum) / BH) if datum is not None else k
         nxt = datum + (kk + 1) * BH if datum is not None else z + BH
         if nxt - z < 0.005: nxt += BH
         h = min(nxt - z, zt - z); off = (BL / 2) * (kk % 2)
-        x0 = ((bond['sign'] * (off - bond['p0'])) % BL) - BL if bond else -off
-        # an opening / lintel edge inside the course splits it into bands: the blocks are cut at the head / lintel
-        # underside, not dropped (Avihai 09.11 – a gap under the lintels beside the windows)
-        cuts = sorted({z, z + h} | {c for o in wo for c in (o['z0'], o['z1']) if z + 0.005 < c < z + h - 0.005})
-        for zb_, zt_ in zip(cuts, cuts[1:]):
-            segs = [(0.0, L)]
-            for o in wo:
-                if o['z0'] < zt_ - 0.005 and o['z1'] > zb_ + 0.005:
-                    segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
-            hb = zt_ - zb_
-            for a, b in segs:
-                x = x0
-                while x < b - 0.005:
-                    xa, xb = max(x, a), min(x + BL, b)
-                    if xb - xa > 0.005:
-                        if xb - xa >= BL - 0.005 and hb >= BH - 0.005: nfull += 1
-                        else: ncut += 1
-                    x += BL
+        x0 = round(((bond['sign'] * (off + bond.get('g', 0) - bond['p0'])) % BL) - BL, 3) if bond else -off
+        x = x0
+        while x < L - TOLB:
+            xa, xb = round(max(x, 0.0), 3), round(min(x + BL, L), 3)
+            if xb - xa > TOLB:
+                pcs = [(xa, xb, z, z + h)]
+                for o in wo: pcs = _sub(pcs, o)
+                if pcs:
+                    full = len(pcs) == 1 and pcs[0] == (xa, xb, z, z + h) and xb - xa >= BL - TOLB and h >= BH - TOLB
+                    blocks.append((full, pcs))
+            x += BL
         k += 1; z += h
-    for o in wo: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])
-    return nfull, ncut, k, area
+    return blocks, k
+
+
+def count_blocks(L, zb, zt, wo, BL, BH, bond=None, datum=None):
+    """-> full, cut, courses, net area (see layout)"""
+    blocks, k = layout(L, zb, zt, wo, BL, BH, bond, datum)
+    area = L * (zt - zb) - sum((o['s1'] - o['s0']) * (o['z1'] - o['z0']) for o in wo)
+    nf = sum(1 for f, _ in blocks if f)
+    return nf, len(blocks) - nf, k, area
 
 
 def split_by_levels(run, under_fl, over_fl, step=0.05, min_len=0.15):
@@ -284,7 +301,7 @@ def main():
                         s = (c.x - x0) * ux + (c.y - y0) * uy
                         # a door at floor level (sill = finished floor): the rough opening in the blocks goes down to the concrete
                         # the wall stands on – the floor build-up fills it (Avihai ק37, 09.11: no block strip in the door line)
-                        atFloor = o['kind'] in ('door', 'sliding') and o.get('floorFinishRel') is not None and o['sillRel'] <= o['floorFinishRel'] + 0.01
+                        atFloor = o.get('floorFinishRel') is not None and o['sillRel'] <= o['floorFinishRel'] + 0.01   # doors and the vitrines / windows to the floor (exits, ק37 + 09.11)
                         wo.append({'id': o['id'], 'kind': o['kind'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': r3(zb) if atFloor else o['sillRel'], 'z1': o['headRel'],
                                    'clip': [sd for sd, c in (('L', s - o['width_m'] / 2 < -0.005), ('R', s + o['width_m'] / 2 > L + 0.005)) if c],
                                    'shutter': ('גלילה' in o['name'] or 'תריס' in o['name'])})
@@ -479,7 +496,24 @@ def main():
         cu = (hx, hy) if abs(dx * hx + dy * hy) >= abs(-dx * hy + dy * hx) else (-hy, hx)       # the house axis the run follows
         sg = 1 if dx * cu[0] + dy * cu[1] >= 0 else -1
         w['bond'] = {'p0': r3((x0 - OE) * cu[0] + (y0 - ON) * cu[1]), 'sign': sg}; w['courseDatum'] = datum[w['floor']]
-        w['blocksFull'], w['blocksCut'], w['courses'], ar = count_blocks(L, w['bottomRel'], w['topRel'], w['openings'] + w.get('lintels', []), BL, BH, w['bond'], datum[w['floor']])
+        w['_line'] = w['id']
+    # the block grid of each run is slid along it to the position with the fewest cut blocks (searched every 1 cm over one
+    # block length): a run starts at a column / wall / corner it is not bonded to, so it is laid from its own end – as on
+    # site (Avihai 09.11: far too many cut blocks with one grid for the whole house). Openings inside a run share its grid.
+    lines = defaultdict(list)
+    for w in walls: lines[w['_line']].append(w)
+    for grp in lines.values():
+        best = None
+        for gi in range(int(round(BL / 0.01))):
+            g = gi * 0.01; nf = nc = 0
+            for w in grp:
+                f_, c_, _, _ = count_blocks(w['length_m'], w['bottomRel'], w['topRel'], w['openings'] + w.get('lintels', []), BL, BH, {**w['bond'], 'g': g}, w['courseDatum'])
+                nf += f_; nc += c_
+            if best is None or (nc, -nf) < (best[1], -best[2]): best = (g, nc, nf)
+        for w in grp: w['bond']['g'] = r3(best[0])
+    for w in walls:
+        w.pop('_line', None); L = w['length_m']
+        w['blocksFull'], w['blocksCut'], w['courses'], ar = count_blocks(L, w['bottomRel'], w['topRel'], w['openings'] + w.get('lintels', []), BL, BH, w['bond'], w['courseDatum'])
         w['area_m2'] = r3(ar)
     Q.clear()
     for w in walls:

@@ -1,3 +1,4 @@
+import { askConfirm, askText } from '../core/dialog.js';
 import * as THREE from 'three';
 import { fmtMin } from '../tools/sun.js';
 
@@ -258,8 +259,8 @@ export class UI {
           h('button', { class: 'vuse', title: 'הצג את התצוגה', onclick: () => { P.use(v.id); this.refreshPanel('layers'); } }, v.name, v.withStage ? h('small', {}, ' · כולל שלב') : ''),
           h('button', { class: 'small' + (P.p.start === v.id ? ' on' : ''), title: P.p.start === v.id ? 'נפתחת אוטומטית – לחץ לביטול' : 'פתח את המודל תמיד בתצוגה הזו', onclick: () => { P.setStart(v.id); this.refreshPanel('layers'); } }, '★'),
           h('button', { class: 'small', title: 'עדכן לפי הבחירה הנוכחית', onclick: () => { P.update(v.id); this.hint(`"${v.name}" עודכנה`); } }, '⟳'),
-          h('button', { class: 'small', title: 'שנה שם', onclick: () => { const n = prompt('שם חדש', v.name); if (n?.trim()) { P.rename(v.id, n.trim()); this.refreshPanel('layers'); } } }, '✎'),
-          h('button', { class: 'small', title: 'מחק', onclick: () => { if (confirm(`למחוק את "${v.name}"?`)) { P.remove(v.id); this.refreshPanel('layers'); } } }, '🗑'))))
+          h('button', { class: 'small', title: 'שנה שם', onclick: async () => { const n = await askText('שם חדש', v.name); if (n?.trim()) { P.rename(v.id, n.trim()); this.refreshPanel('layers'); } } }, '✎'),
+          h('button', { class: 'small', title: 'מחק', onclick: async () => { if (await askConfirm(`למחוק את "${v.name}"?`, { ok: 'מחק', danger: true })) { P.remove(v.id); this.refreshPanel('layers'); } } }, '🗑'))))
           : h('p', { class: 'muted' }, 'עוד אין תצוגות. סמן שכבות ושמור כאן בשם – תחזור אליהן בלחיצה. ★ = התצוגה שבה המודל נפתח.'),
         h('div', { class: 'row vsave' }, name, h('label', { title: 'לשמור גם את שלב הבנייה' }, stage, 'כולל שלב'), h('button', { onclick: save }, 'שמור תצוגה')),
         h('p', { class: 'muted' }, 'הבחירה האחרונה נשמרת אוטומטית ותחזור בפתיחה הבאה' + (P.p.start ? ' (אלא אם סומנה ★ – אז נפתחת התצוגה המסומנת).' : '.'))));
@@ -449,7 +450,7 @@ export class UI {
       h('div', { class: 'list' }, s.bookmarks.map((b, i) => h('div', { class: 'li2' },
         h('button', { class: 'li', onclick: () => app.restoreView(b) }, b.name),
         h('button', { class: 'x', title: 'מחק', onclick: () => app.store.set({ bookmarks: s.bookmarks.filter((_, j) => j !== i) }, { label: 'bm' }) }, '✕')))),
-      h('button', { onclick: () => { const name = prompt('שם למבט:', `מבט ${s.bookmarks.length + 1}`); if (name) app.store.set({ bookmarks: [...s.bookmarks, { name, ...app.currentView() }] }, { label: 'bm' }); } }, '＋ שמור מבט נוכחי'),
+      h('button', { onclick: async () => { const name = await askText('שם למבט:', `מבט ${s.bookmarks.length + 1}`); if (name) app.store.set({ bookmarks: [...s.bookmarks, { name, ...app.currentView() }] }, { label: 'bm' }); } }, '＋ שמור מבט נוכחי'),
       h('h4', {}, 'הליכה'),
       h('p', { class: 'muted' }, 'הליכה בגובה עיניים על הרצפות, הפודסטים, המדרגות והקרקע (מה שמוצג בשלב הנוכחי), בלי לעבור דרך קירות. מתחילים בנקודה שבמרכז המסך. מחשב: חיצים/WASD, גרירה להסתכלות, 1/2/3 מהירות, Shift האצה. טלפון: ג׳ויסטיק וגרירה.'),
       h('div', { class: 'seg small' }, (app.display.camera.walkSpeeds_mps || []).map((v, i) => h('button', { class: (s.quality.walkSpeed ?? 1) === i ? 'on' : '', onclick: () => app.nav.setSpeed(i) },
@@ -491,7 +492,7 @@ export class UI {
         h('div', { class: 'btns' },
           h('button', { class: 'small', onclick: () => app.flyToPoint(n) }, 'הצג'),
           h('button', { class: 'small', onclick: () => app.store.set({ notes: s.notes.map((x, j) => j === i ? { ...x, done: !x.done } : x) }, { label: 'note' }) }, n.done ? 'פתח מחדש' : 'סמן כבוצע'),
-          h('button', { class: 'small', onclick: () => { const t = prompt('עריכת הערה:', n.text); if (t != null) app.store.set({ notes: s.notes.map((x, j) => j === i ? { ...x, text: t } : x) }, { label: 'note' }); } }, 'ערוך'),
+          h('button', { class: 'small', onclick: async () => { const t = await askText('עריכת הערה:', n.text); if (t != null) app.store.set({ notes: s.notes.map((x, j) => j === i ? { ...x, text: t } : x) }, { label: 'note' }); } }, 'ערוך'),
           h('button', { class: 'small x', onclick: () => app.store.set({ notes: s.notes.filter((_, j) => j !== i) }, { label: 'note' }) }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין הערות עדיין.'));
   }
 
@@ -521,8 +522,8 @@ export class UI {
         h('div', { class: 'btns' },
           h('button', { class: 'small', onclick: () => app.flyToPoint(n) }, 'הצג'),
           h('button', { class: 'small', onclick: () => T.patch(n.id, { state: n.state === 'done' ? 'open' : 'done' }) }, n.state === 'done' ? 'פתח מחדש' : 'סמן כתוקן'),
-          h('button', { class: 'small', onclick: () => { const t = prompt('עריכת התיקון:', n.text); if (t != null && t.trim()) T.patch(n.id, { text: t.trim() }); } }, 'ערוך'),
-          h('button', { class: 'small x', onclick: () => { if (confirm('למחוק את התיקון?')) T.remove(n.id); } }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין תיקונים עדיין.'));
+          h('button', { class: 'small', onclick: async () => { const t = await askText('עריכת התיקון:', n.text); if (t != null && t.trim()) T.patch(n.id, { text: t.trim() }); } }, 'ערוך'),
+          h('button', { class: 'small x', onclick: async () => { if (await askConfirm('למחוק את התיקון?', { ok: 'מחק', danger: true })) T.remove(n.id); } }, 'מחק'))))) : h('p', { class: 'muted' }, 'אין תיקונים עדיין.'));
   }
 
   panel_quantities() {
@@ -612,7 +613,7 @@ export class UI {
           c.at && c.ok ? h('small', {}, `נבדק ${new Date(c.at).toLocaleString('he-IL')}`) : null,
           h('div', { class: 'btns' },
             h('button', { class: 'small' + (c.ok ? ' on' : ''), onclick: () => T.setCheck(key, { ok: !c.ok, element: item.meta.id || '', name: item.meta.name || '', step: seq[i]?.id }) }, c.ok ? '✓ נבדק' : 'סמן נבדק'),
-            h('button', { class: 'small', onclick: () => { const t = prompt('הערת ביקורת:', c.note || ''); if (t != null) T.setCheck(key, { note: t.trim(), element: item.meta.id || '', name: item.meta.name || '', step: seq[i]?.id }); } }, 'הערה'),
+            h('button', { class: 'small', onclick: async () => { const t = await askText('הערת ביקורת:', c.note || ''); if (t != null) T.setCheck(key, { note: t.trim(), element: item.meta.id || '', name: item.meta.name || '', step: seq[i]?.id }); } }, 'הערה'),
             h('button', { class: 'small', onclick: () => app.tools.search.show(item) }, 'הצג')));
       })) : h('p', { class: 'muted' }, 'אין בשלב הזה אלמנטים עם נתוני ברזל (חפירה, מילוי, צנרת, פיתוח – או שהאלמנטים עוד בלי גיליון ברזל).'),
       h('div', { class: 'btns' }, h('button', { onclick: () => this.copy(list.map(({ item, info, key }) => `${T.checks[key]?.ok ? '✓' : '☐'} ${item.meta.id || ''} ${item.meta.name || ''}\n` + info.map(([k, v]) => `   ${k}: ${v}`).join('\n') + (T.checks[key]?.note ? `\n   הערה: ${T.checks[key].note}` : '')).join('\n'), 'רשימת הביקורת הועתקה') }, '📋 העתק רשימה')));
@@ -641,7 +642,7 @@ export class UI {
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.minimap !== false, onchange: (e) => app.store.set({ quality: { ...q, minimap: e.target.checked } }, { label: 'q' }) }), 'מפה קטנה'),
       h('label', { class: 'col' }, `חשיפה: ${q.exposure.toFixed(2)}`, h('input', { type: 'range', min: 0.4, max: 1.8, step: 0.05, value: q.exposure, oninput: (e) => app.store.setCoalesced('exp', { quality: { ...app.store.get().quality, exposure: +e.target.value } }) })),
       h('div', { class: 'btns' },
-        h('button', { onclick: () => { if (confirm('לאפס את כל ההגדרות (כולל הערות ומבטים שמורים)?')) app.store.reset(); } }, 'איפוס הגדרות')),
+        h('button', { onclick: async () => { if (await askConfirm('לאפס את כל ההגדרות (כולל הערות ומבטים שמורים)?', { ok: 'איפוס', danger: true })) app.store.reset(); } }, 'איפוס הגדרות')),
       h('h4', {}, 'קבצים'),
       h('div', { class: 'btns' },
         h('button', { onclick: () => download(`house3d-5187-settings-${new Date().toISOString().slice(0, 10)}.json`, app.store.exportJson()) }, '⤓ ייצוא הגדרות'),

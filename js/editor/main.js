@@ -9,6 +9,7 @@ import { snapPoint, hitTest } from './pick.js';
 import { Layers, buildPanel } from './layers.js';
 import { RouteStore } from './store.js';
 import * as OP from './ops.js';
+import { askConfirm } from '../core/dialog.js';
 
 const $ = (id) => document.getElementById(id);
 window.__editorErrors = [];
@@ -251,7 +252,7 @@ async function start() {
     on('pf-del-v', () => delVertex());
     on('pf-rev', () => { const x = store.get(r.id); change({ ...x, vertices: [...x.vertices].reverse(), from: x.to, to: x.from }, `${r.id}: היפוך כיוון`); });
     on('pf-revert', () => { store.revert(r.id); toast('הוחזר למקור'); });
-    on('pf-del', () => { if (!confirm(`למחוק את ${r.id}?`)) return; store.apply({ [r.id]: null }, `מחיקת ${r.id}`); S.sel = null; hideInfo(); toast(`נמחק ${r.id} (ביטול: Ctrl+Z)`); });
+    on('pf-del', async () => { if (!(await askConfirm(`למחוק את ${r.id}?`, { ok: 'מחק', danger: true }))) return; store.apply({ [r.id]: null }, `מחיקת ${r.id}`); S.sel = null; hideInfo(); toast(`נמחק ${r.id} (ביטול: Ctrl+Z)`); });
     on('pf-copy', () => copyToProposal(p));
   }
   function delVertex() {

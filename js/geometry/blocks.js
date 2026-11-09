@@ -13,6 +13,7 @@ export function buildBlocks(ctx) {
   const fullM = new THREE.MeshStandardMaterial({ color: DB.blockColor, roughness: 0.9 });
   const cutM = new THREE.MeshStandardMaterial({ color: DB.cutBlockColor, roughness: 0.9 });
   const boxM = new THREE.MeshStandardMaterial({ color: DB.shutterBoxColor, roughness: 0.6 });
+  const lintelM = new THREE.MeshStandardMaterial({ color: DB.lintelColor, roughness: 0.85 });
   const unit = new THREE.BoxGeometry(1, 1, 1);
   const FLOOR = { unit: 'יחידת דיור', ground: 'קומת קרקע', first: "קומה א'" };
   const stats = { full: 0, cut: 0, area_m2: 0, byThickness: {}, boxes: 0 };
@@ -25,7 +26,7 @@ export function buildBlocks(ctx) {
     while (z < w.topRel - 0.005) {   // same coursing as tools/extract_blocks.py
       const h = Math.min(BH, w.topRel - z), off = (BL / 2) * (k % 2);
       let segs = [[0, L]];
-      for (const o of w.openings) if (o.z0 < z + h - 0.005 && o.z1 > z + 0.005)
+      for (const o of [...w.openings, ...(w.lintels || [])]) if (o.z0 < z + h - 0.005 && o.z1 > z + 0.005)
         segs = segs.flatMap(([a, b]) => [[a, Math.min(b, o.s0)], [Math.max(a, o.s1), b]]).filter(([a, b]) => b - a > 0.005);
       for (const [a, b] of segs) for (let x = -off; x < b - 0.005; x += BL) {
         const xa = Math.max(x, a), xb = Math.min(x + BL, b); if (xb - xa <= 0.005) continue;
@@ -43,6 +44,12 @@ export function buildBlocks(ctx) {
       });
       im.castShadow = im.receiveShadow = true; g.add(im);
     }
+    // lintels over the openings (blocks.json lintels – provisional: typical one-course lintel, no detail in the sources)
+    for (const l of w.lintels || []) {
+      const m = new THREE.Mesh(unit, lintelM), c = p0.clone().addScaledVector(dir, (l.s0 + l.s1) / 2); c.y = (l.z0 + l.z1) / 2;
+      m.scale.set(l.s1 - l.s0, l.z1 - l.z0, t); m.position.copy(c); m.quaternion.copy(q); m.castShadow = m.receiveShadow = true; g.add(m);
+      g.add(new THREE.BoxHelper(m, DF.provisionalEdgeColor)); stats.lintels = (stats.lintels || 0) + 1;
+    }
     if (w.status !== 'source') g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
     const tc = Math.round(t * 100);
     stats.full += full.length; stats.cut += cut.length; stats.area_m2 += w.area_m2;
@@ -51,7 +58,8 @@ export function buildBlocks(ctx) {
       id: w.id, name: `קיר בלוקים ${tc} ס"מ – ${FLOOR[w.floor] || w.floor}`, status: w.status,
       rows: [['בלוק', `${B.block.type} ${Math.round(BL * 100)}×${Math.round(BH * 100)}, עובי ${tc}`], ['אורך × גובה', `${L.toFixed(2)} × ${(w.topRel - w.bottomRel).toFixed(2)} מ'`],
         ['נדבכים', `${w.courses}`], ['בלוקים', `${full.length} שלמים + ${cut.length} חתוכים`], ['שטח נטו', `${w.area_m2.toFixed(2)} מ"ר`],
-        ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
+        ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'],
+        ['משקופים', (w.lintels || []).map(l => `${l.openings.join('+')}: ${Math.round((l.s1 - l.s0) * 100)}×${Math.round((l.z1 - l.z0) * 100)} (הישענות ${l.bearing.map(b => Math.round(b * 100)).join(' / ')}) – זמני`).join('; ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
       note: [w.note, 'פריסת הנדבכים: חצי בלוק בדילוג בכל נדבך שני; נדבך עליון חתוך לגובה התקרה / הקורה.'].filter(Boolean).join(' '), source: w.source,
     });
     scene.add(g);

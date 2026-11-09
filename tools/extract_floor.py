@@ -1326,6 +1326,13 @@ def main():
                 sup = [(6.65, 'רצועה ‎+6.65…+8.00 (מפלסי הנקודה "+8.00 / +6.65" ב-K-41) – מתחתיה קירות / חלונות קומה א\'')]
         if sup: bot, on = max(sup, key=lambda x: x[0])
         else: bot, on, st = max(panels41, key=lambda p: p['poly'].area)['top'], None, 'provisional'; notes.append('אין במקורות אלמנט נושא מתחתיו')
+        # a parapet over the outer wall line, mostly outside the slab outline (the k-41 slab face stops at the wall): the band
+        # +6.65…+6.90 under it is the slab edge, cast with it – the parapet starts at the slab underside ("+8.00 / +6.65" in
+        # K-41), over the first-floor block wall (Avihai 09.11, ק25 / ק32: no void over the outer block walls)
+        pin = [p_ for p_ in panels41 if q.intersection(p_['poly']).area > 0.02 * q.area]
+        if pin and on and on.startswith('תקרת הגג') and sum(q.intersection(p_['poly']).area for p_ in pin) < 0.5 * q.area:
+            sl = max(pin, key=lambda p_: q.intersection(p_['poly']).area)
+            if sl.get('D'): bot = r3(sl['top'] - sl['D'] / 100 if sl['D'] > 2 else sl['top'] - sl['D']); on = f"שפת תקרת הגג (יצוקה עם המעקה) ‎+{bot:.2f}"
         near = min((sp.distance(q) for sp in spots), default=99)
         top = 8.0 if spots else None
         if near > 3.0: st = 'provisional'; notes.append('ראש +8.00 לפי מפלסי הנקודה שב-K-41 (לא ליד הקיר הזה)')

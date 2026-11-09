@@ -12,6 +12,15 @@
     <a class="ed-back" href="index.html" title="חזרה למודל התלת-ממדי">⬅ מודל 3D</a>
     <strong class="ed-title">עורך צנרת</strong>
     <nav id="ed-floors" aria-label="קומה"></nav>
+    <span class="ed-tools" id="ed-tools">
+      <button id="ed-mode-select" class="on" title="בחירה ועריכה (V)">↖ בחירה</button>
+      <button id="ed-mode-draw" title="צינור חדש (N)">✚ צינור חדש</button>
+      <label class="ed-snap" title="תוואי אורתוגונלי – צירי הבית בלבד (O)"><input type="checkbox" id="ed-ortho" checked> אורתו</label>
+      <button id="ed-undo" title="ביטול (Ctrl+Z)">↶</button>
+      <button id="ed-redo" title="חזרה (Ctrl+Y)">↷</button>
+      <span id="ed-save" class="ed-save" title="מצב שמירה"></span>
+      <button id="ed-export" title="ייצוא routes.json (ההצעה + כל העריכות) לקובץ">⤓ routes.json</button>
+    </span>
     <span class="ed-spacer"></span>
     <label class="ed-snap" title="הצמדה (S)"><input type="checkbox" id="ed-snap-on" checked> הצמדה</label>
     <select id="ed-snap-step" title="צעד רשת להצמדה"></select>
@@ -23,6 +32,8 @@
     <div id="ed-compass" title="צפון אמיתי"><i>▲</i><span>צ</span></div>
     <div id="ed-scale"></div>
     <div id="ed-info" class="hidden"></div>
+    <div id="ed-drawbar" class="hidden"></div>
+    <div id="ed-toast" class="hidden"></div>
     <div id="ed-loading">טוען…</div>
   </main>
   <aside id="ed-panel"></aside>

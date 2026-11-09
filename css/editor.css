@@ -15,8 +15,8 @@ body { display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 
 .ed-back { color: var(--muted); text-decoration: none; font-size: 13px; }
 .ed-spacer { flex: 1; }
 #ed-floors { display: flex; gap: 4px; flex-wrap: wrap; }
-#ed-floors button, #ed-top > button, #ed-top select { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; min-height: 30px; }
-#ed-floors button.on { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+#ed-floors button, #ed-top > button, #ed-top select, .ed-tools button { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; min-height: 30px; }
+#ed-floors button.on, .ed-tools button.on { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
 .ed-snap { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
 #ed-main { grid-area: main; position: relative; min-width: 0; min-height: 0; }
 #ed-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--paper); touch-action: none; cursor: crosshair; display: block; }
@@ -56,3 +56,21 @@ body { display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 
   #ed-top { gap: 5px; padding: 5px 6px; }
 }
 @media (min-width: 761px) { #ed-layers-btn { display: none; } }
+
+.ed-tools { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ed-tools button:disabled { opacity: .4; cursor: default; }
+.ed-save { font-size: 12px; color: var(--muted); min-width: 70px; }
+.ed-save.err { color: #c0392b; } .ed-save.ok { color: #2e7d32; }
+#ed-info .form { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+#ed-info .form label { color: var(--muted); font-size: 12px; }
+#ed-info .form input, #ed-info .form select { width: 100%; font: inherit; font-size: 13px; padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); min-height: 28px; }
+#ed-info .row2 { display: flex; gap: 4px; }
+#ed-info .acts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+#ed-info .acts button, #ed-info .row2 button, #ed-drawbar button { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 5px; padding: 4px 8px; font: inherit; font-size: 12px; cursor: pointer; min-height: 28px; }
+#ed-info .acts button.danger { color: #b3261e; }
+#ed-info .edited { color: #6a1b9a; font-size: 12px; }
+#ed-drawbar { position: absolute; bottom: 10px; right: 10px; left: 120px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12px; box-shadow: 0 3px 10px rgba(0,0,0,.12); }
+#ed-drawbar select, #ed-drawbar input { font: inherit; font-size: 12px; padding: 2px 4px; min-height: 26px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
+#ed-drawbar input[type=number] { width: 70px; }
+#ed-toast { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); background: rgba(30,30,30,.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; pointer-events: none; z-index: 5; }
+@media (max-width: 760px) { #ed-info { top: auto; bottom: 0; right: 0; left: 0; max-width: none; max-height: 46%; border-radius: 12px 12px 0 0; } #ed-drawbar { left: 10px; bottom: 44px; } .ed-tools button { padding: 3px 6px; } #ed-export { display: none; } }

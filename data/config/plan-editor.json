@@ -196,5 +196,23 @@
  },
  "compass": {
   "size_px": 34
+ },
+ "edit": {
+  "_doc": "קבועי עריכה (לא מידות של הבית): גודל ידיות, סבולות, צעד פישוט ליישור לצירים.",
+  "handle_px": 5,
+  "hitHandle_px": 11,
+  "dragThreshold_px": 5,
+  "axisEps_deg": 0.5,
+  "stationTol_m": 0.02,
+  "orthoSimplify_m": 0.15,
+  "minSeg_m": 0.01,
+  "arrow_px": 7,
+  "arrowMinSeg_px": 40,
+  "gravitySystems": [
+   "sewage",
+   "rain"
+  ],
+  "newIdPrefix": "N",
+  "history": 200
  }
 }

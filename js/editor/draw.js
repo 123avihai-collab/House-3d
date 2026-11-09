@@ -56,6 +56,8 @@ export function drawPipes(ctx, v, cfg, items, sys, sel, hover) {
     if (it.mode === 'plan' && p.pts.length > 1) {
       if (p.layer === 'cons' && p.superseded) ctx.setLineDash([4, 4]);
       ctx.beginPath(); path(ctx, v, p.pts, false); ctx.stroke(); ctx.setLineDash([]);
+      if (p.manual) { ctx.save(); ctx.globalAlpha = 0.25; ctx.lineWidth = ctx.lineWidth + 5; ctx.strokeStyle = '#8e24aa'; ctx.beginPath(); path(ctx, v, p.pts, false); ctx.stroke(); ctx.restore(); }
+      if (p.layer === 'prop' && (cfg.edit.gravitySystems || []).includes(p.system)) drawArrows(ctx, v, cfg, p.pts);
       if (chosen) for (const q of p.pts) { ctx.beginPath(); ctx.arc(v.sx(q[0]), v.sy(q[1]), 3.2, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1.5; ctx.stroke(); }
     }
     // vertical pieces: ring = passes through this floor, filled = starts / ends here
@@ -87,4 +89,35 @@ export function drawSnap(ctx, v, s) {
   else if (s.kind === 'edge') { ctx.moveTo(x - 6, y + 6); ctx.lineTo(x + 6, y - 6); ctx.moveTo(x - 6, y - 6); ctx.lineTo(x + 6, y + 6); }
   else { ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); }
   ctx.stroke(); ctx.restore();
+}
+
+// flow direction (vertex order = downstream) on gravity lines
+function drawArrows(ctx, v, cfg, P) {
+  const a = cfg.edit.arrow_px;
+  for (let i = 0; i + 1 < P.length; i++) {
+    const x1 = v.sx(P[i][0]), y1 = v.sy(P[i][1]), x2 = v.sx(P[i + 1][0]), y2 = v.sy(P[i + 1][1]), L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < cfg.edit.arrowMinSeg_px) continue;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, mx = (x1 + x2) / 2 + ux * a / 2, my = (y1 + y2) / 2 + uy * a / 2;
+    ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx - ux * a - uy * a * 0.55, my - uy * a + ux * a * 0.55); ctx.lineTo(mx - ux * a + uy * a * 0.55, my - uy * a - ux * a * 0.55); ctx.closePath(); ctx.fill();
+  }
+}
+
+// editing handles of the selected run: stations (square; filled = riser), selected station / segment highlighted
+export function drawHandles(ctx, v, cfg, S, selV, selSeg, color) {
+  const h = cfg.edit.handle_px; ctx.save();
+  if (selSeg != null && S[selSeg + 1]) { ctx.strokeStyle = '#ff6f00'; ctx.lineWidth = 6; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(v.sx(S[selSeg].x), v.sy(S[selSeg].y)); ctx.lineTo(v.sx(S[selSeg + 1].x), v.sy(S[selSeg + 1].y)); ctx.stroke(); ctx.globalAlpha = 1; }
+  S.forEach((q, i) => {
+    const x = v.sx(q.x), y = v.sy(q.y), on = i === selV, end = i === 0 || i === S.length - 1;
+    ctx.beginPath(); ctx.rect(x - h - (on ? 1.5 : 0), y - h - (on ? 1.5 : 0), 2 * h + (on ? 3 : 0), 2 * h + (on ? 3 : 0));
+    ctx.fillStyle = on ? '#ff6f00' : q.H.length > 1 ? color : '#fff'; ctx.fill(); ctx.lineWidth = end ? 2.2 : 1.4; ctx.strokeStyle = '#1d2329'; ctx.stroke();
+  });
+  ctx.restore();
+}
+
+export function drawDraft(ctx, v, pts, cursor, color) {
+  if (!pts.length) return; ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2.6; ctx.setLineDash([7, 4]);
+  ctx.beginPath(); ctx.moveTo(v.sx(pts[0][0]), v.sy(pts[0][1])); for (const q of pts.slice(1)) ctx.lineTo(v.sx(q[0]), v.sy(q[1])); if (cursor) ctx.lineTo(v.sx(cursor[0]), v.sy(cursor[1])); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle = color; for (const q of pts) { ctx.beginPath(); ctx.arc(v.sx(q[0]), v.sy(q[1]), 3.5, 0, 7); ctx.fill(); }
+  if (cursor && pts.length) { const a = pts[pts.length - 1], L = Math.hypot(cursor[0] - a[0], cursor[1] - a[1]); ctx.font = '11px system-ui'; ctx.fillStyle = '#1d2329'; ctx.fillText(`${L.toFixed(2)} מ'`, v.sx(cursor[0]) + 10, v.sy(cursor[1]) - 8); }
+  ctx.restore();
 }

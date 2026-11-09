@@ -3,7 +3,7 @@
 import { Frame } from './view.js';
 
 const NEED = ['origin', 'plot', 'tags', 'framing', 'floorGround', 'floorFirst', 'floorRoof', 'perimeter', 'blocks',
-  'plumbing', 'plumbingDisplay'];
+  'plumbing', 'plumbingDisplay', 'plumbingCatalog'];
 
 async function getJson(url) {
   const r = await fetch(url, { cache: 'no-cache' });
@@ -76,11 +76,9 @@ export function buildModel(D) {
     }
     return out;
   };
-  const pipes = [];
-  for (const r of D.routes.runs) {
-    pipes.push({ layer: 'prop', ref: r, id: r.id, system: r.system, floor: r.floor, kind: r.kind, pts: r.vertices.map(v => fr.toLocal(v[0], v[1])),
-      H: r.vertices.map(v => v[2]), verticals: verticals(r.vertices), readOnly: false });
-  }
+  const propPipe = (r) => ({ layer: 'prop', ref: r, id: r.id, system: r.system, floor: r.floor, kind: r.kind, pts: r.vertices.map(v => fr.toLocal(v[0], v[1])),
+    H: r.vertices.map(v => v[2]), verticals: verticals(r.vertices), readOnly: false, manual: r.status === 'manual' });
+  const pipes = D.routes.runs.map(propPipe);
   for (const r of D.plumbing.runs) {
     pipes.push({ layer: 'cons', ref: r, id: r.id, system: r.system, floor: r.drawnOn === 'ground' && r.floor === 'site' ? 'site' : r.floor, kind: 'run',
       pts: r.pts.map(p => fr.toLocal(p[0], p[1])), H: null, verticals: [], superseded: sup.has(r.id), readOnly: true });
@@ -98,7 +96,10 @@ export function buildModel(D) {
     return null;
   };
   const nodes = D.routes.nodes.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N) }));
-  return { frame: fr, H0, floors, pipes, nodes, showsOn, levels };
+  const M = { frame: fr, H0, floors, pipes, nodes, showsOn, levels };
+  // the proposal part is rebuilt from the store after every edit; the consultant part never changes
+  M.setRuns = (runs) => { M.pipes = [...runs.map(propPipe), ...pipes.filter(p => p.layer === 'cons')]; };
+  return M;
 }
 
 export function systemsOf(D) {

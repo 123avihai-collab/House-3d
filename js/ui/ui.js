@@ -90,7 +90,8 @@ export class UI {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ' && !e.shiftKey) { app.store.undo(); e.preventDefault(); }
       if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey))) { app.store.redo(); e.preventDefault(); }
-      if (e.code === 'Escape') { app.nav.stopWalk(); app.setTool('inspect'); }
+      if (e.code === 'Escape') { if (app.activeTool === 'measure' && app.tools.measure.undoPoint()) return; app.nav.stopWalk(); app.setTool('inspect'); }
+      if (e.code === 'F8' && app.activeTool === 'measure') { const m = app.tools.measure; m.setOpt('ortho', !m.opts.ortho); this.toast(m.opts.ortho ? 'אורתו: פועל – הנקודה השנייה ננעלת לציר' : 'אורתו: כבוי'); e.preventDefault(); }
     });
   }
   syncTop() {
@@ -122,13 +123,14 @@ export class UI {
     const { app } = this; const tb = this.$('toolbar');
     const tools = [
       ['inspect', '⌖', 'מידות: לחיצה על רכיב מציגה מידות ומרחקים'],
-      ['measure', '📏', 'מדידה חופשית בין שתי נקודות'],
+      ['measure', '📏', 'מדידה: נצמד לפינות / אמצע / קצוות, מציג קו ישיר + פירוק לצירי הבית X / Y / Z'],
       ['note', '📝', 'הוספת הערה לרכיב'],
       ['walk', '🚶', 'הליכה בגובה עיניים'],
     ];
     for (const [id, icon, title] of tools) {
       tb.append(h('button', { 'data-tool': id, title, onclick: () => id === 'walk' ? (app.nav.walking ? app.nav.stopWalk() : app.nav.startWalk()) : app.setTool(id) }, icon));
     }
+    tb.querySelector('[data-tool="measure"]').addEventListener('click', () => { if (app.activeTool === 'measure' && !this.isMobile()) this.openTab('tools'); });
     tb.append(h('button', { title: 'חתך', onclick: () => { this.openTab('section'); } }, '✂'));
     tb.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
     tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
@@ -146,8 +148,33 @@ export class UI {
     } }, '🔧'));
     app.store.on((s) => document.querySelector('#toolbar [data-k="xray"]')?.classList.toggle('on', !!s.showHidden));
     document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
+    this.buildMeasureBar();
   }
-  setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); }
+  // floating bar of the measuring tool (only while it is active): snap, ortho, axes, undo point, clear, done
+  buildMeasureBar() {
+    const { app } = this; const m = () => app.tools.measure;
+    // icon + text (the text is hidden on a phone, so the bar fits in one row)
+    const lb = (icon, text) => [h('span', { class: 'i' }, icon), h('span', { class: 't' }, text)];
+    const tg = (k, icon, text, title) => h('button', { 'data-o': k, title, onclick: () => { m().setOpt(k, !m().opts[k]); } }, lb(icon, text));
+    this.measureBar = h('div', { id: 'measurebar', class: 'hidden' },
+      tg('snap', '🧲', 'הצמדה', 'הצמדה לפינה ■ / אמצע ▲ / קצה ◆ (כבוי = נקודה חופשית על המשטח)'),
+      tg('ortho', '⊾', 'אורתו', 'אורתו (F8): הנקודה השנייה ננעלת לציר הקרוב – X / Y / Z'),
+      h('div', { class: 'seg small', title: 'צירי הפירוק: צירי הבית (כיוון הקירות) או רשת ITM' },
+        h('button', { 'data-ax': 'house', onclick: () => { m().setOpt('axes', 'house'); m().redraw(); } }, 'בית'),
+        h('button', { 'data-ax': 'itm', onclick: () => { m().setOpt('axes', 'itm'); m().redraw(); } }, 'ITM')),
+      h('button', { title: 'ביטול הנקודה הראשונה (Esc)', onclick: () => m().undoPoint() }, lb('↶', 'נקודה')),
+      h('button', { title: 'מחיקת כל המדידות', onclick: () => m().clearAll() }, lb('🗑', 'נקה')),
+      h('button', { title: 'סיום מדידה', onclick: () => app.setTool('inspect') }, lb('✓', 'סיום')));
+    this.$('viewport').append(this.measureBar);
+  }
+  syncMeasureBar() {
+    const m = this.app.tools.measure; if (!this.measureBar || !m) return;
+    this.measureBar.classList.toggle('hidden', this.app.activeTool !== 'measure');
+    document.body.classList.toggle('measuring', this.app.activeTool === 'measure');
+    this.measureBar.querySelectorAll('[data-o]').forEach(b => b.classList.toggle('on', !!m.opts[b.dataset.o]));
+    this.measureBar.querySelectorAll('[data-ax]').forEach(b => b.classList.toggle('on', m.opts.axes === b.dataset.ax));
+  }
+  setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); this.syncMeasureBar(); }
   setWalkUI(on) {
     document.body.classList.toggle('walking', on);
     document.querySelector('#toolbar [data-tool="walk"]')?.classList.toggle('on', on);
@@ -373,14 +400,33 @@ export class UI {
   }
 
   panel_tools() {
-    const { app } = this; const m = app.tools.measure;
-    return h('div', {},
-      h('p', { class: 'muted' }, 'מדידה חופשית: לחיצה על שתי נקודות במודל מציגה מרחק תלת-ממדי, מרחק אופקי והפרש גובה.'),
+    const { app } = this; const m = app.tools.measure; const n = m.axisNames();
+    const on = app.activeTool === 'measure';
+    const kind = (k) => ({ vertex: '■', mid: '▲', edge: '◆', face: '●' })[k.split('+')[0]] + (k.includes('ortho') ? '⊾' : '');
+    return h('div', { class: 'measure-panel' },
+      h('p', { class: 'muted' }, 'לוחצים על שתי נקודות. הסמן נצמד לפינה ■, לאמצע ▲ או לקצה ◆ (אחרת ● משטח). הקו הישיר (האלכסוני) הוא המידה הראשית, והקווים המקווקווים מפרקים אותו לצירי הבית: ',
+        h('b', { class: 'ax-x' }, n.x), ' · ', h('b', { class: 'ax-y' }, n.y), ' · ', h('b', { class: 'ax-z' }, n.z), '. אורתו (F8) – מדידה ישרה לאורך ציר. Esc – ביטול נקודה.'),
       h('div', { class: 'btns' },
-        h('button', { class: app.activeTool === 'measure' ? 'on' : '', onclick: () => app.setTool('measure') }, '📏 התחל מדידה'),
-        h('button', { onclick: () => m.clearAll() }, 'נקה מדידות'),
-        h('button', { class: app.activeTool === 'inspect' ? 'on' : '', onclick: () => app.setTool('inspect') }, '⌖ מידות רכיב')),
-      m.items.length ? h('table', { class: 'kv' }, m.items.map((it, i) => tr(`#${i + 1}`, `${it.d3.toFixed(3)} מ' · אופקי ${it.dh.toFixed(3)} · ΔH ${it.dz.toFixed(3)}`))) : h('p', { class: 'muted' }, 'אין מדידות.'));
+        h('button', { class: on ? 'on' : 'primary', onclick: () => app.setTool(on ? 'inspect' : 'measure') }, on ? '✓ מודד – לחץ לסיום' : '📏 התחל מדידה'),
+        h('button', { class: m.opts.snap ? 'on' : '', onclick: () => m.setOpt('snap', !m.opts.snap) }, '🧲 הצמדה'),
+        h('button', { class: m.opts.ortho ? 'on' : '', onclick: () => m.setOpt('ortho', !m.opts.ortho) }, '⊾ אורתו')),
+      h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'צירים:'),
+        h('div', { class: 'seg small' },
+          h('button', { class: m.opts.axes === 'house' ? 'on' : '', onclick: () => { m.setOpt('axes', 'house'); m.redraw(); } }, 'צירי בית'),
+          h('button', { class: m.opts.axes === 'itm' ? 'on' : '', onclick: () => { m.setOpt('axes', 'itm'); m.redraw(); } }, 'רשת ITM'))),
+      h('p', { class: 'muted' }, m.axesText()),
+      m.items.length ? h('table', { class: 'mtable' },
+        h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'ישיר'), h('th', { class: 'ax-x' }, n.x), h('th', { class: 'ax-y' }, n.y), h('th', { class: 'ax-z' }, n.z), h('th', {}, ''))),
+        h('tbody', {}, m.items.map((it, i) => h('tr', {},
+          h('td', { title: `מ: ${kind(it.ka)}  עד: ${kind(it.kb)}` }, `${i + 1}`, h('small', {}, ` ${kind(it.ka)}${kind(it.kb)}`)),
+          h('td', { title: `אופקי ${it.dh.toFixed(3)}` }, h('b', {}, it.d3.toFixed(3))),
+          h('td', {}, Math.abs(it.dx).toFixed(3)), h('td', {}, Math.abs(it.dy).toFixed(3)), h('td', {}, m.sgn(it.dz)),
+          h('td', { class: 'acts' }, h('button', { class: 'small', title: 'הצג במודל', onclick: () => m.focus(i) }, '👁'), h('button', { class: 'small x', title: 'מחק', onclick: () => m.remove(i) }, '✕'))))))
+        : h('p', { class: 'muted' }, 'אין מדידות.'),
+      h('div', { class: 'btns' },
+        h('button', { disabled: !m.items.length, onclick: () => this.copy(m.toText(), 'המדידות הועתקו') }, '📋 העתק מדידות'),
+        h('button', { disabled: !m.items.length, onclick: () => m.clearAll() }, '🗑 נקה הכול'),
+        h('button', { class: app.activeTool === 'inspect' ? 'on' : '', onclick: () => app.setTool('inspect') }, '⌖ מידות רכיב')));
   }
 
   panel_nav() {

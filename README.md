@@ -49,7 +49,8 @@ js/
     blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס + משקופים (דלתות וחלונות) מבלוק משקוף (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx) · בדיקת מגע: python3 tools/verify_blocks.py → docs/verification/blocks-check.md
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
-    measure.js             מדידה חופשית בין שתי נקודות
+    measure.js             מדידה: הצמדה לפינה / אמצע / קצה, קו ישיר (אלכסוני) + פירוק לצירי הבית X / Y / Z, אורתו (F8), צירי בית / ITM, סרגל מדידה צף וטבלה בלשונית "מדידה"
+    snap.js                מנוע ההצמדה (קצוות אמיתיים EdgesGeometry, חיפוש ברשת, חלקים צמודים) + צירי הבית מכיווני קירות קומת הקרקע
     inspect.js             מידות רכיב, ברזל, מקור ומרחקים לגבולות ולקירות
     search.js              חיפוש אלמנט לפי שם (B7, GW19…)
     rebar.js               ברזל לכל אלמנט + ביקורת ברזל לפי שלב

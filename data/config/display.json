@@ -172,5 +172,25 @@
   "joint_m": 0.008,
   "labelLift_m": 0.15,
   "lintelColor": "#a9a9a4"
+ },
+ "measure": {
+  "_doc": "js/tools/measure.js + js/tools/snap.js: snap radius on screen (mouse / touch), edge angle that counts as a real edge (not a triangle diagonal), spatial grid cell for the edge search, the largest mesh that gets full edge snapping (bigger – triangle corners only), colors of the direct line and of the house axes X/Y/Z, marker / dot sizes. Display constants, not model dimensions. The house axes are not set here: they are derived at runtime from the ground floor walls (data/structure/floor-ground.json walls[].footprintITM).",
+  "snapPx_mouse": 14,
+  "snapPx_touch": 30,
+  "edgeThresholdDeg": 20,
+  "gridCell_m": 1.0,
+  "maxSnapTriangles": 600000,
+  "axisHistogramBinDeg": 0.5,
+  "zeroComponent_m": 0.005,
+  "dotRadius_m": 0.06,
+  "colors": {
+   "direct": "#00e5ff",
+   "x": "#ff5252",
+   "y": "#69f0ae",
+   "z": "#448aff",
+   "preview": "#ffd740",
+   "horizontal": "#b0bec5"
+  },
+  "minLegShare": 0.02
  }
 }

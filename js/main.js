@@ -93,7 +93,7 @@ async function main() {
   if (clampStage(store.get().stageIndex) !== store.get().stageIndex) store.set({ stageIndex: nSteps - 1 }, { record: false });
 
   const app = {
-    data, coords, viewer, registry, store, display, defaults, plotCenter, ground: ctx.ground, tools: {}, activeTool: 'inspect', quantities,
+    data, coords, viewer, registry, store, display, defaults, plotCenter, ground: ctx.ground, tools: {}, activeTool: 'inspect', quantities, lineMats,
     sun: new SunController(viewer, coords, display, data.origin.timezone),
   };
   app.sun.center.copy(plotCenter);
@@ -193,7 +193,9 @@ async function main() {
     ray.setFromCamera(ndc, viewer.camera);
     const hits = ray.intersectObjects(registry.pickables(), false);
     const planes = viewer.renderer.clippingPlanes;
-    return hits.find(h => planes.every(p => p.distanceToPoint(h.point) >= 0)) || null;
+    const vis = hits.filter(h => planes.every(p => p.distanceToPoint(h.point) >= 0));
+    app.lastHits = vis;   // the measuring snap also looks at the parts just behind the first one (corners shared by two parts)
+    return vis[0] || null;
   };
   let down = null;
   el.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY }; });
@@ -201,6 +203,7 @@ async function main() {
     if (app.nav.walking && down) { app.nav.look(e.clientX - down.lx, e.clientY - down.ly); down.lx = e.clientX; down.ly = e.clientY; return; }
     if (e.pointerType === 'mouse') hover(e);
   });
+  el.addEventListener('pointerleave', () => { if (app.activeTool === 'measure') app.tools.measure.hideMarker(); });
   el.addEventListener('pointerup', (e) => {
     if (!down) return;
     const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6;
@@ -208,11 +211,12 @@ async function main() {
     if (moved || app.nav.walking) return;
     const hit = pick(e);
     const map = { inspect: 'inspect', measure: 'measure', note: 'notes', fix: 'fixes' };
-    app.tools[map[app.activeTool]]?.handleClick(hit);
+    if (app.activeTool === 'measure') app.tools.measure.handleClick(hit, e); else app.tools[map[app.activeTool]]?.handleClick(hit);
     if (hit) showReadout(hit);
   });
   let hoverT = 0;
-  const hover = (e) => { const now = performance.now(); if (now - hoverT < 50) return; hoverT = now; const hit = pick(e); if (hit) showReadout(hit); };
+  const hover = (e) => { const now = performance.now(); if (now - hoverT < 50) return; hoverT = now; const hit = pick(e); if (hit) showReadout(hit);
+    if (app.activeTool === 'measure' && !down) app.tools.measure.handleHover(hit, e); };   // snap marker + live line (not while orbiting)
   const showReadout = (hit) => {
     const P = coords.fromLocal(hit.point);
     app.ui.status(`${coords.fmtEN(P.E, P.N)} · H ${coords.fmtH(P.H)} · ${hit.object.userData.component?.meta?.name || ''}`);

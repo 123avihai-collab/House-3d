@@ -233,3 +233,33 @@ body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
 .layers details.grp > summary { display: flex; align-items: center; gap: 6px; }
 .layers details.grp > summary .cnt { opacity: .7; }
 .layers details.grp > summary .solo { margin-inline-start: auto; }
+
+/* measuring tool: snap marker, labels per axis, floating bar, results table (09.11.2026) */
+.snapmark { pointer-events: none; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; white-space: nowrap; transform: translateY(-16px); background: rgba(20,22,26,.85); color: #fff; border: 1px solid #fff4; }
+.snapmark.k-vertex { color: #ffd740; border-color: #ffd740; }
+.snapmark.k-mid { color: #69f0ae; border-color: #69f0ae; }
+.snapmark.k-edge { color: #40c4ff; border-color: #40c4ff; }
+.snapmark.k-face { color: #cfd8dc; }
+.lbl.measure.main { background: #00838f; font-size: 13px; padding: 2px 7px; border: 1px solid #00e5ff; }
+.lbl.measure.main small { font-size: 10.5px; opacity: .85; }
+.lbl.measure.live { background: rgba(255,215,64,.92); color: #111; font-weight: 700; }
+.lbl.measure.ax { font-size: 10.5px; padding: 0 5px; background: rgba(20,22,26,.85); }
+.lbl.measure.ax-x { color: #ff8a80; } .lbl.measure.ax-y { color: #69f0ae; } .lbl.measure.ax-z { color: #82b1ff; }
+.ax-x { color: #ff8a80; } .ax-y { color: #69f0ae; } .ax-z { color: #82b1ff; }
+#measurebar { position: absolute; bottom: 10px; left: 60px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px; background: rgba(24,28,34,.92); border: 1px solid var(--line); border-radius: 10px; z-index: 7; max-width: calc(100% - 270px); }
+#measurebar button { font-size: 12.5px; padding: 4px 9px; }
+#measurebar .seg button { border-radius: 0; }
+#measurebar .i + .t { margin-inline-start: 4px; }
+body.measuring .pl-fab { display: none; }   /* the plumbing button sits where the measuring bar is */
+
+table.mtable { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 6px 0; direction: rtl; }
+table.mtable th { color: var(--muted); font-weight: 600; text-align: center; padding: 3px 2px; border-bottom: 1px solid var(--line); }
+table.mtable td { text-align: center; padding: 3px 2px; direction: ltr; unicode-bidi: plaintext; border-bottom: 1px solid #ffffff10; }
+table.mtable td small { color: var(--muted); }
+table.mtable td.acts { white-space: nowrap; }
+@media (max-width: 760px) {
+  #measurebar { top: auto; bottom: 10px; left: 56px; right: 10px; max-width: none; justify-content: center; flex-wrap: nowrap; }
+  #measurebar button { min-height: 36px; min-width: 38px; padding: 4px 8px; }
+  #measurebar .t { display: none; }
+  body:has(#measurebar:not(.hidden)) #minimap, body:has(#measurebar:not(.hidden)) #minimapClose { display: none; }
+}

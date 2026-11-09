@@ -54,6 +54,27 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.evaluate(() => window.__app.setTool('measure'));
     await page.mouse.click(cx - 80, cy); await page.mouse.click(cx + 80, cy + 30); await page.waitForTimeout(300);
     info.measures = await page.evaluate(() => window.__app.tools.measure.items.map(i => +i.d3.toFixed(3)));
+    // measure snap: the longest straight edge of a roof parapet (K-41), clicked 6 px beside its corners, must snap to both
+    // corners and give the source length (data/structure/floor-roof.json footprintITM) within 1 mm
+    info.measureSnap = await (async () => {
+      const t = await page.evaluate(() => {
+        const a = window.__app, C = a.coords; let best = null;
+        for (const w of a.data.floorRoof.walls) { const r = w.footprintITM; for (let i = 0; i < r.length; i++) { const P = r[i], Q = r[(i + 1) % r.length]; const L = Math.hypot(Q[0] - P[0], Q[1] - P[1]); if (!best || L > best.L) best = { L, P, Q, top: w.topRel }; } }
+        const pa = C.toLocal(best.P[0], best.P[1], C.H0 + best.top), pb = C.toLocal(best.Q[0], best.Q[1], C.H0 + best.top), c = pa.clone().lerp(pb, 0.5);
+        a.store.set({ stageIndex: a.data.tags.sequence.length - 1 }, { record: false });
+        a.viewer.controls.target.copy(c); a.viewer.camera.position.set(c.x + 6, c.y + 14, c.z + 9); a.viewer.controls.update(); a.viewer.camera.updateMatrixWorld(); a.viewer.invalidate();
+        a.setTool('measure'); const m = a.tools.measure; m.clearAll(); m.setOpt('snap', true); m.setOpt('ortho', false);
+        const el = a.viewer.renderer.domElement.getBoundingClientRect();
+        const sc = (v) => { const s = m.snapper.toScreen(v); return [s.x + el.left, s.y + el.top]; };
+        return { L: best.L, pts: [sc(pa), sc(pb)] };
+      });
+      await page.waitForTimeout(600);
+      for (const [x, y] of t.pts) { await page.mouse.move(x + 6, y - 6); await page.waitForTimeout(80); await page.mouse.click(x + 6, y - 6); await page.waitForTimeout(150); }
+      const r = await page.evaluate(() => { const it = window.__app.tools.measure.items[0]; return it && { d3: it.d3, k: it.ka + '/' + it.kb, dy: it.dy }; });
+      await page.evaluate(() => { window.__app.tools.measure.clearAll(); window.__app.setTool('inspect'); });
+      return r && Math.abs(r.d3 - t.L) < 0.001 && r.k === 'vertex/vertex' ? 'ok' : JSON.stringify({ src: t.L, r });
+    })();
+    if (info.measureSnap !== 'ok') errors.push('measure snap: ' + info.measureSnap);
     await page.evaluate(() => window.__app.setTool('note'));
     await page.mouse.click(cx, cy + 20);
     await page.fill('.modal textarea', 'בדיקה אוטומטית'); await page.click('.modal .primary');

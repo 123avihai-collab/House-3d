@@ -362,6 +362,11 @@
      "visible": true
     },
     {
+     "id": "lintels",
+     "label": "משקופים (דלתות וחלונות) – בלוק משקוף",
+     "visible": true
+    },
+    {
      "id": "shutterBoxes",
      "label": "ארגזי תריס גלילה",
      "visible": true

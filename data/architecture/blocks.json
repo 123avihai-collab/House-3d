@@ -28,10 +28,15 @@
    "openings": [
     {
      "id": "U01",
+     "kind": "sliding",
      "s0": 0.0,
      "s1": 2.0,
      "z0": -1.3,
      "z1": -0.46,
+     "clip": [
+      "L",
+      "R"
+     ],
      "shutter": false
     }
    ],
@@ -64,10 +69,12 @@
    "openings": [
     {
      "id": "G07",
+     "kind": "door",
      "s0": 0.042,
      "s1": 0.802,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -79,19 +86,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G07",
+     "opening": "G07",
      "s0": 0.0,
      "s1": 0.982,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G07"
-     ],
-     "bearing": [
-      0.042,
-      0.18
-     ],
+     "bearL_m": 0.042,
+     "bearR_m": 0.18,
+     "length_m": 0.982,
      "status": "provisional",
-     "id": "BK-G2-L1"
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.102
@@ -143,10 +154,12 @@
    "openings": [
     {
      "id": "G12",
+     "kind": "window",
      "s0": 0.011,
      "s1": 0.671,
      "z0": 1.5,
      "z1": 2.3,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -158,19 +171,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G12",
+     "opening": "G12",
      "s0": 0.0,
      "s1": 0.731,
      "z0": 2.3,
      "z1": 2.55,
-     "openings": [
-      "G12"
-     ],
-     "bearing": [
-      0.011,
-      0.06
-     ],
+     "bearL_m": 0.011,
+     "bearR_m": 0.06,
+     "length_m": 0.731,
      "status": "provisional",
-     "id": "BK-G4-L1"
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.221
@@ -250,18 +267,22 @@
    "openings": [
     {
      "id": "G08",
+     "kind": "door",
      "s0": 0.943,
      "s1": 1.703,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     },
     {
      "id": "G10",
+     "kind": "window",
      "s0": 0.053,
      "s1": 0.713,
      "z0": 1.5,
      "z1": 2.3,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -273,34 +294,38 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G10",
+     "opening": "G10",
      "s0": 0.0,
      "s1": 0.913,
      "z0": 2.3,
      "z1": 2.55,
-     "openings": [
-      "G10"
-     ],
-     "bearing": [
-      0.053,
-      0.2
-     ],
+     "bearL_m": 0.053,
+     "bearR_m": 0.2,
+     "length_m": 0.913,
      "status": "provisional",
-     "id": "BK-G7-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": [
+      "L"
+     ]
     },
     {
+     "id": "LT-G08",
+     "opening": "G08",
      "s0": 0.743,
      "s1": 1.903,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G08"
-     ],
-     "bearing": [
-      0.2,
-      0.2
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.2,
+     "length_m": 1.16,
      "status": "provisional",
-     "id": "BK-G7-L2"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.22
@@ -379,10 +404,14 @@
    "openings": [
     {
      "id": "G11",
+     "kind": "window",
      "s0": 0.518,
      "s1": 1.148,
      "z0": 1.5,
      "z1": 2.3,
+     "clip": [
+      "R"
+     ],
      "shutter": false
     }
    ],
@@ -394,19 +423,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G11",
+     "opening": "G11",
      "s0": 0.318,
      "s1": 1.148,
      "z0": 2.3,
      "z1": 2.55,
-     "openings": [
-      "G11"
-     ],
-     "bearing": [
-      0.2,
-      0.0
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.0,
+     "length_m": 0.83,
      "status": "provisional",
-     "id": "BK-G10-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": [
+      "R"
+     ]
     }
    ],
    "drawnThickness_m": 0.22
@@ -485,10 +517,12 @@
    "openings": [
     {
      "id": "G04",
+     "kind": "door",
      "s0": 1.319,
      "s1": 2.279,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -500,19 +534,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G04",
+     "opening": "G04",
      "s0": 1.119,
      "s1": 2.291,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G04"
-     ],
-     "bearing": [
-      0.2,
-      0.012
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.012,
+     "length_m": 1.172,
      "status": "provisional",
-     "id": "BK-G13-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": [
+      "R"
+     ]
     }
    ],
    "drawnThickness_m": 0.1
@@ -537,10 +574,14 @@
    "openings": [
     {
      "id": "G03",
+     "kind": "door",
      "s0": 0.0,
      "s1": 0.95,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [
+      "L"
+     ],
      "shutter": false
     }
    ],
@@ -552,19 +593,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G03",
+     "opening": "G03",
      "s0": 0.0,
      "s1": 1.15,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G03"
-     ],
-     "bearing": [
-      0.0,
-      0.2
-     ],
+     "bearL_m": 0.0,
+     "bearR_m": 0.2,
+     "length_m": 1.15,
      "status": "provisional",
-     "id": "BK-G14-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [
+      "L"
+     ],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -616,10 +660,12 @@
    "openings": [
     {
      "id": "G06",
+     "kind": "door",
      "s0": 0.0,
      "s1": 0.759,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -631,19 +677,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G06",
+     "opening": "G06",
      "s0": 0.0,
      "s1": 0.886,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G06"
-     ],
-     "bearing": [
-      0.0,
-      0.127
-     ],
+     "bearL_m": 0.0,
+     "bearR_m": 0.127,
+     "length_m": 0.886,
      "status": "provisional",
-     "id": "BK-G16-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [
+      "L",
+      "R"
+     ],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -776,10 +826,12 @@
    "openings": [
     {
      "id": "G14",
+     "kind": "window",
      "s0": 0.62,
      "s1": 1.93,
      "z0": 0.8,
      "z1": 3.25,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -791,19 +843,20 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G14",
+     "opening": "G14",
      "s0": 0.42,
      "s1": 2.13,
      "z0": 3.25,
      "z1": 3.45,
-     "openings": [
-      "G14"
-     ],
-     "bearing": [
-      0.2,
-      0.2
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.2,
+     "length_m": 1.71,
      "status": "provisional",
-     "id": "BK-G21-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.22
@@ -882,10 +935,15 @@
    "openings": [
     {
      "id": "G15",
+     "kind": "window",
      "s0": 0.0,
      "s1": 1.25,
      "z0": 1.1,
      "z1": 3.65,
+     "clip": [
+      "L",
+      "R"
+     ],
      "shutter": true
     }
    ],
@@ -918,10 +976,12 @@
    "openings": [
     {
      "id": "G20",
+     "kind": "window",
      "s0": 0.039,
      "s1": 1.349,
      "z0": 1.1,
      "z1": 3.65,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -1035,10 +1095,12 @@
    "openings": [
     {
      "id": "G01",
+     "kind": "door",
      "s0": 0.415,
      "s1": 1.767,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -1050,19 +1112,20 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G01",
+     "opening": "G01",
      "s0": 0.215,
      "s1": 1.967,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G01"
-     ],
-     "bearing": [
-      0.2,
-      0.2
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.2,
+     "length_m": 1.752,
      "status": "provisional",
-     "id": "BK-G29-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.22
@@ -1114,10 +1177,12 @@
    "openings": [
     {
      "id": "G16",
+     "kind": "vitrine",
      "s0": 0.07,
      "s1": 5.07,
      "z0": 0.0,
      "z1": 3.35,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -1129,19 +1194,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G16",
+     "opening": "G16",
      "s0": 0.0,
      "s1": 5.139,
      "z0": 3.35,
      "z1": 3.45,
-     "openings": [
-      "G16"
-     ],
-     "bearing": [
-      0.07,
-      0.069
-     ],
+     "bearL_m": 0.07,
+     "bearR_m": 0.069,
+     "length_m": 5.139,
      "status": "provisional",
-     "id": "BK-G31-L1"
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.3
@@ -1166,10 +1235,14 @@
    "openings": [
     {
      "id": "G19",
+     "kind": "window",
      "s0": 0.23,
      "s1": 1.261,
      "z0": -0.0,
      "z1": 2.85,
+     "clip": [
+      "R"
+     ],
      "shutter": true
     }
    ],
@@ -1181,19 +1254,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G19",
+     "opening": "G19",
      "s0": 0.03,
      "s1": 1.261,
      "z0": 2.85,
      "z1": 3.1,
-     "openings": [
-      "G19"
-     ],
-     "bearing": [
-      0.2,
-      0.0
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.0,
+     "length_m": 1.231,
      "status": "provisional",
-     "id": "BK-G32-L1"
+     "onConcrete": [
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.35,
@@ -1274,10 +1350,12 @@
    "openings": [
     {
      "id": "G17",
+     "kind": "window",
      "s0": 0.031,
      "s1": 1.711,
      "z0": 0.4,
      "z1": 2.79,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -1289,19 +1367,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G17",
+     "opening": "G17",
      "s0": 0.0,
      "s1": 1.911,
      "z0": 2.79,
      "z1": 3.04,
-     "openings": [
-      "G17"
-     ],
-     "bearing": [
-      0.031,
-      0.2
-     ],
+     "bearL_m": 0.031,
+     "bearR_m": 0.2,
+     "length_m": 1.911,
      "status": "provisional",
-     "id": "BK-G35-L1"
+     "onConcrete": [
+      "L"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.322
@@ -1380,10 +1461,12 @@
    "openings": [
     {
      "id": "G18",
+     "kind": "vitrine",
      "s0": 0.0,
      "s1": 2.3,
      "z0": 0.0,
      "z1": 2.8,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -1395,19 +1478,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G18",
+     "opening": "G18",
      "s0": 0.0,
      "s1": 2.5,
      "z0": 2.8,
      "z1": 3.05,
-     "openings": [
-      "G18"
-     ],
-     "bearing": [
-      0.0,
-      0.2
-     ],
+     "bearL_m": 0.0,
+     "bearR_m": 0.2,
+     "length_m": 2.5,
      "status": "provisional",
-     "id": "BK-G38-L1"
+     "onConcrete": [
+      "L"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.301
@@ -1432,10 +1518,12 @@
    "openings": [
     {
      "id": "G02",
+     "kind": "door",
      "s0": 0.142,
      "s1": 1.102,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -1447,19 +1535,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G02",
+     "opening": "G02",
      "s0": 0.0,
      "s1": 1.241,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G02"
-     ],
-     "bearing": [
-      0.142,
-      0.139
-     ],
+     "bearL_m": 0.142,
+     "bearR_m": 0.139,
+     "length_m": 1.241,
      "status": "provisional",
-     "id": "BK-G39-L1"
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -1538,10 +1630,12 @@
    "openings": [
     {
      "id": "G05",
+     "kind": "door",
      "s0": 0.001,
      "s1": 0.761,
      "z0": 0.0,
      "z1": 2.1,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -1553,19 +1647,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G05",
+     "opening": "G05",
      "s0": 0.0,
      "s1": 0.961,
      "z0": 2.1,
      "z1": 2.35,
-     "openings": [
-      "G05"
-     ],
-     "bearing": [
-      0.001,
-      0.2
-     ],
+     "bearL_m": 0.001,
+     "bearR_m": 0.2,
+     "length_m": 0.961,
      "status": "provisional",
-     "id": "BK-G42-L1"
+     "onConcrete": [
+      "L"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -1590,10 +1687,12 @@
    "openings": [
     {
      "id": "G13",
+     "kind": "window",
      "s0": 0.979,
      "s1": 1.639,
      "z0": 1.5,
      "z1": 2.3,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -1605,19 +1704,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-G13",
+     "opening": "G13",
      "s0": 0.779,
      "s1": 1.818,
      "z0": 2.3,
      "z1": 2.55,
-     "openings": [
-      "G13"
-     ],
-     "bearing": [
-      0.2,
-      0.179
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.179,
+     "length_m": 1.039,
      "status": "provisional",
-     "id": "BK-G43-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": [
+      "R"
+     ]
     }
    ],
    "drawnThickness_m": 0.22
@@ -1831,10 +1933,12 @@
    "openings": [
     {
      "id": "F10",
+     "kind": "vitrine",
      "s0": 0.072,
      "s1": 5.072,
      "z0": 3.85,
      "z1": 6.3,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -1846,19 +1950,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F10",
+     "opening": "F10",
      "s0": 0.0,
      "s1": 5.139,
      "z0": 6.3,
      "z1": 6.55,
-     "openings": [
-      "F10"
-     ],
-     "bearing": [
-      0.072,
-      0.067
-     ],
+     "bearL_m": 0.072,
+     "bearR_m": 0.067,
+     "length_m": 5.139,
      "status": "provisional",
-     "id": "BK-F51-L1"
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.3
@@ -1883,10 +1991,12 @@
    "openings": [
     {
      "id": "F05",
+     "kind": "door",
      "s0": 0.189,
      "s1": 1.049,
      "z0": 3.85,
      "z1": 5.95,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -1898,19 +2008,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F05",
+     "opening": "F05",
      "s0": 0.0,
      "s1": 1.249,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F05"
-     ],
-     "bearing": [
-      0.189,
-      0.2
-     ],
+     "bearL_m": 0.189,
+     "bearR_m": 0.2,
+     "length_m": 1.249,
      "status": "provisional",
-     "id": "BK-F52-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [
+      "L"
+     ],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -1935,10 +2048,14 @@
    "openings": [
     {
      "id": "F01",
+     "kind": "window",
      "s0": 1.288,
      "s1": 1.919,
      "z0": 5.15,
      "z1": 5.95,
+     "clip": [
+      "R"
+     ],
      "shutter": false
     }
    ],
@@ -1950,19 +2067,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F01",
+     "opening": "F01",
      "s0": 1.088,
      "s1": 1.919,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F01"
-     ],
-     "bearing": [
-      0.2,
-      0.0
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.0,
+     "length_m": 0.831,
      "status": "provisional",
-     "id": "BK-F53-L1"
+     "onConcrete": [
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.221
@@ -2097,10 +2217,12 @@
    "openings": [
     {
      "id": "F07",
+     "kind": "door",
      "s0": 0.119,
      "s1": 0.979,
      "z0": 3.85,
      "z1": 5.95,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -2112,19 +2234,23 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F07",
+     "opening": "F07",
      "s0": 0.0,
      "s1": 0.989,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F07"
-     ],
-     "bearing": [
-      0.119,
-      0.01
-     ],
+     "bearL_m": 0.119,
+     "bearR_m": 0.01,
+     "length_m": 0.989,
      "status": "provisional",
-     "id": "BK-F58-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": [
+      "L",
+      "R"
+     ]
     }
    ],
    "drawnThickness_m": 0.1
@@ -2176,10 +2302,14 @@
    "openings": [
     {
      "id": "F08",
+     "kind": "door",
      "s0": 0.0,
      "s1": 0.452,
      "z0": 3.85,
      "z1": 5.95,
+     "clip": [
+      "L"
+     ],
      "shutter": false
     }
    ],
@@ -2191,19 +2321,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F08-F60",
+     "opening": "F08",
      "s0": 0.0,
      "s1": 0.652,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F08"
-     ],
-     "bearing": [
-      0.0,
-      0.2
-     ],
+     "bearL_m": 0.0,
+     "bearR_m": 0.2,
+     "length_m": 0.652,
      "status": "provisional",
-     "id": "BK-F60-L1"
+     "onConcrete": [],
+     "continues": [
+      "L"
+     ],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.101
@@ -2282,10 +2415,14 @@
    "openings": [
     {
      "id": "F08",
+     "kind": "door",
      "s0": 2.557,
      "s1": 2.966,
      "z0": 3.85,
      "z1": 5.95,
+     "clip": [
+      "R"
+     ],
      "shutter": false
     }
    ],
@@ -2297,19 +2434,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F08-F63",
+     "opening": "F08",
      "s0": 2.357,
      "s1": 2.966,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F08"
-     ],
-     "bearing": [
-      0.2,
-      0.0
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.0,
+     "length_m": 0.609,
      "status": "provisional",
-     "id": "BK-F63-L1"
+     "onConcrete": [],
+     "continues": [
+      "R"
+     ],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.1
@@ -2389,10 +2529,14 @@
    "openings": [
     {
      "id": "F02",
+     "kind": "window",
      "s0": 0.138,
      "s1": 0.55,
      "z0": 5.15,
      "z1": 5.95,
+     "clip": [
+      "R"
+     ],
      "shutter": false
     }
    ],
@@ -2404,19 +2548,24 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F02",
+     "opening": "F02",
      "s0": 0.0,
      "s1": 0.55,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F02"
-     ],
-     "bearing": [
-      0.138,
-      0.0
-     ],
+     "bearL_m": 0.138,
+     "bearR_m": 0.0,
+     "length_m": 0.55,
      "status": "provisional",
-     "id": "BK-F66-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [
+      "L"
+     ],
+     "shortBearing": [
+      "R"
+     ]
     }
    ],
    "drawnThickness_m": 0.22
@@ -2603,10 +2752,12 @@
    "openings": [
     {
      "id": "F04",
+     "kind": "vitrine",
      "s0": 0.546,
      "s1": 2.246,
      "z0": 3.85,
      "z1": 6.45,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -2618,19 +2769,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F04",
+     "opening": "F04",
      "s0": 0.346,
      "s1": 2.366,
      "z0": 6.45,
      "z1": 6.65,
-     "openings": [
-      "F04"
-     ],
-     "bearing": [
-      0.2,
-      0.12
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.12,
+     "length_m": 2.02,
      "status": "provisional",
-     "id": "BK-F73-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [
+      "R"
+     ],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.3
@@ -2683,10 +2837,12 @@
    "openings": [
     {
      "id": "F06",
+     "kind": "door",
      "s0": 0.231,
      "s1": 1.091,
      "z0": 3.85,
      "z1": 5.95,
+     "clip": [],
      "shutter": false
     }
    ],
@@ -2698,19 +2854,20 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F06",
+     "opening": "F06",
      "s0": 0.031,
      "s1": 1.291,
      "z0": 5.95,
      "z1": 6.2,
-     "openings": [
-      "F06"
-     ],
-     "bearing": [
-      0.2,
-      0.2
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.2,
+     "length_m": 1.26,
      "status": "provisional",
-     "id": "BK-F75-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.101
@@ -2816,10 +2973,12 @@
    "openings": [
     {
      "id": "F03",
+     "kind": "vitrine",
      "s0": 1.176,
      "s1": 2.876,
      "z0": 3.85,
      "z1": 6.45,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -2832,19 +2991,20 @@
    "joinedGap_m": 0.05,
    "lintels": [
     {
+     "id": "LT-F03",
+     "opening": "F03",
      "s0": 0.976,
      "s1": 3.076,
      "z0": 6.45,
      "z1": 6.65,
-     "openings": [
-      "F03"
-     ],
-     "bearing": [
-      0.2,
-      0.2
-     ],
+     "bearL_m": 0.2,
+     "bearR_m": 0.2,
+     "length_m": 2.1,
      "status": "provisional",
-     "id": "BK-F79-L1"
+     "onConcrete": [],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.301
@@ -2869,10 +3029,12 @@
    "openings": [
     {
      "id": "F09",
+     "kind": "window",
      "s0": 0.041,
      "s1": 1.351,
      "z0": 4.05,
      "z1": 6.6,
+     "clip": [],
      "shutter": true
     }
    ],
@@ -2884,19 +3046,22 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
+     "id": "LT-F09",
+     "opening": "F09",
      "s0": 0.0,
      "s1": 1.551,
      "z0": 6.6,
      "z1": 6.65,
-     "openings": [
-      "F09"
-     ],
-     "bearing": [
-      0.041,
-      0.2
-     ],
+     "bearL_m": 0.041,
+     "bearR_m": 0.2,
+     "length_m": 1.551,
      "status": "provisional",
-     "id": "BK-F80-L1"
+     "onConcrete": [
+      "L"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
     }
    ],
    "drawnThickness_m": 0.3
@@ -3029,20 +3194,45 @@
    "openings": [
     {
      "id": "F11",
+     "kind": "window",
      "s0": 0.0,
      "s1": 1.25,
      "z0": 4.05,
      "z1": 6.6,
+     "clip": [
+      "L",
+      "R"
+     ],
      "shutter": true
     }
    ],
    "courses": 11,
    "blocksFull": 0,
    "blocksCut": 0,
-   "area_m2": 0.063,
+   "area_m2": 0.0,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
-   "lintels": [],
+   "lintels": [
+    {
+     "id": "LT-F11",
+     "opening": "F11",
+     "s0": 0.0,
+     "s1": 1.25,
+     "z0": 6.6,
+     "z1": 6.65,
+     "bearL_m": 0.0,
+     "bearR_m": 0.0,
+     "length_m": 1.25,
+     "status": "provisional",
+     "onConcrete": [
+      "L",
+      "R"
+     ],
+     "continues": [],
+     "intoCrossWall": [],
+     "shortBearing": []
+    }
+   ],
    "drawnThickness_m": 0.3
   }
  ],
@@ -3335,463 +3525,6 @@
   22,
   30
  ],
- "lintels": [
-  {
-   "id": "BK-G2-L1",
-   "run": "BK-G2",
-   "floor": "ground",
-   "openings": [
-    "G07"
-   ],
-   "length_m": 0.982,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.042,
-    0.18
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G4-L1",
-   "run": "BK-G4",
-   "floor": "ground",
-   "openings": [
-    "G12"
-   ],
-   "length_m": 0.731,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.011,
-    0.06
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G7-L1",
-   "run": "BK-G7",
-   "floor": "ground",
-   "openings": [
-    "G10"
-   ],
-   "length_m": 0.913,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.053,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G7-L2",
-   "run": "BK-G7",
-   "floor": "ground",
-   "openings": [
-    "G08"
-   ],
-   "length_m": 1.16,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G10-L1",
-   "run": "BK-G10",
-   "floor": "ground",
-   "openings": [
-    "G11"
-   ],
-   "length_m": 0.83,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.0
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G13-L1",
-   "run": "BK-G13",
-   "floor": "ground",
-   "openings": [
-    "G04"
-   ],
-   "length_m": 1.172,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.2,
-    0.012
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G14-L1",
-   "run": "BK-G14",
-   "floor": "ground",
-   "openings": [
-    "G03"
-   ],
-   "length_m": 1.15,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.0,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G16-L1",
-   "run": "BK-G16",
-   "floor": "ground",
-   "openings": [
-    "G06"
-   ],
-   "length_m": 0.886,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.0,
-    0.127
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G21-L1",
-   "run": "BK-G21",
-   "floor": "ground",
-   "openings": [
-    "G14"
-   ],
-   "length_m": 1.71,
-   "height_m": 0.2,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G29-L1",
-   "run": "BK-G29",
-   "floor": "ground",
-   "openings": [
-    "G01"
-   ],
-   "length_m": 1.752,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G31-L1",
-   "run": "BK-G31",
-   "floor": "ground",
-   "openings": [
-    "G16"
-   ],
-   "length_m": 5.139,
-   "height_m": 0.1,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.07,
-    0.069
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G32-L1",
-   "run": "BK-G32",
-   "floor": "ground",
-   "openings": [
-    "G19"
-   ],
-   "length_m": 1.231,
-   "height_m": 0.25,
-   "thickness_m": 0.2,
-   "bearing_m": [
-    0.2,
-    0.0
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G35-L1",
-   "run": "BK-G35",
-   "floor": "ground",
-   "openings": [
-    "G17"
-   ],
-   "length_m": 1.911,
-   "height_m": 0.25,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.031,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G38-L1",
-   "run": "BK-G38",
-   "floor": "ground",
-   "openings": [
-    "G18"
-   ],
-   "length_m": 2.5,
-   "height_m": 0.25,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.0,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G39-L1",
-   "run": "BK-G39",
-   "floor": "ground",
-   "openings": [
-    "G02"
-   ],
-   "length_m": 1.241,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.142,
-    0.139
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G42-L1",
-   "run": "BK-G42",
-   "floor": "ground",
-   "openings": [
-    "G05"
-   ],
-   "length_m": 0.961,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.001,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-G43-L1",
-   "run": "BK-G43",
-   "floor": "ground",
-   "openings": [
-    "G13"
-   ],
-   "length_m": 1.039,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.179
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F51-L1",
-   "run": "BK-F51",
-   "floor": "first",
-   "openings": [
-    "F10"
-   ],
-   "length_m": 5.139,
-   "height_m": 0.25,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.072,
-    0.067
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F52-L1",
-   "run": "BK-F52",
-   "floor": "first",
-   "openings": [
-    "F05"
-   ],
-   "length_m": 1.249,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.189,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F53-L1",
-   "run": "BK-F53",
-   "floor": "first",
-   "openings": [
-    "F01"
-   ],
-   "length_m": 0.831,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.2,
-    0.0
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F58-L1",
-   "run": "BK-F58",
-   "floor": "first",
-   "openings": [
-    "F07"
-   ],
-   "length_m": 0.989,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.119,
-    0.01
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F60-L1",
-   "run": "BK-F60",
-   "floor": "first",
-   "openings": [
-    "F08"
-   ],
-   "length_m": 0.652,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.0,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F63-L1",
-   "run": "BK-F63",
-   "floor": "first",
-   "openings": [
-    "F08"
-   ],
-   "length_m": 0.609,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.2,
-    0.0
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F66-L1",
-   "run": "BK-F66",
-   "floor": "first",
-   "openings": [
-    "F02"
-   ],
-   "length_m": 0.55,
-   "height_m": 0.25,
-   "thickness_m": 0.22,
-   "bearing_m": [
-    0.138,
-    0.0
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F73-L1",
-   "run": "BK-F73",
-   "floor": "first",
-   "openings": [
-    "F04"
-   ],
-   "length_m": 2.02,
-   "height_m": 0.2,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.2,
-    0.12
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F75-L1",
-   "run": "BK-F75",
-   "floor": "first",
-   "openings": [
-    "F06"
-   ],
-   "length_m": 1.26,
-   "height_m": 0.25,
-   "thickness_m": 0.1,
-   "bearing_m": [
-    0.2,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F79-L1",
-   "run": "BK-F79",
-   "floor": "first",
-   "openings": [
-    "F03"
-   ],
-   "length_m": 2.1,
-   "height_m": 0.2,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.2,
-    0.2
-   ],
-   "status": "provisional"
-  },
-  {
-   "id": "BK-F80-L1",
-   "run": "BK-F80",
-   "floor": "first",
-   "openings": [
-    "F09"
-   ],
-   "length_m": 1.551,
-   "height_m": 0.05,
-   "thickness_m": 0.3,
-   "bearing_m": [
-    0.041,
-    0.2
-   ],
-   "status": "provisional"
-  }
- ],
- "lintelCfg": {
-  "type": "משקוף בטון מזוין / בלוק U איטונג ממולא בטון",
-  "height_m": 0.25,
-  "bearing_m": 0.2,
-  "status": "provisional",
-  "source": "ערך טיפוסי (גובה נדבך אחד, הישענות 20 ס\"מ לכל צד) – אין פרט משקוף במקורות (open-issues #125). הערות אביחי 09.11 (ק23, ק24, ק28–ק30): בלוק מעל פתח בלי משקוף"
- },
  "quantities": {
   "unit": {
    "t22_cut": 7,
@@ -3824,7 +3557,7 @@
    "t22_m2": 43.56,
    "t30_cut": 225,
    "t30_full": 85,
-   "t30_m2": 26.21,
+   "t30_m2": 26.15,
    "t36_cut": 18,
    "t36_full": 0,
    "t36_m2": 1.26

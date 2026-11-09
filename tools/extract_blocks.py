@@ -270,7 +270,8 @@ def main():
                     c = Point(o['centerITM'])
                     if rp.buffer(0.05).contains(c) and abs(o['axisITM'][0] * uy - o['axisITM'][1] * ux) / (math.hypot(*o['axisITM']) or 1) < 0.3:
                         s = (c.x - x0) * ux + (c.y - y0) * uy
-                        wo.append({'id': o['id'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': o['sillRel'], 'z1': o['headRel'],
+                        wo.append({'id': o['id'], 'kind': o['kind'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': o['sillRel'], 'z1': o['headRel'],
+                                   'clip': [sd for sd, c in (('L', s - o['width_m'] / 2 < -0.005), ('R', s + o['width_m'] / 2 > L + 0.005)) if c],
                                    'shutter': ('גלילה' in o['name'] or 'תריס' in o['name'])})
                 nfull, ncut, k, area = count_blocks(L, zb, zt, wo, BL, BH)
                 tcm = round(run['thickness_m'] * 100)
@@ -310,26 +311,48 @@ def main():
                 r_['axisITM'] = ax; r_['length_m'] = Ln
                 r_['blocksFull'], r_['blocksCut'], r_['courses'], ar = count_blocks(Ln, r_['bottomRel'], r_['topRel'], r_['openings'], BL, BH); r_['area_m2'] = r3(ar)
                 r_['joinedGap_m'] = r3(d)
-    # lintels: every opening with blocks over its head gets a lintel (config lintel: one course high, bearing each side –
-    # provisional, no detail in the sources: open-issues #125; Avihai 09.11 ק23/ק24/ק28–ק30). Overlapping lintels of one
-    # wall become one. The blocks are cut around it (count_blocks / js/geometry/blocks.js).
-    LT = CFG.get('lintel')
+    # lintels (owner's choice 08.11: lintel block, "as is customary"; 09.11 ק23/ק28–ק30: over the windows too): every opening of
+    # data/config/blocks.json lintel.kinds with blocks over its head gets one course on the head, bearing into the blocks on both
+    # sides (lintel.bearing_m – common practice, provisional). A side with less block than that rests on the concrete when the run
+    # ends there, continues in the next run when the opening is split over two runs, else is flagged (shortBearing).
+    LT = CFG['lintel']; BEAR = LT['bearing_m']['value']; KINDS = set(LT.get('kinds') or [])
+    concU = {fl: unary_union(conc[fl]) for fl in conc}
+    def near_conc(w, sd):
+        (x0, y0), (x1, y1) = w['axisITM']; p = Point(x0, y0) if sd == 'L' else Point(x1, y1)
+        return concU[w['floor']].distance(p) < w['thickness_m'] / 2 + 0.03
     for w in walls:
         w['lintels'] = []
-        if not LT: continue
         for o in sorted(w['openings'], key=lambda o: o['s0']):
-            if o['z1'] >= w['topRel'] - 0.02 or o['s1'] - o['s0'] >= w['length_m'] - 0.02: continue
-            h = min(LT['height_m'], w['topRel'] - o['z1'])
-            s0, s1 = max(0.0, o['s0'] - LT['bearing_m']), min(w['length_m'], o['s1'] + LT['bearing_m'])
-            last = w['lintels'][-1] if w['lintels'] else None
-            if last and s0 <= last['s1'] + 0.01 and abs(last['z0'] - o['z1']) < 0.01:
-                last['s1'] = r3(max(last['s1'], s1)); last['openings'].append(o['id']); continue
-            w['lintels'].append({'s0': r3(s0), 's1': r3(s1), 'z0': o['z1'], 'z1': r3(o['z1'] + h), 'openings': [o['id']],
-                                 'bearing': [r3(o['s0'] - s0), r3(s1 - o['s1'])], 'status': LT['status']})
-        for i, l in enumerate(w['lintels']): l['id'] = f"{w['id']}-L{i + 1}"
+            gap = w['topRel'] - o['z1']
+            if o.get('kind') not in KINDS or gap < LT.get('minHeadGap_m', 0.05) or o['s1'] - o['s0'] >= w['length_m'] - 0.02 and not o.get('clip'): continue
+            bl, br = min(BEAR, o['s0']), min(BEAR, w['length_m'] - o['s1'])
+            w['lintels'].append({'id': f"LT-{o['id']}", 'opening': o['id'], 's0': r3(o['s0'] - bl), 's1': r3(o['s1'] + br), 'z0': o['z1'], 'z1': r3(o['z1'] + min(BH, gap)),
+                                 'bearL_m': r3(bl), 'bearR_m': r3(br), 'length_m': r3(o['s1'] - o['s0'] + bl + br), 'status': LT['bearing_m']['status'],
+                                 'onConcrete': [sd for sd, bb in (('L', bl), ('R', br)) if bb < BEAR - 0.005 and near_conc(w, sd)],
+                                 'continues': [sd for sd in o.get('clip', []) if not near_conc(w, sd)]})
+        # two lintels of one wall that would overlap (openings < 2 x bearing apart): one lintel over both
+        merged = []
+        for lt in w['lintels']:
+            if merged and lt['s0'] < merged[-1]['s1'] and abs(lt['z0'] - merged[-1]['z0']) < 0.01:
+                m = merged[-1]; m['s1'] = lt['s1']; m['bearR_m'] = lt['bearR_m']; m['opening'] += '+' + lt['opening']; m['id'] += '+' + lt['opening']
+                m['length_m'] = r3(m['s1'] - m['s0']); m['onConcrete'] = sorted(set(m['onConcrete']) | {x for x in lt['onConcrete'] if x == 'R'})
+            else: merged.append(lt)
+        w['lintels'] = merged
         if w['lintels']:
             w['blocksFull'], w['blocksCut'], w['courses'], ar = count_blocks(w['length_m'], w['bottomRel'], w['topRel'], w['openings'] + w['lintels'], BL, BH)
             w['area_m2'] = r3(ar)
+    for w in walls:
+        for lt in w['lintels']:
+            n = sum(1 for w_ in walls for x in w_['lintels'] if x['opening'] == lt['opening'])
+            if n > 1: lt['id'] = f"{lt['id']}-{w['id'].split('-')[-1]}"
+            lt['continues'] = [sd for sd in lt['continues'] if n > 1]
+            short = [sd for sd, bb in (('L', lt['bearL_m']), ('R', lt['bearR_m'])) if bb < BEAR - 0.005 and sd not in lt['onConcrete'] and sd not in lt['continues']]
+            # the run ends against a crossing block wall: the lintel bears into it (built with it, same courses)
+            (x0, y0), (x1, y1) = w['axisITM']
+            cross = lambda sd: any(LineString(v['axisITM']).buffer(v['thickness_m'] / 2 + 0.03, cap_style=2).contains(Point((x0, y0) if sd == 'L' else (x1, y1)))
+                                   for v in walls if v is not w and v['floor'] == w['floor'])
+            lt['intoCrossWall'] = [sd for sd in short if cross(sd)]
+            lt['shortBearing'] = [sd for sd in short if sd not in lt['intoCrossWall']]
     for o in list(outside):
         po, (ox, oy) = strip(o['axisITM'], o['thickness_m'], o['length_m'])
         for w in walls:
@@ -398,9 +421,6 @@ def main():
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
            'dominantThickness_cm': dom,
-           'lintels': [{'id': l['id'], 'run': w['id'], 'floor': w['floor'], 'openings': l['openings'], 'length_m': r3(l['s1'] - l['s0']), 'height_m': r3(l['z1'] - l['z0']),
-                        'thickness_m': w['thickness_m'], 'bearing_m': l['bearing'], 'status': l['status']} for w in walls for l in w.get('lintels', [])],
-           'lintelCfg': CFG.get('lintel'),
            'quantities': {fl: {k: (round(v, 2) if k.endswith('m2') else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
     json.dump(out, open(os.path.join(ROOT, 'data/architecture/blocks.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('walls', len(walls), {fl: sum(1 for w in walls if w['floor'] == fl) for fl in O.FLOORS})
@@ -447,10 +467,20 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
           [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '',
             round(b['depth_m'] * 100) if b.get('depth_m') else '', b.get('hostWall') or '', b['status'], b['source'], b.get('depthSource', '')] for b in D['shutterBoxes']],
           [8, 12, 44, 11, 15, 15, 10, 10, 60, 40])
-    sheet(wb.create_sheet('משקופים'), ['משקוף', 'קיר', 'קומה', 'פתחים', 'אורך (ס"מ)', 'גובה (ס"מ)', 'עובי (ס"מ)', 'הישענות (ס"מ)', 'סטטוס'],
-          [[l['id'], l['run'], FL[l['floor']], ', '.join(l['openings']), round(l['length_m'] * 100), round(l['height_m'] * 100), round(l['thickness_m'] * 100),
-            ' / '.join(str(round(b * 100)) for b in l['bearing_m']), l['status']] for l in D.get('lintels', [])] + [['סה"כ', '', '', '', round(sum(l['length_m'] for l in D.get('lintels', [])) * 100), '', '', '', '']],
-          [12, 10, 12, 14, 11, 11, 11, 14, 12])
+    LT = CFG['lintel']; byO = {}; SD = {'L': 'שמאל', 'R': 'ימין'}
+    bear_note = lambda lt: '; '.join([f"{SD[x]}: על הבטון" for x in lt['onConcrete']] + [f"{SD[x]}: המשך בקטע הקיר הסמוך" for x in lt.get('continues', [])]
+                                     + [f"{SD[x]}: נכנס לקיר הבלוקים הניצב" for x in lt.get('intoCrossWall', [])]
+                                     + [f"{SD[x]}: בלי הישענות – לבדיקה" for x in lt.get('shortBearing', [])]) or '—'
+    for w in D['walls']:
+        for lt in w.get('lintels', []): byO[lt['id']] = (w, lt)
+    lrows = [[lt['id'], lt['opening'], FL[w['floor']], w['id'], round(w['thickness_m'] * 100), LT['type'] if w['thickness_m'] >= LT['thinBelow_m'] else LT['typeThin'],
+              round((lt['length_m'] - lt['bearL_m'] - lt['bearR_m']) * 100), round(lt['bearL_m'] * 100), round(lt['bearR_m'] * 100), round(lt['length_m'] * 100),
+              round((lt['z1'] - lt['z0']) * 100), bear_note(lt), lt['status']] for w, lt in byO.values()]
+    n = len(lrows) + 1
+    lrows.append(['סה"כ', f'=COUNTA(A2:A{n})', '', '', '', '', '', '', '', f'=SUM(J2:J{n})'])
+    sheet(wb.create_sheet('משקופים'), ['מזהה', 'פתח', 'קומה', 'קיר', 'עובי (ס"מ)', 'סוג', 'פתח נטו (ס"מ)', 'הישענות שמאל', 'הישענות ימין', 'אורך משקוף (ס"מ)', 'גובה (ס"מ)', 'הישענות – הערה', 'סטטוס'],
+          lrows, [10, 7, 12, 8, 9, 40, 12, 12, 12, 15, 9, 34, 11])
+    ws = wb['משקופים']; ws.append([]); ws.append([f"הישענות {round(LT['bearing_m']['value'] * 100)} ס\"מ בכל צד – {LT['bearing_m']['source']}. גובה = נדבך אחד."])
     os.makedirs(os.path.dirname(path), exist_ok=True); wb.save(path); print('xlsx', path)
 
 

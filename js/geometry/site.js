@@ -155,8 +155,9 @@ export function buildSite(ctx) {
     registry.add(g, site(layer), { name: nm, kind: 'points', source: src });
     scene.add(g);
   };
-  if (data.survey.survey2025) sp(data.survey.survey2025.points, '#29b6f6', 'surveyPoints2025', 'נקודות גובה קיימות – מדידה 2025', data.survey.survey2025.source);
-  sp(data.survey.survey2023, '#ab47bc', 'surveyPoints2023', 'נקודות גובה – מפה למשתכן 2023', data.survey.survey2023[0]?.source);
+  // off on open – built the first time the layer is switched on (registry.defer)
+  if (data.survey.survey2025) registry.defer(['surveyPoints2025'], () => sp(data.survey.survey2025.points, '#29b6f6', 'surveyPoints2025', 'נקודות גובה קיימות – מדידה 2025', data.survey.survey2025.source));
+  registry.defer(['surveyPoints2023'], () => sp(data.survey.survey2023, '#ab47bc', 'surveyPoints2023', 'נקודות גובה – מפה למשתכן 2023', data.survey.survey2023[0]?.source));
 
   // ---------- north arrow (true north) ----------
   const na = new THREE.Group();

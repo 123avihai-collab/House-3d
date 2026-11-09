@@ -68,7 +68,7 @@ def main():
             if o['s0'] < -0.01 or o['s1'] > L + 0.01: o_['outsideRun'] = True
             if o['z1'] < w['topRel'] - 0.02 and o['s1'] - o['s0'] < L - 0.02:
                 o_['blocksOverHead_m'] = r3(w['topRel'] - o['z1'])
-                hasL = any(o['id'] in l['openings'] and abs(l['z0'] - o['z1']) < 0.005 and l['s0'] <= o['s0'] + 0.005 and l['s1'] >= o['s1'] - 0.005 for l in w.get('lintels', []))
+                hasL = any(o['id'] in l['opening'].split('+') and abs(l['z0'] - o['z1']) < 0.005 and l['s0'] <= o['s0'] + 0.005 and l['s1'] >= o['s1'] - 0.005 for l in w.get('lintels', []))
                 if not hasL: o_['lintelMissing'] = True
             box = next((b for b in B['shutterBoxes'] if b['opening'] == o['id']), None)
             if box and box.get('box_m'):

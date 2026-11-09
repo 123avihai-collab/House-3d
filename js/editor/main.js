@@ -11,7 +11,7 @@ import { RouteStore } from './store.js';
 import * as OP from './ops.js';
 import { askConfirm } from '../core/dialog.js';
 import { buildObstacles, checkRun, checkConnections } from './checks.js';
-import { drawIssues, drawBadges, manifoldScreen } from './draw.js';
+import { drawIssues, drawBadges, manifoldScreen, drawPoints } from './draw.js';
 
 const $ = (id) => document.getElementById(id);
 window.__editorErrors = [];
@@ -31,7 +31,7 @@ async function start() {
   const recheck = () => { const runs = store.runs(), t0 = performance.now(); issues = { runs: Object.fromEntries(runs.map(r => [r.id, checkRun(r, CH)])), conn: checkConnections(runs, M.nodes, D.plumbing.nodes, CH, [...D.plumbing.runs, ...D.plumbing.lines3d]) }; window.__checkMs = performance.now() - t0; };
   recheck();
   M.setRuns(store.runs());
-  const defaults = { 'cons.superseded': false, nodes: true, grid: true };
+  const defaults = { 'cons.superseded': false, nodes: true, grid: true, cpoints: true, 'labels.points': true };
   for (const [k, st] of Object.entries(cfg.background)) defaults['bg.' + k] = st.on;
   for (const [k, st] of Object.entries(cfg.structure)) defaults['st.' + k] = st.on;
   const L = new Layers(defaults);
@@ -46,10 +46,21 @@ async function start() {
   let cur;
   const itemsOf = (fid) => { const F = M.floors[fid], out = []; for (const p of M.pipes) { const mode = M.showsOn(p, fid); if (mode) out.push({ p, mode, band: F.band }); } return out; };
   const nodesOf = (fid) => M.nodes.filter(n => n.floor === fid || (M.floors[fid].cfg.alsoRuns || []).includes(n.floor));
+  const cnodesOf = (fid) => M.consNodes.filter(n => n.floor === fid || (M.floors[fid].cfg.alsoRuns || []).includes(n.floor));
+  const isFixtureOrManifold = (n) => n.kind === 'manifold' || (cfg.points.kinds[n.kind] || [])[0] === 'fixture';
+  const pickNodes = () => [...(L.on('nodes') ? cur.nodes : []), ...(L.on('cpoints') ? cur.cnodes : [])];
+  const kindName = (k) => (cfg.points.kinds[k] || [null, k])[1];
+  // what a point connects to: consultant + proposal lines that name it, with the other end
+  const pointLinks = (n) => {
+    const out = [];
+    for (const r of D.plumbing.runs) if (r.from === n.id || r.to === n.id) out.push({ id: r.id, sys: r.system, D: r.D_mm, mat: r.material, other: r.from === n.id ? r.to : r.from, dir: r.from === n.id ? 'יוצא אל' : 'נכנס מ', layer: 'יועץ', IL: r.ILup != null ? `${r.ILup.toFixed(2)}→${r.ILdown.toFixed(2)}` : null, superseded: D.routes.superseded.runs.includes(r.id) });
+    for (const r of store.runs()) if (r.from === n.id || r.to === n.id) out.push({ id: r.id, sys: r.system, D: r.D_mm, mat: r.material, other: r.from === n.id ? r.to : r.from, dir: r.from === n.id ? 'יוצא אל' : 'נכנס מ', layer: 'הצעה' });
+    return out;
+  };
   const visibleItems = () => cur.items.filter(it => L.on(it.p.layer + '.' + it.p.system) && (it.p.layer !== 'cons' || !it.p.superseded || L.on('cons.superseded')));
   // edited only on the floor where it is drawn in plan (a riser passing through another floor is shown there, not edited)
   const editable = (p) => p && p.layer === 'prop' && store.canEdit && !L.locked('prop.' + p.system) && cur.items.some(it => it.mode === 'plan' && it.p.layer === 'prop' && it.p.id === p.id);
-  const nodeEditable = (n) => n && store.canEdit && !L.locked('nodes');
+  const nodeEditable = (n) => n && n.layer !== 'cons' && store.canEdit && !L.locked('nodes');
   const nodeRuns = (n) => {   // proposal runs connected to the point (by name or by an end within connectTol)
     const P = n.xy, tol = cfg.checks.connectTol_m;
     const water = ['cold', 'hot', 'return'];   // a manifold pulls only water lines that end at it (risers in the shaft pass right by)
@@ -88,6 +99,22 @@ async function start() {
     const here = new Set(cur.items.filter(it => it.mode === 'plan' && it.p.layer === 'prop').map(it => it.p.id)), nodeIds = new Set(cur.nodes.map(n => n.id));
     return [...[...here].flatMap(id => issues.runs[id] || []), ...issues.conn.filter(i => (i.run && here.has(i.run)) || (i.node && nodeIds.has(i.node)))];
   };
+  // infrastructure / connection points of this view, grouped: name, what it is for, what it connects to
+  const INFRA = ['utility', 'sewage', 'pump', 'rain', 'pool', 'water', 'hot'];
+  function renderInfra() {
+    let box = $('ed-infra'); if (!box) { box = document.createElement('div'); box.id = 'ed-infra'; $('ed-issues')?.after(box) || $('ed-panel').prepend(box); }
+    const all = [...cur.cnodes, ...cur.nodes.filter(n => !isFixtureOrManifold(n))].filter(n => INFRA.includes((cfg.points.kinds[n.kind] || [])[0]) && !['waterJoint'].includes(n.kind));
+    const by = {}; for (const n of all) (by[(cfg.points.kinds[n.kind] || ['water'])[0]] ||= []).push(n);
+    const open = box.querySelector('details')?.open ?? false;
+    box.innerHTML = `<details ${open ? 'open' : ''}><summary><h4 style="display:inline">נקודות חיבור ותשתיות <span class="ct">${all.length}</span></h4></summary>` +
+      INFRA.filter(g => by[g]).map(g => `<div class="inf-g"><b style="color:${cfg.points.groups[g].color}">${esc(cfg.points.groups[g].label)}</b><ol class="infra">${by[g].map(n => {
+        const L2 = pointLinks(n).filter(l => !l.superseded), lv = n.TL != null ? ` · T.L ${n.TL.toFixed(2)}${n.IL != null ? ' / I.L ' + n.IL.toFixed(2) : ''}` : '';
+        return `<li data-id="${esc(n.id)}" data-l="${n.layer || 'prop'}"><b>${esc(n.id.split('@')[0])}</b> ${esc(kindName(n.kind))} – <span class="muted">${esc(n.title || '')}${lv}</span>${L2.length ? `<br><span class="muted">↔ ${L2.map(l => esc((l.other || '?').split('@')[0])).join(', ')}</span>` : ''}</li>`; }).join('')}</ol></div>`).join('') + '</details>';
+    box.querySelectorAll('li').forEach(li => li.onclick = () => {
+      const n = (li.dataset.l === 'cons' ? cur.cnodes : cur.nodes).find(x => x.id === li.dataset.id); if (!n) return;
+      v.cx = n.xy[0]; v.cy = n.xy[1]; v.k = Math.max(v.k, 90); S.sel = { type: 'node', obj: n, vtx: null, seg: null }; showInfo(S.sel); S.flash = { at: n.xy }; redraw(); document.body.classList.remove('panel-open');
+    });
+  }
   function renderIssues() {
     let box = $('ed-issues'); if (!box) { box = document.createElement('div'); box.id = 'ed-issues'; $('ed-panel').prepend(box); }
     const list = floorIssues(), n = { error: 0, warn: 0, info: 0 }; list.forEach(i => n[i.sev]++);
@@ -104,14 +131,14 @@ async function start() {
   store.onChange(() => { if (!S.drag) refresh(); else syncTools(); });
   const setFloor = (fid, fit = true) => {
     S.floor = fid; S.sel = null; S.draft = null; hideInfo();
-    cur = { F: M.floors[fid], items: itemsOf(fid), nodes: nodesOf(fid) };
+    cur = { F: M.floors[fid], items: itemsOf(fid), nodes: nodesOf(fid), cnodes: cnodesOf(fid) };
     for (const b of $('ed-floors').children) b.classList.toggle('on', b.dataset.floor === fid);
     const counts = {};
     for (const it of cur.items) { const k = it.p.layer + '.' + it.p.system; if (!it.p.superseded) counts[k] = (counts[k] || 0) + 1; }
     for (const [k, list] of Object.entries(cur.F.structure)) counts['st.' + k] = list.length || null;
     for (const [k, list] of Object.entries(cur.F.background)) counts['bg.' + k] = list.length || null;
     counts.nodes = cur.nodes.length; counts['cons.superseded'] = cur.items.filter(it => it.p.superseded).length;
-    buildPanel($('ed-panel'), L, cfg, sys, counts); renderIssues();
+    buildPanel($('ed-panel'), L, cfg, sys, counts); renderIssues(); renderInfra();
     if (fit) fitFloor();
     try { history.replaceState(null, '', `?floor=${fid}`); } catch { /* sandboxed */ }
     syncDrawbar(); redraw();
@@ -224,7 +251,10 @@ async function start() {
     drawIssues(ctx, v, cfg, fi, S.flash);
     const nodesNow = S.npreview ? cur.nodes.map(n => n.id === S.npreview.n.id ? { ...n, xy: S.npreview.xy } : n) : cur.nodes;
     const nodesShown = S.npreview ? nodesNow.map(n => n.id === S.npreview.n.id ? { ...n, outletsXY: Object.fromEntries(Object.entries(S.npreview.res.node.outlets || {}).map(([k, l]) => [k, l.map(o => ({ ...o, xy: fr.toLocal(o.E, o.N) }))])) } : n) : nodesNow;
-    if (on('nodes')) drawNodes(ctx, v, cfg, nodesShown, S.sel?.type === 'node' ? (S.npreview ? nodesNow.find(n => n.id === S.sel.obj.id) : S.sel.obj) : null, S.hover?.type === 'node' ? S.hover.obj : null);
+    const selN = S.sel?.type === 'node' ? S.sel.obj : null, hovN = S.hover?.type === 'node' ? S.hover.obj : null;
+    if (on('cpoints')) drawPoints(ctx, v, cfg, cur.cnodes, selN, hovN, on('labels.points'));
+    if (on('nodes')) drawPoints(ctx, v, cfg, nodesShown.filter(n => !isFixtureOrManifold(n)), selN, hovN, on('labels.points'));
+    if (on('nodes')) drawNodes(ctx, v, cfg, nodesShown.filter(isFixtureOrManifold), S.sel?.type === 'node' ? (S.npreview ? nodesNow.find(n => n.id === S.sel.obj.id) : S.sel.obj) : null, S.hover?.type === 'node' ? S.hover.obj : null);
     if (focusN && focusRows.length) {   // numbers: at the fixture end of every outlet's run, and on the outlet when zoomed in
       const mn = nodesShown.find(n => n.id === focusN.id), ms = mn?.outletsXY ? manifoldScreen(v, cfg, mn) : null, B = [];
       for (const x of focusRows) {
@@ -251,8 +281,17 @@ async function start() {
   function showInfo(hit) {
     const rows = []; let title, color = null, src, warn = null, form = '', acts = '';
     if (hit.type === 'node') {
-      const n = hit.obj; title = `${n.id} – ${n.title || n.kind}`; src = n.source;
-      rows.push(['סוג', n.kind], ['קומה', n.floor], ['גובה', n.H != null ? `${n.H.toFixed(2)} (${fmtRel(n.H - M.H0)})` : '–'], ['ITM', `E ${n.E.toFixed(3)} · N ${n.N.toFixed(3)}`]);
+      const n = hit.obj, grp = cfg.points.groups[(cfg.points.kinds[n.kind] || [])[0]];
+      title = `${n.id.split('@')[0]} – ${kindName(n.kind)}`; src = n.source; color = grp?.color || null;
+      rows.push(['ייעוד', n.title || kindName(n.kind)], ['קבוצה', grp?.label || '–'], ['שכבה', n.layer === 'cons' ? 'תוכנית היועץ' : 'הצעה'], ['קומה', n.floor]);
+      if (n.TL != null) rows.push(['T.L (מכסה)', `${n.TL.toFixed(2)} (${fmtRel(n.TL - M.H0)})`]);
+      if (n.IL != null) rows.push(['I.L (תחתית)', `${n.IL.toFixed(2)} (${fmtRel(n.IL - M.H0)})${n.TL != null ? ` · עומק ${(n.TL - n.IL).toFixed(2)} מ'` : ''}`]);
+      if (n.D_m != null) rows.push(['קוטר', `ø${(n.D_m * 100).toFixed(0)} ס"מ`]);
+      const links = pointLinks(n);
+      if (links.length) rows.push(['מתחבר', links.map(l => `${l.dir} ${(l.other || '?').split('@')[0]} – ${l.id.split('@')[0]}${l.D ? ' ø' + l.D : ''}${l.mat ? ' ' + l.mat : ''}${l.IL ? ' (I.L ' + l.IL + ')' : ''} [${l.layer}${l.superseded ? ', הוחלף' : ''}]`).join(' | ')]);
+      if (n.status && n.status !== 'source') warn = `סטטוס: ${n.status}`;
+      rows.push(['ITM', `E ${n.E.toFixed(3)} · N ${n.N.toFixed(3)}`]);
+      if (n.H != null) rows.push(['גובה', `${n.H.toFixed(2)} (${fmtRel(n.H - M.H0)})`]);
       if (n.D_mm) rows.push(['קוטר', `ø${n.D_mm}`]);
       if (n.cold != null) rows.push(['מים', [n.cold && 'קרים', n.hot && 'חמים'].filter(Boolean).join(' + ') || '–']);
       rows.push(['סטטוס', n.status]);
@@ -385,7 +424,7 @@ async function start() {
   const snapAt = (x, y, exclude) => {
     if (!S.snapOn) return { kind: 'free', x, y };
     const items = exclude ? visibleItems().filter(it => it.p !== exclude) : visibleItems();
-    return snapPoint(x, y, cfg.snap.radius_px / v.k, { step: S.step }, cur.F, items, L.on('nodes') ? cur.nodes : [], (k) => L.on(k));
+    return snapPoint(x, y, cfg.snap.radius_px / v.k, { step: S.step }, cur.F, items, pickNodes(), (k) => L.on(k));
   };
   const handleHit = (x, y, touch) => {   // on the selected editable run: station or segment
     const p = S.sel?.type === 'pipe' ? S.sel.obj : null; if (!editable(p)) return null;
@@ -432,7 +471,7 @@ async function start() {
     }
     S.snap = snapAt(x, y); status(S.snap);
     if (S.mode === 'select') {
-      S.hover = hitTest(x, y, cfg.snap.radius_px / v.k, visibleItems(), L.on('nodes') ? cur.nodes : [], (k) => L.locked(k));
+      S.hover = hitTest(x, y, cfg.snap.radius_px / v.k, visibleItems(), pickNodes(), (k) => k === 'nodes' ? false : L.locked(k));
       const hh = handleHit(x, y, false), onNode = S.sel?.type === 'node' && nodeEditable(S.sel.obj) && Math.hypot(S.sel.obj.xy[0] - x, S.sel.obj.xy[1] - y) <= E.hitHandle_px / v.k;
       canvas.style.cursor = hh || onNode ? (onNode || hh.kind === 'vtx' ? 'move' : 'grab') : S.hover ? 'pointer' : 'crosshair';
     } else canvas.style.cursor = 'crosshair';
@@ -455,7 +494,7 @@ async function start() {
     if (S.mode === 'draw') { addDraftPoint(S.snapOn ? snapAt(x, y) : { kind: 'free', x, y }); return; }
     if (g.handle) { S.sel.vtx = g.handle.kind === 'vtx' ? g.handle.i : null; S.sel.seg = g.handle.kind === 'seg' ? g.handle.i : null; showInfo(S.sel); redraw(); return; }
     const r = (cfg.snap.radius_px * (g.touch ? 1.8 : 1)) / v.k;
-    const hit = hitTest(x, y, r, visibleItems(), L.on('nodes') ? cur.nodes : [], (k) => L.locked(k));
+    const hit = hitTest(x, y, r, visibleItems(), pickNodes(), (k) => k === 'nodes' ? false : L.locked(k));
     S.sel = hit ? { ...hit, vtx: null, seg: null } : null; if (hit) showInfo(S.sel); else hideInfo(); redraw();
   };
   canvas.addEventListener('pointerup', up);

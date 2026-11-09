@@ -14,7 +14,7 @@ await page.waitForFunction(() => window.__editorReady, null, { timeout: 60000 })
 const all = await page.evaluate(() => { const E = window.__editor, I = E.issues(), runs = Object.fromEntries(E.store.runs().map(r => [r.id, r]));
   return [...Object.values(I.runs).flat(), ...I.conn].map(i => ({ ...i, floor: i.run ? runs[i.run]?.floor : E.M.nodes.find(n => n.id === i.node)?.floor, system: i.run ? runs[i.run]?.system : null })); });
 await browser.close(); server.close();
-const T = { clashColumn: 'חוצה עמוד', clashBeam: 'חוצה קורה', inConcrete: 'בתוך בטון', wallAngle: 'מעבר בקיר לא בניצב', reverse: 'שיפוע נגדי', rise: 'עלייה בכיוון הזרימה', lowSlope: 'שיפוע נמוך', openEnd: 'קצה לא מחובר', unconnected: 'נקודה בלי מים', noSlope: 'אין שיפוע תכנון' };
+const T = { clashColumn: 'חוצה עמוד', clashBeam: 'חוצה קורה', inConcrete: 'בתוך בטון', courtyard: 'עובר בחצר האנגלית', wallAngle: 'מעבר בקיר לא בניצב', reverse: 'שיפוע נגדי', rise: 'עלייה בכיוון הזרימה', lowSlope: 'שיפוע נמוך', openEnd: 'קצה לא מחובר', unconnected: 'נקודה בלי מים', noSlope: 'אין שיפוע תכנון' };
 const F = ['unit', 'ground', 'site', 'first', 'roof'], sev = { error: '⛔', warn: '⚠', info: 'ℹ' };
 const L = ['# ממצאי הבדיקות – הצעת האינסטלציה (routes.json, לפני עריכה)', '', `נוצר ע"י \`node tools/plumbing/editor_findings.mjs\` – אותן בדיקות שרצות בעורך. סה"כ ${all.length} ממצאים.`, '',
   '| סוג | ' + F.join(' | ') + ' | סה"כ |', '|---|' + F.map(() => '---|').join('') + '---|'];

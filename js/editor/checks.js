@@ -25,6 +25,8 @@ export function buildObstacles(D, fr) {
   for (const w of D.framing.basementWalls) add('wall', 'קיר מרתף', w, w.footprintITM, 'data/structure/framing.json basementWalls');
   for (const b of D.framing.groundBeams) if (b.axisITM) add('beam', 'קורת יסוד', b, beamPoly(b, b.width_m), 'data/structure/framing.json groundBeams');
   for (const w of D.blocks.walls) if (w.axisITM) add('block', 'קיר בלוקים', w, beamPoly(w, w.thickness_m), 'data/architecture/blocks.json');
+  // English courtyards: no pipe in plan at any level (Avihai 09.11 – not exposed, not under the concrete either)
+  for (const z of D.floorGround.openZones || []) if (z.zone === 'courtyard') { const poly = L(z.footprintITM); out.push({ cat: 'courtyard', label: z.label || 'חצר אנגלית', id: 'חצר', poly, holes: [], bb: bbox(poly), lo: -Infinity, hi: Infinity, source: 'data/structure/floor-ground.json openZones (courtyard)' }); }
   return out;
 }
 
@@ -45,6 +47,7 @@ export function checkRun(run, ctx) {
     const sb = [Math.min(a.xy[0], b.xy[0]) - R, Math.min(a.xy[1], b.xy[1]) - R, Math.max(a.xy[0], b.xy[0]) + R, Math.max(a.xy[1], b.xy[1]) + R];
     for (const o of obstacles) {
       if (o.bb[0] > sb[2] || o.bb[2] < sb[0] || o.bb[1] > sb[3] || o.bb[3] < sb[1]) continue;
+      if (o.cat === 'courtyard') continue;                      // checked separately below
       if (o.cat === 'block' && !vertical) continue;            // horizontal through block walls: angle check below
       if (o.cat === 'block') continue;                          // risers chased in block walls – not a clash
       let hit = null;
@@ -60,6 +63,15 @@ export function checkRun(run, ctx) {
       push('error', o.cat === 'beam' ? 'clashBeam' : o.cat === 'column' ? 'clashColumn' : 'inConcrete',
         o.cat === 'beam' ? `חוצה קורה ${o.id} (${fmt(o.lo)}…${fmt(o.hi)}) במפלס ${fmt(hit.z)}` :
         o.cat === 'column' ? `חוצה עמוד ${o.id} במפלס ${fmt(hit.z)}` : `${vertical ? 'קטע אנכי' : 'קטע'} בתוך ${o.label} ${o.id}`, [hit.x, hit.y], o);
+    }
+  }
+  // 1b. English courtyard: any piece of the run inside the courtyard footprint, whatever its level
+  for (const o of obstacles) {
+    if (o.cat !== 'courtyard' || C.courtyard?.value !== 'forbidden') continue;
+    for (let i = 0; i + 1 < V.length; i++) {
+      const a = V[i], b = V[i + 1], plan = Math.hypot(b.xy[0] - a.xy[0], b.xy[1] - a.xy[1]), n = Math.max(1, Math.ceil(plan / C.sampleStep_m));
+      let hit = null; for (let k = 0; k <= n; k++) { const t = k / n, x = a.xy[0] + (b.xy[0] - a.xy[0]) * t, y = a.xy[1] + (b.xy[1] - a.xy[1]) * t; if (inPoly(x, y, o.poly)) { hit = [x, y]; break; } }
+      if (hit) { push('error', 'courtyard', 'עובר בחצר האנגלית (אסור – גם מתחת לבטון)', hit, o); break; }
     }
   }
   // 2. walls (concrete + blocks): a horizontal segment that crosses a wall face must be square to it

@@ -178,3 +178,27 @@ export function drawBadges(ctx, cfg, list) {
   for (const b of list) { ctx.beginPath(); ctx.arc(b.xy[0], b.xy[1], r, 0, 7); ctx.fillStyle = b.color; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillText(b.text, b.xy[0], b.xy[1] + 0.5); }
   ctx.restore();
 }
+
+// consultant points (and site points of the proposal): a symbol per group, name = id + Hebrew kind; infrastructure
+// groups (utility, pumping, rain, pool) are labelled from a far zoom, the rest when zoomed in
+export function drawPoints(ctx, v, cfg, list, sel, hover, showLabels) {
+  const P = cfg.points, r = P.radius_px; ctx.save(); ctx.font = `${P.labelFont_px}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const n of list) {
+    const [g, kname] = P.kinds[n.kind] || ['water', n.kind], G = P.groups[g] || { color: '#555' }, x = v.sx(n.xy[0]), y = v.sy(n.xy[1]), on = sel === n || hover === n;
+    const R = r + (on ? 2 : 0) + (g === 'utility' ? 1.5 : 0);
+    ctx.beginPath();
+    if (g === 'utility' || g === 'pump') ctx.rect(x - R, y - R, 2 * R, 2 * R);
+    else if (g === 'rain' || g === 'pool') { ctx.moveTo(x, y - R - 1); ctx.lineTo(x + R + 1, y); ctx.lineTo(x, y + R + 1); ctx.lineTo(x - R - 1, y); ctx.closePath(); }
+    else ctx.arc(x, y, R, 0, 7);
+    ctx.fillStyle = g === 'sewage' || g === 'utility' ? G.color : '#fff'; ctx.fill(); ctx.strokeStyle = G.color; ctx.lineWidth = on ? 2.4 : 1.5; ctx.stroke();
+    if (n.kind === 'sewerChamber' || n.kind === 'municipalManhole') { ctx.beginPath(); ctx.arc(x, y, R * 0.45, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); }
+    const always = P.alwaysLabel.includes(g) || n.floor === 'site';
+    if (showLabels && (on || v.k >= (always ? P.siteLabelMinK : P.labelMinK))) {
+      const t1 = n.id.split('@')[0], t2 = kname, w = Math.max(ctx.measureText(t1).width, ctx.measureText(t2).width) + 6;
+      ctx.fillStyle = 'rgba(255,255,255,0.88)'; ctx.fillRect(x - w / 2, y + R + 2, w, P.labelFont_px * 2 + 4);
+      ctx.fillStyle = G.color; ctx.font = `600 ${P.labelFont_px}px system-ui, sans-serif`; ctx.fillText(t1, x, y + R + 3);
+      ctx.font = `${P.labelFont_px}px system-ui, sans-serif`; ctx.fillStyle = '#333'; ctx.fillText(t2, x, y + R + 4 + P.labelFont_px);
+    }
+  }
+  ctx.restore();
+}

@@ -242,7 +242,12 @@
    "warn": "#ef8f00",
    "info": "#607d8b"
   },
-  "marker_px": 6
+  "marker_px": 6,
+  "courtyard": {
+   "value": "forbidden",
+   "status": "approved",
+   "source": "אביחי 09.11.2026: \"הצנרת לא יכולה לעבור בחצר האנגלי באופן גלוי\" + \"מעדיף לא מתחת לבטון\" – אף צינור לא נכנס לשטח החצר האנגלית (floor-ground.json openZones courtyard)"
+  }
  },
  "manifold": {
   "_doc": "תצוגת מחלק (קבועי תצוגה): פס קרים ופס חמים מופרדים על המסך (במציאות הם באותו מקום במבט על, בגבהים שונים).",
@@ -254,5 +259,210 @@
   "focusWidth_px": 3.6,
   "labelFont_px": 11,
   "outletLabelMinK": 160
+ },
+ "points": {
+  "_doc": "תצוגת נקודות (צמתים) של היועץ ושל ההצעה: שם בעברית לכל סוג, קבוצה וצבע. המידע עצמו (שם, ייעוד, גבהים) – מ-network.json / routes.json.",
+  "groups": {
+   "utility": {
+    "label": "חיבור לתשתית עירונית",
+    "color": "#6a1b9a"
+   },
+   "sewage": {
+    "label": "ביוב – שוחות וקופסאות ביקורת",
+    "color": "#8b5a2b"
+   },
+   "pump": {
+    "label": "שאיבה",
+    "color": "#5b3f8c"
+   },
+   "rain": {
+    "label": "מי גשם וניקוז",
+    "color": "#607d8b"
+   },
+   "water": {
+    "label": "מים – חיבורים וברזים",
+    "color": "#1f6fd1"
+   },
+   "pool": {
+    "label": "בריכה",
+    "color": "#00897b"
+   },
+   "hot": {
+    "label": "מים חמים",
+    "color": "#cf3a2c"
+   },
+   "fixture": {
+    "label": "כלים סניטריים",
+    "color": "#1d2329"
+   },
+   "stack": {
+    "label": "קולטנים ועולים",
+    "color": "#795548"
+   }
+  },
+  "kinds": {
+   "municipalManhole": [
+    "utility",
+    "שוחה עירונית"
+   ],
+   "waterMeter": [
+    "utility",
+    "מונה מים"
+   ],
+   "utilityWater": [
+    "utility",
+    "חיבור מים של התאגיד"
+   ],
+   "sewerChamber": [
+    "sewage",
+    "שוחת ביוב"
+   ],
+   "inspectionBox": [
+    "sewage",
+    "ק.ב"
+   ],
+   "dropInspectionBox": [
+    "sewage",
+    "ק.ב.נ"
+   ],
+   "joint": [
+    "sewage",
+    "חיבור ביוב"
+   ],
+   "wye45": [
+    "sewage",
+    "הסתעפות 45°"
+   ],
+   "drumTrap": [
+    "sewage",
+    "מחסום רצפה (תוף)"
+   ],
+   "floorDrain": [
+    "sewage",
+    "מחסום רצפה"
+   ],
+   "pumpChamber": [
+    "pump",
+    "תא שאיבה"
+   ],
+   "pumpRiser": [
+    "pump",
+    "עולה סניקה"
+   ],
+   "roofDrain": [
+    "rain",
+    "נקז גג"
+   ],
+   "downpipe": [
+    "rain",
+    "מרזב"
+   ],
+   "downpipeShoe": [
+    "rain",
+    "חיבור תחתון למרזב"
+   ],
+   "soakawayPit": [
+    "rain",
+    "בור חלחול"
+   ],
+   "waterJoint": [
+    "water",
+    "הסתעפות מים"
+   ],
+   "gardenTap": [
+    "water",
+    "ברז גן"
+   ],
+   "meterOutlet": [
+    "water",
+    "יציאה מהמונה"
+   ],
+   "designEnd": [
+    "water",
+    "סוף תכנון"
+   ],
+   "riser": [
+    "water",
+    "עולה מים"
+   ],
+   "hoseReel": [
+    "water",
+    "גלגלון כיבוי"
+   ],
+   "valve": [
+    "water",
+    "ברז ראשי"
+   ],
+   "meter": [
+    "water",
+    "מוני משנה"
+   ],
+   "poolFill": [
+    "pool",
+    "מילוי בריכה"
+   ],
+   "poolOverflow": [
+    "pool",
+    "גלישת בריכה"
+   ],
+   "heater": [
+    "hot",
+    "דוד"
+   ],
+   "hotManifold": [
+    "hot",
+    "מחלק חמים"
+   ],
+   "pump": [
+    "hot",
+    "משאבת סחרור"
+   ],
+   "manifold": [
+    "water",
+    "מחלק"
+   ],
+   "basin": [
+    "fixture",
+    "כיור"
+   ],
+   "wc": [
+    "fixture",
+    "אסלה"
+   ],
+   "shower": [
+    "fixture",
+    "מקלחת"
+   ],
+   "sink": [
+    "fixture",
+    "כיור מטבח"
+   ],
+   "washer": [
+    "fixture",
+    "מכונת כביסה"
+   ],
+   "kitchenPoint": [
+    "fixture",
+    "נקודת מטבח"
+   ],
+   "balconyTap": [
+    "fixture",
+    "ברז מרפסת"
+   ],
+   "stack": [
+    "stack",
+    "קולטן"
+   ]
+  },
+  "radius_px": 4.5,
+  "labelFont_px": 10,
+  "siteLabelMinK": 18,
+  "labelMinK": 70,
+  "alwaysLabel": [
+   "utility",
+   "pump",
+   "rain",
+   "pool"
+  ]
  }
 }

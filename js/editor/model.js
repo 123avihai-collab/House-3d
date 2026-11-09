@@ -98,7 +98,9 @@ export function buildModel(D) {
   // a point in the house frame; a manifold also carries its outlets (cold / hot) in the house frame
   const locNode = (n) => ({ ...n, xy: fr.toLocal(n.E, n.N), ...(n.outlets ? { outletsXY: Object.fromEntries(Object.entries(n.outlets).map(([k, l]) => [k, l.map(o => ({ ...o, xy: fr.toLocal(o.E, o.N) }))])) } : {}) });
   const nodes = D.routes.nodes.map(locNode);
-  const M = { frame: fr, H0, floors, pipes, nodes, showsOn, levels };
+  // consultant points (network.json, read only): chambers, inspection boxes, meter, taps … – a "site" point shows on the ground view
+  const consNodes = D.plumbing.nodes.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N), layer: 'cons' }));
+  const M = { frame: fr, H0, floors, pipes, nodes, consNodes, showsOn, levels };
   // the proposal part is rebuilt from the store after every edit; the consultant part never changes
   M.setNodes = (list) => { M.nodes = list.map(locNode); };
   M.setRuns = (runs) => { M.pipes = [...runs.map(propPipe), ...pipes.filter(p => p.layer === 'cons')]; };

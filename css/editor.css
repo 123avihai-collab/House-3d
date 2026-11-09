@@ -86,3 +86,7 @@ body { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-templat
 #ed-info .mf-t { font-size: 12px; } #ed-info .mf-t td { padding: 1px 4px 1px 0; } #ed-info .mf-t tr:hover { background: var(--chip); }
 #ed-info .mf-n { display: inline-block; min-width: 22px; text-align: center; color: #fff; border-radius: 9px; font-weight: 700; font-size: 11px; padding: 0 3px; }
 #ed-info .muted { color: var(--muted); font-size: 11px; }
+
+#ed-infra summary { cursor: pointer; margin: 10px 0 4px; } #ed-infra .inf-g { margin: 4px 0 6px; font-size: 12px; }
+#ed-infra ol.infra { list-style: none; margin: 2px 0; padding: 0; }
+#ed-infra li { padding: 3px 4px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 12px; } #ed-infra li:hover { background: var(--chip); }

@@ -35,6 +35,8 @@ export function buildPanel(el, L, cfg, sys, counts) {
   el.append(h('h4', {}, 'צנרת – תוכנית היועץ (קריאה בלבד)'));
   for (const s of cfg.systems.order) if (counts['cons.' + s]) el.append(row('cons.' + s, sys[s].label, sys[s].color, { ro: true }));
   el.append(row('cons.superseded', 'גם קווים שההצעה מחליפה (מקווקו)', null, { ro: true }));
+  el.append(row('cpoints', 'נקודות היועץ – שוחות, ק.ב, מונה, ברזים…', '#8b5a2b', { ro: true }));
+  el.append(row('labels.points', 'שמות הנקודות', null, { ro: true }));
   el.append(h('h4', {}, 'שלד – לבדיקת התנגשויות'));
   for (const [k, st] of Object.entries(cfg.structure)) if (counts['st.' + k]) el.append(row('st.' + k, st.label, st.fill || st.stroke, { ro: true, fill: !!st.fill }));
   el.append(h('h4', {}, 'רקע אדריכלי (DXF היועץ)'));

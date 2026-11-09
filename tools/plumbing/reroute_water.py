@@ -13,7 +13,7 @@
     exists, the pair may cross them (reported)
 
 Keeps: run ids, diameters, materials, insulation, feeds / returns / risers. Writes routes.json (+ a report to stdout).
-Inputs: tools/plumbing/reroute-inputs.json.   Usage: python3 tools/plumbing/reroute_water.py
+Inputs: tools/plumbing/reroute-inputs.json.   Usage: python3 tools/plumbing/seed_routes.py --force && python3 tools/plumbing/reroute_water.py
 """
 import heapq, json, math, os, sys
 from shapely.geometry import Polygon, Point, LineString, MultiPolygon
@@ -124,6 +124,8 @@ def room_of(fl, E, N):
 
 
 def main():
+    if R.get('rerouted') and '--again' not in sys.argv:
+        sys.exit('routes.json was already rerouted – run tools/plumbing/seed_routes.py --force first (the routing starts from the seed)')
     runs = {r['id']: r for r in R['runs']}; nodes = {n['id']: n for n in R['nodes']}
     report = []
     # 1. cancelled fixtures
@@ -132,6 +134,10 @@ def main():
     R['runs'] = [r for r in R['runs'] if r['id'] not in removed_runs]; R['nodes'] = [n for n in R['nodes'] if n['id'] not in gone]
     R.setdefault('removed', []).extend([{'id': i, 'why': 'בוטל (אביחי 09.11.2026)'} for i in sorted(gone | set(removed_runs)) if i not in {x['id'] for x in R.get('removed', [])}])
     report.append(f'removed fixtures {sorted(gone)} + runs {removed_runs}')
+    # the consultant's branches of a cancelled fixture (drain) are superseded too (hidden as "replaced by the proposal")
+    NET = J('data/plumbing/network.json')
+    cons = [r['id'] for r in NET['runs'] if r.get('from') in gone or r.get('to') in gone]
+    R['superseded']['runs'] = sorted(set(R['superseded']['runs']) | set(cons)); report.append(f'consultant runs superseded: {cons}')
     runs = {r['id']: r for r in R['runs']}
     fixt_kinds = {'wc', 'basin', 'shower', 'sink', 'washer', 'balconyTap'}
     for mid in IN['manifolds']:

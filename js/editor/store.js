@@ -11,7 +11,9 @@ export class RouteStore {
     this.base = base; this.over = {}; this.undoS = []; this.redoS = []; this.listeners = [];
     this.where = 'local'; this.state = 'idle'; this.canEdit = true; this.uid = null;
     this.pending = new Map(); this.busy = false;
-    try { const s = JSON.parse(localStorage.getItem(LS) || 'null'); if (s?.over) this.over = s.over; } catch { /* no storage */ }
+    // dirty = edits made in this browser that the db has not confirmed yet (offline); only these are pushed on connect
+    this.dirty = new Set();
+    try { const s = JSON.parse(localStorage.getItem(LS) || 'null'); if (s?.over) this.over = s.over; if (s?.dirty) this.dirty = new Set(s.dirty); } catch { /* no storage */ }
   }
   // ---- merged view
   runs() {
@@ -35,13 +37,13 @@ export class RouteStore {
   undo() { const h = this.undoS.pop(); if (!h) return null; this.redoS.push(h); this.setOver(h.before); return h.label; }
   redo() { const h = this.redoS.pop(); if (!h) return null; this.undoS.push(h); this.setOver(h.after); return h.label; }
   setOver(map) {
-    for (const [id, o] of Object.entries(map)) { if (o) this.over[id] = o; else delete this.over[id]; this.pending.set(id, o); }
+    for (const [id, o] of Object.entries(map)) { if (o) this.over[id] = o; else delete this.over[id]; this.pending.set(id, o); this.dirty.add(id); }
     this.saveLocal(); this.flush(); this.emit();
   }
   revert(id) { if (!this.over[id]) return; const before = { [id]: structuredClone(this.over[id]) }; this.undoS.push({ before, after: { [id]: null }, label: 'החזרה למקור' }); this.redoS = []; this.setOver({ [id]: null }); }
   onChange(f) { this.listeners.push(f); }
   emit() { this.listeners.forEach(f => f()); }
-  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ over: this.over })); } catch { /* ignore */ } }
+  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ over: this.over, dirty: [...this.dirty] })); } catch { /* ignore */ } }
   // ---- artifact db
   async connect() {
     const use = window.claude?.use; if (!use) return;
@@ -54,10 +56,11 @@ export class RouteStore {
     try {
       const snap = await this.col.get(); clearTimeout(timer);
       const remote = {}; for (const d of snap.docs) { const v = d.data(); if (v?.id) remote[v.id] = v.o; }
-      // edits made in this browser before the db answered (or while offline) are carried over, the db wins otherwise
-      const localOnly = Object.fromEntries(Object.entries(this.over).filter(([id]) => !(id in remote)));
-      this.over = { ...remote, ...localOnly };
-      for (const id of Object.keys(localOnly)) this.pending.set(id, this.over[id]);
+      // the db is the truth; only edits this browser made and the db never confirmed (offline) are pushed again –
+      // an edit that was saved and later removed in the db stays removed
+      const unsynced = Object.fromEntries([...this.dirty].map(id => [id, this.over[id] ?? null]));
+      this.over = { ...remote };
+      for (const [id, o] of Object.entries(unsynced)) { if (o) this.over[id] = o; else delete this.over[id]; this.pending.set(id, o); }
       this.where = 'db'; this.state = 'saved'; this.saveLocal(); this.emit(); this.flush();
       this.unsub = this.col.onSnapshot((qs) => {
         const docs = qs.docs || []; let changed = false;
@@ -76,7 +79,7 @@ export class RouteStore {
       try {
         const ref = this.col.doc(keyOf(id));
         if (o) await ref.set({ id, o, at: Date.now() }); else await ref.delete();
-        if (this.pending.get(id) === o) this.pending.delete(id);
+        if (this.pending.get(id) === o) { this.pending.delete(id); this.dirty.delete(id); this.saveLocal(); }
       } catch (e) { this.state = 'error'; this.err = e?.code || String(e); this.busy = false; this.emit(); return; }
     }
     this.busy = false; this.state = 'saved'; this.emit();

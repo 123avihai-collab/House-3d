@@ -1,0 +1,100 @@
+{
+ "_doc": "נוצר ע\"י tools/extract_blocks.py --xlsx – טיט לנדבך הראשון ודבק בלוקים, נטו (לפני פחת). הנחות: data/config/blocks.json bonding.",
+ "rows": [
+  {
+   "floor": "first",
+   "thickness_cm": 10,
+   "firstCourse_m": 20.27,
+   "mortar_l": 40.5,
+   "bedJoints_m2": 22.83,
+   "headJoints_m2": 12.18,
+   "adhesive_l": 105.0
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 22,
+   "firstCourse_m": 15.94,
+   "mortar_l": 70.1,
+   "bedJoints_m2": 36.29,
+   "headJoints_m2": 19.76,
+   "adhesive_l": 168.2
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 30,
+   "firstCourse_m": 9.28,
+   "mortar_l": 55.7,
+   "bedJoints_m2": 29.5,
+   "headJoints_m2": 20.02,
+   "adhesive_l": 148.6
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 36,
+   "firstCourse_m": 0.43,
+   "mortar_l": 3.1,
+   "bedJoints_m2": 1.69,
+   "headJoints_m2": 1.58,
+   "adhesive_l": 9.8
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 10,
+   "firstCourse_m": 18.73,
+   "mortar_l": 37.5,
+   "bedJoints_m2": 28.62,
+   "headJoints_m2": 17.18,
+   "adhesive_l": 137.4
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 15,
+   "firstCourse_m": 0.3,
+   "mortar_l": 0.9,
+   "bedJoints_m2": 0.63,
+   "headJoints_m2": 0.54,
+   "adhesive_l": 3.5
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 16,
+   "firstCourse_m": 0.35,
+   "mortar_l": 1.1,
+   "bedJoints_m2": 0.78,
+   "headJoints_m2": 0.86,
+   "adhesive_l": 4.9
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 22,
+   "firstCourse_m": 24.89,
+   "mortar_l": 109.5,
+   "bedJoints_m2": 71.77,
+   "headJoints_m2": 41.5,
+   "adhesive_l": 339.8
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 30,
+   "firstCourse_m": 9.21,
+   "mortar_l": 55.3,
+   "bedJoints_m2": 27.23,
+   "headJoints_m2": 17.57,
+   "adhesive_l": 134.4
+  },
+  {
+   "floor": "unit",
+   "thickness_cm": 22,
+   "firstCourse_m": 2.0,
+   "mortar_l": 8.8,
+   "bedJoints_m2": 2.2,
+   "headJoints_m2": 1.28,
+   "adhesive_l": 10.4
+  }
+ ],
+ "total": {
+  "firstCourse_m": 101.39,
+  "mortar_l": 382.5,
+  "adhesive_l": 1062.1
+ }
+}

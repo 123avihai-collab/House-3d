@@ -577,7 +577,9 @@ export class UI {
       q.blocks ? h('table', { class: 'kv' },
         ...(() => { const B = app.data.blocksCfg?.block, face = B ? B.length_m * B.height_m : 0.15; const W = app.data.blocksCfg?.waste_pct?.value ?? 0;
           return [...Object.entries(q.blocks.byThickness).sort((a, b) => +a[0] - +b[0]).map(([t, v]) => tr(`עובי ${t} ס"מ`, `${v.area_m2.toFixed(1)} מ"ר ≈ ${Math.round(v.area_m2 / face)} בלוקים (בקיר: ${v.full} שלמים + ${v.cut} חתוכים)`)),
-            tr('סה"כ להזמנה', `${Math.round(q.blocks.area_m2 / face * (1 + W / 100))} בלוקים (${q.blocks.area_m2.toFixed(1)} מ"ר + ${W}% פחת, זמני)`)]; })(),
+            tr('סה"כ להזמנה', `${Math.round(q.blocks.area_m2 / face * (1 + W / 100))} בלוקים (${q.blocks.area_m2.toFixed(1)} מ"ר + ${W}% פחת; לפי הפריסה בפועל – באקסל)`)]; })(),
+        tr('טיט מלט – נדבך ראשון', `${Math.round(q.blocks.mortar_l || 0)} ליטר נטו (${Math.round((app.data.blocksCfg?.bonding?.firstCourse?.calc_m || 0) * 100)} ס"מ)`),
+        tr('דבק בלוקים – שכבה דקה', `${Math.round(q.blocks.adhesive_l || 0)} ליטר נטו (${Math.round((app.data.blocksCfg?.bonding?.adhesive?.calc_m || 0) * 1000)} מ"מ; פירוט ושקים באקסל)`),
         tr('משקופים (בלוק משקוף)', `${q.blocks.lintels || 0} · ${(q.blocks.lintel_m || 0).toFixed(2)} מ' (הישענות זמנית)`),
         tr('ארגזי תריס גלילה', `${q.blocks.boxes}`)) : h('p', { class: 'muted' }, '—'),
       h('h4', {}, 'ביוב וניקוז'),

@@ -97,7 +97,8 @@ function streetControlPoints(data) {
 }
 
 // Triangulated surface of one region + vertical skirt down to (min - skirtDepth).
-export function regionMesh(ring, interp, coords, topMat, sideMat, T, ctrl) {
+// exclude: rings cut out of the surface (drawn apart, e.g. the zones of an owner change with two versions)
+export function regionMesh(ring, interp, coords, topMat, sideMat, T, ctrl, exclude = []) {
   const sp = T.sampleSpacing_m;
   const boundary = densifyRing(ring, T.boundaryDensify_m);
   const xs = ring.map(p => p[0]), ys = ring.map(p => p[1]);
@@ -120,7 +121,7 @@ export function regionMesh(ring, interp, coords, topMat, sideMat, T, ctrl) {
   for (let i = 0; i < d.triangles.length; i += 3) {
     const a = d.triangles[i], b = d.triangles[i + 1], c = d.triangles[i + 2];
     const cx = (pts[a][0] + pts[b][0] + pts[c][0]) / 3, cy = (pts[a][1] + pts[b][1] + pts[c][1]) / 3;
-    if (pointInRing(cx, cy, ring)) idx.push(a, c, b); // flip: ITM ccw -> scene (z = -N) needs reversed winding for +Y normals
+    if (pointInRing(cx, cy, ring) && !exclude.some(r => pointInRing(cx, cy, r))) idx.push(a, c, b); // flip: ITM ccw -> scene (z = -N) needs reversed winding for +Y normals
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));

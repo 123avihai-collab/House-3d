@@ -68,7 +68,7 @@ src/environment/           סביבה (שכונה): מחליף את משטחי �
   controls.js              הצגה/הסתרה של השכנים, שקיפות מעטפות, מבט על השכונה
 data/
   manifest.json            רשימת קובצי הנתונים
-  site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source)
+  site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source); פני הקרקע הסופיים של המגרש לפי גבהי הפיתוח בגרמושקה – development-heights.json (tools/extract_dev_heights.py, אחריו derive_site.py)
   structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json); מדרגות ופילר (tools/extract_stairs.py → stairs.json); חומות היקפיות (tools/extract_perimeter.py → perimeter.json); פתחים (tools/extract_openings.py → ../architecture/openings.json + חיתוך קירות הבטון – להריץ אחרי extract_floor.py ו-extract_framing.py); בדיקה עצמית tools/overlay_check.py; בדיקת תקרות ומעקות מול התוכניות tools/plan_check.py → docs/verification/plan-check.json
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   environment/             lots.json, streets.json (נוצרים ע"י tools/environment/), config, קריאות ידניות, תצוגה, חומרים

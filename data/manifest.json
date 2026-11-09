@@ -11,6 +11,7 @@
   "plot": "data/site/plot-5187.json",
   "parcels": "data/site/parcels.json",
   "heights": "data/site/planned-heights.json",
+  "devHeights": "data/site/development-heights.json",
   "street": "data/site/street.json",
   "buildingLines": "data/site/building-lines.json",
   "survey": "data/site/survey-existing.json",

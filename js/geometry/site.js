@@ -97,6 +97,12 @@ export function buildSite(ctx) {
     g4.add(label(coords.fmtH(h.z), h.parcel === '257' ? 'h h-plot' : 'h', p.clone().add(new THREE.Vector3(0, 0.45, 0)),
       `גובה מתוכנן מגרש – חלקה ${h.parcel}\n${h.source}`));
   }
+  // development spot heights of lot 5187 (permit ground plan) – the control of the final lot surface
+  for (const h of data.devHeights?.spots || []) {
+    const p = coords.toLocal(h.E, h.N, h.z);
+    const s = new THREE.Mesh(dot, dotMat); s.position.copy(p); g4.add(s);
+    g4.add(label(coords.fmtH(h.z), 'h h-plot', p.clone().add(new THREE.Vector3(0, 0.45, 0)), `גובה פיתוח (היתר, ±${data.devHeights.positionAccuracy_m} מ')\n${h.source}`));
+  }
   for (const h of data.heights.streetSpots) {
     const p = coords.toLocal(h.at[0], h.at[1], h.z);
     const s = new THREE.Mesh(dot, dotMat); s.position.copy(p); g4.add(s);
@@ -109,7 +115,7 @@ export function buildSite(ctx) {
     ring0.rotation.x = Math.PI / 2; ring0.position.copy(p); g4.add(ring0);
     g4.add(label(`±0.00 = ${z0.z.toFixed(2)}`, 'h h-zero', p.clone().add(new THREE.Vector3(0, 0.55, 0)), z0.source));
   }
-  registry.add(g4, site('plannedHeights'), { name: 'גבהים מתוכננים (מפה למשתכן)', kind: 'labels', source: 'data/site/planned-heights.json' });
+  registry.add(g4, site('plannedHeights'), { name: 'גבהים מתוכננים (מפה למשתכן + פיתוח בהיתר)', kind: 'labels', source: 'data/site/planned-heights.json; data/site/development-heights.json' });
   scene.add(g4);
 
   // ---------- street linework ----------

@@ -13,7 +13,8 @@ export function buildTerrain(ctx) {
 
   for (const region of data.regions.regions) {
     let ctrl;
-    if (region.control.lotCorners) ctrl = region.control.lotCorners.map(i => ({ x: lotH[i].at[0], y: lotH[i].at[1], z: lotH[i].z }));
+    if (region.control.developmentSpots) ctrl = data.devHeights.spots.map(h => ({ x: h.E, y: h.N, z: h.z }));
+    else if (region.control.lotCorners) ctrl = region.control.lotCorners.map(i => ({ x: lotH[i].at[0], y: lotH[i].at[1], z: lotH[i].z }));
     else ctrl = streetCtrl;
     const interp = makeInterpolator(ctrl);
     if (!interp) { console.warn('region without control points', region.id); continue; }

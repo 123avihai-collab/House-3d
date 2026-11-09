@@ -72,17 +72,12 @@
     ]
    ],
    "control": {
-    "lotCorners": [
-     0,
-     1,
-     2,
-     3
-    ]
+    "developmentSpots": true
    },
-   "controlCount": 4,
+   "controlCount": 31,
    "layer": "topoPlanned",
    "note": null,
-   "source": "parcel ring: data/site/parcels.json; heights: data/site/planned-heights.json lotCorners"
+   "source": "parcel ring: data/site/parcels.json; heights: data/site/development-heights.json spots (sources/permit/permit-sheet1-gramushka.dwg, תצוגה \"קרקע פיתוח\")"
   },
   {
    "id": "lot-256",

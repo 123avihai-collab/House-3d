@@ -1,0 +1,349 @@
+{
+ "_doc": "גבהי הפיתוח בתוכנית קומת הקרקע של ההיתר – פני הקרקע / הריצוף הסופיים של מגרש 5187. נוצר ע\"י tools/extract_dev_heights.py. משמשים כנקודות בקרה לפני הקרקע המתוכננים של המגרש (topoPlanned) במקום 4 פינות המגרש של המפה למשתכן (הערת אביחי 09.11.2026).",
+ "source": "sources/permit/permit-sheet1-gramushka.dwg",
+ "view": "קרקע פיתוח",
+ "finishMax": 280.48,
+ "positionAccuracy_m": 0.5,
+ "georef": {
+  "method": "ICP קווי קירות התצוגה מול בלוק pituah (tools/extract_openings.py place)",
+  "translation_cm": [
+   -14559.187,
+   1536.134
+  ],
+  "inlierFraction": 0.917,
+  "medianResidual_cm": 0.118
+ },
+ "spots": [
+  {
+   "E": 179601.623,
+   "N": 576228.835,
+   "z": 280.0,
+   "handle": "18083",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18083 (\"280.00\")"
+  },
+  {
+   "E": 179602.784,
+   "N": 576234.988,
+   "z": 280.12,
+   "handle": "18086",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18086 (\"280.12\")"
+  },
+  {
+   "E": 179598.399,
+   "N": 576234.582,
+   "z": 280.48,
+   "handle": "18089",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18089 (\"280.48\")"
+  },
+  {
+   "E": 179599.906,
+   "N": 576232.874,
+   "z": 280.06,
+   "handle": "1808C",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1808C (\"280.06\")"
+  },
+  {
+   "E": 179592.753,
+   "N": 576255.988,
+   "z": 280.43,
+   "handle": "180E7",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180E7 (\"280.43\")"
+  },
+  {
+   "E": 179599.17,
+   "N": 576253.08,
+   "z": 280.33,
+   "handle": "180ED",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180ED (\"280.33\")"
+  },
+  {
+   "E": 179595.033,
+   "N": 576252.666,
+   "z": 280.39,
+   "handle": "180F0",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180F0 (\"280.39\")"
+  },
+  {
+   "E": 179594.831,
+   "N": 576252.199,
+   "z": 280.46,
+   "handle": "180F7",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180F7 (\"280.46\")"
+  },
+  {
+   "E": 179599.0,
+   "N": 576248.457,
+   "z": 280.48,
+   "handle": "180FA",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180FA (\"280.48\")"
+  },
+  {
+   "E": 179603.31,
+   "N": 576244.323,
+   "z": 280.48,
+   "handle": "180FD",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 180FD (\"280.48\")"
+  },
+  {
+   "E": 179608.027,
+   "N": 576241.698,
+   "z": 280.47,
+   "handle": "18100",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18100 (\"280.47\")"
+  },
+  {
+   "E": 179605.705,
+   "N": 576235.77,
+   "z": 280.38,
+   "handle": "18103",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18103 (\"280.38\")"
+  },
+  {
+   "E": 179605.501,
+   "N": 576234.871,
+   "z": 280.14,
+   "handle": "18106",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18106 (\"280.14\")"
+  },
+  {
+   "E": 179589.287,
+   "N": 576243.021,
+   "z": 280.48,
+   "handle": "1810F",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1810F (\"280.48\")"
+  },
+  {
+   "E": 179587.887,
+   "N": 576243.207,
+   "z": 280.47,
+   "handle": "18112",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18112 (\"280.47\")"
+  },
+  {
+   "E": 179585.905,
+   "N": 576238.681,
+   "z": 280.31,
+   "handle": "18115",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18115 (\"280.31\")"
+  },
+  {
+   "E": 179590.134,
+   "N": 576235.127,
+   "z": 280.29,
+   "handle": "18118",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18118 (\"280.29\")"
+  },
+  {
+   "E": 179588.908,
+   "N": 576235.135,
+   "z": 280.19,
+   "handle": "1811B",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1811B (\"280.19\")"
+  },
+  {
+   "E": 179595.122,
+   "N": 576232.642,
+   "z": 280.28,
+   "handle": "18122",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18122 (\"280.28\")"
+  },
+  {
+   "E": 179597.445,
+   "N": 576232.363,
+   "z": 280.32,
+   "handle": "18125",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18125 (\"280.32\")"
+  },
+  {
+   "E": 179597.148,
+   "N": 576231.775,
+   "z": 280.16,
+   "handle": "18128",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18128 (\"280.16\")"
+  },
+  {
+   "E": 179591.558,
+   "N": 576236.379,
+   "z": 280.31,
+   "handle": "1815A",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1815A (\"280.31\")"
+  },
+  {
+   "E": 179605.744,
+   "N": 576233.793,
+   "z": 280.12,
+   "handle": "1815D",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1815D (\"280.12\")"
+  },
+  {
+   "E": 179601.695,
+   "N": 576252.527,
+   "z": 280.48,
+   "handle": "18160",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18160 (\"280.48\")"
+  },
+  {
+   "E": 179587.386,
+   "N": 576236.726,
+   "z": 280.29,
+   "handle": "181D5",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181D5 (\"280.29\")"
+  },
+  {
+   "E": 179591.162,
+   "N": 576252.889,
+   "z": 280.48,
+   "handle": "18414",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18414 (\"280.48\")"
+  },
+  {
+   "E": 179590.847,
+   "N": 576252.223,
+   "z": 280.34,
+   "handle": "18447",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18447 (\"280.34\")"
+  },
+  {
+   "E": 179587.772,
+   "N": 576244.273,
+   "z": 280.47,
+   "handle": "1844A",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1844A (\"280.47\")"
+  },
+  {
+   "E": 179585.892,
+   "N": 576239.597,
+   "z": 280.44,
+   "handle": "18493",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18493 (\"280.44\")"
+  },
+  {
+   "E": 179586.785,
+   "N": 576239.248,
+   "z": 280.47,
+   "handle": "18496",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18496 (\"280.47\")"
+  },
+  {
+   "E": 179595.424,
+   "N": 576231.772,
+   "z": 280.18,
+   "handle": "184A0",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 184A0 (\"280.18\")"
+  }
+ ],
+ "excluded": [
+  {
+   "E": 179600.498,
+   "N": 576238.496,
+   "z": 280.5,
+   "handle": "1806E",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1806E (\"280.50\")",
+   "reason": "±0.00 של הבית"
+  },
+  {
+   "E": 179589.185,
+   "N": 576233.545,
+   "z": 281.19,
+   "handle": "181A6",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181A6 (\"281.19\")",
+   "reason": "ראש חומה / קיר תומך (מעל גמר רצפת החוץ 280.48)"
+  },
+  {
+   "E": 179590.879,
+   "N": 576232.762,
+   "z": 281.75,
+   "handle": "181AD",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181AD (\"281.75\")",
+   "reason": "ראש חומה / קיר תומך (מעל גמר רצפת החוץ 280.48)"
+  },
+  {
+   "E": 179589.603,
+   "N": 576254.163,
+   "z": 281.9,
+   "handle": "181F1",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181F1 (\"281.90\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179585.493,
+   "N": 576245.342,
+   "z": 281.9,
+   "handle": "181F8",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181F8 (\"281.90\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179585.354,
+   "N": 576244.877,
+   "z": 282.26,
+   "handle": "181FF",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 181FF (\"282.26\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179582.688,
+   "N": 576236.806,
+   "z": 281.75,
+   "handle": "18206",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18206 (\"281.75\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179586.855,
+   "N": 576238.199,
+   "z": 281.74,
+   "handle": "1820D",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1820D (\"281.74\")",
+   "reason": "ראש חומה / קיר תומך (מעל גמר רצפת החוץ 280.48)"
+  },
+  {
+   "E": 179607.706,
+   "N": 576231.348,
+   "z": 280.38,
+   "handle": "183D8",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 183D8 (\"280.38\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179606.061,
+   "N": 576237.584,
+   "z": 281.51,
+   "handle": "18404",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18404 (\"281.51\")",
+   "reason": "ראש חומה / קיר תומך (מעל גמר רצפת החוץ 280.48)"
+  },
+  {
+   "E": 179589.286,
+   "N": 576253.389,
+   "z": 281.54,
+   "handle": "18411",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 18411 (\"281.54\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179584.724,
+   "N": 576239.707,
+   "z": 280.46,
+   "handle": "1849D",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 1849D (\"280.46\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179607.929,
+   "N": 576251.707,
+   "z": 281.58,
+   "handle": "184CD",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 184CD (\"281.58\")",
+   "reason": "מחוץ למגרש"
+  },
+  {
+   "E": 179611.181,
+   "N": 576249.455,
+   "z": 281.45,
+   "handle": "184D0",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה G-ANNO-DIMS, ישות 184D0 (\"281.45\")",
+   "reason": "ראש חומה / קיר תומך (מעל גמר רצפת החוץ 280.48)"
+  }
+ ]
+}

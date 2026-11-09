@@ -128,6 +128,7 @@
 node tools/dwg2json/convert.mjs sources/survey/INDEX_F02628-36-MIG-5187.dwg tools/cache/mig-5187.json
 node tools/dwg2json/convert.mjs sources/permit/permit-sheet1-gramushka.dwg tools/cache/permit-sheet1.json
 python3 tools/extract_site.py      # -> data/site/*.json
+python3 tools/extract_dev_heights.py # -> data/site/development-heights.json (גבהי פיתוח, גרמושקה "קרקע פיתוח"; אחרי extract_openings)
 python3 tools/derive_site.py       # -> terrain-regions.json, neighbors.json
 node tools/verify_stage1.mjs       # -> docs/verification/stage-1.md
 python3 tools/extract_structure.py # -> data/structure/{piles,basement,excavation}.json (K-400, k-11.dxf, דוח קרקע)

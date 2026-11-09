@@ -316,7 +316,7 @@ const exMeta = {
   registry.add(gF, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: 'topoPlanned' }, { ...fillMeta,
     name: 'מגרש 5187 – פני קרקע מתוכננים (פיתוח)', role: 'plot', hMax: meshF.userData.hMax,
     rows: [['גינה / רצועות', 'פני הקרקע המתוכננים (מפה למשתכן)'], ['מתחת לרצפות', 'נשאר מתחת למבנה']],
-    note: 'פני הקרקע הסופיים בגינה וברצועות – לפי הגבהים המתוכננים במפה למשתכן; בתוך הבית, הרצפות, הבריכה והחצרות – המבנה.', source: 'data/site/planned-heights.json; data/structure/floor-ground.json' });
+    note: 'פני הקרקע הסופיים בגינה וברצועות – לפי גבהי הפיתוח בתוכנית קומת הקרקע של ההיתר (הערת אביחי 09.11.2026); בתוך הבית, הרצפות, הבריכה והחצרות – המבנה.', source: 'data/site/development-heights.json; data/structure/floor-ground.json' });
   scene.add(group);
   for (const w of shoringMeshes) {
     registry.add(w, { floor: 'unit', system: 'structure', stage: 'excavation', stepTo: 'waterproofing', layer: 'shoring' }, {

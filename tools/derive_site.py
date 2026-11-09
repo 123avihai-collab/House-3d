@@ -124,6 +124,10 @@ def main():
                         'note': None if len(ctrl) >= 3 else 'פחות מ-3 גבהים מתוכננים במקור – משטח מפושט (ראו docs/open-issues.md)',
                         'source': 'parcel ring: data/site/parcels.json; heights: data/site/planned-heights.json lotCorners'})
     lot_region('257', 'soilPlot', 'plot')
+    # lot 5187: the development spot heights of the permit ground plan (tools/extract_dev_heights.py) – Avihai 09.11.2026
+    dev = load(S('development-heights.json'))
+    regions[-1].update({'control': {'developmentSpots': True}, 'controlCount': len(dev['spots']),
+                        'source': 'parcel ring: data/site/parcels.json; heights: data/site/development-heights.json spots (' + dev['source'] + ', תצוגה "' + dev['view'] + '")'})
     for pid in rules['lots']:
         lot_region(pid, 'soilLot', 'neighbor')
 

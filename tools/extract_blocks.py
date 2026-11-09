@@ -692,7 +692,7 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
     ws = wb.active; ws.title = 'סיכום'
     sheet(ws, ['קומה', 'עובי (ס"מ)', 'בלוקים שלמים', 'חלקי בלוק חתוכים', 'סה"כ יחידות בקיר', 'שטח קיר נטו (מ"ר)', 'שווה ערך בלוקים (לפי שטח)', f'להזמנה (+{W}% פחת)', 'נפח (מ"ק)'], rows, [14, 11, 14, 16, 16, 17, 22, 18, 11])
     for c in ws[ws.max_row]: c.font = Font(bold=True)
-    ws.append([]); ws.append([f"בלוק: {CFG['block']['type']} {round(CFG['block']['length_m'] * 100)}×{round(CFG['block']['height_m'] * 100)} – {CFG['block']['source']}. פחת {W}% – זמני, לאישור."])
+    ws.append([]); ws.append([f"בלוק: {CFG['block']['type']} {round(CFG['block']['length_m'] * 100)}×{round(CFG['block']['height_m'] * 100)} – {CFG['block']['source']}. פחת {W}% – החלטת אביחי."])
     sheet(wb.create_sheet('קירות'), ['מזהה', 'קומה', 'עובי (ס"מ)', 'אורך (מ\')', 'תחתית', 'ראש', 'נדבכים', 'שלמים', 'חתוכים', 'שטח נטו (מ"ר)', 'פתחים', 'סטטוס'],
           [[w['id'], FL[w['floor']], round(w['thickness_m'] * 100), w['length_m'], w['bottomRel'], w['topRel'], w['courses'], w['blocksFull'], w['blocksCut'], w['area_m2'],
             ', '.join(o['id'] for o in w['openings']), w['status']] for w in D['walls']], [9, 12, 10, 10, 9, 9, 9, 9, 9, 14, 18, 10])
@@ -735,7 +735,7 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
     sheet(ws, ['קומה', 'עובי (ס"מ)', 'בלוקים שלמים בקיר', 'מקומות עם בלוק חתוך', 'חלקים חתוכים', 'בלוקים לחיתוך (אחרי ניצול שאריות)', 'סה"כ בלוקים', f'להזמנה (+{W}% פחת)', 'שטח נטו (מ"ר)', 'בדיקה: שטח ÷ 0.15', 'מחיר לבלוק (₪) – למלא', 'עלות (₪)'],
           orows, [14, 11, 18, 20, 14, 30, 13, 20, 14, 18, 22, 12])
     for c in ws[ws.max_row]: c.font = Font(bold=True)
-    ws.append([]); ws.append([f"בלוק {CFG['block']['type']} {round(BL * 100)}×{round(BH * 100)}. בלוקים לחיתוך: החלקים החתוכים נארזים בבלוקים שלמים (מסור {round(KERF * 1000)} מ\"מ, שארית מתחת ל-{round(MINR * 100)} ס\"מ נזרקת) – הנחה זמנית. פחת {W}% – זמני, לאישור. משקופים – בגיליון 'משקופים' (לא נכללים כאן)."])
+    ws.append([]); ws.append([f"בלוק {CFG['block']['type']} {round(BL * 100)}×{round(BH * 100)}. בלוקים לחיתוך: החלקים החתוכים נארזים בבלוקים שלמים (מסור {round(KERF * 1000)} מ\"מ, שארית מתחת ל-{round(MINR * 100)} ס\"מ נזרקת) – הנחה זמנית. פחת {W}% – החלטת אביחי. משקופים – בגיליון 'משקופים' (לא נכללים כאן)."])
     ws.append(['עוביים לא סטנדרטיים (14, 15, 16, 20, 36) – עובי הקיר כפי ששורטט; לקבוע מול הספק איזה בלוק מזמינים בפועל.'])
     json.dump({'_doc': 'נוצר ע"י tools/extract_blocks.py --xlsx – כמות בלוקים להזמנה לפי קומה ועובי (לפני פחת). הנחות: data/config/blocks.json cutting.', 'waste_pct': W, 'cutting': CUT, 'rows': order,
                'total': {'full': sum(o['full'] for o in order), 'blocksForCuts': sum(o['blocksForCuts'] for o in order), 'blocks': sum(o['blocks'] for o in order), 'area_m2': round(sum(o['area_m2'] for o in order), 2)}},

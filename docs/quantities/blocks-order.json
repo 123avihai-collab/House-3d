@@ -1,0 +1,118 @@
+{
+ "_doc": "נוצר ע\"י tools/extract_blocks.py --xlsx – כמות בלוקים להזמנה לפי קומה ועובי (לפני פחת). הנחות: data/config/blocks.json cutting.",
+ "waste_pct": 5,
+ "cutting": {
+  "_doc": "הנחות לחישוב כמות ההזמנה (tools/extract_blocks.py --xlsx, גיליון 'הזמנה'): חלקי הבלוקים החתוכים נחתכים מבלוקים שלמים, ושארית שימושית חוזרת לשימוש. kerf_m – רוחב חיתוך המסור; minReuse_m – שארית קצרה / נמוכה מזה נזרקת. זמני – לאישור מול הקבלן.",
+  "kerf_m": 0.003,
+  "minReuse_m": 0.1,
+  "status": "provisional"
+ },
+ "rows": [
+  {
+   "floor": "unit",
+   "thickness_cm": 22,
+   "full": 13,
+   "cutPositions": 11,
+   "cutPieces": 11,
+   "blocksForCuts": 8,
+   "blocks": 21,
+   "area_m2": 2.52
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 10,
+   "full": 307,
+   "cutPositions": 417,
+   "cutPieces": 416,
+   "blocksForCuts": 200,
+   "blocks": 507,
+   "area_m2": 73.79
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 15,
+   "full": 0,
+   "cutPositions": 15,
+   "cutPieces": 15,
+   "blocksForCuts": 15,
+   "blocks": 15,
+   "area_m2": 1.09
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 16,
+   "full": 0,
+   "cutPositions": 22,
+   "cutPieces": 22,
+   "blocksForCuts": 15,
+   "blocks": 15,
+   "area_m2": 1.26
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 22,
+   "full": 356,
+   "cutPositions": 422,
+   "cutPieces": 439,
+   "blocksForCuts": 228,
+   "blocks": 584,
+   "area_m2": 82.55
+  },
+  {
+   "floor": "ground",
+   "thickness_cm": 30,
+   "full": 108,
+   "cutPositions": 135,
+   "cutPieces": 139,
+   "blocksForCuts": 50,
+   "blocks": 158,
+   "area_m2": 22.47
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 10,
+   "full": 297,
+   "cutPositions": 209,
+   "cutPieces": 205,
+   "blocksForCuts": 128,
+   "blocks": 425,
+   "area_m2": 61.62
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 22,
+   "full": 206,
+   "cutPositions": 172,
+   "cutPieces": 178,
+   "blocksForCuts": 100,
+   "blocks": 306,
+   "area_m2": 43.51
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 30,
+   "full": 92,
+   "cutPositions": 183,
+   "cutPieces": 184,
+   "blocksForCuts": 93,
+   "blocks": 185,
+   "area_m2": 26.13
+  },
+  {
+   "floor": "first",
+   "thickness_cm": 36,
+   "full": 0,
+   "cutPositions": 18,
+   "cutPieces": 18,
+   "blocksForCuts": 12,
+   "blocks": 12,
+   "area_m2": 1.26
+  }
+ ],
+ "total": {
+  "full": 1379,
+  "blocksForCuts": 849,
+  "blocks": 2228,
+  "area_m2": 316.2
+ }
+}

@@ -701,6 +701,45 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
           [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '',
             round(b['depth_m'] * 100) if b.get('depth_m') else '', b.get('hostWall') or '', b['status'], b['source'], b.get('depthSource', '')] for b in D['shutterBoxes']],
           [8, 12, 44, 11, 15, 15, 10, 10, 60, 40])
+    # ---- order sheet: real blocks to buy. Full blocks as laid; the cut pieces are sawn out of whole blocks, a usable
+    # offcut is used again (shelf packing per floor / thickness: pieces sorted by height then length, saw kerf between them)
+    CUT = CFG.get('cutting', {}); KERF = CUT.get('kerf_m', 0.003); MINR = CUT.get('minReuse_m', 0.1); BL, BH = CFG['block']['length_m'], CFG['block']['height_m']
+    def pack(pieces):
+        blocks = []   # each: {'free_h', 'shelves': [[h, free_len]]}
+        for l, h in sorted(pieces, key=lambda p_: (-p_[1], -p_[0])):
+            l, h = min(l, BL), min(h, BH); done = False
+            for bk in blocks:
+                for sh in bk['shelves']:
+                    if sh[0] >= h - 1e-6 and sh[1] >= l - 1e-6: sh[1] -= l + KERF; done = True; break
+                if done: break
+                if bk['free_h'] >= h - 1e-6 and bk['free_h'] >= MINR: bk['shelves'].append([h, BL - l - KERF]); bk['free_h'] -= h + KERF; done = True; break
+            if not done: blocks.append({'free_h': BH - h - KERF, 'shelves': [[h, BL - l - KERF]]})
+        for bk in blocks:   # offcuts too small to use again are waste, not stock
+            bk['shelves'] = [sh for sh in bk['shelves'] if sh[1] >= MINR]
+        return len(blocks)
+    og = defaultdict(lambda: {'full': 0, 'cutPos': 0, 'pieces': [], 'm2': 0.0})
+    for w in D['walls']:
+        bl_, _ = layout(w['length_m'], w['bottomRel'], w['topRel'], w['openings'] + w.get('lintels', []) + w.get('voids', []), BL, BH, w.get('bond'), w.get('courseDatum'))
+        g_ = og[(w['floor'], round(w['thickness_m'] * 100))]; g_['m2'] += w['area_m2']
+        for full_, pcs in bl_:
+            if full_: g_['full'] += 1
+            else: g_['cutPos'] += 1; g_['pieces'] += [(x1 - x0, z1 - z0) for x0, x1, z0, z1 in pcs if x1 - x0 > 0.02 and z1 - z0 > 0.02]
+    orows = []; order = []
+    for (fl, t), g_ in sorted(og.items(), key=lambda x: (list(FL).index(x[0][0]), x[0][1])):
+        nb = pack(g_['pieces']); tot = g_['full'] + nb; r_ = len(orows) + 2
+        orows.append([FL[fl], t, g_['full'], g_['cutPos'], len(g_['pieces']), nb, tot, f'=ROUNDUP(G{r_}*(1+{W}/100),0)', round(g_['m2'], 2), round(g_['m2'] / (BL * BH)), None, f'=H{r_}*K{r_}'])
+        order.append({'floor': fl, 'thickness_cm': t, 'full': g_['full'], 'cutPositions': g_['cutPos'], 'cutPieces': len(g_['pieces']), 'blocksForCuts': nb, 'blocks': tot, 'area_m2': round(g_['m2'], 2)})
+    n = len(orows) + 1
+    orows.append(['סה"כ', ''] + [f'=SUM({c}2:{c}{n})' for c in 'CDEFGHIJ'] + ['', f'=SUM(L2:L{n})'])
+    ws = wb.create_sheet('הזמנה', 0)
+    sheet(ws, ['קומה', 'עובי (ס"מ)', 'בלוקים שלמים בקיר', 'מקומות עם בלוק חתוך', 'חלקים חתוכים', 'בלוקים לחיתוך (אחרי ניצול שאריות)', 'סה"כ בלוקים', f'להזמנה (+{W}% פחת)', 'שטח נטו (מ"ר)', 'בדיקה: שטח ÷ 0.15', 'מחיר לבלוק (₪) – למלא', 'עלות (₪)'],
+          orows, [14, 11, 18, 20, 14, 30, 13, 20, 14, 18, 22, 12])
+    for c in ws[ws.max_row]: c.font = Font(bold=True)
+    ws.append([]); ws.append([f"בלוק {CFG['block']['type']} {round(BL * 100)}×{round(BH * 100)}. בלוקים לחיתוך: החלקים החתוכים נארזים בבלוקים שלמים (מסור {round(KERF * 1000)} מ\"מ, שארית מתחת ל-{round(MINR * 100)} ס\"מ נזרקת) – הנחה זמנית. פחת {W}% – זמני, לאישור. משקופים – בגיליון 'משקופים' (לא נכללים כאן)."])
+    ws.append(['עוביים לא סטנדרטיים (14, 15, 16, 20, 36) – עובי הקיר כפי ששורטט; לקבוע מול הספק איזה בלוק מזמינים בפועל.'])
+    json.dump({'_doc': 'נוצר ע"י tools/extract_blocks.py --xlsx – כמות בלוקים להזמנה לפי קומה ועובי (לפני פחת). הנחות: data/config/blocks.json cutting.', 'waste_pct': W, 'cutting': CUT, 'rows': order,
+               'total': {'full': sum(o['full'] for o in order), 'blocksForCuts': sum(o['blocksForCuts'] for o in order), 'blocks': sum(o['blocks'] for o in order), 'area_m2': round(sum(o['area_m2'] for o in order), 2)}},
+              open(os.path.join(ROOT, 'docs/quantities/blocks-order.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     LT = CFG['lintel']; byO = {}; SD = {'L': 'שמאל', 'R': 'ימין'}
     bear_note = lambda lt: '; '.join([f"{SD[x]}: על הבטון" for x in lt['onConcrete']] + [f"{SD[x]}: המשך בקטע הקיר הסמוך" for x in lt.get('continues', [])]
                                      + [f"{SD[x]}: נכנס לקיר הבלוקים הניצב" for x in lt.get('intoCrossWall', [])]

@@ -36,6 +36,7 @@
   "stairs": "data/structure/stairs.json",
   "perimeter": "data/structure/perimeter.json",
   "openings": "data/architecture/openings.json",
+  "mamad": "data/architecture/mamad.json",
   "envLots": "data/environment/lots.json",
   "envStreets": "data/environment/streets.json",
   "envDisplay": "data/environment/display.json",

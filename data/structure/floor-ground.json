@@ -2873,7 +2873,7 @@
       ]
      ],
      "bottomRel": -0.15,
-     "topRel": 1.085
+     "topRel": 1.1
     },
     {
      "kind": "lintel",
@@ -2896,7 +2896,7 @@
        576243.846
       ]
      ],
-     "bottomRel": 2.6,
+     "bottomRel": 2.1,
      "topRel": 3.05
     }
    ]

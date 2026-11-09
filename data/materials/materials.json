@@ -141,6 +141,13 @@
       "roughness": 0.45,
       "envMapIntensity": 1,
       "_note": "משקוף פלדה של חלון / דלת הממ\"ד, נוצק בקיר – צבע להמחשה"
+    },
+    "blastLeaf": {
+      "color": "#d9dcd8",
+      "roughness": 0.4,
+      "metalness": 0.35,
+      "envMapIntensity": 1,
+      "_note": "כנפי הפלדה של חלון / דלת הממ\"ד – צבע להמחשה (מסמך העיצוב חסר)"
     }
   }
 }

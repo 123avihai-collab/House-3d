@@ -15,6 +15,7 @@ import { buildFloorSkeleton } from './geometry/floors.js';
 import { buildStairs } from './geometry/stairs.js';
 import { buildPerimeter } from './geometry/perimeter.js';
 import { buildMamadFrames } from './geometry/openings.js';
+import { buildMamad } from './geometry/mamad.js';
 import { buildStarters } from './geometry/starters.js';
 import { buildWallProposals } from './geometry/proposals.js';
 import { buildProps } from './geometry/props.js';
@@ -58,7 +59,7 @@ async function main() {
   const quantities = { excavation: tm('excavation', () => buildExcavation(ctx)), piles: tm('piles', () => buildPiles(ctx)), foundations: tm('foundations', () => buildFoundations(ctx)),
     plumbing: tm('plumbingFoundations', () => buildPlumbingFoundations(ctx)), pool: tm('pool', () => buildPool(ctx)), groundFloor: tm('groundFloor', () => buildFloorSkeleton(ctx, data.floorGround)),
     firstFloor: tm('firstFloor', () => buildFloorSkeleton(ctx, data.floorFirst)), roof: tm('roof', () => buildFloorSkeleton(ctx, data.floorRoof)), stairs: tm('stairs', () => buildStairs(ctx)),
-    perimeter: tm('perimeter', () => buildPerimeter(ctx)), mamadFrames: tm('mamadFrames', () => buildMamadFrames(ctx)), starters: tm('starters', () => buildStarters(ctx)),
+    perimeter: tm('perimeter', () => buildPerimeter(ctx)), mamadFrames: tm('mamadFrames', () => buildMamadFrames(ctx)), mamad: tm('mamad', () => buildMamad(ctx)), starters: tm('starters', () => buildStarters(ctx)),
     proposals: tm('proposals', () => buildWallProposals(ctx)), props: tm('props', () => buildProps(ctx)), blocks: tm('blocks', () => buildBlocks(ctx)) };   // windows / doors: on hold (Avihai 07.11 – skeleton first) – only the mamad frames, cast with the walls (ק15); data in data/architecture/openings.json, module js/geometry/openings.js
   buildOwnerChangeZones(ctx);
   buildOwnerElements(ctx);   // OC-12 / OC-13 – elements from the architectural plans, red, for Avihai's check
@@ -214,6 +215,7 @@ async function main() {
     const hit = pick(e);
     const map = { inspect: 'inspect', measure: 'measure', note: 'notes', fix: 'fixes' };
     if (app.activeTool === 'measure') app.tools.measure.handleClick(hit, e); else app.tools[map[app.activeTool]]?.handleClick(hit);
+    if (hit && app.activeTool === 'inspect' && hit.object.userData.component?.meta.onClick) { hit.object.userData.component.meta.onClick(hit); app.viewer.invalidate(); }   // mamad window / sliding door: open / close
     if (hit) showReadout(hit);
   });
   let hoverT = 0;

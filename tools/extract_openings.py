@@ -11,7 +11,7 @@ Heights  : sources/permit (the permit sheet, tools/cache/permit-sheet1.json): ev
            Doors: height from the family name (96_210 -> 2.10). Checked against the U.K / O.K tags of the plans.
 Walls    : a concrete wall (k-21 / k-31 / k-11 walls of the model) hosting an opening is cut by the opening rectangle
            (width × wall thickness) and refilled below the sill and above the head (concrete sill / lintel).
-Run after tools/extract_floor.py:  python3 tools/extract_openings.py
+Run after tools/extract_floor.py:  python3 tools/extract_openings.py   (then tools/extract_mamad.py – the mamad window / door / sleeves)
 """
 import json, math, os, re, sys
 from collections import defaultdict
@@ -327,7 +327,9 @@ def main():
     # sleeves: one per position (the same family appears in two views), hosted by the nearest concrete wall
     uniq = []
     for sv in sleeves:
-        if any(u['floor'] == sv['floor'] and math.dist(u['centerITM'], sv['centerITM']) < 0.05 for u in uniq): continue
+        # same position again: the second view of the family, or a lower floor's sleeve seen from above in the upper view
+        # (alef "Dependent 1" shows the ground-floor mamad sleeve – it was listed as a first-floor sleeve S05)
+        if any(math.dist(u['centerITM'], sv['centerITM']) < 0.05 for u in uniq): continue
         P0 = Point(sv['centerITM']); best = min(((Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0).distance(P0), w) for w in walls[sv['floor']]), key=lambda t: t[0], default=(9, None))
         if best[0] > 0.35: continue
         w = best[1]; sv.update(id=f"S{len(uniq) + 1:02d}", host=w['id'], hostThickness_m=w.get('thickness_m'), mamad=bool(w.get('mamad')),

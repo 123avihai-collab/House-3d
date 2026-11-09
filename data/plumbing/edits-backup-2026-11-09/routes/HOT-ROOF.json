@@ -1,0 +1,57 @@
+{
+  "at": 1794246331083,
+  "id": "HOT-ROOF",
+  "o": {
+    "run": {
+      "D_mm": 25,
+      "edited": {
+        "at": "2026-11-09T17:45:31.081Z",
+        "by": "u_ZVAPRaZrAE_ISD8wCRSpjw"
+      },
+      "floor": "roof",
+      "from": "HTR@roof",
+      "id": "HOT-ROOF",
+      "insulation_mm": 19,
+      "kind": "run",
+      "material": "PEX",
+      "note": "אספקת מים חמים מהדוד: על הגג ובפיר, מבודד",
+      "simplify": {
+        "maxDev_m": 0,
+        "ptsAfter": 5,
+        "ptsBefore": 5,
+        "tol_m": 0.01
+      },
+      "source": "data/plumbing/proposal.json → runs HOT-ROOF",
+      "status": "manual",
+      "system": "hot",
+      "to": "MAN-first",
+      "vertices": [
+        [
+          179599.91,
+          576241.11,
+          287.95
+        ],
+        [
+          179599.91,
+          576241.11,
+          287.47
+        ],
+        [
+          179592.659,
+          576245.847,
+          287.47
+        ],
+        [
+          179592.659,
+          576245.847,
+          284.95
+        ],
+        [
+          179592.645,
+          576245.842,
+          284.95
+        ]
+      ]
+    }
+  }
+}

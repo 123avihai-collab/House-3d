@@ -1,0 +1,42 @@
+{
+  "at": 1794248754950,
+  "id": "CONN-WJ7",
+  "o": {
+    "run": {
+      "D_mm": 32,
+      "edited": {
+        "at": "2026-11-09T18:25:54.947Z",
+        "by": "u_ZVAPRaZrAE_ISD8wCRSpjw"
+      },
+      "floor": "site",
+      "from": "WM@site",
+      "id": "CONN-WJ7",
+      "kind": "run",
+      "material": "PEX",
+      "note": "רגל יציאה ממערכת המדידה (PEX ø32 לפי הפרט) → תחילת הקו הראשי של היועץ (WJ7)",
+      "simplify": {
+        "maxDev_m": 0,
+        "plan": true,
+        "ptsAfter": 2,
+        "ptsBefore": 2,
+        "tol_m": 0.01
+      },
+      "source": "data/plumbing/proposal.json → site.runs CONN-WJ7",
+      "status": "manual",
+      "system": "cold",
+      "to": "WJ7@ground",
+      "vertices": [
+        [
+          179586.394,
+          576236.233,
+          null
+        ],
+        [
+          179586.692,
+          576236.311,
+          null
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "at": 1794249787966,
+  "id": "MAIN-ENTRY",
+  "o": {
+    "run": {
+      "D_mm": 32,
+      "conduitD_mm": 40,
+      "edited": {
+        "at": "2026-11-09T18:43:07.964Z",
+        "by": "u_ZVAPRaZrAE_ISD8wCRSpjw"
+      },
+      "floor": "ground",
+      "from": "WJ17@ground",
+      "id": "MAIN-ENTRY",
+      "kind": "run",
+      "material": "PEX",
+      "note": "המשך הקו הראשי של היועץ (CW16) אל הפיר; ברז ראשי בפיר בגובה +0.30",
+      "simplify": {
+        "maxDev_m": 0,
+        "ptsAfter": 3,
+        "ptsBefore": 3,
+        "tol_m": 0.01
+      },
+      "source": "data/plumbing/proposal.json → runs MAIN-ENTRY",
+      "status": "manual",
+      "system": "cold",
+      "to": "SHAFT",
+      "vertices": [
+        [
+          179591.407,
+          576246.587,
+          279.95
+        ],
+        [
+          179592.042,
+          576246.085,
+          279.95
+        ],
+        [
+          179592.042,
+          576246.085,
+          280.8
+        ]
+      ]
+    }
+  }
+}

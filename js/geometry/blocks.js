@@ -29,13 +29,19 @@ export function buildBlocks(ctx) {
       const kk = D != null ? Math.round((z - D) / BH) : k;
       let nxt = D != null ? D + (kk + 1) * BH : z + BH; if (nxt - z < 0.005) nxt += BH;
       const h = Math.min(nxt - z, w.topRel - z), off = (BL / 2) * (mod(kk, 2));
-      let segs = [[0, L]];
-      for (const o of [...w.openings, ...(w.lintels || [])]) if (o.z0 < z + h - 0.005 && o.z1 > z + 0.005)
-        segs = segs.flatMap(([a, b]) => [[a, Math.min(b, o.s0)], [Math.max(a, o.s1), b]]).filter(([a, b]) => b - a > 0.005);
       const x0 = bond ? mod(bond.sign * (off - bond.p0), BL) - BL : -off;
-      for (const [a, b] of segs) for (let x = x0; x < b - 0.005; x += BL) {
-        const xa = Math.max(x, a), xb = Math.min(x + BL, b); if (xb - xa <= 0.005) continue;
-        (xb - xa >= BL - 0.005 && h >= BH - 0.005 ? full : cut).push([xa, xb, z, h]);
+      const holes = [...w.openings, ...(w.lintels || [])];
+      // an opening / lintel edge inside the course splits it into bands – blocks cut at the head / lintel underside
+      const cuts = [...new Set([z, z + h, ...holes.flatMap(o => [o.z0, o.z1]).filter(c => c > z + 0.005 && c < z + h - 0.005)])].sort((a, b) => a - b);
+      for (let i = 0; i < cuts.length - 1; i++) {
+        const zb = cuts[i], zt = cuts[i + 1], hb = zt - zb;
+        let segs = [[0, L]];
+        for (const o of holes) if (o.z0 < zt - 0.005 && o.z1 > zb + 0.005)
+          segs = segs.flatMap(([a, b]) => [[a, Math.min(b, o.s0)], [Math.max(a, o.s1), b]]).filter(([a, b]) => b - a > 0.005);
+        for (const [a, b] of segs) for (let x = x0; x < b - 0.005; x += BL) {
+          const xa = Math.max(x, a), xb = Math.min(x + BL, b); if (xb - xa <= 0.005) continue;
+          (xb - xa >= BL - 0.005 && hb >= BH - 0.005 ? full : cut).push([xa, xb, zb, hb]);
+        }
       }
       k++; z += h;
     }

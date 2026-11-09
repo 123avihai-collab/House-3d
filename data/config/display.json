@@ -165,12 +165,12 @@
   "questionMarker_m": 0.12
  },
  "blocks": {
-  "_doc": "תצוגת קירות בלוקים – צבעים ומרווח פוגה (תצוגה בלבד)",
+  "_doc": "תצוגת קירות בלוקים – צבעים ומרווח פוגה (תצוגה בלבד) · lintelColor – גוון בטון (09.11), כדי שלא ייראה כמו ארגז תריס",
   "blockColor": "#e9e5dc",
   "cutBlockColor": "#d8cdb8",
   "shutterBoxColor": "#9aa4ad",
   "joint_m": 0.008,
   "labelLift_m": 0.15,
-  "lintelColor": "#b8a98f"
+  "lintelColor": "#a9a9a4"
  }
 }

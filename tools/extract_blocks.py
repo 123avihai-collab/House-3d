@@ -112,19 +112,24 @@ def count_blocks(L, zb, zt, wo, BL, BH, bond=None, datum=None):
         nxt = datum + (kk + 1) * BH if datum is not None else z + BH
         if nxt - z < 0.005: nxt += BH
         h = min(nxt - z, zt - z); off = (BL / 2) * (kk % 2)
-        segs = [(0.0, L)]
-        for o in wo:
-            if o['z0'] < z + h - 0.005 and o['z1'] > z + 0.005:
-                segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
         x0 = ((bond['sign'] * (off - bond['p0'])) % BL) - BL if bond else -off
-        for a, b in segs:
-            x = x0
-            while x < b - 0.005:
-                xa, xb = max(x, a), min(x + BL, b)
-                if xb - xa > 0.005:
-                    if xb - xa >= BL - 0.005 and h >= BH - 0.005: nfull += 1
-                    else: ncut += 1
-                x += BL
+        # an opening / lintel edge inside the course splits it into bands: the blocks are cut at the head / lintel
+        # underside, not dropped (Avihai 09.11 – a gap under the lintels beside the windows)
+        cuts = sorted({z, z + h} | {c for o in wo for c in (o['z0'], o['z1']) if z + 0.005 < c < z + h - 0.005})
+        for zb_, zt_ in zip(cuts, cuts[1:]):
+            segs = [(0.0, L)]
+            for o in wo:
+                if o['z0'] < zt_ - 0.005 and o['z1'] > zb_ + 0.005:
+                    segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
+            hb = zt_ - zb_
+            for a, b in segs:
+                x = x0
+                while x < b - 0.005:
+                    xa, xb = max(x, a), min(x + BL, b)
+                    if xb - xa > 0.005:
+                        if xb - xa >= BL - 0.005 and hb >= BH - 0.005: nfull += 1
+                        else: ncut += 1
+                    x += BL
         k += 1; z += h
     for o in wo: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])
     return nfull, ncut, k, area

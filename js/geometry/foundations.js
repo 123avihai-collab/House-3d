@@ -141,9 +141,11 @@ export function buildFoundations(ctx) {
     const [[E1, N1], [E2, N2]] = b.axisITM;
     const L = Math.hypot(E2 - E1, N2 - N1), ux = (E2 - E1) / L, uy = (N2 - N1) / L, hw = b.width_m / 2;
     const ring = [[E1 - uy * hw, N1 + ux * hw], [E2 - uy * hw, N2 + ux * hw], [E2 + uy * hw, N2 - ux * hw], [E1 + uy * hw, N1 - ux * hw]];
-    const m = prism(ring, [], H(b.bottomRel), H(b.topRel), conc);
-    const g = new THREE.Group(); g.add(m); g.add(edges(m, D.provisionalEdgeColor));
-    g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m));
+    // an element marked by an owner query (owner-changes.json kind 'query', highlight: [ids]) – red, with the OC tag (Avihai 09.11)
+    const q = (data.ownerChanges?.changes || []).find(c => c.kind === 'query' && (c.highlight || []).includes(b.id));
+    const m = prism(ring, [], H(b.bottomRel), H(b.topRel), q ? new THREE.MeshStandardMaterial({ color: D.ownerChangeColor, roughness: 0.6 }) : conc);
+    const g = new THREE.Group(); g.add(m); g.add(edges(m, q ? D.ownerChangeColor : D.provisionalEdgeColor));
+    g.add(label(`${b.id} ${Math.round(b.width_m * 100)}/${Math.round(b.depth_m * 100)}${q ? ' · ' + q.id + ' לבדיקה' : ''}`, (E1 + E2) / 2, (N1 + N2) / 2, H(b.topRel) + D.labelLift_m, q ? 'lbl oc-tag' : undefined));
     // a K-21 beam under / in the ground slab: the part inside the slab (its thickness D) is counted with the slab
     const gD = Math.max(0, ...(data.floorGround?.slab || []).map(s => s.thickness_m));
     const ovl = b.sheet === 'K-21' ? Math.min(gD, b.depth_m) : 0;

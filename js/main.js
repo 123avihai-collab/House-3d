@@ -19,6 +19,7 @@ import { buildStarters } from './geometry/starters.js';
 import { buildWallProposals } from './geometry/proposals.js';
 import { buildProps } from './geometry/props.js';
 import { buildBlocks } from './geometry/blocks.js';
+import { buildOwnerElements } from './geometry/ownerElements.js';
 import { buildPlumbing } from '../src/plumbing/index.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
@@ -60,6 +61,7 @@ async function main() {
     perimeter: tm('perimeter', () => buildPerimeter(ctx)), mamadFrames: tm('mamadFrames', () => buildMamadFrames(ctx)), starters: tm('starters', () => buildStarters(ctx)),
     proposals: tm('proposals', () => buildWallProposals(ctx)), props: tm('props', () => buildProps(ctx)), blocks: tm('blocks', () => buildBlocks(ctx)) };   // windows / doors: on hold (Avihai 07.11 – skeleton first) – only the mamad frames, cast with the walls (ק15); data in data/architecture/openings.json, module js/geometry/openings.js
   buildOwnerChangeZones(ctx);
+  buildOwnerElements(ctx);   // OC-12 / OC-13 – elements from the architectural plans, red, for Avihai's check
   const plumbing = tm('plumbing', () => buildPlumbing(ctx));   // plumbing layer (separate module, src/plumbing)
 
   const pc = centroid(data.plot.ring);

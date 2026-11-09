@@ -25,6 +25,7 @@
  },
  "manifolds": {
   "value": [
+   "MAN-parents",
    "MAN-ground",
    "MAN-first",
    "MAN-unit1",
@@ -49,12 +50,12 @@
  },
  "region": {
   "value": {
-   "ground": "floor-ground.json slab zone=house (בלי הממ\"ד GS7)",
+   "ground": "floor-ground.json slab zone=house (בלי הממ\"ד GS7), פחות basementWallCaps (ראשי קיר המרתף סביב החצרות האנגליות – בטון, לא רצפה עם מילוי)",
    "first": "floor-ground.json ceiling.slab",
    "unit": "framing.json slabs BS1 (BS2/BS3 = רצפות החצרות האנגליות)"
   },
   "status": "provisional",
-  "source": "הממ\"ד מוחרג – צנרת לא עוברת דרך ממ\"ד שהיא לא משרתת (ED16)"
+  "source": "הממ\"ד מוחרג – צנרת לא עוברת דרך ממ\"ד שהיא לא משרתת (ED16); ראשי קיר המרתף: floor-ground.json basementWallCaps (K-21)"
  },
  "clearance_m": {
   "value": 0.03,
@@ -97,5 +98,50 @@
   ],
   "status": "source",
   "source": "שמות החדרים בתוכנית האדריכל (plan-background.json, G-ANNO-TEXT) – רק אלה משמשים לשם החדר של יציאה"
+ },
+ "subManifolds": {
+  "value": [
+   {
+    "id": "MAN-parents",
+    "floor": "ground",
+    "title": "מחלק יחידת ההורים (קרקע) – ליד הפיר",
+    "placementLike": "MAN-first",
+    "takesFrom": "MAN-ground",
+    "fixtures": [
+     "WC2@ground",
+     "BS3@ground",
+     "SH2@ground"
+    ],
+    "feed_D": 25,
+    "hot_D": 25,
+    "ret_D": 20,
+    "insulation_mm": 19
+   }
+  ],
+  "status": "proposal",
+  "source": "אביחי 09.11.2026 (\"תעשה מה שאתה חושב\" / \"תסדר את תוואי הצנרת\"): הפיר נמצא ביחידת ההורים, ובין חדר הכביסה ליחידה אין מעבר ברצפה (חצר אנגלית + ממ\"ד) – מחלק משני ליד הפיר, באותו מיקום בתוכנית של MAN-first / MAN-unit2 (proposal.json man_at_shaft); קטרים כמו הזנות היחידות (FEED-UNIT2 ø20, HOT-UNIT2 ø20, RET-FIRST ø20) · מחלק עובר: ההזנה ø25 (כמו FEED-GROUND / HOT-GROUND) נכנסת מהפיר וממשיכה מקצה המחלק אל מחלק חדר הכביסה"
+ },
+ "trunk": {
+  "value": {
+   "manifold": "MAN-ground",
+   "runs": {
+    "cold": "FEED-GROUND",
+    "hot": "HOT-GROUND",
+    "return": "RET-GROUND"
+   },
+   "spacing_m": 0.07,
+   "wallOffset_m": 0.05,
+   "fromManifold": "MAN-parents"
+  },
+  "status": "provisional",
+  "source": "הזנת מחלק הקרקע (קר ø25, חם ø25 מבודד, סחרור ø20 מבודד) כצרור אחד במילוי, מקצה מחלק יחידת ההורים מסביב לממ\"ד (כך הצרור לא חוצה את יציאות המחלק); 7 ס\"מ בין צירים בגלל הבידוד 19 מ\"מ (ED16)"
+ },
+ "inWall": {
+  "value": {
+   "maxOff_m": 0.1,
+   "maxLen_m": 1.5
+  },
+  "status": "provisional",
+  "source": "נקודה שעל אותו קיר של המחלק ועד 1.5 מ' ממנו – הצנרת בתוך הקיר / קיר השירות בגובה היציאה, לא ברצפה (ED16). בקיר ממ\"ד – רק בקיר שירות שלפניו, בלי חציבה"
  }
 }

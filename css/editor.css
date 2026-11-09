@@ -79,3 +79,10 @@ body { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-templat
 #ed-issues li { padding: 4px 6px; border-bottom: 1px solid var(--line); cursor: pointer; }
 #ed-issues li:hover { background: var(--chip); }
 #ed-issues li.sev-error b { color: #d32f2f; } #ed-issues li.sev-warn b { color: #b26a00; }
+
+#ed-info .mf { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+#ed-info .mf-sec { margin: 6px 0 8px; }
+#ed-info .mf-svg { display: block; max-width: 100%; height: auto; margin: 4px 0; }
+#ed-info .mf-t { font-size: 12px; } #ed-info .mf-t td { padding: 1px 4px 1px 0; } #ed-info .mf-t tr:hover { background: var(--chip); }
+#ed-info .mf-n { display: inline-block; min-width: 22px; text-align: center; color: #fff; border-radius: 9px; font-weight: 700; font-size: 11px; padding: 0 3px; }
+#ed-info .muted { color: var(--muted); font-size: 11px; }

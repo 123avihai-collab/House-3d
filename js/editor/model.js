@@ -95,10 +95,12 @@ export function buildModel(D) {
     const [lo, hi] = f.band; if (p.verticals.some(v => v.lo < hi && v.hi > lo)) return 'pass';
     return null;
   };
-  const nodes = D.routes.nodes.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N) }));
+  // a point in the house frame; a manifold also carries its outlets (cold / hot) in the house frame
+  const locNode = (n) => ({ ...n, xy: fr.toLocal(n.E, n.N), ...(n.outlets ? { outletsXY: Object.fromEntries(Object.entries(n.outlets).map(([k, l]) => [k, l.map(o => ({ ...o, xy: fr.toLocal(o.E, o.N) }))])) } : {}) });
+  const nodes = D.routes.nodes.map(locNode);
   const M = { frame: fr, H0, floors, pipes, nodes, showsOn, levels };
   // the proposal part is rebuilt from the store after every edit; the consultant part never changes
-  M.setNodes = (list) => { M.nodes = list.map(n => ({ ...n, xy: fr.toLocal(n.E, n.N) })); };
+  M.setNodes = (list) => { M.nodes = list.map(locNode); };
   M.setRuns = (runs) => { M.pipes = [...runs.map(propPipe), ...pipes.filter(p => p.layer === 'cons')]; };
   return M;
 }

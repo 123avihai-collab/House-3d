@@ -473,7 +473,132 @@
    "H": 280.5,
    "title": "מחלק קומת קרקע – בחדר הכביסה",
    "status": "proposal",
-   "source": "data/plumbing/proposal.json → manifolds MAN-ground"
+   "source": "data/plumbing/proposal.json → manifolds MAN-ground",
+   "axis": [
+    -0.374,
+    -0.927
+   ],
+   "face": [
+    0.927,
+    -0.374
+   ],
+   "coldH": 0.45,
+   "hotH": 0.6,
+   "hotPending": false,
+   "outlets": {
+    "cold": [
+     {
+      "E": 179589.948,
+      "N": 576241.661,
+      "to": "WC2@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.929,
+      "N": 576241.614,
+      "to": "BS3@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.911,
+      "N": 576241.568,
+      "to": "SH2@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.892,
+      "N": 576241.522,
+      "to": "SK1@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.873,
+      "N": 576241.475,
+      "to": "WMC@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.855,
+      "N": 576241.429,
+      "to": "BS4@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.836,
+      "N": 576241.383,
+      "to": "SH1@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.817,
+      "N": 576241.336,
+      "to": "WC1@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.798,
+      "N": 576241.29,
+      "to": "WC3@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.78,
+      "N": 576241.243,
+      "to": "BS1@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.761,
+      "N": 576241.197,
+      "to": "BS2@ground",
+      "D_mm": 16
+     }
+    ],
+    "hot": [
+     {
+      "E": 179589.911,
+      "N": 576241.568,
+      "to": "BS3@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.892,
+      "N": 576241.522,
+      "to": "SH2@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.873,
+      "N": 576241.475,
+      "to": "SK1@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.855,
+      "N": 576241.429,
+      "to": "BS4@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.836,
+      "N": 576241.383,
+      "to": "SH1@ground",
+      "D_mm": 20
+     },
+     {
+      "E": 179589.817,
+      "N": 576241.336,
+      "to": "BS1@ground",
+      "D_mm": 16
+     },
+     {
+      "E": 179589.798,
+      "N": 576241.29,
+      "to": "BS2@ground",
+      "D_mm": 16
+     }
+    ]
+   }
   },
   {
    "id": "MAN-first",
@@ -484,7 +609,96 @@
    "H": 284.35,
    "title": "מחלק קומה א' – ליד הפיר",
    "status": "proposal",
-   "source": "data/plumbing/proposal.json → manifolds MAN-first"
+   "source": "data/plumbing/proposal.json → manifolds MAN-first",
+   "axis": [
+    0.927,
+    -0.374
+   ],
+   "face": [
+    0.374,
+    0.927
+   ],
+   "coldH": 0.45,
+   "hotH": 0.6,
+   "hotPending": false,
+   "outlets": {
+    "cold": [
+     {
+      "E": 179592.941,
+      "N": 576245.744,
+      "to": "WC1@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179592.987,
+      "N": 576245.725,
+      "to": "WC2@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.033,
+      "N": 576245.706,
+      "to": "SH2@first",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.08,
+      "N": 576245.688,
+      "to": "SH1@first",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.126,
+      "N": 576245.669,
+      "to": "BS2@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.173,
+      "N": 576245.65,
+      "to": "BS1@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.219,
+      "N": 576245.631,
+      "to": "BT1@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.265,
+      "N": 576245.613,
+      "to": "BT2@first",
+      "D_mm": 16
+     }
+    ],
+    "hot": [
+     {
+      "E": 179593.033,
+      "N": 576245.706,
+      "to": "SH2@first",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.08,
+      "N": 576245.688,
+      "to": "SH1@first",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.126,
+      "N": 576245.669,
+      "to": "BS2@first",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.173,
+      "N": 576245.65,
+      "to": "BS1@first",
+      "D_mm": 16
+     }
+    ]
+   }
   },
   {
    "id": "MAN-unit2",
@@ -495,7 +709,66 @@
    "H": 277.9,
    "title": "מחלק יחידה 2 (מרתף) – ליד הפיר",
    "status": "proposal",
-   "source": "data/plumbing/proposal.json → manifolds MAN-unit2"
+   "source": "data/plumbing/proposal.json → manifolds MAN-unit2",
+   "axis": [
+    0.927,
+    -0.374
+   ],
+   "face": [
+    0.374,
+    0.927
+   ],
+   "coldH": 0.45,
+   "hotH": 0.6,
+   "hotPending": false,
+   "outlets": {
+    "cold": [
+     {
+      "E": 179593.033,
+      "N": 576245.706,
+      "to": "UNIT2-wc",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.08,
+      "N": 576245.688,
+      "to": "UNIT2-shower",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.126,
+      "N": 576245.669,
+      "to": "UNIT2-basin",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.173,
+      "N": 576245.65,
+      "to": "UNIT2-sink",
+      "D_mm": 20
+     }
+    ],
+    "hot": [
+     {
+      "E": 179593.057,
+      "N": 576245.697,
+      "to": "UNIT2-shower",
+      "D_mm": 20
+     },
+     {
+      "E": 179593.103,
+      "N": 576245.678,
+      "to": "UNIT2-basin",
+      "D_mm": 16
+     },
+     {
+      "E": 179593.149,
+      "N": 576245.659,
+      "to": "UNIT2-sink",
+      "D_mm": 20
+     }
+    ]
+   }
   },
   {
    "id": "MAN-unit1",
@@ -506,7 +779,66 @@
    "H": 277.9,
    "title": "מחלק יחידה 1 (מרתף)",
    "status": "proposal",
-   "source": "data/plumbing/proposal.json → manifolds MAN-unit1"
+   "source": "data/plumbing/proposal.json → manifolds MAN-unit1",
+   "axis": [
+    0.927,
+    -0.374
+   ],
+   "face": [
+    0.374,
+    0.927
+   ],
+   "coldH": 0.45,
+   "hotH": 0.6,
+   "hotPending": false,
+   "outlets": {
+    "cold": [
+     {
+      "E": 179595.03,
+      "N": 576237.728,
+      "to": "UNIT1-sink",
+      "D_mm": 20
+     },
+     {
+      "E": 179595.077,
+      "N": 576237.709,
+      "to": "UNIT1-shower",
+      "D_mm": 20
+     },
+     {
+      "E": 179595.123,
+      "N": 576237.691,
+      "to": "UNIT1-wc",
+      "D_mm": 16
+     },
+     {
+      "E": 179595.17,
+      "N": 576237.672,
+      "to": "UNIT1-basin",
+      "D_mm": 16
+     }
+    ],
+    "hot": [
+     {
+      "E": 179595.054,
+      "N": 576237.719,
+      "to": "UNIT1-sink",
+      "D_mm": 20
+     },
+     {
+      "E": 179595.1,
+      "N": 576237.7,
+      "to": "UNIT1-shower",
+      "D_mm": 20
+     },
+     {
+      "E": 179595.146,
+      "N": 576237.681,
+      "to": "UNIT1-basin",
+      "D_mm": 16
+     }
+    ]
+   }
   },
   {
    "id": "HTR-UNIT2@roof",

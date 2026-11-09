@@ -243,5 +243,16 @@
    "info": "#607d8b"
   },
   "marker_px": 6
+ },
+ "manifold": {
+  "_doc": "תצוגת מחלק (קבועי תצוגה): פס קרים ופס חמים מופרדים על המסך (במציאות הם באותו מקום במבט על, בגבהים שונים).",
+  "barGap_px": 5,
+  "bodyPad_px": 6,
+  "valve_px": 2.4,
+  "badge_px": 8,
+  "dimAlpha": 0.12,
+  "focusWidth_px": 3.6,
+  "labelFont_px": 11,
+  "outletLabelMinK": 160
  }
 }

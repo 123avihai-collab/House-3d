@@ -11,7 +11,7 @@ import { RouteStore } from './store.js';
 import * as OP from './ops.js';
 import { askConfirm } from '../core/dialog.js';
 import { buildObstacles, checkRun, checkConnections } from './checks.js';
-import { drawIssues } from './draw.js';
+import { drawIssues, drawBadges, manifoldScreen } from './draw.js';
 
 const $ = (id) => document.getElementById(id);
 window.__editorErrors = [];
@@ -56,6 +56,18 @@ async function start() {
     return store.runs().filter(r => r.from === n.id || r.to === n.id || ((n.kind !== 'manifold' || water.includes(r.system)) && [r.vertices[0], r.vertices[r.vertices.length - 1]].some(v => { const q = fr.toLocal(v[0], v[1]); return Math.hypot(q[0] - P[0], q[1] - P[1]) <= tol; })));
   };
   const moveNode = (n, dx, dy) => OP.moveNodeSystem(n, nodeRuns(n), dx, dy, { fr, opt: opt(), zone: n.kind === 'manifold' ? E.manifoldZone_m : E.stationTol_m, connectTol: cfg.checks.connectTol_m, stationTol: E.stationTol_m });
+  // outlets of a manifold ↔ the runs they feed (by destination, else the run that starts at the outlet)
+  const manifoldRows = (n) => {
+    if (!n?.outletsXY) return [];
+    const runs = nodeRuns(n), rows = [];
+    for (const k of ['cold', 'hot']) (n.outletsXY[k] || []).forEach((o, i) => {
+      let r = runs.find(x => x.system === k && (x.to === o.to || x.from === o.to));
+      if (!r) r = runs.find(x => x.system === k && (() => { const q = fr.toLocal(x.vertices[0][0], x.vertices[0][1]); return Math.hypot(q[0] - o.xy[0], q[1] - o.xy[1]) <= cfg.checks.connectTol_m; })());
+      rows.push({ k, i, o, run: r || null, label: `${k === 'cold' ? 'ק' : 'ח'}${i + 1}` });
+    });
+    return rows;
+  };
+  const runLen = (r) => r.vertices.reduce((s2, q, i) => i && q[2] != null && r.vertices[i - 1][2] != null ? s2 + Math.hypot(q[0] - r.vertices[i - 1][0], q[1] - r.vertices[i - 1][1], q[2] - r.vertices[i - 1][2]) : s2, 0);
   const commitNodeMove = (n, res, label) => {
     const ch = { ['node:' + n.id]: res.node, ...res.runs };
     store.apply(ch, label || `${n.id}: הזזה עם ${Object.keys(res.runs).length} צינורות`);
@@ -203,12 +215,25 @@ async function start() {
     if (S.preview && liveRun.some(i => i.sev === 'error')) errIds.add(S.preview.run.id);
     const nLive = S.npreview ? Object.fromEntries(Object.entries(S.npreview.res.runs).map(([id, r]) => [id, checkRun(r, CH)])) : {};
     for (const [id, li] of Object.entries(nLive)) { if (li.some(i => i.sev === 'error')) errIds.add(id); else errIds.delete(id); }
-    drawPipes(ctx, v, cfg, items, sys, selP, S.hover?.type === 'pipe' ? S.hover.obj : null, errIds);
+    const focusN = S.sel?.type === 'node' && S.sel.obj.kind === 'manifold' ? S.sel.obj : null;
+    const focusRows = focusN ? manifoldRows(S.npreview ? { ...focusN, outletsXY: Object.fromEntries(Object.entries(S.npreview.res.node.outlets || {}).map(([k, l]) => [k, l.map(o => ({ ...o, xy: fr.toLocal(o.E, o.N) }))])) } : focusN) : [];
+    const focus = focusN ? new Set(nodeRuns(focusN).map(r => r.id)) : null;
+    drawPipes(ctx, v, cfg, items, sys, selP, S.hover?.type === 'pipe' ? S.hover.obj : null, errIds, focus);
     let fi = floorIssues(); if (S.preview) fi = [...fi.filter(i => i.run !== S.preview.run.id), ...liveRun];
     if (S.npreview) for (const [id, li] of Object.entries(nLive)) fi = [...fi.filter(i => i.run !== id), ...li];
     drawIssues(ctx, v, cfg, fi, S.flash);
     const nodesNow = S.npreview ? cur.nodes.map(n => n.id === S.npreview.n.id ? { ...n, xy: S.npreview.xy } : n) : cur.nodes;
-    if (on('nodes')) drawNodes(ctx, v, cfg, nodesNow, S.sel?.type === 'node' ? (S.npreview ? nodesNow.find(n => n.id === S.sel.obj.id) : S.sel.obj) : null, S.hover?.type === 'node' ? S.hover.obj : null);
+    const nodesShown = S.npreview ? nodesNow.map(n => n.id === S.npreview.n.id ? { ...n, outletsXY: Object.fromEntries(Object.entries(S.npreview.res.node.outlets || {}).map(([k, l]) => [k, l.map(o => ({ ...o, xy: fr.toLocal(o.E, o.N) }))])) } : n) : nodesNow;
+    if (on('nodes')) drawNodes(ctx, v, cfg, nodesShown, S.sel?.type === 'node' ? (S.npreview ? nodesNow.find(n => n.id === S.sel.obj.id) : S.sel.obj) : null, S.hover?.type === 'node' ? S.hover.obj : null);
+    if (focusN && focusRows.length) {   // numbers: at the fixture end of every outlet's run, and on the outlet when zoomed in
+      const mn = nodesShown.find(n => n.id === focusN.id), ms = mn?.outletsXY ? manifoldScreen(v, cfg, mn) : null, B = [];
+      for (const x of focusRows) {
+        const col = x.k === 'cold' ? '#1f6fd1' : '#cf3a2c', r = x.run && (S.npreview?.res.runs[x.run.id] || x.run);
+        if (r) { const far = r.from === focusN.id || r.to !== focusN.id ? r.vertices[r.vertices.length - 1] : r.vertices[0]; const q = fr.toLocal(far[0], far[1]); B.push({ xy: [v.sx(q[0]), v.sy(q[1]) - cfg.manifold.badge_px - 4], text: String(x.i + 1), color: col }); }
+        if (ms && v.k >= cfg.manifold.outletLabelMinK) { const p0 = ms.pos[`${x.k}:${x.i}`]; B.push({ xy: [p0[0] + ms.nm[0] * (x.k === 'cold' ? -1 : 1) * (cfg.manifold.badge_px + 6), p0[1] + ms.nm[1] * (x.k === 'cold' ? -1 : 1) * (cfg.manifold.badge_px + 6)], text: String(x.i + 1), color: col }); }
+      }
+      drawBadges(ctx, cfg, B);
+    }
     if (selP && editable(selP)) drawHandles(ctx, v, cfg, S.preview ? S.preview.S : stOf(selP), S.sel.vtx, S.sel.seg, (sys[selP.system] || {}).color);
     if (S.draft) drawDraft(ctx, v, S.draft.pts, S.snap ? draftCursor(S.snap) : null, sys[draw.system].color);
     drawSnap(ctx, v, S.snap);
@@ -236,6 +261,16 @@ async function start() {
         rows.push(['מחובר', conn.length ? conn.map(r => r.id.split('@')[0]).join(', ') : '–']);
         form = `<div class="form">
           <label>הזזה בצירי הבית</label><div class="row2"><input id="nf-dx" type="number" step="0.01" placeholder="x מ'"><input id="nf-dy" type="number" step="0.01" placeholder="y מ'"><button id="nf-go">הזז</button></div></div>`;
+        if (n.kind === 'manifold' && n.outletsXY) {
+          const R = manifoldRows(n), other = conn.filter(r => !R.some(x => x.run && x.run.id === r.id));
+          const sect = (k, title, col, h) => { const L = R.filter(x => x.k === k); if (!L.length) return '';
+            const W = Math.max(160, L.length * 26 + 20);
+            const svg = `<svg class="mf-svg" viewBox="0 0 ${W} 46" width="${W}" height="46"><line x1="8" y1="12" x2="${W - 8}" y2="12" stroke="${col}" stroke-width="6" stroke-linecap="round"/>${L.map((x, j) => `<g class="mf-o" data-run="${x.run?.id || ''}"><line x1="${18 + j * 26}" y1="12" x2="${18 + j * 26}" y2="28" stroke="${col}" stroke-width="2.5"/><circle cx="${18 + j * 26}" cy="36" r="9" fill="${x.run ? col : '#999'}"/><text x="${18 + j * 26}" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${x.i + 1}</text></g>`).join('')}</svg>`;
+            return `<div class="mf-sec"><b style="color:${col}">${title}</b> <span class="muted">(${h != null ? '+' + h.toFixed(2) + ' מעל הרצפה' : ''})</span>${svg}
+              <table class="mf-t">${L.map(x => `<tr data-run="${x.run?.id || ''}"><td><span class="mf-n" style="background:${x.run ? col : '#999'}">${x.label}</span></td><td>ø${x.o.D_mm ?? '?'}</td><td>${esc(x.o.to.split('@')[0])}</td><td>${x.run ? runLen(x.run).toFixed(1) + " מ'" : '⚠ אין קו'}</td></tr>`).join('')}</table></div>`; };
+          form = `<div class="mf">${sect('cold', 'מים קרים', '#1f6fd1', n.coldH)}${sect('hot', 'מים חמים', '#cf3a2c', n.hotH)}
+            ${other.length ? `<div class="mf-sec"><b>מחובר גם</b> <span class="muted">(הזנה / סחרור)</span><table class="mf-t">${other.map(r => `<tr data-run="${r.id}"><td><span class="mf-n" style="background:${(sys[r.system] || {}).color}">↔</span></td><td>ø${r.D_mm ?? '?'}</td><td>${esc(r.id.split('@')[0])}</td><td>${runLen(r).toFixed(1)} מ'</td></tr>`).join('')}</table></div>` : ''}</div>` + form;
+        }
         acts = `<div class="note">${n.kind === 'manifold' ? 'גרירת המחלק מזיזה אותו יחד עם כל היציאות והצנרת שמחוברת אליו (כמערכת אחת); הצנרת נשארת מחוברת.' : 'גרירת הנקודה מזיזה איתה את קצוות הצנרת שמחוברים אליה.'}</div>`;
       }
     } else {
@@ -295,6 +330,9 @@ async function start() {
   const change = (run, label) => store.apply({ [run.id]: run }, label);
   function wireForm(hit) {
     if (hit.type === 'node') {
+      $('ed-info').querySelectorAll('[data-run]').forEach(el => { if (!el.dataset.run) return; el.style.cursor = 'pointer'; el.onclick = () => {
+        const it = cur.items.find(i => i.p.id === el.dataset.run && i.p.layer === 'prop'); if (!it) { toast('הקו בקומה אחרת'); return; }
+        S.sel = { type: 'pipe', obj: it.p, vtx: null, seg: null }; showInfo(S.sel); redraw(); }; });
       const go = $('ed-info').querySelector('#nf-go'); if (!go) return;
       go.onclick = () => { const dx = +$('nf-dx').value || 0, dy = +$('nf-dy').value || 0; if (!dx && !dy) return; commitNodeMove(hit.obj, moveNode(hit.obj, dx, dy)); toast(`${hit.obj.id} הוזז עם הצנרת שמחוברת אליו`); };
       return;
@@ -451,7 +489,7 @@ async function start() {
   $('ed-loading').classList.add('hidden');
   store.connect().then(() => refresh());
   // hooks for tests (tests/editor.mjs)
-  window.__editor = { D, M, S, L, v, cfg, store, OP, CH, nodeRuns, moveNode, handleHit: (x, y) => handleHit(x, y, false), issues: () => issues, floorIssues, checkRun, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
+  window.__editor = { D, M, S, L, v, cfg, store, OP, CH, nodeRuns, moveNode, manifoldRows, handleHit: (x, y) => handleHit(x, y, false), issues: () => issues, floorIssues, checkRun, setFloor, setMode, current: () => cur, visibleItems, toScreen: (x, y) => [v.sx(x), v.sy(y)], showInfo, stOf, refresh };
   window.__editorReady = true;
 }
 

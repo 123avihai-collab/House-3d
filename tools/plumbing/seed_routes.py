@@ -99,7 +99,11 @@ def main():
         nodes.append(rec)
 
     for n in P['points']: add_node(n, 'points')
-    for m in P['manifolds']: add_node(m, 'manifolds', kind='manifold', H=(m.get('H_floor') if m.get('H_floor') is not None else None))
+    for m in P['manifolds']:
+        add_node(m, 'manifolds', kind='manifold', H=(m.get('H_floor') if m.get('H_floor') is not None else None))
+        # body of the manifold: axis / face and every outlet (plan position, destination, diameter), heights above the floor
+        nodes[-1].update({'axis': m['axis'], 'face': m['face'], 'coldH': m.get('coldH'), 'hotH': m.get('hotH'), 'hotPending': m.get('hotPending'),
+                          'outlets': {k: [{'E': r3(o['E']), 'N': r3(o['N']), 'to': o['to'], 'D_mm': o.get('D_mm')} for o in v] for k, v in m['outlets'].items()}})
     for h in P['unitHot']['heaters']: add_node(h, 'unitHot.heaters', kind='heater')
     for key, kind in (('submeters', 'meter'), ('mainValve', 'valve'), ('recircPump', 'pump')):
         if P.get(key): add_node({**P[key], 'id': key}, key, kind=kind)

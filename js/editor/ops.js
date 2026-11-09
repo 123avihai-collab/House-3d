@@ -133,7 +133,10 @@ export function isAxisAligned(a, b, eps) { return !!axisOf(a, b, eps); }
 export function moveNodeSystem(node, runs, dx, dy, ctx) {
   const { fr, opt, zone, connectTol, stationTol } = ctx, P = fr.toLocal(node.E, node.N);
   const [E, N] = fr.toITM(P[0] + dx, P[1] + dy);
-  const out = { node: { ...node, E: r3(E), N: r3(N) }, runs: {} };
+  const dE = E - node.E, dN = N - node.N;
+  const { xy, outletsXY, ...plain } = node;   // drop display-only fields
+  const outlets = plain.outlets ? Object.fromEntries(Object.entries(plain.outlets).map(([k, l]) => [k, l.map(o => ({ ...o, E: r3(o.E + dE), N: r3(o.N + dN) }))])) : undefined;
+  const out = { node: { ...plain, E: r3(E), N: r3(N), ...(outlets ? { outlets } : {}) }, runs: {} };
   const near = (q, R) => Math.hypot(q.x - P[0], q.y - P[1]) <= R;
   for (const run of runs) {
     let S = stations(run, fr, stationTol); if (S.length < 2) continue;

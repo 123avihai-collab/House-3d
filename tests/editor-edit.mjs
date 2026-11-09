@@ -139,6 +139,8 @@ const dM = 50 / man.k, ux = await page.evaluate(() => window.__editor.D.routes.f
 const wantM = [man.E + dM * ux[0], man.N + dM * ux[1]], near = (a, b, t = 0.0015) => Math.hypot(a[0] - b[0], a[1] - b[1]) <= t;
 const okNode = near([manAfter.E, manAfter.N], wantM);
 const okRuns = man.runs.filter(r => r.from === 'MAN-ground').every(r => { const a = manAfter.runs.find(x => x.id === r.id); return near(a.first, [r.first[0] + dM * ux[0], r.first[1] + dM * ux[1]]) && Math.abs(a.first[2] - r.first[2]) < 1e-6 && near(a.last, r.last, 1e-6); });
+const outl = await page.evaluate(() => { const E = window.__editor, b = E.D.routes.nodes.find(x => x.id === 'MAN-ground'), n = E.store.nodes().find(x => x.id === 'MAN-ground'); return { rows: E.manifoldRows(E.M.nodes.find(x => x.id === 'MAN-ground')).filter(x => x.run).length, total: b.outlets.cold.length + b.outlets.hot.length, d: [n.outlets.cold[0].E - b.outlets.cold[0].E, n.outlets.cold[0].N - b.outlets.cold[0].N], dn: [n.E - b.E, n.N - b.N] }; });
+check('manifoldOutlets', outl.rows === outl.total && Math.abs(outl.d[0] - outl.dn[0]) < 0.0015 && Math.abs(outl.d[1] - outl.dn[1]) < 0.0015, outl);
 check('manifoldSystem', okNode && okRuns && man.runs.length >= 10 && manAfter.undo === man.undo + 1, { okNode, okRuns, n: man.runs.length });
 await page.keyboard.press('Control+z'); await page.waitForTimeout(100);
 const manUndo = await page.evaluate((ids) => { const E = window.__editor, n = E.store.nodes().find(x => x.id === 'MAN-ground'); return { E: n.E, N: n.N, first: ids.map(id => E.store.get(id).vertices[0]) }; }, man.runs.map(r => r.id));

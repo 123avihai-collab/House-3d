@@ -81,7 +81,7 @@ async function main() {
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
     notes: [], bookmarks: [], labelsOff: {},
-    ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).filter(c => c.kind !== 'query').map(c => [c.id, c.defaultOn ?? false])),
+    ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).filter(c => c.kind !== 'query' && c.kind !== 'applied').map(c => [c.id, c.defaultOn ?? false])),
     quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0, minimap: true },
   };
   const store = new StateStore(defaults);

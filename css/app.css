@@ -272,3 +272,5 @@ table.mtable td.acts { white-space: nowrap; }
   #measurebar .t { display: none; }
   body:has(#measurebar:not(.hidden)) #minimap, body:has(#measurebar:not(.hidden)) #minimapClose { display: none; }
 }
+
+.oc .q.applied { background: #2e7d32; }

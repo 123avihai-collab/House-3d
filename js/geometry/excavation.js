@@ -172,10 +172,14 @@ export function buildExcavation(ctx) {
     zone(k, ring).terrain = { id, g, fn: () => coords.H0 + g.terrain.surfaceRel };
   }
   for (const z of ocZones) {
-    const T = z.terrain, S = z.slab, V = (id, show) => ({ change: id, show });
+    const S = z.slab, V = (id, show) => ({ change: id, show });
+    // a terrain change applied by Avihai's decision (terrain.applied) is the plans surface itself – no button
+    const Ta = z.terrain?.g.terrain.applied ? z.terrain : null; const T = Ta ? null : z.terrain;
+    const plansFn = Ta ? Ta.fn : finalZ;
     z.versions = [];
+    if (!T && !S) { z.versions.push({ variant: null, fn: plansFn, plans: true, applied: Ta, ids: [Ta.id] }); continue; }
     const plansVar = T && S ? { all: [V(S.id, 'original'), V(T.id, 'original')] } : V((T || S).id, 'original');
-    z.versions.push({ variant: plansVar, fn: finalZ, plans: true, ids: [T?.id, S?.id].filter(Boolean) });
+    z.versions.push({ variant: plansVar, fn: plansFn, plans: true, applied: Ta, ids: [T?.id, S?.id].filter(Boolean) });
     if (T) z.versions.push({ variant: S ? { all: [V(S.id, 'original'), V(T.id, 'changed')] } : V(T.id, 'changed'), fn: T.fn, oc: T });
     if (S) z.versions.push({ variant: V(S.id, 'changed'), fn: S.fn, oc: S });
   }
@@ -349,16 +353,16 @@ const exMeta = {
       const c = v.oc ? (ocById[v.oc.id] || { title: v.oc.id, description: '' }) : null;
       const m = regionMesh(z.ring, v.fn, coords, materials.get('soilPlot'), null, T, v.plans ? zCtrl : []);
       const gz = new THREE.Group(); gz.add(m);
-      if (!v.plans) {
+      if (!v.plans || v.applied) {
         const pts = z.ring.concat([z.ring[0]]).map(([E, N]) => coords.toLocal(E, N, v.fn(E, N) + 0.02));
         gz.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: ocColor })));
       }
       registry.add(gz, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: 'topoPlanned' }, { ...fillMeta,
-        name: v.plans ? `מגרש 5187 – פני קרקע מתוכננים (${v.ids.join(' / ')}: לפי התוכניות)` : `${v.oc.id} – ${c.title}${v.oc === z.slab ? ' (הקרקע מתחת לרצפה)' : ''}`,
+        name: v.applied ? `מגרש 5187 – פני קרקע ${coords.fmtH(v.fn(z.ring[0][0], z.ring[0][1]))} (${v.applied.id}, החלטת אביחי)${z.slab ? ` · ${z.slab.id}: לפי התוכניות` : ''}` : v.plans ? `מגרש 5187 – פני קרקע מתוכננים (${v.ids.join(' / ')}: לפי התוכניות)` : `${v.oc.id} – ${c.title}${v.oc === z.slab ? ' (הקרקע מתחת לרצפה)' : ''}`,
         role: 'plot', hMax: m.userData.hMax, hMin: m.userData.hMin, area: Math.abs(ringArea(z.ring)),
-        status: v.plans ? 'source' : 'owner-change', variant: v.variant,
-        note: v.plans ? 'לפי גבהי הפיתוח בהיתר (data/site/development-heights.json).' : c.description,
-        source: v.plans ? fillMeta.source : (v.oc.g.terrain || v.oc.g.slab).source });
+        status: v.applied ? 'owner-change' : v.plans ? 'source' : 'owner-change', ...(v.variant ? { variant: v.variant } : {}),
+        note: v.applied ? (ocById[v.applied.id]?.description || '') : v.plans ? 'לפי גבהי הפיתוח בהיתר (data/site/development-heights.json).' : c.description,
+        source: v.applied ? v.applied.g.terrain.source : v.plans ? fillMeta.source : (v.oc.g.terrain || v.oc.g.slab).source });
       scene.add(gz);
     }
     if (!z.slab) continue;
@@ -390,6 +394,11 @@ const exMeta = {
     });
     scene.add(w);
   }
-  ground.add(lot, finalZ, 'excavation', 'lot-257-excavation');
+  // height lookups (labels, walk, inspect) follow the applied owner decisions (OC-7) as well
+  const applied = ocZones.filter(z => z.terrain?.g.terrain.applied);
+  const finalA = (E, N) => { const z = applied.find(q => pointInRing(E, N, q.ring)); return z ? z.terrain.fn(E, N) : finalZ(E, N); };
+  finalA.kind = 'final';
+  for (const z of applied) ground.regions.unshift({ ring: z.ring, interp: z.terrain.fn, kind: 'final', id: `${z.terrain.id}-${z.key}` });   // found before the permit surface
+  ground.add(lot, finalA, 'excavation', 'lot-257-excavation');
   return stats;
 }

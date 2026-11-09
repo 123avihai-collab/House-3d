@@ -466,14 +466,14 @@ export class UI {
         h('button', { onclick: () => this.copy(app.tools.notes.toText(), 'כל ההערות הועתקו') }, '📋 העתק את כל ההערות')),
       h('h4', {}, 'שינויים של אביחי (מעבר לתוכניות)'),
       ...(app.data.ownerChanges?.changes || []).map(c => {
-        const on = s.ownerChanges?.[c.id] ?? false, q = c.kind === 'query';
+        const on = s.ownerChanges?.[c.id] ?? false, applied = c.kind === 'applied', q = c.kind === 'query' || applied;
         // "הצג": the step of the change (showStep = id in tags.json sequence; older entries: showStage) and the place
         const go = (t) => { const si = t.showStep ? app.registry.stepById(t.showStep) : app.registry.stepIndex(t.showStage || c.showStage, 'unit');
           if (si >= 0) app.store.set({ stageIndex: si }, { label: 'stage' });
           const P = { E: t.locationITM[0], N: t.locationITM[1], H: app.coords.H0 + t.locationRel };
           if (t.viewOffset) { const tg = app.coords.toLocal(P.E, P.N, P.H); app.viewer.flyTo(tg, tg.clone().add(new THREE.Vector3(...t.viewOffset))); } else app.flyToPoint(P); };
         return h('div', { class: 'oc' },
-          h('b', {}, `${c.id} · ${c.title}`, q ? h('span', { class: 'q' }, 'לבירור') : null), h('div', {}, c.description),
+          h('b', {}, `${c.id} · ${c.title}`, q ? h('span', { class: 'q' + (applied ? ' applied' : '') }, applied ? 'בוצע במודל' : 'לבירור') : null), h('div', {}, c.description),
           c.changed ? h('div', {}, h('small', {}, 'מה השתנה: ' + c.changed)) : null,
           h('small', {}, `${c.date} · מי צריך לאשר:`),
           h('ul', { class: 'appr' }, ...c.approvals.map(a => h('li', {}, `${a.who}${a.what ? ' – ' + a.what : ''}${a.status === 'pending' ? '' : ' ✔'}`))),

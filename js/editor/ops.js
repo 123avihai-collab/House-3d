@@ -124,3 +124,43 @@ export function applySlope(run, slope) {
 
 export function shiftH(run, dh) { return { ...run, vertices: run.vertices.map(v => [v[0], v[1], v[2] == null ? null : r3(v[2] + dh)]) }; }
 export function isAxisAligned(a, b, eps) { return !!axisOf(a, b, eps); }
+
+// Move a point (manifold, fixture, chamber …) with everything connected to it, as one system.
+// Connected runs: from/to names the point, or their end lies within connectTol of it. Of each such run, the stations
+// within `zone` of the point (the manifold's outlet stubs; for a plain point only the end itself) move with it; the
+// first station outside stays and is reached by a connector (in ortho an L, so every piece stays on the house axes).
+// Returns { node, runs: {id: newRun} } – one undo step for the caller.
+export function moveNodeSystem(node, runs, dx, dy, ctx) {
+  const { fr, opt, zone, connectTol, stationTol } = ctx, P = fr.toLocal(node.E, node.N);
+  const [E, N] = fr.toITM(P[0] + dx, P[1] + dy);
+  const dE = E - node.E, dN = N - node.N;
+  const { xy, outletsXY, ...plain } = node;   // drop display-only fields
+  const outlets = plain.outlets ? Object.fromEntries(Object.entries(plain.outlets).map(([k, l]) => [k, l.map(o => ({ ...o, E: r3(o.E + dE), N: r3(o.N + dN) }))])) : undefined;
+  const out = { node: { ...plain, E: r3(E), N: r3(N), ...(outlets ? { outlets } : {}) }, runs: {} };
+  const near = (q, R) => Math.hypot(q.x - P[0], q.y - P[1]) <= R;
+  for (const run of runs) {
+    let S = stations(run, fr, stationTol); if (S.length < 2) continue;
+    const atStart = run.from === node.id || near(S[0], connectTol), atEnd = run.to === node.id || near(S[S.length - 1], connectTol);
+    if (!atStart && !atEnd) continue;
+    const moveEnd = (T) => {   // T starts at the point; move its leading stations in the zone, connect to the rest
+      let k = 0; while (k < T.length && (k === 0 || near(T[k], zone))) k++;
+      const moved = T.slice(0, k).map(q => ({ ...q, x: q.x + dx, y: q.y + dy, H: [...q.H] }));
+      if (k >= T.length) return moved;
+      const p = moved[k - 1], q = T[k], o = T[k - 1], ax = axisOf(o, q, opt.axisEps_deg);
+      if (ax) {   // straight on the house axes: keep it there with an L
+        const mid = [];
+        if (ax === 'x' && Math.abs(q.y - p.y) > 1e-6) mid.push({ x: p.x, y: q.y, H: [p.H[p.H.length - 1]] });
+        else if (ax === 'y' && Math.abs(q.x - p.x) > 1e-6) mid.push({ x: q.x, y: p.y, H: [p.H[p.H.length - 1]] });
+        return [...moved, ...mid, ...T.slice(k)];
+      }
+      // curved / diagonal route: the shift fades out along the next `zone` metres of the route (no zigzag)
+      const rest = T.slice(k).map(q2 => ({ ...q2, H: [...q2.H] })); let acc = 0, prev = T[k - 1];
+      for (const q2 of rest) { acc += Math.hypot(q2.x - prev.x, q2.y - prev.y); prev = { x: q2.x, y: q2.y }; const f = Math.max(0, 1 - acc / zone); if (f <= 0) break; q2.x += dx * f; q2.y += dy * f; }
+      return [...moved, ...rest];
+    };
+    if (atStart) S = moveEnd(S);
+    if (atEnd) S = moveEnd([...S].reverse().map(q => ({ ...q, H: [...q.H].reverse() }))).reverse().map(q => ({ ...q, H: [...q.H].reverse() }));
+    out.runs[run.id] = fromStations(run, S, fr);   // no merging: the far end must stay exactly where it was
+  }
+  return out;
+}

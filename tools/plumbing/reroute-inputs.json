@@ -1,0 +1,101 @@
+{
+ "_doc": "קלט לניתוב מחדש של צנרת המים (tools/plumbing/reroute_water.py). מה שאביחי קבע מסומן approved עם תאריך; שאר הערכים provisional ומופיעים ב-docs/open-issues.md (ED16).",
+ "removeFixtures": {
+  "value": [
+   "BS1@ground",
+   "BS1@first"
+  ],
+  "status": "approved",
+  "source": "אביחי 09.11.2026: מבטל את הכיור הכפול בחדר הרחצה בקרקע ובקומה א', נשאר BS2"
+ },
+ "diagonal": {
+  "value": true,
+  "status": "approved",
+  "source": "אביחי 09.11.2026: מותר באלכסון – הכי קצר, פחות צינור"
+ },
+ "pairSpacing_m": {
+  "value": 0.05,
+  "status": "approved",
+  "source": "אביחי 09.11.2026: חם וקר הולכים ביחד במרחק 5 ס\"מ עד לנקודה"
+ },
+ "courtyard": {
+  "value": "forbidden",
+  "status": "approved",
+  "source": "אביחי 09.11.2026: לא בחצר האנגלית, גם לא מתחת לבטון"
+ },
+ "manifolds": {
+  "value": [
+   "MAN-ground",
+   "MAN-first",
+   "MAN-unit1",
+   "MAN-unit2"
+  ],
+  "status": "approved",
+  "source": "אביחי 09.11.2026: כל החנוכיות"
+ },
+ "routeLevelRel": {
+  "value": {
+   "ground": -0.07,
+   "first": 3.78,
+   "unit": -2.67
+  },
+  "status": "source",
+  "source": "data/plumbing/proposal.json – מפלס הצנרת במילוי הרצפה בכל קומה (רוב נקודות הקווים)"
+ },
+ "slotSpacing_m": {
+  "value": 0.05,
+  "status": "source",
+  "source": "data/plumbing/proposal.json manifolds.outlets – מרווח היציאות במחלק"
+ },
+ "region": {
+  "value": {
+   "ground": "floor-ground.json slab zone=house (בלי הממ\"ד GS7)",
+   "first": "floor-ground.json ceiling.slab",
+   "unit": "framing.json slabs BS1 (BS2/BS3 = רצפות החצרות האנגליות)"
+  },
+  "status": "provisional",
+  "source": "הממ\"ד מוחרג – צנרת לא עוברת דרך ממ\"ד שהיא לא משרתת (ED16)"
+ },
+ "clearance_m": {
+  "value": 0.03,
+  "status": "provisional",
+  "source": "מרווח מינימלי מקיר / עמוד / קורה לשפת זוג הצינורות (ED16)"
+ },
+ "lanePitch_m": {
+  "value": 0.08,
+  "status": "provisional",
+  "source": "מרחק בין צירי זוגות שרצים זה לצד זה: 5 ס\"מ בזוג + ø16–20 + ~1 ס\"מ מרווח (ED16)"
+ },
+ "exitDist_m": {
+  "value": 0.15,
+  "status": "provisional",
+  "source": "מרחק היציאה מחזית המחלק לפני שהזוגות נפרדים (ED16)"
+ },
+ "approach_m": {
+  "value": 0.5,
+  "status": "provisional",
+  "source": "המרחק האחרון לנקודה / מהמחלק שבו מותר להתקרב לקיר (הצינור נכנס לקיר)"
+ },
+ "manifoldZone_m": {
+  "value": 0.6,
+  "status": "provisional",
+  "source": "אזור היציאה מהמחלק שבו הזוגות עוד לא בנתיבים נפרדים (כמו edit.manifoldZone_m בעורך)"
+ },
+ "roomNames": {
+  "value": [
+   "יחידת הורים",
+   "רחצה",
+   "אורחים",
+   "מטבח",
+   "כביסה",
+   "שינה",
+   "סלון",
+   "אוכל",
+   "חדר",
+   "מרתף שירות",
+   "מרפסת קומה א"
+  ],
+  "status": "source",
+  "source": "שמות החדרים בתוכנית האדריכל (plan-background.json, G-ANNO-TEXT) – רק אלה משמשים לשם החדר של יציאה"
+ }
+}

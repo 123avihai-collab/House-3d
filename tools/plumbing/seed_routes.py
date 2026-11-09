@@ -73,9 +73,14 @@ def main():
     for r in P['unitSewer']['runs']: add_run(r, 'unitSewer.runs')
     for r in P['firstFloor']['runs']: add_run(r, 'firstFloor.runs')
     for r in P['site']['runs']: add_run(r, 'site.runs')
-    for r in P['site']['drops']: add_run(r, 'site.drops', system='sewage', floor='site', kind='drop')
+    for r in P['site']['drops']: add_run({**r, 'from': r.get('run'), 'to': r.get('chamber')}, 'site.drops', system='sewage', floor='site', kind='drop')
     for s in P['stackMoves']:
-        if s.get('pts3d'): add_run(s, 'stackMoves', system='sewage', floor='ground', kind='stack', extra={'stack': s['stack']})
+        if not s.get('pts3d'): continue
+        add_run(s, 'stackMoves', system='sewage', floor='ground', kind='stack', extra={'stack': s['stack']})
+        for k, cn in enumerate(s.get('connectors') or []):   # short pieces from the moved stack to the existing branch
+            fl = cn['run'].split('@')[1] if '@' in cn['run'] else 'ground'
+            add_run({**cn, 'id': f"{s['id']}-C{k + 1}", 'from': cn['run'], 'to': s['id'], 'status': s.get('status', 'proposal')},
+                    f"stackMoves[{s['id']}].connectors[{k}]", system='sewage', floor=fl, kind='connector')
     alt = next(a for a in P['rain']['alternatives'] if a['id'] == P['rain']['default'])
     for r in alt['runs']: add_run(r, f'rain.alternatives[{alt["id"]}].runs', system='rain', extra={'alternative': alt['id']})
 
@@ -94,11 +99,21 @@ def main():
         nodes.append(rec)
 
     for n in P['points']: add_node(n, 'points')
-    for m in P['manifolds']: add_node(m, 'manifolds', kind='manifold', H=(m.get('H_floor') if m.get('H_floor') is not None else None))
+    for m in P['manifolds']:
+        add_node(m, 'manifolds', kind='manifold', H=(m.get('H_floor') if m.get('H_floor') is not None else None))
+        # body of the manifold: axis / face and every outlet (plan position, destination, diameter), heights above the floor
+        nodes[-1].update({'axis': m['axis'], 'face': m['face'], 'coldH': m.get('coldH'), 'hotH': m.get('hotH'), 'hotPending': m.get('hotPending'),
+                          'outlets': {k: [{'E': r3(o['E']), 'N': r3(o['N']), 'to': o['to'], 'D_mm': o.get('D_mm')} for o in v] for k, v in m['outlets'].items()}})
     for h in P['unitHot']['heaters']: add_node(h, 'unitHot.heaters', kind='heater')
     for key, kind in (('submeters', 'meter'), ('mainValve', 'valve'), ('recircPump', 'pump')):
         if P.get(key): add_node({**P[key], 'id': key}, key, kind=kind)
 
+    ch = P['unitSewer']['chamber']
+    add_node({'id': ch['id'], 'E': ch['E'], 'N': ch['N'], 'H': ch['TL'], 'title': 'תא שאיבה לשפכי היחידות (T.L)', 'floor': 'site'}, 'unitSewer.chamber', kind='pumpChamber')
+    hr = P['site']['hoseReel']
+    add_node({'id': hr['id'], 'E': hr['E'], 'N': hr['N'], 'H': None, 'title': 'גלגלון כיבוי', 'floor': 'site'}, 'site.hoseReel', kind='hoseReel')
+    mt = P['site']['meter']
+    add_node({'id': 'UT-W', 'E': mt['utw'][0], 'N': mt['utw'][1], 'H': None, 'title': 'קצה הכנת המים של התאגיד', 'floor': 'site'}, 'site.meter.utw', kind='utilityWater')
     out = {
         '_doc': 'מקור האמת לתוואי הצנרת של ההצעה – משותף לעורך הדו-ממדי (editor.html) ולמודל. vertices = נקודות פנייה [E, N, H] '
                 'ב-ITM, H מוחלט (מרכז הצינור; בביוב – כמו ב-pts3d של ההצעה). נזרע פעם אחת ע"י tools/plumbing/seed_routes.py, '

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>עורך צנרת – מגרש 5187</title>
+  <meta name="description" content="עורך צנרת דו-ממדי במבט על: רקע אדריכלי ושלד לפי קומה, שכבות הצנרת של ההצעה ושל היועץ, באותם נתונים של המודל התלת-ממדי.">
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+  <header id="ed-top">
+    <a class="ed-back" href="index.html" title="חזרה למודל התלת-ממדי">⬅ מודל 3D</a>
+    <strong class="ed-title">עורך צנרת</strong>
+    <nav id="ed-floors" aria-label="קומה"></nav>
+    <span class="ed-spacer"></span>
+    <label class="ed-snap" title="הצמדה (S)"><input type="checkbox" id="ed-snap-on" checked> הצמדה</label>
+    <select id="ed-snap-step" title="צעד רשת להצמדה"></select>
+    <button id="ed-fit" title="התאמה למסך (F)">⤢</button>
+    <button id="ed-layers-btn" title="שכבות">☰ שכבות</button>
+  </header>
+  <main id="ed-main">
+    <canvas id="ed-canvas" aria-label="תוכנית מבט על"></canvas>
+    <div id="ed-compass" title="צפון אמיתי"><i>▲</i><span>צ</span></div>
+    <div id="ed-scale"></div>
+    <div id="ed-info" class="hidden"></div>
+    <div id="ed-loading">טוען…</div>
+  </main>
+  <aside id="ed-panel"></aside>
+  <footer id="ed-status">רחף מעל התוכנית לקואורדינטות</footer>
+  <script type="module" src="js/editor/main.js"></script>
+</body>
+</html>

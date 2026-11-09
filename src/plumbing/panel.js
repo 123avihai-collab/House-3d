@@ -59,6 +59,7 @@ export function buildPanel(app, pl) {
       const anyOn = ids.some(id => layers[id] !== false);
       const box = h('div', { class: 'plbox' },
         h('button', { class: 'pl-all', onclick: pipeView }, '🔧 הצג את כל הצנרת (רנטגן, בלי שלד וסביבה)'),
+        h('a', { class: 'pl-editor', href: 'editor.html', title: 'עורך צנרת דו-ממדי במבט על – אותם נתונים (data/plumbing/routes.json)' }, '✏️ עורך צנרת דו-ממדי (מבט על)'),
         h('label', { class: 'plmaster' }, h('input', { type: 'checkbox', checked: anyOn,
           onchange: (e) => app.store.set({ layers: { ...app.store.get().layers, ...Object.fromEntries(ids.map(id => [id, e.target.checked])) } }, { label: 'plumbing' }) }),
           anyOn ? 'שכבת האינסטלציה מוצגת – לחיצה מכבה את כולה' : 'שכבת האינסטלציה כבויה – לחיצה מדליקה את כולה'),

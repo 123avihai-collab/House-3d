@@ -18,12 +18,18 @@ python3 tools/environment/extract_sheet04.py       # גיליון 04 סרוק: �
 python3 tools/environment/derive_details.py        # בינוי ופיתוח מפורטים -> data/environment/details.json
 python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
+python3 tools/plumbing/extract_plan_background.py  # עורך הצנרת: רקע אדריכלי לכל קומה (מה-DXF של היועץ) -> data/plumbing/plan-background.json
+python3 tools/plumbing/seed_routes.py              # עורך הצנרת: זריעה חד-פעמית של data/plumbing/routes.json מההצעה (לא דורס עריכות)
+python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבלת אימות -> docs/verification/editor-stage-1.md
 ```
+
+**עורך צנרת דו-ממדי:** `editor.html` – מבט על לפי קומה, רקע אדריכלי, שלד, שכבות הצעה ויועץ. מקור האמת לתוואי: `data/plumbing/routes.json`. פירוט ושלבים: [docs/plumbing/editor.md](docs/plumbing/editor.md).
 
 ## מבנה
 
 ```
 index.html                 מעטפת הדף + importmap
+editor.html                עורך צנרת דו-ממדי (js/editor/, css/editor.css) – docs/plumbing/editor.md
 css/app.css                עיצוב (RTL, מותאם לטלפון)
 js/
   main.js                  חיבור כל החלקים, הגדרות ברירת מחדל, אירועי עכבר/מגע
@@ -59,6 +65,7 @@ js/
     notes.js               הערות ורשימת תיקונים
     navigation.js          נקודות מבט, מבטים שמורים, הליכה בגובה עיניים (לחיצה על רכיבים עובדת גם בהליכה), מפה קטנה: תוכנית הבית לפי קומה (מסובבת לצירי הבית, אוטו / מרתף / קרקע / א' / גג, הגדלה) – לחיצה על חדר = הליכה משם; מצב מגרשים
   ui/ui.js                 סרגל עליון, פאנלים, סרגל שלבים, כרטיס מידע
+  editor/                  עורך הצנרת הדו-ממדי: view.js (צירי הבית ⇄ מסך), model.js (שכבות לכל קומה מהנתונים), draw.js, pick.js (הצמדה ובחירה), layers.js (הצג/הסתר/נעילה), main.js
 src/environment/           סביבה (שכונה): מחליף את משטחי השכנים/הרחוב של שלב 1
   index.js                 בנייה + חיבור לממשק (קבוצת "סביבה" בפאנל השכבות)
   lots.js                  13 מגרשים שכנים: פני קרקע סופיים, גבול, קווי בניין, תוויות
@@ -78,6 +85,7 @@ assets/                    טקסטורות PBR ו-HDRI (Poly Haven, CC0 – ass
 vendor/                    three.js 0.186.1, delaunator 5.1.0 (ללא שלב build)
 tools/                     צינור חילוץ מקבצי המקור + אימות
 tests/smoke.mjs            בדיקת דפדפן headless
+tests/editor.mjs           בדיקת דפדפן של עורך הצנרת (קומות, בחירה, שכבות, הצמדה)
 docs/                      אימות, שאלות פתוחות
 sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit – ראו sources/README.md)
 ```

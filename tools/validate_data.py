@@ -95,6 +95,29 @@ if 'ownerChangesGeometry' in D:
             if 'source' not in w: errors.append(f'{cid} wall piece {k} without source')
         sp = g.get('slabSplit')
         if sp and abs(sp['check']['sumArea_m2'] - sp['check']['original_m2']) > 0.01: errors.append(f'{cid} slab split area mismatch')
+# 2D pipe editor files (manifest.editorFiles): routes.json = source of truth of the proposal routes
+for k, p in man.get('editorFiles', {}).items():
+    if k.startswith('_'): continue
+    fp = os.path.join(ROOT, p)
+    if not os.path.exists(fp): errors.append(f'missing {p}'); continue
+    try: D[k] = json.load(open(fp, encoding='utf-8')); walk(D[k], k)
+    except Exception as e: errors.append(f'{p}: {e}')
+if 'routes' in D:
+    R = D['routes']; ids = [r['id'] for r in R['runs']]
+    if len(ids) != len(set(ids)): errors.append('routes: duplicate run ids')
+    sysok = set(D['planEditor']['systems']['order']) if 'planEditor' in D else None
+    for r in R['runs']:
+        if 'source' not in r: errors.append(f'routes run {r["id"]} without source')
+        if r.get('status') not in ('proposal', 'manual', 'provisional', 'source'): errors.append(f'routes run {r["id"]} bad status {r.get("status")}')
+        if sysok and r['system'] not in sysok: errors.append(f'routes run {r["id"]} unknown system {r["system"]}')
+        if len(r['vertices']) < 2: errors.append(f'routes run {r["id"]} < 2 vertices')
+        for v in r['vertices']:
+            if len(v) != 3 or not all(isinstance(c, (int, float)) for c in v[:2]) or not (v[2] is None or isinstance(v[2], (int, float))): errors.append(f'routes run {r["id"]} bad vertex {v}')
+        s = r.get('simplify')
+        if s and s['maxDev_m'] > s['tol_m'] + 1e-6: errors.append(f'routes run {r["id"]} simplified beyond tolerance ({s["maxDev_m"]} m)')
+    for n in R['nodes']:
+        if 'source' not in n: errors.append(f'routes node {n["id"]} without source')
+if 'planBackground' in D and 'source' not in D['planBackground']: errors.append('plan-background without source')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

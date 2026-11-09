@@ -6,7 +6,7 @@ export function buildPiles(ctx) {
   const { data, coords, registry, scene, materials, display } = ctx;
   const P = display.piles;
   const mat = materials.get('concrete');
-  const over = materials.get('concrete').clone(); over.color.set(P.overloadTint);
+  const over = materials.get('concrete').clone(); over.color.set(display.framing.ownerChangeColor);   // OC-6 (data/changes): load over the allowed – red, query to the engineer
   // "x-ray" copy drawn on top of the soil, so piles hidden under the ground stay visible
   const ghost = new THREE.MeshBasicMaterial({ color: P.ghostColor, transparent: true, opacity: P.ghostOpacity, depthTest: false, depthWrite: false });
   const stats = { count: 0, drill_m: 0, concrete_m3: 0, byType: {} };
@@ -27,7 +27,7 @@ export function buildPiles(ctx) {
     registry.add(gg, { floor: p.zone === 'basement' ? 'unit' : 'ground', system: 'structure', stage: 'piles', step, stepTo: step, layer: 'piles' }, { name: `כלונס ${p.id} (שיקוף)`, kind: 'ghost', pickable: false });
     const div = document.createElement('div');
     div.className = 'lbl pile' + (p.overAllowed ? ' over' : '');
-    div.textContent = p.id;
+    div.textContent = p.overAllowed ? `${p.id} · OC-6` : p.id;
     const l = new CSS2DObject(div); l.position.copy(coords.toLocal(p.E, p.N, headAbs + P.labelLift_m)); g.add(l);
     const x = p.xlsxCheck;
     const util = x ? (p.designLoad_t / x.allowed * 100) : null;

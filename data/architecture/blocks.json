@@ -1210,7 +1210,7 @@
      "s0": 0.039,
      "s1": 1.349,
      "z0": 1.1,
-     "z1": 3.45,
+     "z1": 3.65,
      "clip": [],
      "shutter": true
     }
@@ -1218,7 +1218,7 @@
    "courses": 15,
    "blocksFull": 68,
    "blocksCut": 44,
-   "area_m2": 12.546,
+   "area_m2": 12.284,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [],
@@ -1227,7 +1227,12 @@
     "p0": 3.258,
     "sign": 1
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "variant": {
+    "change": "OC-4",
+    "show": "original"
+   },
+   "ownerChange": "OC-4"
   },
   {
    "id": "BK-G26",
@@ -2849,7 +2854,12 @@
     "p0": -8.938,
     "sign": 1
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "variant": {
+    "change": "OC-5",
+    "show": "original"
+   },
+   "ownerChange": "OC-5"
   },
   {
    "id": "BK-F62",
@@ -2881,7 +2891,12 @@
     "p0": -8.538,
     "sign": 1
    },
-   "courseDatum": 3.7
+   "courseDatum": 3.7,
+   "variant": {
+    "change": "OC-5",
+    "show": "original"
+   },
+   "ownerChange": "OC-5"
   },
   {
    "id": "BK-F63",
@@ -3863,6 +3878,198 @@
     "sign": 1
    },
    "courseDatum": 3.7
+  },
+  {
+   "id": "BK-G25~OC-4",
+   "floor": "ground",
+   "axisITM": [
+    [
+     179604.188,
+     576235.162
+    ],
+    [
+     179605.813,
+     576239.186
+    ]
+   ],
+   "length_m": 4.34,
+   "thickness_m": 0.3,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "openings": [
+    {
+     "id": "G20",
+     "kind": "window",
+     "s0": 0.039,
+     "s1": 1.349,
+     "z0": 1.1,
+     "z1": 3.45,
+     "clip": [],
+     "shutter": true
+    }
+   ],
+   "courses": 15,
+   "blocksFull": 68,
+   "blocksCut": 44,
+   "area_m2": 12.546,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "lintels": [],
+   "drawnThickness_m": 0.3,
+   "bond": {
+    "p0": 3.258,
+    "sign": 1
+   },
+   "courseDatum": -0.15,
+   "variant": {
+    "change": "OC-4",
+    "show": "changed"
+   },
+   "ownerChange": "OC-4"
+  },
+  {
+   "id": "BK-F61~OC-5",
+   "floor": "first",
+   "axisITM": [
+    [
+     179600.519,
+     576244.796
+    ],
+    [
+     179600.148,
+     576244.946
+    ]
+   ],
+   "length_m": 0.4,
+   "thickness_m": 0.3,
+   "bottomRel": 4.05,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "OC-5-door",
+     "kind": "door",
+     "s0": 0.0,
+     "s1": 0.4,
+     "z0": 4.05,
+     "z1": 6.2,
+     "clip": [
+      "L",
+      "R"
+     ],
+     "shutter": false
+    }
+   ],
+   "courses": 11,
+   "blocksFull": 0,
+   "blocksCut": 2,
+   "area_m2": 0.08,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "lintels": [
+    {
+     "id": "LT-OC-5-BK-F61",
+     "opening": "OC-5-door",
+     "s0": 0.0,
+     "s1": 0.4,
+     "z0": 6.2,
+     "z1": 6.45,
+     "bearL_m": 0.0,
+     "bearR_m": 0.0,
+     "length_m": 0.4,
+     "status": "provisional",
+     "onConcrete": [],
+     "continues": [
+      "L",
+      "R"
+     ],
+     "intoCrossWall": [],
+     "shortBearing": [],
+     "pier": []
+    }
+   ],
+   "drawnThickness_m": 0.301,
+   "bond": {
+    "p0": -8.938,
+    "sign": 1
+   },
+   "courseDatum": 3.7,
+   "variant": {
+    "change": "OC-5",
+    "show": "changed"
+   },
+   "ownerChange": "OC-5"
+  },
+  {
+   "id": "BK-F62~OC-5",
+   "floor": "first",
+   "axisITM": [
+    [
+     179600.148,
+     576244.946
+    ],
+    [
+     179599.49,
+     576245.212
+    ]
+   ],
+   "length_m": 0.709,
+   "thickness_m": 0.3,
+   "bottomRel": 3.7,
+   "topRel": 6.65,
+   "openings": [
+    {
+     "id": "OC-5-door",
+     "kind": "door",
+     "s0": 0.0,
+     "s1": 0.709,
+     "z0": 4.05,
+     "z1": 6.2,
+     "clip": [
+      "L",
+      "R"
+     ],
+     "shutter": false
+    }
+   ],
+   "courses": 12,
+   "blocksFull": 0,
+   "blocksCut": 6,
+   "area_m2": 0.39,
+   "status": "source",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
+   "lintels": [
+    {
+     "id": "LT-OC-5-BK-F62",
+     "opening": "OC-5-door",
+     "s0": 0.0,
+     "s1": 0.709,
+     "z0": 6.2,
+     "z1": 6.45,
+     "bearL_m": 0.0,
+     "bearR_m": 0.0,
+     "length_m": 0.709,
+     "status": "provisional",
+     "onConcrete": [],
+     "continues": [
+      "L",
+      "R"
+     ],
+     "intoCrossWall": [],
+     "shortBearing": [],
+     "pier": []
+    }
+   ],
+   "drawnThickness_m": 0.301,
+   "bond": {
+    "p0": -8.538,
+    "sign": 1
+   },
+   "courseDatum": 3.7,
+   "variant": {
+    "change": "OC-5",
+    "show": "changed"
+   },
+   "ownerChange": "OC-5"
   }
  ],
  "shutterBoxes": [
@@ -3887,7 +4094,7 @@
    "box_m": 0.35,
    "frameTop_m": -0.0,
    "status": "source",
-   "source": "Drive: תוכניות בנייה / תוכניות חזיתות ושטחים מהגרמושקא - PDF / קומה קרקע - מבט על קנמ 1-10.pdf: \"220 +35 (U.K=110, O.K=330, רוחב 125)\" (שרשרת מזרחית (חלון המדרגות) – G20: ראו tools/owner-opening-changes.json (AC-1))",
+   "source": "Drive: תוכניות בנייה / תוכניות חזיתות ושטחים מהגרמושקא - PDF / קומה קרקע - מבט על קנמ 1-10.pdf: \"220 +35 (U.K=110, O.K=330, רוחב 125)\" (שרשרת מזרחית (חלון המדרגות); G20 – אותה משפחה ואותם U.K / ראש. השינוי של אביחי: OC-4 (data/changes))",
    "depth_m": 0.3,
    "hostWall": "BK-G24",
    "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר"
@@ -3949,15 +4156,23 @@
    "opening": "G20",
    "floor": "ground",
    "width_m": 1.31,
-   "headRel": 3.45,
-   "box_m": 0.24,
+   "headRel": 3.65,
+   "box_m": 0.35,
    "frameTop_m": -0.0,
    "status": "source",
-   "source": "AC-1 – שלב רגיל 55 – ארגז ~24 ס\"מ (מחשבון סף, לוודא מול הספק); החלטת אביחי 09.11.2026: חלון פינת האוכל, קיר מזרחי – ראש חלון ‎+3.21, ארגז מובנה ~24 ס\"מ עד תחתית B-27 (‎+3.45). אין שינוי קונסטרוקטיבי. ממתין לאדריכל.",
-   "ownerChange": "AC-1",
+   "source": "Drive: תוכניות בנייה / תוכניות חזיתות ושטחים מהגרמושקא - PDF / קומה קרקע - מבט על קנמ 1-10.pdf: \"220 +35 (U.K=110, O.K=330, רוחב 125)\" (שרשרת מזרחית (חלון המדרגות); G20 – אותה משפחה ואותם U.K / ראש. השינוי של אביחי: OC-4 (data/changes))",
    "depth_m": 0.3,
    "hostWall": "BK-G25",
-   "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר"
+   "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר",
+   "variant": {
+    "change": "OC-4",
+    "show": "original"
+   },
+   "ownerChange": "OC-4",
+   "clash": {
+    "into_m": 0.2,
+    "note": "ארגז התריס חודר 20 ס\"מ מעל תחתית הבטון שמעליו (‎+3.45)"
+   }
   },
   {
    "opening": "F03",
@@ -4023,6 +4238,24 @@
    "depth_m": 0.3,
    "hostWall": "BK-F85",
    "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר"
+  },
+  {
+   "opening": "G20",
+   "floor": "ground",
+   "width_m": 1.31,
+   "headRel": 3.45,
+   "box_m": 0.24,
+   "frameTop_m": -0.0,
+   "status": "source",
+   "source": "OC-4 – שלב רגיל 55 – ארגז ~24 ס\"מ (מחשבון סף, לוודא מול הספק); החלטת אביחי 09.11.2026 (היה AC-1): חלון פינת האוכל 1.25×2.11, ראש ‎+3.21, ארגז מובנה 24 עד תחתית B-27 (‎+3.45)",
+   "depth_m": 0.3,
+   "hostWall": "BK-G25",
+   "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר",
+   "variant": {
+    "change": "OC-4",
+    "show": "changed"
+   },
+   "ownerChange": "OC-4"
   }
  ],
  "outsideWalls": {
@@ -4155,6 +4388,37 @@
   22,
   30
  ],
+ "ownerAdditions": [
+  {
+   "id": "OC-5-step",
+   "change": "OC-5",
+   "floor": "first",
+   "kind": "step",
+   "ringITM": [
+    [
+     179600.463,
+     576244.657
+    ],
+    [
+     179599.434,
+     576245.073
+    ],
+    [
+     179599.321,
+     576244.795
+    ],
+    [
+     179600.35,
+     576244.379
+    ]
+   ],
+   "bottomRel": 3.85,
+   "topRel": 4.05,
+   "width_m": 1.11,
+   "note": "מדרגה פנימית אחת 20 ס\"מ, מהריצוף ‎+3.85 לסף ‎+4.05, ברוחב הפתח",
+   "source": "בקשת אביחי 09.11.2026: יציאה למרפסת הצפונית מקצה הגלריה בקומה א' (BK-F61 + BK-F62, בין FW7 לקיר חדר 2)"
+  }
+ ],
  "quantities": {
   "unit": {
    "t22_cut": 14,
@@ -4176,7 +4440,7 @@
    "t22_m2": 81.73,
    "t30_cut": 195,
    "t30_full": 98,
-   "t30_m2": 24.79
+   "t30_m2": 24.53
   },
   "first": {
    "t10_cut": 368,

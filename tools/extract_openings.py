@@ -207,13 +207,13 @@ def main():
                              'sillRel': r3(sill), 'headRel': r3(head), 'floorFinishRel': ffl, 'UK_cm': round((sill - ffl) * 100), 'OK_cm': round((head - ffl) * 100),
                              'status': st, 'note': note, 'heightSource': hsrc,
                              'source': f'{SRC} בלוק {blk}, שכבה {v.dxf.layer}, "{nm}" (מזהה {eid}); גובה: {hsrc}'})
-    # owner's height changes (docs/architect-changes.md, tools/owner-opening-changes.json) win over the permit sheet / Revit
-    OWN = json.load(open(os.path.join(ROOT, 'tools/owner-opening-changes.json'), encoding='utf-8'))['changes']
-    for o in openings:
-        ch = OWN.get(o['id'])
-        if not ch: continue
-        o['headRelSource'] = o['headRel']; o['headRel'] = ch['headRel']; o['OK_cm'] = round((ch['headRel'] - o['floorFinishRel']) * 100)
-        o['ownerChange'] = ch['change']; o['heightSource'] = f"{ch['change']} – {ch['decision']} (tools/owner-opening-changes.json)"
+    # owner changes (data/changes/owner-changes-geometry.json "openings"): the opening stays as drawn; the change is a
+    # variant built by tools/extract_blocks.py (button "לפי התוכניות / עם השינוי"), only flagged here
+    OCG = json.load(open(os.path.join(ROOT, 'data/changes/owner-changes-geometry.json'), encoding='utf-8'))['changes']
+    for oc, g in OCG.items():
+        for oid in (g.get('openings') or {}):
+            for o in openings:
+                if o['id'] == oid: o['ownerChange'] = oc
     # ---- host concrete walls: cut the opening rectangle, refill below the sill / above the head ----
     files = {f: json.load(open(os.path.join(ROOT, 'data/structure', f), encoding='utf-8')) for f in ('framing.json', 'floor-ground.json', 'floor-first.json', 'floor-roof.json')}
     walls = {'unit': files['framing.json']['basementWalls'], 'ground': files['floor-ground.json']['walls'], 'first': files['floor-first.json']['walls'],

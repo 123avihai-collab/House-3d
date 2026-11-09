@@ -26,7 +26,8 @@ def levels_at(items, tree, p, pick):
 
 
 def main():
-    C = XB.context(); B = J('data/architecture/blocks.json'); L_ = J('data/architecture/blocks.json')['walls']
+    C = XB.context(); B = J('data/architecture/blocks.json')
+    B['walls'] = [w for w in B['walls'] if (w.get('variant') or {}).get('show') != 'changed']   # the owner-change copies are checked apart (variants); L_ = J('data/architecture/blocks.json')['walls']
     trees = {fl: {k: STRtree([g for g, _ in C[k][fl]]) for k in ('under', 'over')} for fl in C['over']}
     runs_by_fl = {}
     for w in B['walls']: runs_by_fl.setdefault(w['floor'], []).append(w)

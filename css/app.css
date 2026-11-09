@@ -184,13 +184,13 @@ ol.notes.rebar table.kv { font-size: 12px; margin: 2px 0; }
 
 .lbl.beam { background: rgba(255,152,0,0.85); color: #1a1a1a; font-size: 10px; }
 .lbl.change { background: rgba(171,71,188,0.92); color: #fff; font-size: 11px; }
-.oc { border-inline-start: 3px solid #ab47bc; padding: 4px 8px; margin: 6px 0; }
+.oc { border-inline-start: 3px solid #e53935; padding: 4px 8px; margin: 6px 0; }
 .lbl.removed-q { background: #c62828; color: #fff; font-size: 11px; font-weight: 700; direction: rtl; }
 .lbl.removed { background: rgba(229,57,53,0.92); color: #fff; font-size: 11px; text-decoration: line-through; }
-.ocseg { display: inline-flex; border: 1px solid #ab47bc; border-radius: 8px; overflow: hidden; margin: 4px 0; }
+.ocseg { display: inline-flex; border: 1px solid #e53935; border-radius: 8px; overflow: hidden; margin: 4px 0; }
 .ocseg button { border: 0; border-radius: 0; padding: 4px 10px; background: transparent; color: inherit; }
-.ocseg button.on { background: #ab47bc; color: #fff; }
-.oc-badge { border: 1px solid #ab47bc; color: #ce93d8; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: transparent; cursor: pointer; }
+.ocseg button.on { background: #e53935; color: #fff; }
+.oc-badge { border: 1px solid #e53935; color: #ef9a9a; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: transparent; cursor: pointer; }
 .oc-badge.off { border-color: #777; color: #aaa; }
 .lbl.pipe { background: rgba(141,110,99,0.92); color: #fff; font-size: 10px; }
 .lrow { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
@@ -233,3 +233,8 @@ body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
 .layers details.grp > summary { display: flex; align-items: center; gap: 6px; }
 .layers details.grp > summary .cnt { opacity: .7; }
 .layers details.grp > summary .solo { margin-inline-start: auto; }
+
+.oc .q { background: #e53935; color: #fff; border-radius: 6px; padding: 0 6px; font-size: 11px; margin-inline-start: 6px; }
+.oc .appr { margin: 2px 0 0; padding-inline-start: 16px; font-size: 12px; }
+.lbl.oc-tag { background: #e53935; color: #fff; font-weight: 700; }
+.lbl.pile.over { background: #e53935; }

@@ -442,12 +442,6 @@ def main():
             if b['opening'] in r['openings']:
                 if b['box_m'] is not None and abs(b['box_m'] * 100 - r['box_cm']) > 0.5: b['elevationBox_m'] = b['box_m']
                 b.update(box_m=r['box_cm'] / 100, status='source', source=f"{PL['source_folder']} / {r['sheet']}: \"{r['text']}\" ({r['where']})")
-    # owner's changes (AC-x): the box of the chosen shutter wins over the plans
-    for oid, ch in J('tools/owner-opening-changes.json')['changes'].items():
-        for b in boxes_out:
-            if b['opening'] == oid and ch.get('box_m'):
-                o_ = next(x for x in OPN['openings'] if x['id'] == oid)
-                b.update(box_m=ch['box_m'], headRel=o_['headRel'], status='source', ownerChange=ch['change'], source=f"{ch['change']} – {ch['shutter']}; {ch['decision']}")
     # a family with no section / elevation band in the permit sheet: the box of the same family type (approx)
     fam = lambda o: re.sub(r'\s*-\s*[^-]*$', '', o).strip()
     for b in boxes_out:
@@ -494,10 +488,58 @@ def main():
         w = next((w for w in walls if any(o['id'] == b['opening'] for o in w['openings'])), None)
         b['depth_m'] = w['thickness_m'] if w else None; b['hostWall'] = w['id'] if w else None
         b['depthSource'] = 'החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר' + (' (עובי הקיר approx)' if w and w['status'] != 'source' else '')
+    # ---- owner changes (data/changes/owner-changes-geometry.json): both variants, button "לפי התוכניות / עם השינוי" ----
+    # the walls / boxes as drawn get variant 'original'; a copy with the change ('changed', id "<run>~OC-n") is added. The
+    # quantities (Q) stay as drawn. Nothing of an owner change is applied silently (Avihai 09.11).
+    import copy
+    OCG = J('data/changes/owner-changes-geometry.json')['changes']; additions = []
+    cen = unary_union([P(sl['footprintITM'], sl.get('holesITM')) for sl in FG['slab']]).centroid
+    def relay_(v):
+        v['blocksFull'], v['blocksCut'], v['courses'], ar = count_blocks(v['length_m'], v['bottomRel'], v['topRel'], v['openings'] + v['lintels'], BL, BH, v['bond'], v['courseDatum'])
+        v['area_m2'] = r3(ar)
+    for oc, g in OCG.items():
+        for oid, ch in (g.get('openings') or {}).items():
+            for w in [w for w in walls if any(o['id'] == oid for o in w['openings']) and not w.get('variant')]:
+                v = copy.deepcopy(w); v['id'] = f"{w['id']}~{oc}"; v['variant'] = {'change': oc, 'show': 'changed'}
+                w['variant'] = {'change': oc, 'show': 'original'}; w['ownerChange'] = v['ownerChange'] = oc
+                for o in v['openings']:
+                    if o['id'] == oid: o['z1'] = ch['headRel']
+                v['lintels'] = [l for l in v['lintels'] if oid not in l['opening'].split('+')]
+                relay_(v); walls.append(v)
+            for b in [b for b in boxes_out if b['opening'] == oid and not b.get('variant')]:
+                wtop = next((w['topRel'] for w in walls if w['id'] == b.get('hostWall')), None)
+                c2 = copy.deepcopy(b); c2.update(box_m=ch['box_m'], headRel=ch['headRel'], variant={'change': oc, 'show': 'changed'}, ownerChange=oc,
+                                                source=f"{oc} – {ch.get('shutter', '')}; {g.get('source', '')}")
+                b['variant'] = {'change': oc, 'show': 'original'}; b['ownerChange'] = oc
+                if wtop is not None and b['headRel'] > wtop + 0.005:
+                    b['clash'] = {'into_m': r3(b['headRel'] - wtop), 'note': f"ארגז התריס חודר {round((b['headRel'] - wtop) * 100)} ס\"מ מעל תחתית הבטון שמעליו (‎+{wtop:.2f})"}
+                boxes_out.append(c2)
+        dr = g.get('door')
+        if dr:
+            hosts = [min((w for w in walls if w['floor'] == 'first' and not w.get('variant')), key=lambda w: LineString(w['axisITM']).distance(Point(pt))) for pt in dr['runsNearITM']]
+            span = []
+            for w in hosts:
+                v = copy.deepcopy(w); v['id'] = f"{w['id']}~{oc}"; v['variant'] = {'change': oc, 'show': 'changed'}
+                w['variant'] = {'change': oc, 'show': 'original'}; w['ownerChange'] = v['ownerChange'] = oc
+                L = v['length_m']
+                v['openings'] = [{'id': f'{oc}-door', 'kind': 'door', 's0': 0.0, 's1': L, 'z0': max(v['bottomRel'], dr['sillRel']), 'z1': dr['headRel'], 'clip': ['L', 'R'], 'shutter': False}]
+                v['lintels'] = [{'id': f'LT-{oc}-{w["id"]}', 'opening': f'{oc}-door', 's0': 0.0, 's1': L, 'z0': dr['headRel'], 'z1': dr['lintelTopRel'], 'bearL_m': 0.0, 'bearR_m': 0.0,
+                                 'length_m': L, 'status': 'provisional', 'onConcrete': [], 'continues': ['L', 'R'], 'intoCrossWall': [], 'shortBearing': [], 'pier': []}]
+                relay_(v); walls.append(v); span += w['axisITM']
+            st = g.get('step')
+            if st:
+                a_, b_ = max(((p, q) for p in span for q in span), key=lambda pq: math.dist(*pq))
+                Lsp = math.dist(a_, b_); ux, uy = (b_[0] - a_[0]) / Lsp, (b_[1] - a_[1]) / Lsp; nx, ny = -uy, ux
+                tw = max(w['thickness_m'] for w in hosts) / 2
+                if (cen.x - a_[0]) * nx + (cen.y - a_[1]) * ny < 0: nx, ny = -nx, -ny
+                d0, d1 = tw, tw + st['depth_m']
+                ring = [[r3(a_[0] + nx * d0), r3(a_[1] + ny * d0)], [r3(b_[0] + nx * d0), r3(b_[1] + ny * d0)], [r3(b_[0] + nx * d1), r3(b_[1] + ny * d1)], [r3(a_[0] + nx * d1), r3(a_[1] + ny * d1)]]
+                additions.append({'id': f'{oc}-step', 'change': oc, 'floor': 'first', 'kind': 'step', 'ringITM': ring, 'bottomRel': st['bottomRel'], 'topRel': st['topRel'],
+                                  'width_m': r3(Lsp), 'note': st['note'], 'source': g.get('source', '')})
     out = {'_doc': 'נוצר ע"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.',
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
-           'dominantThickness_cm': dom,
+           'dominantThickness_cm': dom, 'ownerAdditions': additions,
            'quantities': {fl: {k: (round(v, 2) if k.endswith('m2') else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
     json.dump(out, open(os.path.join(ROOT, 'data/architecture/blocks.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('walls', len(walls), {fl: sum(1 for w in walls if w['floor'] == fl) for fl in O.FLOORS})
@@ -514,6 +556,8 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
     from openpyxl import Workbook
     from openpyxl.styles import Font, PatternFill, Alignment
     D = J('data/architecture/blocks.json'); CFG = J('data/config/blocks.json'); W = CFG['waste_pct']['value']
+    D['walls'] = [w for w in D['walls'] if (w.get('variant') or {}).get('show') != 'changed']   # quantities as drawn (owner-change copies apart)
+    D['shutterBoxes'] = [b for b in D['shutterBoxes'] if (b.get('variant') or {}).get('show') != 'changed']
     FL = {'unit': 'יחידת דיור', 'ground': 'קומת קרקע', 'first': "קומה א'"}
     wb = Workbook(); hdr = Font(bold=True, color='FFFFFF'); fill = PatternFill('solid', fgColor='2F5496')
     def sheet(ws, head, rows, widths):

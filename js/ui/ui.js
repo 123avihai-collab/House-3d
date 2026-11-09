@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { fmtMin } from '../tools/sun.js';
 
 const h = (tag, attrs = {}, ...kids) => {
@@ -409,14 +410,26 @@ export class UI {
         h('button', { class: app.activeTool === 'note' ? 'on' : '', onclick: () => app.setTool('note') }, '📝 הוסף הערה'),
         h('button', { onclick: () => this.copy(app.tools.notes.toText(), 'כל ההערות הועתקו') }, '📋 העתק את כל ההערות')),
       h('h4', {}, 'שינויים של אביחי (מעבר לתוכניות)'),
-      ...(app.data.ownerChanges?.changes || []).map(c => h('div', { class: 'oc' },
-        h('b', {}, `${c.id} · ${c.title}`), h('div', {}, c.description),
-        h('small', {}, `${c.date} · ממתין לאישור: ${c.approvals.filter(a => a.status === 'pending').map(a => a.who).join(', ')}`),
-        h('div', { class: 'ocseg' },
-          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
-          h('button', { class: (s.ownerChanges?.[c.id] ?? true) ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
-        h('div', { class: 'muted' }, (s.ownerChanges?.[c.id] ?? true) ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
-        h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => { app.store.set({ stageIndex: app.registry.stepIndex(c.showStage, 'unit') }, { label: 'stage' }); app.flyToPoint({ E: c.locationITM[0], N: c.locationITM[1], H: app.coords.H0 + c.locationRel }); } }, 'הצג')))),
+      ...(app.data.ownerChanges?.changes || []).map(c => {
+        const on = s.ownerChanges?.[c.id] ?? false, q = c.kind === 'query';
+        // "הצג": the step of the change (showStep = id in tags.json sequence; older entries: showStage) and the place
+        const go = (t) => { const si = t.showStep ? app.registry.stepById(t.showStep) : app.registry.stepIndex(t.showStage || c.showStage, 'unit');
+          if (si >= 0) app.store.set({ stageIndex: si }, { label: 'stage' });
+          const P = { E: t.locationITM[0], N: t.locationITM[1], H: app.coords.H0 + t.locationRel };
+          if (t.viewOffset) { const tg = app.coords.toLocal(P.E, P.N, P.H); app.viewer.flyTo(tg, tg.clone().add(new THREE.Vector3(...t.viewOffset))); } else app.flyToPoint(P); };
+        return h('div', { class: 'oc' },
+          h('b', {}, `${c.id} · ${c.title}`, q ? h('span', { class: 'q' }, 'לבירור') : null), h('div', {}, c.description),
+          c.changed ? h('div', {}, h('small', {}, 'מה השתנה: ' + c.changed)) : null,
+          h('small', {}, `${c.date} · מי צריך לאשר:`),
+          h('ul', { class: 'appr' }, ...c.approvals.map(a => h('li', {}, `${a.who}${a.what ? ' – ' + a.what : ''}${a.status === 'pending' ? '' : ' ✔'}`))),
+          q ? null : h('div', { class: 'ocseg' },
+            h('button', { class: on ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
+            h('button', { class: on ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
+          q ? null : h('div', { class: 'muted' }, on ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
+          c.link ? h('div', {}, h('a', { href: c.link.url, target: '_blank', rel: 'noopener' }, c.link.label)) : null,
+          h('div', { class: 'btns' }, ...(c.targets?.length ? c.targets.map(t => h('button', { class: 'small', onclick: () => go(t) }, `הצג ${t.label}`))
+            : [h('button', { class: 'small', onclick: () => go(c) }, 'הצג')])));
+      }),
       h('h4', {}, 'הערות ותיקונים'),
       s.notes.length ? h('ol', { class: 'notes' }, s.notes.map((n, i) => h('li', { class: n.done ? 'done' : '' },
         h('div', {}, n.text), h('small', {}, `${n.component || '—'} · ${app.coords.fmtH(n.H)}`),

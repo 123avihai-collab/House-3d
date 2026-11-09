@@ -17,7 +17,8 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'tools', 'cache', 'artifact')
-DIRS = ['css', 'js', 'data', 'assets', 'vendor']
+DIRS = ['css', 'js', 'src', 'data', 'assets', 'vendor']
+PAGES = ['editor.html']   # extra pages next to index.html (the 2D pipe editor)
 SERVED = {'.css', '.js', '.mjs', '.json', '.jpg', '.jpeg', '.png', '.webp', '.svg', '.txt'}
 AS_BASE64 = {'.hdr'}
 
@@ -38,6 +39,7 @@ def main():
                         g.write(base64.b64encode(f.read()).decode('ascii'))
                     files[src + '.b64.txt'] = os.path.relpath(dst, ROOT).replace(os.sep, '/')
                 # anything else (LICENSE files etc.) is not needed at runtime
+    for pg in PAGES: files[pg] = pg
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, 'files.json'), 'w', encoding='utf-8') as f:
         json.dump(files, f, ensure_ascii=False, indent=1)

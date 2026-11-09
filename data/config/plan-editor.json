@@ -1,0 +1,200 @@
+{
+ "_doc": "קבועי תצוגה של עורך הצנרת הדו-ממדי (editor.html). אין כאן מידות של הבית – רק עובי קווים, צבעים, גודל תוויות ורשת. מידות הבית והצנרת: data/structure/*, data/architecture/blocks.json, data/plumbing/routes.json, data/plumbing/plan-background.json.",
+ "floors": [
+  {
+   "id": "unit",
+   "label": "מרתף (יחידת דיור)",
+   "structure": "unit",
+   "background": "unit"
+  },
+  {
+   "id": "ground",
+   "label": "קרקע + פיתוח",
+   "structure": "ground",
+   "background": "ground",
+   "alsoRuns": [
+    "site"
+   ]
+  },
+  {
+   "id": "first",
+   "label": "קומה א'",
+   "structure": "first",
+   "background": "first"
+  },
+  {
+   "id": "roof",
+   "label": "גג",
+   "structure": "roof",
+   "background": "roof"
+  }
+ ],
+ "defaultFloor": "ground",
+ "grid": {
+  "minor_m": 0.1,
+  "major_m": 1.0,
+  "minPx": 7,
+  "minor": "rgba(120,130,140,0.12)",
+  "majorColor": "rgba(120,130,140,0.32)"
+ },
+ "snap": {
+  "radius_px": 12,
+  "steps_m": [
+   0.01,
+   0.05,
+   0.1,
+   0.5
+  ],
+  "defaultStep_m": 0.05
+ },
+ "zoom": {
+  "min_pxPerM": 8,
+  "max_pxPerM": 1200,
+  "fitPadding_px": 30
+ },
+ "background": {
+  "walls": {
+   "label": "קירות (אדריכלות)",
+   "color": "#3d4248",
+   "width_px": 1.4,
+   "on": true
+  },
+  "structure": {
+   "label": "שלד (רקע היועץ)",
+   "color": "#7a6a55",
+   "width_px": 1.0,
+   "on": false
+  },
+  "details": {
+   "label": "פרטים, ריצוף, מעקות",
+   "color": "#a3a9ae",
+   "width_px": 0.7,
+   "on": true
+  },
+  "openings": {
+   "label": "דלתות וחלונות",
+   "color": "#8a96a3",
+   "width_px": 0.7,
+   "on": true
+  },
+  "fixtures": {
+   "label": "כלים סניטריים וריהוט",
+   "color": "#9aa5b0",
+   "width_px": 0.7,
+   "on": true
+  },
+  "texts": {
+   "label": "שמות חדרים וטקסט",
+   "color": "#5d6670",
+   "font_px": 11,
+   "on": true
+  }
+ },
+ "structure": {
+  "concreteWalls": {
+   "label": "קירות בטון",
+   "fill": "rgba(110,115,122,0.55)",
+   "stroke": "#4a4f55",
+   "width_px": 1.0,
+   "on": true
+  },
+  "columns": {
+   "label": "עמודים",
+   "fill": "rgba(60,64,70,0.85)",
+   "stroke": "#25282c",
+   "width_px": 1.0,
+   "on": true
+  },
+  "blocks": {
+   "label": "קירות בלוקים",
+   "fill": "rgba(214,196,160,0.55)",
+   "stroke": "#9c8a64",
+   "width_px": 0.8,
+   "on": true
+  },
+  "beamsAbove": {
+   "label": "קורות בתקרה (מעל)",
+   "fill": "rgba(150,100,200,0.10)",
+   "stroke": "#8a5cc0",
+   "width_px": 1.0,
+   "dash": [
+    6,
+    4
+   ],
+   "on": true
+  },
+  "beamsBelow": {
+   "label": "קורות מתחת לרצפה",
+   "fill": "rgba(200,140,60,0.08)",
+   "stroke": "#c08a3c",
+   "width_px": 1.0,
+   "dash": [
+    2,
+    3
+   ],
+   "on": false
+  },
+  "plot": {
+   "label": "גבול מגרש 5187",
+   "stroke": "#d0342c",
+   "width_px": 1.6,
+   "dash": [
+    10,
+    4,
+    2,
+    4
+   ],
+   "on": true
+  },
+  "perimeter": {
+   "label": "חומות היקפיות",
+   "fill": "rgba(140,140,130,0.45)",
+   "stroke": "#6f6f66",
+   "width_px": 0.8,
+   "on": true
+  }
+ },
+ "systems": {
+  "order": [
+   "cold",
+   "hot",
+   "return",
+   "sewage",
+   "vent",
+   "rain",
+   "pumped"
+  ],
+  "extra": {
+   "return": {
+    "label": "סחרור מים חמים",
+    "color": "#e07a9a"
+   },
+   "vent": {
+    "label": "אוורור",
+    "color": "#2e9b4f"
+   }
+  },
+  "width_px": 2.4,
+  "selectedWidth_px": 4.5,
+  "consultantWidth_px": 1.6,
+  "consultantAlpha": 0.45,
+  "supersededAlpha": 0.18,
+  "verticalMarker_px": 4.5,
+  "override": {
+   "sewage": "#8b5a2b"
+  }
+ },
+ "nodes": {
+  "radius_px": 5,
+  "font_px": 10,
+  "manifoldSize_px": 9,
+  "color": "#1d2329"
+ },
+ "labels": {
+  "font_px": 10,
+  "minRunPx": 60
+ },
+ "compass": {
+  "size_px": 34
+ }
+}

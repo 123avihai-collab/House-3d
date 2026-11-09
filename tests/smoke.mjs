@@ -178,6 +178,38 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return Math.abs(feetRel - gs.topRel) < 0.06 || feetRel > gs.topRel ? 'ok' : `feet ${feetRel.toFixed(2)} vs GS1 ${gs.topRel}`;
     });
     if (info.walk !== 'ok') errors.push('walk on slab: ' + info.walk);
+    // mamad (data/architecture/mamad.json): a real click on the window opens it – each steel leaf slides its full travel into
+    // its niche inside the wall; the sliding door leaf moves its travel along the wall; a second click closes both
+    info.mamad = await (async () => {
+      const prep = await page.evaluate(() => {
+        const a = window.__app, M = a.data.mamad, W = M.window; a.setTool('inspect');
+        const P = (u, v) => a.coords.xz(W.originITM[0] + W.uITM[0] * u + W.vITM[0] * v, W.originITM[1] + W.uITM[1] * u + W.vITM[1] * v);
+        const [x, z] = P(0.25, 0.03), [cx, cz] = P(0.45, 2.5);
+        a.viewer.controls.target.set(x, 1.6, z); a.viewer.camera.position.set(cx, 1.7, cz); a.viewer.controls.update(); a.viewer.camera.updateMatrixWorld();
+        const v = new a.viewer.camera.position.constructor(x, 1.6, z).project(a.viewer.camera), r = a.viewer.renderer.domElement.getBoundingClientRect();
+        return { px: [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height], sleeves: a.registry.items.filter(i => i.tags.layer === 'mamadSleeves').length, want: M.sleeves.length };
+      });
+      if (prep.sleeves !== prep.want || !prep.want) return `sleeves ${prep.sleeves} / ${prep.want}`;
+      const pos = () => page.evaluate(() => { const a = window.__app, f = (id) => a.registry.items.find(i => i.meta.id === id);
+        const w = f('G09-leaves').object.children.filter(o => o.userData.keep).map(o => o.position.toArray()), d = f('G21-leaf').object.children[0].position.toArray();
+        return { w, d, st: [f('G09-leaves').meta.toggleState(), f('G21-leaf').meta.toggleState()] }; });
+      const p0 = await pos();
+      await page.waitForTimeout(600); await page.mouse.click(prep.px[0], prep.px[1]);
+      await page.evaluate(() => window.__app.registry.items.find(i => i.meta.id === 'G21' && i.tags.layer === 'mamadFrames').meta.onClick());   // via the cast frame
+      await page.waitForFunction(() => { const a = window.__app; return a.registry.items.filter(i => i.tags.layer === 'mamadLeaves').every(i => i.meta.toggleState() === 1 && i.meta.toggleSettled()); }, null, { timeout: 90000 }).catch(() => {});
+      const p1 = await pos(), T = await page.evaluate(() => ({ w: window.__app.data.mamad.window.leaves.map(l => l.travel_m), d: window.__app.data.mamad.door.leaf.travel_m }));
+      const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+      if (p1.st.join() !== '1,1') return 'not opened by the click: ' + p1.st.join();
+      for (let i = 0; i < 2; i++) if (Math.abs(dist(p0.w[i], p1.w[i]) - T.w[i]) > 0.001) return `window leaf ${i} moved ${dist(p0.w[i], p1.w[i]).toFixed(3)} / ${T.w[i]}`;
+      if (Math.abs(dist(p0.d, p1.d) - T.d) > 0.001) return `door leaf moved ${dist(p0.d, p1.d).toFixed(3)} / ${T.d}`;
+      await page.evaluate(() => window.__app.registry.items.filter(i => i.tags.layer === 'mamadLeaves').forEach(i => i.meta.onClick()));
+      await page.waitForFunction(() => window.__app.registry.items.filter(i => i.tags.layer === 'mamadLeaves').every(i => i.meta.toggleSettled()), null, { timeout: 90000 }).catch(() => {});
+      const p2 = await pos();
+      if (dist(p0.w[0], p2.w[0]) > 0.001 || dist(p0.d, p2.d) > 0.001) return 'did not close back';
+      await page.evaluate(() => document.getElementById('info').classList.add('hidden'));
+      return 'ok';
+    })();
+    if (info.mamad !== 'ok') errors.push('mamad open / close: ' + info.mamad);
     // house map: a plan per floor, a click on the ground slab starts walk mode there; a click while walking opens the inspect card
     info.mapWalk = await (async () => {
       const r = await page.evaluate(() => {

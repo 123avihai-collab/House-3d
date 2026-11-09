@@ -172,7 +172,6 @@ ol.notes.rebar table.kv { font-size: 12px; margin: 2px 0; }
   #panel { width: min(86vw, 360px); top: var(--top-h); right: 0; bottom: calc(var(--stage-h) + var(--status-h)); transform: translateX(110%); visibility: hidden; transition: transform .25s, visibility .25s, width .2s; border-radius: 14px 0 0 14px; box-shadow: -6px 0 18px rgba(0,0,0,.35); z-index: 18; }
   body.panel-wide #panel { width: 100vw; border-radius: 0; }
   body.panel-open #panel { transform: none; visibility: visible; display: flex; }
-  #minimap { width: 120px !important; height: 120px !important; }
   #info { top: auto; bottom: 140px; }
   #walkspeed { left: auto; right: 10px; bottom: 168px; }
 }
@@ -199,8 +198,12 @@ ol.notes.rebar table.kv { font-size: 12px; margin: 2px 0; }
 .tagbtn.off { opacity: 0.35; text-decoration: line-through; }
 .op-badge { border-color: #29b6f6; color: #81d4fa; }
 #minimapClose { position: absolute; bottom: 10px; right: 10px; transform: translate(-4px, calc(-1 * var(--mm-size, 180px) + 4px)); width: 24px; height: 24px; padding: 0; font-size: 13px; line-height: 1; border-radius: 6px; background: rgba(30, 34, 40, .88); z-index: 6; }
-body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
-@media (max-width: 760px) { #minimapClose { --mm-size: 120px; } }
+body.no-minimap #minimap, body.no-minimap #minimapClose, body.no-minimap #mapbar { display: none; }
+/* minimap bar: house / site, floor, enlarge (09.11.2026) */
+#mapbar { position: absolute; right: 10px; bottom: calc(14px + var(--mm-size, 180px)); width: var(--mm-size, 180px); display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; z-index: 6; }
+#mapbar button { font-size: 11px; padding: 2px 6px; background: rgba(30, 34, 40, .9); border-radius: 6px; }
+#mapbar button.on { background: var(--accent); color: #111; }
+@media (max-width: 760px) { #mapbar button { font-size: 12px; padding: 4px 7px; } }
 
 /* edit mode – correction notes for Claude */
 .lbl.fix-pin { background: #00b8d4; color: #fff; border-radius: 10px; padding: 1px 6px; font-weight: 700; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
@@ -270,7 +273,7 @@ table.mtable td.acts { white-space: nowrap; }
   #measurebar { top: auto; bottom: 10px; left: 56px; right: 10px; max-width: none; justify-content: center; flex-wrap: nowrap; }
   #measurebar button { min-height: 36px; min-width: 38px; padding: 4px 8px; }
   #measurebar .t { display: none; }
-  body:has(#measurebar:not(.hidden)) #minimap, body:has(#measurebar:not(.hidden)) #minimapClose { display: none; }
+  body:has(#measurebar:not(.hidden)) #minimap, body:has(#measurebar:not(.hidden)) #minimapClose, body:has(#measurebar:not(.hidden)) #mapbar { display: none; }
 }
 
 .oc .q.applied { background: #2e7d32; }

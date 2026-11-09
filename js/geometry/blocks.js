@@ -13,8 +13,7 @@ export function buildBlocks(ctx) {
   const fullM = new THREE.MeshStandardMaterial({ color: DB.blockColor, roughness: 0.9 });
   const cutM = new THREE.MeshStandardMaterial({ color: DB.cutBlockColor, roughness: 0.9 });
   const boxM = new THREE.MeshStandardMaterial({ color: DB.shutterBoxColor, roughness: 0.6 });
-  const lintM = new THREE.MeshStandardMaterial({ color: DB.lintelColor, roughness: 0.85 });
-  const LT = data.blocksCfg?.lintel; const SIDE = { L: 'שמאל', R: 'ימין' };
+  const lintelM = new THREE.MeshStandardMaterial({ color: DB.lintelColor, roughness: 0.85 });
   const unit = new THREE.BoxGeometry(1, 1, 1);
   const FLOOR = { unit: 'יחידת דיור', ground: 'קומת קרקע', first: "קומה א'" };
   const stats = { full: 0, cut: 0, area_m2: 0, byThickness: {}, boxes: 0 };
@@ -45,6 +44,12 @@ export function buildBlocks(ctx) {
       });
       im.castShadow = im.receiveShadow = true; g.add(im);
     }
+    // lintels over the openings (blocks.json lintels – provisional: typical one-course lintel, no detail in the sources)
+    for (const l of w.lintels || []) {
+      const m = new THREE.Mesh(unit, lintelM), c = p0.clone().addScaledVector(dir, (l.s0 + l.s1) / 2); c.y = (l.z0 + l.z1) / 2;
+      m.scale.set(l.s1 - l.s0, l.z1 - l.z0, t); m.position.copy(c); m.quaternion.copy(q); m.castShadow = m.receiveShadow = true; g.add(m);
+      g.add(new THREE.BoxHelper(m, DF.provisionalEdgeColor)); stats.lintels = (stats.lintels || 0) + 1;
+    }
     if (w.status !== 'source') g.add(new THREE.BoxHelper(g, DF.provisionalEdgeColor));
     const tc = Math.round(t * 100);
     stats.full += full.length; stats.cut += cut.length; stats.area_m2 += w.area_m2;
@@ -53,27 +58,11 @@ export function buildBlocks(ctx) {
       id: w.id, name: `קיר בלוקים ${tc} ס"מ – ${FLOOR[w.floor] || w.floor}`, status: w.status,
       rows: [['בלוק', `${B.block.type} ${Math.round(BL * 100)}×${Math.round(BH * 100)}, עובי ${tc}`], ['אורך × גובה', `${L.toFixed(2)} × ${(w.topRel - w.bottomRel).toFixed(2)} מ'`],
         ['נדבכים', `${w.courses}`], ['בלוקים', `${full.length} שלמים + ${cut.length} חתוכים`], ['שטח נטו', `${w.area_m2.toFixed(2)} מ"ר`],
-        ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
+        ['פתחים', w.openings.map(o => o.id + (o.shutter ? ' (תריס)' : '')).join(', ') || '—'],
+        ['משקופים', (w.lintels || []).map(l => `${l.openings.join('+')}: ${Math.round((l.s1 - l.s0) * 100)}×${Math.round((l.z1 - l.z0) * 100)} (הישענות ${l.bearing.map(b => Math.round(b * 100)).join(' / ')}) – זמני`).join('; ') || '—'], ['תחתית / ראש', `${coords.fmtH(coords.H0 + w.bottomRel)} / ${coords.fmtH(coords.H0 + w.topRel)}`]],
       note: [w.note, 'פריסת הנדבכים: חצי בלוק בדילוג בכל נדבך שני; נדבך עליון חתוך לגובה התקרה / הקורה.'].filter(Boolean).join(' '), source: w.source,
     });
     scene.add(g);
-    // door lintels: lintel block, one course on the head, bearing into the blocks (tools/extract_blocks.py)
-    for (const lt of w.lintels || []) {
-      const c = p0.clone().addScaledVector(dir, (lt.s0 + lt.s1) / 2); c.y = (lt.z0 + lt.z1) / 2;
-      const m = new THREE.Mesh(unit, lintM); m.scale.set(lt.s1 - lt.s0 - DB.joint_m, lt.z1 - lt.z0 - DB.joint_m, t); m.position.copy(c); m.quaternion.copy(q);
-      m.castShadow = m.receiveShadow = true;
-      const lg = new THREE.Group(); lg.add(m); lg.add(new THREE.BoxHelper(m, DF.provisionalEdgeColor));
-      const net = lt.length_m - lt.bearL_m - lt.bearR_m;
-      const bear = [...lt.onConcrete.map(x => `${SIDE[x]} – על הבטון`), ...(lt.continues || []).map(x => `${SIDE[x]} – המשך בקטע הסמוך`), ...(lt.shortBearing || []).map(x => `${SIDE[x]} – בלי הישענות, לבדיקה`)];
-      registry.add(lg, { floor: w.floor, system: 'walls', stage: 'walls', layer: 'lintels', step: 'blockWalls' }, {
-        id: lt.id, name: `משקוף דלת ${lt.opening} – ${t >= (LT?.thinBelow_m ?? 0) ? LT?.type : LT?.typeThin}`, status: lt.status,
-        rows: [['אורך משקוף', `${Math.round(lt.length_m * 100)} ס"מ (פתח ${Math.round(net * 100)} + הישענות ${Math.round(lt.bearL_m * 100)} / ${Math.round(lt.bearR_m * 100)})`],
-          ['חתך', `${Math.round(t * 100)} × ${Math.round((lt.z1 - lt.z0) * 100)} ס"מ (עובי הקיר × נדבך)`], ['תחתית', coords.fmtH(coords.H0 + lt.z0)], ['קיר', w.id],
-          ['הישענות', bear.join('; ') || `${Math.round((LT?.bearing_m?.value ?? 0) * 100)} ס"מ בכל צד`]],
-        note: `בחירת אביחי: בלוק משקוף כמקובל. הישענות ${Math.round((LT?.bearing_m?.value ?? 0) * 100)} ס"מ – ${LT?.bearing_m?.source || ''}. זיון ויציקה לפי פרט יצרן / מהנדס.`, source: w.source,
-      });
-      scene.add(lg); stats.lintels = (stats.lintels || 0) + 1; stats.lintel_m = (stats.lintel_m || 0) + lt.length_m;
-    }
   }
   // roller-shutter boxes: inside the top of the opening; depth = the host wall (blocks.json depth_m – built-in box, Avihai 08.11)
   for (const b of B.shutterBoxes) {

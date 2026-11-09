@@ -509,7 +509,6 @@ export class UI {
         ...(() => { const B = app.data.blocksCfg?.block, face = B ? B.length_m * B.height_m : 0.15; const W = app.data.blocksCfg?.waste_pct?.value ?? 0;
           return [...Object.entries(q.blocks.byThickness).sort((a, b) => +a[0] - +b[0]).map(([t, v]) => tr(`עובי ${t} ס"מ`, `${v.area_m2.toFixed(1)} מ"ר ≈ ${Math.round(v.area_m2 / face)} בלוקים (בקיר: ${v.full} שלמים + ${v.cut} חתוכים)`)),
             tr('סה"כ להזמנה', `${Math.round(q.blocks.area_m2 / face * (1 + W / 100))} בלוקים (${q.blocks.area_m2.toFixed(1)} מ"ר + ${W}% פחת, זמני)`)]; })(),
-        tr('משקופי דלתות (בלוק משקוף)', `${q.blocks.lintels || 0} · ${(q.blocks.lintel_m || 0).toFixed(2)} מ' (הישענות זמנית)`),
         tr('ארגזי תריס גלילה', `${q.blocks.boxes}`)) : h('p', { class: 'muted' }, '—'),
       h('h4', {}, 'ביוב וניקוז'),
       q.plumbing ? h('table', { class: 'kv' }, tr('שוחות', `${q.plumbing.chambers}`), tr('קווים', `${q.plumbing.pipes} · ${q.plumbing.pipeLength_m.toFixed(1)} מ'`), tr('שרוולים נדרשים', `${q.plumbing.sleeves}`)) : '',

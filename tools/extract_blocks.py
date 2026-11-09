@@ -101,15 +101,73 @@ def shutter_boxes():
     return out
 
 
-def main():
-    CFG = J('data/config/blocks.json')
-    BL, BH = CFG['block']['length_m'], CFG['block']['height_m']
-    LT = CFG['lintel']; BEAR = LT['bearing_m']['value']
+def count_blocks(L, zb, zt, wo, BL, BH):
+    """courses (bond: half a block on every other course), blocks clipped by the openings -> full, cut, courses, net area"""
+    nfull = ncut = 0; area = L * (zt - zb); k = 0; z = zb
+    while z < zt - 0.005:
+        h = min(BH, zt - z); off = (BL / 2) * (k % 2)
+        segs = [(0.0, L)]
+        for o in wo:
+            if o['z0'] < z + h - 0.005 and o['z1'] > z + 0.005:
+                segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
+        for a, b in segs:
+            x = -off
+            while x < b - 0.005:
+                xa, xb = max(x, a), min(x + BL, b)
+                if xb - xa > 0.005:
+                    if xb - xa >= BL - 0.005 and h >= BH - 0.005: nfull += 1
+                    else: ncut += 1
+                x += BL
+        k += 1; z += h
+    for o in wo: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])
+    return nfull, ncut, k, area
+
+
+def split_by_levels(run, under_fl, over_fl, step=0.05, min_len=0.15):
+    """a run that stands on (or carries) concrete at different levels along its length – part on the slab, part on an
+    upturned beam (ק27) – is split where the level changes, so each part gets its own bottom / top (no gap under / over the
+    blocks). Levels sampled on the axis every 5 cm; parts shorter than 15 cm join their neighbour."""
+    (x0, y0), (x1, y1) = run['axisITM']; L = run['length_m']
+    if L < 2 * min_len: return [run]
+    ux, uy = (x1 - x0) / L, (y1 - y0) / L
+    def lev(lst, pt, pick):
+        z = [zz for g, zz in lst if g.covers(pt)]
+        return round(pick(z), 2) if z else None
+    n = int(L / step); keys = []
+    for i in range(n + 1):
+        sp = min(L, (i + 0.5) * step) if i < n else L - 0.01
+        pt = Point(x0 + ux * sp, y0 + uy * sp)
+        keys.append((lev(under_fl, pt, max), lev(over_fl, pt, min)))
+    groups = []
+    for i, k in enumerate(keys):
+        s0 = i * step
+        if groups and groups[-1][2] == k: groups[-1][1] = min(L, s0 + step)
+        else: groups.append([s0, min(L, s0 + step), k])
+    groups[-1][1] = L
+    while len(groups) > 1:                                    # absorb short parts into the longer neighbour
+        i = min(range(len(groups)), key=lambda j: groups[j][1] - groups[j][0])
+        if groups[i][1] - groups[i][0] >= min_len: break
+        j = i - 1 if i == len(groups) - 1 or (i > 0 and groups[i - 1][1] - groups[i - 1][0] >= groups[i + 1][1] - groups[i + 1][0]) else i + 1
+        a, b = sorted((i, j)); groups[a] = [groups[a][0], groups[b][1], groups[j][2]]; del groups[b]
+        k2 = []                                               # re-merge equal neighbours
+        for gg in groups:
+            if k2 and k2[-1][2] == gg[2]: k2[-1][1] = gg[1]
+            else: k2.append(gg)
+        groups = k2
+    if len(groups) == 1: return [run]
+    out = []
+    for a, b, _ in groups:
+        ax = [[r3(x0 + ux * a), r3(y0 + uy * a)], [r3(x0 + ux * b), r3(y0 + uy * b)]]
+        out.append({**run, 'axisITM': ax, 'length_m': r3(b - a), 'poly': LineString(ax).buffer(run['thickness_m'] / 2, cap_style=2), 'splitByLevel': True})
+    return out
+
+
+def context():
+    """concrete per floor, the surfaces under / over each floor (polygon, level rel. ±0.00) and the building outline –
+    shared with tools/verify_blocks.py"""
     FR, FG, FF, FRF = J('data/structure/framing.json'), J('data/structure/floor-ground.json'), J('data/structure/floor-first.json'), J('data/structure/floor-roof.json')
     PER, OPN = J('data/structure/perimeter.json'), J('data/architecture/openings.json')
     ang = house_axis(FG)
-    boxes = shutter_boxes()
-    msp = ezdxf.readfile(os.path.join(ROOT, O.SRC)).modelspace()
     bpoly = lambda b: LineString(b['axisITM']).buffer(b['width_m'] / 2, cap_style=2)
     # concrete per floor, the surfaces under / over each floor, and the building outline
     conc = {
@@ -119,7 +177,9 @@ def main():
     }
     under = {
         'unit': [(P(s.get('outlineITM') or s['footprintITM'], s.get('holesITM')), s['top']) for s in FR['slabs'] if s.get('level') == 'basement'],
-        'ground': [(P(s['footprintITM'], s.get('holesITM')), s['topRel']) for s in FG['slab']],
+        'ground': [(P(s['footprintITM'], s.get('holesITM')), s['topRel']) for s in FG['slab']]
+                  + [(bpoly(b), b['topRel']) for b in FR['groundBeams'] if b.get('axisITM') and b.get('sheet') == 'K-21']   # upturned ground beams (B-45 +0.20)
+                  + [(P(c['footprintITM'], c.get('holesITM')), c['topRel']) for c in FG.get('basementWallCaps', [])],
         'first': [(P(s['footprintITM'], s.get('holesITM')), s['topRel']) for s in FG['ceiling']['slab']] + [(bpoly(b), b['topRel']) for b in FG['ceiling']['beams'] if b.get('axisITM')],
     }
     over = {
@@ -127,9 +187,21 @@ def main():
                 + [(bpoly(b), b['bottomRel']) for b in FR['groundBeams'] if b.get('axisITM') and b.get('sheet') == 'K-21'],
         'ground': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FG['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FG['ceiling']['beams'] if b.get('axisITM')]
                   + [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']],
-        'first': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FRF['ceiling']['beams'] if b.get('axisITM')],
+        'first': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FRF['ceiling']['beams'] if b.get('axisITM')]
+                 + [(P(w['footprintITM'], w.get('holesITM')), w['bottomRel']) for w in FRF['walls'] if 6 <= w['bottomRel'] < 7],   # roof slab edge / parapets
     }
     inside = {fl: unary_union([g for g, _ in over[fl]] + [g for g, _ in under[fl]]).buffer(0.35) for fl in over}
+    return dict(FR=FR, FG=FG, FF=FF, FRF=FRF, PER=PER, OPN=OPN, ang=ang, conc=conc, under=under, over=over, inside=inside, bpoly=bpoly)
+
+
+def main():
+    CFG = J('data/config/blocks.json')
+    BL, BH = CFG['block']['length_m'], CFG['block']['height_m']
+    C = context()
+    FR, FG, FF, FRF, PER, OPN, ang = (C[k] for k in ('FR', 'FG', 'FF', 'FRF', 'PER', 'OPN', 'ang'))
+    conc, under, over, inside, bpoly = (C[k] for k in ('conc', 'under', 'over', 'inside', 'bpoly'))
+    boxes = shutter_boxes()
+    msp = ezdxf.readfile(os.path.join(ROOT, O.SRC)).modelspace()
     walls, Q = [], defaultdict(lambda: defaultdict(float))
     boxes_out, lintels, outside = [], [], []
     for fl, (blk, dxf, ffl, _) in O.FLOORS.items():
@@ -168,13 +240,13 @@ def main():
             _, a, b = min(ext); mid = (a + b) / 2          # the section nearest the opening's centre line
             f = rect(o['width_m'] + 0.02, b - a); fills.append(affinity.translate(f, -uy * mid, ux * mid))
         R = unary_union([R] + fills)
-        C = unary_union(conc[fl]).buffer(0.01)
+        C = unary_union(conc[fl]).buffer(0.0005)   # the blocks run up to the concrete face (was 1 cm – a gap at every joint, ק26 / ק33)
         # morphological opening: drawing slivers < 4 cm (line ends, hatch seams) are not wall – they made a 10 cm partition at a
         # door look 45 cm thick
         pieces = [q for g in polys(R.difference(C).intersection(inside[fl])) for q in polys(g.buffer(-0.02, join_style=2).buffer(0.02, join_style=2))
                   if q.area > 0.03 and 2 * q.area / q.length > 0.05]
         for g in pieces:
-            for run in rect_runs(g, ang):
+            for run in [r_ for r0 in rect_runs(g, ang) for r_ in split_by_levels(r0, under[fl], over[fl])]:
                 rp = run['poly']
                 if run['thickness_m'] < 0.06 or run['length_m'] < 0.10: continue
                 bot = [z for s, z in under[fl] if s.intersection(rp).area > 0.3 * rp.area]
@@ -199,52 +271,12 @@ def main():
                     if rp.buffer(0.05).contains(c) and abs(o['axisITM'][0] * uy - o['axisITM'][1] * ux) / (math.hypot(*o['axisITM']) or 1) < 0.3:
                         s = (c.x - x0) * ux + (c.y - y0) * uy
                         wo.append({'id': o['id'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': o['sillRel'], 'z1': o['headRel'],
-                                   'clip': [sd for sd, c in (('L', s - o['width_m'] / 2 < -0.005), ('R', s + o['width_m'] / 2 > L + 0.005)) if c],
                                    'shutter': ('גלילה' in o['name'] or 'תריס' in o['name'])})
-                # door lintels (owner's choice 08.11: lintel block): one course high on the head, bearing into the blocks on both
-                # sides (data/config/blocks.json lintel.bearing_m – common practice, provisional); a side with less block than
-                # that (the door next to concrete) rests on the concrete. No lintel when the head is (almost) at the concrete above.
-                lts = []
-                # a door wider than this run (the run starts inside the door): what is just past the run end – concrete or
-                # the next block run
-                def near_conc(sd, o):
-                    sp = -0.03 if sd == 'L' else L + 0.03
-                    return C.buffer(0.03).contains(Point(x0 + ux * sp, y0 + uy * sp))
-                for o in wo:
-                    od = next(x for x in ops if x['id'] == o['id'])
-                    if od['kind'] not in LT['kinds']: continue
-                    gap = zt - o['z1']
-                    if gap < LT['minHeadGap_m']: continue
-                    bl, br = min(BEAR, o['s0']), min(BEAR, L - o['s1'])
-                    nth = sum(1 for w_ in walls for x in w_.get('lintels', []) if x['opening'] == o['id'])
-                    lts.append({'id': f"LT-{o['id']}" + (f"-{nth + 1}" if nth or o['clip'] else ''), 'opening': o['id'], 's0': r3(o['s0'] - bl), 's1': r3(o['s1'] + br), 'z0': o['z1'], 'z1': r3(o['z1'] + min(BH, gap)),
-                                'bearL_m': r3(bl), 'bearR_m': r3(br), 'onConcrete': [sd for sd, b in (('L', bl), ('R', br)) if b < BEAR - 0.005 and (sd not in o['clip'] or near_conc(sd, o))],
-                                'continues': [sd for sd in o['clip'] if not near_conc(sd, o)],   # checked below: another run holds the rest of the door
-                                'length_m': r3(o['s1'] - o['s0'] + bl + br), 'status': 'provisional'})
-                cut = wo + lts
-                # courses (bond: half a block on every other course), blocks clipped by openings and lintels
-                nfull = ncut = 0; area = L * (zt - zb)
-                k = 0; z = zb
-                while z < zt - 0.005:
-                    h = min(BH, zt - z); off = (BL / 2) * (k % 2)
-                    segs = [(0.0, L)]
-                    for o in cut:
-                        if o['z0'] < z + h - 0.005 and o['z1'] > z + 0.005:
-                            segs = [p for a, b in segs for p in ((a, min(b, o['s0'])), (max(a, o['s1']), b)) if p[1] - p[0] > 0.005]
-                    for a, b in segs:
-                        x = -off
-                        while x < b - 0.005:
-                            xa, xb = max(x, a), min(x + BL, b)
-                            if xb - xa > 0.005:
-                                if xb - xa >= BL - 0.005 and h >= BH - 0.005: nfull += 1
-                                else: ncut += 1
-                            x += BL
-                    k += 1; z += h
-                for o in cut: area -= (o['s1'] - o['s0']) * (o['z1'] - o['z0'])   # net block area (lintels counted apart)
+                nfull, ncut, k, area = count_blocks(L, zb, zt, wo, BL, BH)
                 tcm = round(run['thickness_m'] * 100)
                 Q[fl][f't{tcm}_full'] += nfull; Q[fl][f't{tcm}_cut'] += ncut; Q[fl][f't{tcm}_m2'] += area
                 walls.append({'id': f'BK-{fl[0].upper()}{len(walls) + 1}', 'floor': fl, 'axisITM': run['axisITM'], 'length_m': L, 'thickness_m': run['thickness_m'],
-                              'bottomRel': r3(zb), 'topRel': r3(zt), 'openings': wo, 'lintels': lts, 'courses': k, 'blocksFull': nfull, 'blocksCut': ncut, 'area_m2': r3(area),
+                              'bottomRel': r3(zb), 'topRel': r3(zt), 'openings': wo, 'courses': k, 'blocksFull': nfull, 'blocksCut': ncut, 'area_m2': r3(area),
                               'status': st, 'source': f'{O.SRC} (תוכנית Revit {blk}: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל',
                               **({'levelNote': note} if note else {})})
         for o in ops:
@@ -257,6 +289,47 @@ def main():
     # a block run on the same floor along ≥ half its length -> one run, as thick as both (levels / blocks from the run)
     def strip(a, t, L):
         (x0, y0), (x1, y1) = a; return LineString(a).buffer(t / 2, cap_style=2), ((x1 - x0) / L, (y1 - y0) / L)
+    # two runs of one straight wall left a few cm apart (hatch seam at a jamb / door frame, ק26 / ק33): extend both to meet
+    for i, w in enumerate(walls):
+        for v in walls[i + 1:]:
+            if v['floor'] != w['floor'] or abs(v['thickness_m'] - w['thickness_m']) > 0.015 or (w['bottomRel'], w['topRel']) != (v['bottomRel'], v['topRel']): continue
+            (a0, a1), (b0, b1) = w['axisITM'], v['axisITM']; ux, uy = (a1[0] - a0[0]) / w['length_m'], (a1[1] - a0[1]) / w['length_m']
+            vx, vy = (b1[0] - b0[0]) / v['length_m'], (b1[1] - b0[1]) / v['length_m']
+            if abs(ux * vy - uy * vx) > 0.02: continue
+            best = min(((math.dist(p, q), pi, qi) for pi, p in enumerate((a0, a1)) for qi, q in enumerate((b0, b1))), key=lambda t: t[0])
+            d, pi, qi = best
+            p, q = (a0, a1)[pi], (b0, b1)[qi]
+            lat = abs((q[0] - p[0]) * -uy + (q[1] - p[1]) * ux)
+            if not (0.005 < d < 0.08) or lat > 0.01: continue
+            m = [r3((p[0] + q[0]) / 2), r3((p[1] + q[1]) / 2)]
+            for r_, idx, old in ((w, pi, p), (v, qi, q)):
+                ax = [list(r_['axisITM'][0]), list(r_['axisITM'][1])]; ax[idx] = m
+                Ln = r3(math.dist(*ax)); grow = Ln - r_['length_m']
+                if idx == 0:                                         # the run grew at its start: openings shift along
+                    for o in r_['openings']: o['s0'] = r3(o['s0'] + grow); o['s1'] = r3(o['s1'] + grow)
+                r_['axisITM'] = ax; r_['length_m'] = Ln
+                r_['blocksFull'], r_['blocksCut'], r_['courses'], ar = count_blocks(Ln, r_['bottomRel'], r_['topRel'], r_['openings'], BL, BH); r_['area_m2'] = r3(ar)
+                r_['joinedGap_m'] = r3(d)
+    # lintels: every opening with blocks over its head gets a lintel (config lintel: one course high, bearing each side –
+    # provisional, no detail in the sources: open-issues #125; Avihai 09.11 ק23/ק24/ק28–ק30). Overlapping lintels of one
+    # wall become one. The blocks are cut around it (count_blocks / js/geometry/blocks.js).
+    LT = CFG.get('lintel')
+    for w in walls:
+        w['lintels'] = []
+        if not LT: continue
+        for o in sorted(w['openings'], key=lambda o: o['s0']):
+            if o['z1'] >= w['topRel'] - 0.02 or o['s1'] - o['s0'] >= w['length_m'] - 0.02: continue
+            h = min(LT['height_m'], w['topRel'] - o['z1'])
+            s0, s1 = max(0.0, o['s0'] - LT['bearing_m']), min(w['length_m'], o['s1'] + LT['bearing_m'])
+            last = w['lintels'][-1] if w['lintels'] else None
+            if last and s0 <= last['s1'] + 0.01 and abs(last['z0'] - o['z1']) < 0.01:
+                last['s1'] = r3(max(last['s1'], s1)); last['openings'].append(o['id']); continue
+            w['lintels'].append({'s0': r3(s0), 's1': r3(s1), 'z0': o['z1'], 'z1': r3(o['z1'] + h), 'openings': [o['id']],
+                                 'bearing': [r3(o['s0'] - s0), r3(s1 - o['s1'])], 'status': LT['status']})
+        for i, l in enumerate(w['lintels']): l['id'] = f"{w['id']}-L{i + 1}"
+        if w['lintels']:
+            w['blocksFull'], w['blocksCut'], w['courses'], ar = count_blocks(w['length_m'], w['bottomRel'], w['topRel'], w['openings'] + w['lintels'], BL, BH)
+            w['area_m2'] = r3(ar)
     for o in list(outside):
         po, (ox, oy) = strip(o['axisITM'], o['thickness_m'], o['length_m'])
         for w in walls:
@@ -284,16 +357,6 @@ def main():
         else: w['status'] = 'approx'; w['note'] = f'עובי {t} ס"מ לא תואם לעוביי הקירות בתוכנית ({dom}) – לבדיקה'
         tc = round(w['thickness_m'] * 100)
         Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
-        for lt in w['lintels']: Q[w['floor']][f't{tc}_lintels'] += 1; Q[w['floor']][f't{tc}_lintel_m'] += lt['length_m']
-    # door split over two runs: the cut side continues in the other piece; a short side with nothing there (door at the end
-    # of the wall, next to a crossing block wall) is flagged – the lintel has no bearing on that side
-    for w in walls:
-        for lt in w['lintels']:
-            n = sum(1 for w_ in walls for x in w_['lintels'] if x['opening'] == lt['opening'])
-            short = [sd for sd, b in (('L', lt['bearL_m']), ('R', lt['bearR_m'])) if b < BEAR - 0.005 and sd not in lt['onConcrete']]
-            lt['continues'] = [sd for sd in lt['continues'] if n > 1]
-            lt['shortBearing'] = [sd for sd in short if sd not in lt['continues']]
-            if n == 1 and lt['id'].endswith('-1'): lt['id'] = lt['id'][:-2]
     # the box height written in the permit plans' dimension chains ("220 +35") wins over the family elevation measure
     PL = J('tools/shutter-box-plans.json')
     for r in PL['readings']:
@@ -335,11 +398,13 @@ def main():
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},
            'dominantThickness_cm': dom,
-           'quantities': {fl: {k: (round(v, 2) if k.endswith(('m2', '_m')) else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
+           'lintels': [{'id': l['id'], 'run': w['id'], 'floor': w['floor'], 'openings': l['openings'], 'length_m': r3(l['s1'] - l['s0']), 'height_m': r3(l['z1'] - l['z0']),
+                        'thickness_m': w['thickness_m'], 'bearing_m': l['bearing'], 'status': l['status']} for w in walls for l in w.get('lintels', [])],
+           'lintelCfg': CFG.get('lintel'),
+           'quantities': {fl: {k: (round(v, 2) if k.endswith('m2') else int(v)) for k, v in sorted(q.items())} for fl, q in Q.items()}}
     json.dump(out, open(os.path.join(ROOT, 'data/architecture/blocks.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('walls', len(walls), {fl: sum(1 for w in walls if w['floor'] == fl) for fl in O.FLOORS})
     print('quantities', json.dumps(out['quantities'], ensure_ascii=False))
-    print('lintels', [(lt['id'], lt['length_m'], lt['onConcrete'], lt['continues'], lt['shortBearing']) for w in walls for lt in w['lintels']])
     print('boxes', [(b['opening'], b['box_m'], b['status']) for b in boxes_out])
 
 
@@ -382,19 +447,10 @@ def export_xlsx(path=os.path.join(ROOT, 'docs/quantities/blocks-quantities.xlsx'
           [[b['opening'], FL[b['floor']], OPN[b['opening']]['name'], round(b['width_m'] * 100), round(b['box_m'] * 100) if b['box_m'] else '',
             round(b['depth_m'] * 100) if b.get('depth_m') else '', b.get('hostWall') or '', b['status'], b['source'], b.get('depthSource', '')] for b in D['shutterBoxes']],
           [8, 12, 44, 11, 15, 15, 10, 10, 60, 40])
-    LT = CFG['lintel']; byO = {}; SD = {'L': 'שמאל', 'R': 'ימין'}
-    bear_note = lambda lt: '; '.join([f"{SD[x]}: על הבטון" for x in lt['onConcrete']] + [f"{SD[x]}: המשך בקטע הקיר הסמוך" for x in lt.get('continues', [])]
-                                     + [f"{SD[x]}: בלי הישענות – לבדיקה" for x in lt.get('shortBearing', [])]) or '—'
-    for w in D['walls']:
-        for lt in w.get('lintels', []): byO[lt['id']] = (w, lt)
-    lrows = [[lt['id'], lt['opening'], FL[w['floor']], w['id'], round(w['thickness_m'] * 100), LT['type'] if w['thickness_m'] >= LT['thinBelow_m'] else LT['typeThin'],
-              round((lt['length_m'] - lt['bearL_m'] - lt['bearR_m']) * 100), round(lt['bearL_m'] * 100), round(lt['bearR_m'] * 100), round(lt['length_m'] * 100),
-              round((lt['z1'] - lt['z0']) * 100), bear_note(lt), lt['status']] for w, lt in byO.values()]
-    n = len(lrows) + 1
-    lrows.append(['סה"כ', f'=COUNTA(A2:A{n})', '', '', '', '', '', '', '', f'=SUM(J2:J{n})'])
-    sheet(wb.create_sheet('משקופים'), ['מזהה', 'פתח', 'קומה', 'קיר', 'עובי (ס"מ)', 'סוג', 'פתח נטו (ס"מ)', 'הישענות שמאל', 'הישענות ימין', 'אורך משקוף (ס"מ)', 'גובה (ס"מ)', 'הישענות – הערה', 'סטטוס'],
-          lrows, [10, 7, 12, 8, 9, 40, 12, 12, 12, 15, 9, 34, 11])
-    ws = wb['משקופים']; ws.append([]); ws.append([f"הישענות {round(LT['bearing_m']['value'] * 100)} ס\"מ בכל צד – {LT['bearing_m']['source']}. גובה = נדבך אחד."])
+    sheet(wb.create_sheet('משקופים'), ['משקוף', 'קיר', 'קומה', 'פתחים', 'אורך (ס"מ)', 'גובה (ס"מ)', 'עובי (ס"מ)', 'הישענות (ס"מ)', 'סטטוס'],
+          [[l['id'], l['run'], FL[l['floor']], ', '.join(l['openings']), round(l['length_m'] * 100), round(l['height_m'] * 100), round(l['thickness_m'] * 100),
+            ' / '.join(str(round(b * 100)) for b in l['bearing_m']), l['status']] for l in D.get('lintels', [])] + [['סה"כ', '', '', '', round(sum(l['length_m'] for l in D.get('lintels', [])) * 100), '', '', '', '']],
+          [12, 10, 12, 14, 11, 11, 11, 14, 12])
     os.makedirs(os.path.dirname(path), exist_ok=True); wb.save(path); print('xlsx', path)
 
 

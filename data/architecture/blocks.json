@@ -284,7 +284,7 @@
    "courses": 14,
    "blocksFull": 57,
    "blocksCut": 57,
-   "area_m2": 12.974,
+   "area_m2": 12.978,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -397,7 +397,7 @@
    "courses": 15,
    "blocksFull": 58,
    "blocksCut": 66,
-   "area_m2": 13.06,
+   "area_m2": 13.059,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -601,7 +601,7 @@
    "courses": 15,
    "blocksFull": 29,
    "blocksCut": 36,
-   "area_m2": 6.576,
+   "area_m2": 6.572,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -693,7 +693,7 @@
    "courses": 15,
    "blocksFull": 21,
    "blocksCut": 24,
-   "area_m2": 4.857,
+   "area_m2": 4.856,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [],
@@ -760,7 +760,7 @@
    "courses": 15,
    "blocksFull": 31,
    "blocksCut": 41,
-   "area_m2": 7.414,
+   "area_m2": 7.418,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -1419,7 +1419,7 @@
    "courses": 15,
    "blocksFull": 36,
    "blocksCut": 26,
-   "area_m2": 6.888,
+   "area_m2": 6.884,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -1647,19 +1647,19 @@
      576249.695
     ],
     [
-     179595.768,
-     576250.456
+     179595.655,
+     576250.176
     ]
    ],
-   "length_m": 0.82,
+   "length_m": 0.518,
    "thickness_m": 0.1,
    "bottomRel": -0.15,
    "topRel": 3.45,
    "openings": [],
    "courses": 15,
-   "blocksFull": 7,
-   "blocksCut": 23,
-   "area_m2": 2.952,
+   "blocksFull": 0,
+   "blocksCut": 22,
+   "area_m2": 1.865,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [],
@@ -1669,7 +1669,8 @@
     "sign": 1,
     "g": 0.18
    },
-   "courseDatum": -0.15
+   "courseDatum": -0.15,
+   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-G39) – בשרטוט היא חוצה אותו."
   },
   {
    "id": "BK-G39",
@@ -1680,11 +1681,11 @@
      576249.053
     ],
     [
-     179595.758,
-     576250.297
+     179595.664,
+     576250.335
     ]
    ],
-   "length_m": 3.322,
+   "length_m": 3.424,
    "thickness_m": 0.3,
    "bottomRel": -0.15,
    "topRel": 3.45,
@@ -1701,9 +1702,9 @@
     }
    ],
    "courses": 15,
-   "blocksFull": 17,
-   "blocksCut": 28,
-   "area_m2": 4.424,
+   "blocksFull": 18,
+   "blocksCut": 27,
+   "area_m2": 4.791,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -1731,7 +1732,7 @@
    "bond": {
     "p0": -5.787,
     "sign": 1,
-    "g": 0.11
+    "g": 0.03
    },
    "courseDatum": -0.15
   },
@@ -1865,7 +1866,7 @@
    "courses": 15,
    "blocksFull": 37,
    "blocksCut": 40,
-   "area_m2": 8.848,
+   "area_m2": 8.852,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -2466,7 +2467,7 @@
    "courses": 12,
    "blocksFull": 77,
    "blocksCut": 25,
-   "area_m2": 13.932,
+   "area_m2": 13.93,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [],
@@ -2531,7 +2532,7 @@
    "courses": 12,
    "blocksFull": 44,
    "blocksCut": 45,
-   "area_m2": 10.614,
+   "area_m2": 10.611,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "joinedGap_m": 0.05,
@@ -2938,15 +2939,15 @@
    "floor": "first",
    "axisITM": [
     [
-     179590.563,
-     576241.893
+     179589.722,
+     576239.808
     ],
     [
      179590.844,
      576242.588
     ]
    ],
-   "length_m": 0.75,
+   "length_m": 2.998,
    "thickness_m": 0.22,
    "bottomRel": 3.7,
    "topRel": 6.65,
@@ -2954,8 +2955,8 @@
     {
      "id": "F02",
      "kind": "window",
-     "s0": 0.138,
-     "s1": 0.55,
+     "s0": 2.386,
+     "s1": 2.798,
      "z0": 5.15,
      "z1": 5.95,
      "clip": [
@@ -2965,17 +2966,17 @@
     }
    ],
    "courses": 12,
-   "blocksFull": 3,
-   "blocksCut": 18,
-   "area_m2": 1.605,
+   "blocksFull": 42,
+   "blocksCut": 23,
+   "area_m2": 8.237,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
     {
      "id": "LT-F02",
      "opening": "F02",
-     "s0": 0.0,
-     "s1": 0.55,
+     "s0": 2.248,
+     "s1": 2.798,
      "z0": 5.95,
      "z1": 6.2,
      "bearL_m": 0.138,
@@ -2999,8 +3000,8 @@
      "z1": 6.2,
      "status": "provisional",
      "id": "LT-F02-R",
-     "s0": 0.55,
-     "s1": 0.75,
+     "s0": 2.798,
+     "s1": 2.998,
      "bearL_m": 0.0,
      "bearR_m": 0.0,
      "length_m": 0.2,
@@ -3013,38 +3014,46 @@
    ],
    "drawnThickness_m": 0.22,
    "bond": {
-    "p0": 4.399,
+    "p0": 2.15,
     "sign": 1,
-    "g": 0.2
+    "g": 0.35
    },
    "courseDatum": 3.7,
    "voids": [
     {
-     "s0": 0.55,
-     "s1": 0.75,
+     "s0": 2.798,
+     "s1": 2.998,
      "z0": 3.7,
      "z1": 4.15
     }
    ],
    "segments": [
     {
-     "id": "BK-F67",
+     "id": "BK-F70",
      "s0": 0.0,
-     "s1": 0.55,
+     "s1": 2.146,
+     "bottomRel": 3.7,
+     "topRel": 6.65
+    },
+    {
+     "id": "BK-F67",
+     "s0": 2.146,
+     "s1": 2.798,
      "bottomRel": 3.7,
      "topRel": 6.65
     },
     {
      "id": "BK-F68",
-     "s0": 0.55,
-     "s1": 0.75,
+     "s0": 2.798,
+     "s1": 2.998,
      "bottomRel": 4.15,
      "topRel": 6.65
     }
    ],
    "mergedFrom": [
     "BK-F67",
-    "BK-F68"
+    "BK-F68",
+    "BK-F70"
    ]
   },
   {
@@ -3056,11 +3065,11 @@
      576241.017
     ],
     [
-     179590.442,
-     576241.887
+     179590.647,
+     576241.803
     ]
    ],
-   "length_m": 2.321,
+   "length_m": 2.1,
    "thickness_m": 0.1,
    "bottomRel": 3.7,
    "topRel": 6.65,
@@ -3077,9 +3086,9 @@
     }
    ],
    "courses": 12,
-   "blocksFull": 18,
-   "blocksCut": 35,
-   "area_m2": 4.594,
+   "blocksFull": 13,
+   "blocksCut": 30,
+   "area_m2": 3.945,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -3105,9 +3114,10 @@
    "bond": {
     "p0": -3.004,
     "sign": 1,
-    "g": 0.51
+    "g": 0.0
    },
    "courseDatum": 3.7,
+   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-F67) – בשרטוט היא חוצה אותו.",
    "voids": [],
    "segments": [
     {
@@ -3120,7 +3130,7 @@
     {
      "id": "BK-F69",
      "s0": 2.046,
-     "s1": 2.321,
+     "s1": 2.1,
      "bottomRel": 3.7,
      "topRel": 6.65
     }
@@ -3129,39 +3139,6 @@
     "BK-F69",
     "BK-F76"
    ]
-  },
-  {
-   "id": "BK-F70",
-   "floor": "first",
-   "axisITM": [
-    [
-     179589.722,
-     576239.808
-    ],
-    [
-     179590.526,
-     576241.798
-    ]
-   ],
-   "length_m": 2.146,
-   "thickness_m": 0.22,
-   "bottomRel": 3.7,
-   "topRel": 6.65,
-   "openings": [],
-   "courses": 12,
-   "blocksFull": 33,
-   "blocksCut": 21,
-   "area_m2": 6.331,
-   "status": "source",
-   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
-   "lintels": [],
-   "drawnThickness_m": 0.222,
-   "bond": {
-    "p0": 2.15,
-    "sign": 1,
-    "g": 0.05
-   },
-   "courseDatum": 3.7
   },
   {
    "id": "BK-F71",
@@ -3184,7 +3161,7 @@
    "courses": 12,
    "blocksFull": 33,
    "blocksCut": 21,
-   "area_m2": 6.546,
+   "area_m2": 6.549,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [],
@@ -4194,9 +4171,9 @@
    "t22_m2": 2.52
   },
   "ground": {
-   "t10_cut": 417,
-   "t10_full": 307,
-   "t10_m2": 73.79,
+   "t10_cut": 416,
+   "t10_full": 300,
+   "t10_m2": 72.7,
    "t15_cut": 15,
    "t15_full": 0,
    "t15_m2": 1.09,
@@ -4206,20 +4183,20 @@
    "t22_cut": 422,
    "t22_full": 356,
    "t22_m2": 82.55,
-   "t30_cut": 135,
-   "t30_full": 108,
-   "t30_m2": 22.47
+   "t30_cut": 134,
+   "t30_full": 109,
+   "t30_m2": 22.84
   },
   "first": {
-   "t10_cut": 209,
-   "t10_full": 297,
-   "t10_m2": 61.62,
-   "t22_cut": 172,
-   "t22_full": 206,
-   "t22_m2": 43.51,
+   "t10_cut": 204,
+   "t10_full": 292,
+   "t10_m2": 60.97,
+   "t22_cut": 156,
+   "t22_full": 212,
+   "t22_m2": 43.82,
    "t30_cut": 183,
    "t30_full": 92,
-   "t30_m2": 26.13,
+   "t30_m2": 26.12,
    "t36_cut": 18,
    "t36_full": 0,
    "t36_m2": 1.26

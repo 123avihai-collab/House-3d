@@ -21,12 +21,12 @@
   {
    "floor": "ground",
    "thickness_cm": 10,
-   "full": 307,
-   "cutPositions": 417,
-   "cutPieces": 416,
+   "full": 300,
+   "cutPositions": 416,
+   "cutPieces": 415,
    "blocksForCuts": 200,
-   "blocks": 507,
-   "area_m2": 73.79
+   "blocks": 500,
+   "area_m2": 72.7
   },
   {
    "floor": "ground",
@@ -61,32 +61,32 @@
   {
    "floor": "ground",
    "thickness_cm": 30,
-   "full": 108,
-   "cutPositions": 135,
-   "cutPieces": 139,
-   "blocksForCuts": 50,
-   "blocks": 158,
-   "area_m2": 22.47
+   "full": 109,
+   "cutPositions": 134,
+   "cutPieces": 137,
+   "blocksForCuts": 54,
+   "blocks": 163,
+   "area_m2": 22.84
   },
   {
    "floor": "first",
    "thickness_cm": 10,
-   "full": 297,
-   "cutPositions": 209,
-   "cutPieces": 205,
-   "blocksForCuts": 128,
-   "blocks": 425,
-   "area_m2": 61.62
+   "full": 292,
+   "cutPositions": 204,
+   "cutPieces": 204,
+   "blocksForCuts": 129,
+   "blocks": 421,
+   "area_m2": 60.97
   },
   {
    "floor": "first",
    "thickness_cm": 22,
-   "full": 206,
-   "cutPositions": 172,
-   "cutPieces": 178,
-   "blocksForCuts": 100,
-   "blocks": 306,
-   "area_m2": 43.51
+   "full": 212,
+   "cutPositions": 156,
+   "cutPieces": 160,
+   "blocksForCuts": 96,
+   "blocks": 308,
+   "area_m2": 43.82
   },
   {
    "floor": "first",
@@ -96,7 +96,7 @@
    "cutPieces": 184,
    "blocksForCuts": 93,
    "blocks": 185,
-   "area_m2": 26.13
+   "area_m2": 26.12
   },
   {
    "floor": "first",
@@ -110,9 +110,9 @@
   }
  ],
  "total": {
-  "full": 1379,
-  "blocksForCuts": 849,
-  "blocks": 2228,
-  "area_m2": 316.2
+  "full": 1374,
+  "blocksForCuts": 850,
+  "blocks": 2224,
+  "area_m2": 315.13
  }
 }

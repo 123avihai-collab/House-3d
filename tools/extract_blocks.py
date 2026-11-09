@@ -581,6 +581,40 @@ def main():
     # keeps each part's own bottom / top for the contact check (tools/verify_blocks.py). Walls of an owner change stay apart.
     locked = {wid for g in OCG.values() for wid in (g.get('blocks') or {}).get('removeWalls', [])}
     free = [w for w in walls if not w.get('variant') and not w.get('ownerChange') and w['id'] not in locked]
+    # a thin partition drawn THROUGH a thicker wall (the hatch splits the thick wall and leaves a gap as wide as the
+    # partition): on site the thick wall runs through and the partition stops at its face. The gap is closed (the thicker
+    # part is extended; equal parts then merge below) and the partition is cut back to the face (Avihai 09.11, round 2).
+    wpoly = lambda w: LineString(w['axisITM']).buffer(w['thickness_m'] / 2, cap_style=2)
+    def set_axis(w, p0_, p1_):
+        (x0, y0), (x1, y1) = w['axisITM']; L0 = w['length_m']; ux, uy = (x1 - x0) / L0, (y1 - y0) / L0
+        d0 = (x0 - p0_[0]) * ux + (y0 - p0_[1]) * uy            # how far the start moved back (+) / forward (-)
+        w['axisITM'] = [[r3(p0_[0]), r3(p0_[1])], [r3(p1_[0]), r3(p1_[1])]]; w['length_m'] = r3(math.dist(p0_, p1_))
+        for key in ('openings', 'lintels'):
+            for o in w.get(key, []): o['s0'], o['s1'] = r3(max(0, o['s0'] + d0)), r3(min(w['length_m'], o['s1'] + d0))
+        w['_moved'] = True
+    for i, a_ in enumerate(free):
+        for b_ in free[i + 1:]:
+            if a_['floor'] != b_['floor']: continue
+            (ax0, ay0), (ax1, ay1) = a_['axisITM']; ux, uy = (ax1 - ax0) / a_['length_m'], (ay1 - ay0) / a_['length_m']
+            (bx0, by0), (bx1, by1) = b_['axisITM']; vx, vy = (bx1 - bx0) / b_['length_m'], (by1 - by0) / b_['length_m']
+            if abs(ux * vy - uy * vx) > 0.02 or max(abs(-(px - ax0) * uy + (py - ay0) * ux) for px, py in b_['axisITM']) > 0.06: continue
+            (ia, pa), (ib, pb) = min((((i_, p_), (j_, q_)) for i_, p_ in enumerate(a_['axisITM']) for j_, q_ in enumerate(b_['axisITM'])), key=lambda t_: math.dist(t_[0][1], t_[1][1]))
+            gap = math.dist(pa, pb)
+            if not 0.03 < gap <= 0.35: continue
+            tmin = min(a_['thickness_m'], b_['thickness_m']); gp = LineString([pa, pb]).buffer(tmin / 2, cap_style=2)
+            cross = [c_ for c_ in free if c_ is not a_ and c_ is not b_ and c_['floor'] == a_['floor'] and c_['thickness_m'] < tmin - 0.03 and wpoly(c_).intersection(gp).area > 0.5 * gp.area]
+            if len(cross) != 1: continue
+            c_ = cross[0]; big, bi, bp, other_p = (a_, ia, pa, pb) if a_['thickness_m'] >= b_['thickness_m'] else (b_, ib, pb, pa)
+            # extend the thicker part across the gap, along its own line
+            (x0, y0), (x1, y1) = big['axisITM']; Lb = big['length_m']; dx, dy = (x1 - x0) / Lb, (y1 - y0) / Lb
+            tt = (other_p[0] - x0) * dx + (other_p[1] - y0) * dy; np_ = (x0 + dx * tt, y0 + dy * tt)
+            set_axis(big, np_ if bi == 0 else (x0, y0), (x1, y1) if bi == 0 else np_)
+            # cut the partition back to the face of the through wall
+            rest = LineString(c_['axisITM']).difference(unary_union([wpoly(a_), wpoly(b_)]).buffer(0.001))
+            seg = max(getattr(rest, 'geoms', [rest]), key=lambda g_: g_.length); q0, q1 = list(seg.coords)[0], list(seg.coords)[-1]
+            if math.dist(q0, c_['axisITM'][0]) > math.dist(q1, c_['axisITM'][0]): q0, q1 = q1, q0
+            set_axis(c_, q0, q1)
+            c_['note'] = ((c_.get('note') or '') + f" המחיצה נעצרת בפאת הקיר העבה ({big['id']}) – בשרטוט היא חוצה אותו.").strip()
     par = {w['id']: w['id'] for w in free}
     def find(x):
         while par[x] != x: par[x] = par[par[x]]; x = par[x]
@@ -638,8 +672,18 @@ def main():
             f_, c_, k_, _ = count_blocks(Lm, zb, zt, holes, BL, BH, {**m['bond'], 'g': gi * 0.01}, m['courseDatum'])
             if best is None or (c_, -f_) < (best[1], -best[2]): best = (gi * 0.01, c_, f_, k_)
         m['bond']['g'] = r3(best[0]); m['blocksCut'], m['blocksFull'], m['courses'] = best[1], best[2], best[3]
+        m['area_m2'] = r3(Lm * (zt - zb) - sum((o['s1'] - o['s0']) * (o['z1'] - o['z0']) for o in holes))
         ids = {w['id'] for w in grp}; at = min(i for i, w in enumerate(walls) if w['id'] in ids)
         walls[:] = [w for w in walls[:at] if w['id'] not in ids] + [m] + [w for w in walls[at:] if w['id'] not in ids]
+    for w in walls:
+        if not w.pop('_moved', False) or w.get('mergedFrom'): continue
+        (mx0, my0), (mx1, my1) = w['axisITM']; dx, dy = (mx1 - mx0) / w['length_m'], (my1 - my0) / w['length_m']
+        cu = (hx, hy) if abs(dx * hx + dy * hy) >= abs(-dx * hy + dy * hx) else (-hy, hx); sg = 1 if dx * cu[0] + dy * cu[1] >= 0 else -1
+        w['bond'] = {'p0': r3((mx0 - OE) * cu[0] + (my0 - ON) * cu[1]), 'sign': sg}; holes = w['openings'] + w.get('lintels', []); best = None
+        for gi in range(int(round(BL / 0.01))):
+            f_, c_, k_, ar_ = count_blocks(w['length_m'], w['bottomRel'], w['topRel'], holes, BL, BH, {**w['bond'], 'g': gi * 0.01}, w['courseDatum'])
+            if best is None or (c_, -f_) < (best[1], -best[2]): best = (gi * 0.01, c_, f_, k_, ar_)
+        w['bond']['g'] = r3(best[0]); w['blocksCut'], w['blocksFull'], w['courses'], w['area_m2'] = best[1], best[2], best[3], r3(best[4])
     for b in boxes_out:
         if b.get('hostWall') in renamed: b['hostWall'] = renamed[b['hostWall']]
         hw = next((w for w in walls if w['id'] == b.get('hostWall') and not w.get('variant')), None)

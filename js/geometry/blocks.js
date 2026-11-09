@@ -38,7 +38,7 @@ export function buildBlocks(ctx) {
     const D = w.courseDatum, bond = w.bond, mod = (a, m) => ((a % m) + m) % m;
     // same layout as tools/extract_blocks.py layout(): every block position is one block – full, or cut around the
     // openings / lintels / run ends / partial courses (its pieces drawn); the grid of the run is shifted by bond.g
-    const holes = [...w.openings, ...(w.lintels || [])];
+    const holes = [...w.openings, ...(w.lintels || []), ...(w.voids || [])];   // voids: a merged run whose parts stand on / reach different levels
     const sub = (rects, o) => rects.flatMap(([xa, xb, za, zb]) => {
       if (o.s0 >= xb - 0.005 || o.s1 <= xa + 0.005 || o.z0 >= zb - 0.005 || o.z1 <= za + 0.005) return [[xa, xb, za, zb]];
       const out = [], a = Math.max(xa, o.s0), b = Math.min(xb, o.s1);

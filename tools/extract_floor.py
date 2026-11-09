@@ -809,7 +809,10 @@ def main():
     # GW7 / GW4, Avihai's edit-mode note ק16): where the K-21 PDF fills the wall hatch, the wall is continuous
     WU =unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0) for w in wall_out] + [c.buffer(0) for c in cols])
     slits = []
-    for q in polys(WU.buffer(0.08, join_style=2).buffer(-0.08, join_style=2).difference(WU).intersection(hatchP.buffer(0.01))):
+    # + shallow dips on a straight wall face (< 3 cm deep – a hatch seam, Avihai ק46: GW1 is one pour) even where the PDF hatch misses
+    closing = WU.buffer(0.08, join_style=2).buffer(-0.08, join_style=2).difference(WU)
+    shallow = [q for q in polys(closing) if q.area >= 0.001 and q.area / max(q.length / 2, 1e-6) < 0.03]
+    for q in polys(unary_union(list(polys(closing.intersection(hatchP.buffer(0.01)))) + shallow)):
         if q.area < 0.001: continue
         touch = [w for w in wall_out if Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q) < 0.005]
         if not touch: continue
@@ -819,6 +822,22 @@ def main():
         w['note'] = (w.get('note', '') + f' שקע / חריץ של {q.area * 1e4:.0f} סמ"ר בקו הקיר נסגר – ב-K-21 הקיר מקווקו ורציף שם (הערת אביחי ק16).').strip()
         slits.append(f"{w['id']}+{q.area:.4f}")
     print('wall notches / slits closed', slits)
+    # a straight wall whose outline dips by < 3 cm along one face (two hatch pieces of one pour, Avihai ק46 – GW1): the wall
+    # is its minimum rectangle (only when the rectangle adds < 3 % and every added sliver is < 3 cm thick)
+    squared = []
+    for w in wall_out:
+        if w.get('holesITM'): continue
+        g = Polygon(w['footprintITM']).buffer(0); r = g.minimum_rotated_rectangle
+        if g.is_empty or r.area <= 0: continue
+        c = list(r.exterior.coords); e1, e2 = math.dist(c[0], c[1]), math.dist(c[1], c[2]); th = min(e1, e2)
+        if th > 0.45 or g.area / r.area < 0.97: continue
+        add = [q for q in polys(r.difference(g)) if q.area > 1e-5]
+        if not add or any(q.area / max(q.length / 2, 1e-6) > 0.03 for q in add) or sum(q.area for q in add) < 0.002: continue
+        if any(Polygon(o['footprintITM']).buffer(0).intersection(r).area > 0.002 for o in wall_out if o is not w): continue
+        w['footprintITM'] = ring(r); w['area_m2'] = r3(r.area)
+        w['note'] = (w.get('note', '') + f' קיר ישר אחד ביציקה אחת – שקע של עד 3 ס"מ בפאה (תפר בין שני קטעי מילוי בשרטוט) נסגר ({sum(q.area for q in add) * 1e4:.0f} סמ"ר, הערת אביחי ק46).').strip()
+        squared.append(w['id'])
+    print('straight walls squared (face dips < 3 cm)', squared)
     col_out = []
     for q in cols:
         mr = q.minimum_rotated_rectangle; xy = list(mr.exterior.coords)

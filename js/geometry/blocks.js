@@ -24,7 +24,12 @@ export function buildBlocks(ctx) {
   const unit = new THREE.BoxGeometry(1, 1, 1);
   const FLOOR = { unit: 'יחידת דיור', ground: 'קומת קרקע', first: "קומה א'" };
   const stats = { full: 0, cut: 0, area_m2: 0, byThickness: {}, boxes: 0 };
-  for (const w of B.walls) {
+  // owner changes that cancel a block wall (owner-changes-geometry.json blocks.removeWalls, e.g. OC-10): the wall is the
+  // "as drawn" variant – shown with a red outline while the change is off, gone with it on
+  const removedBy = {};
+  for (const [id, g] of Object.entries(data.ownerChangesGeometry?.changes || {})) for (const wid of g.blocks?.removeWalls || []) removedBy[wid] = id;
+  for (const w0 of B.walls) {
+    const w = removedBy[w0.id] && !w0.variant ? { ...w0, ownerChange: removedBy[w0.id], variant: { change: removedBy[w0.id], show: 'original' } } : w0;
     const [[E0, N0], [E1, N1]] = w.axisITM, L = w.length_m, t = w.thickness_m;
     const p0 = coords.toLocal(E0, N0, coords.H0), p1 = coords.toLocal(E1, N1, coords.H0);
     const dir = new THREE.Vector3().subVectors(p1, p0).normalize(), q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir);

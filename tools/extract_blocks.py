@@ -282,7 +282,10 @@ def main():
                     c = Point(o['centerITM'])
                     if rp.buffer(0.05).contains(c) and abs(o['axisITM'][0] * uy - o['axisITM'][1] * ux) / (math.hypot(*o['axisITM']) or 1) < 0.3:
                         s = (c.x - x0) * ux + (c.y - y0) * uy
-                        wo.append({'id': o['id'], 'kind': o['kind'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': o['sillRel'], 'z1': o['headRel'],
+                        # a door at floor level (sill = finished floor): the rough opening in the blocks goes down to the concrete
+                        # the wall stands on – the floor build-up fills it (Avihai ק37, 09.11: no block strip in the door line)
+                        atFloor = o['kind'] in ('door', 'sliding') and o.get('floorFinishRel') is not None and o['sillRel'] <= o['floorFinishRel'] + 0.01
+                        wo.append({'id': o['id'], 'kind': o['kind'], 's0': r3(max(0, s - o['width_m'] / 2)), 's1': r3(min(L, s + o['width_m'] / 2)), 'z0': r3(zb) if atFloor else o['sillRel'], 'z1': o['headRel'],
                                    'clip': [sd for sd, c in (('L', s - o['width_m'] / 2 < -0.005), ('R', s + o['width_m'] / 2 > L + 0.005)) if c],
                                    'shutter': ('גלילה' in o['name'] or 'תריס' in o['name'])})
                 nfull, ncut, k, area = count_blocks(L, zb, zt, wo, BL, BH)

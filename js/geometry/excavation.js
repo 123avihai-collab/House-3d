@@ -168,8 +168,10 @@ export function buildExcavation(ctx) {
   const zone = (key, ring) => { if (!zoneOf.has(key)) { const z = { key, ring, terrain: null, slab: null }; zoneOf.set(key, z); ocZones.push(z); } return zoneOf.get(key); };
   for (const [id, g] of Object.entries(OCG)) if (g.slab?.ringITM) { const z = zone(id, g.slab.ringITM); z.slab = { id, g, s: g.slab, fn: () => coords.H0 + g.slab.topRel - g.slab.thickness_m }; }
   for (const [id, g] of Object.entries(OCG)) for (const k of g.terrain?.zones || []) {
-    const ring = k === 'garden' ? garden : OCG[k]?.slab?.ringITM; if (!ring) continue;
-    zone(k, ring).terrain = { id, g, fn: () => coords.H0 + g.terrain.surfaceRel };
+    // a zone: 'garden', another change's slab ring (e.g. 'OC-8'), or { key, ringITM, surfaceRel } given in the data
+    const ring = typeof k === 'object' ? k.ringITM : k === 'garden' ? garden : OCG[k]?.slab?.ringITM; if (!ring) continue;
+    const rel = typeof k === 'object' && k.surfaceRel != null ? k.surfaceRel : g.terrain.surfaceRel;
+    zone(typeof k === 'object' ? `${id}-${k.key}` : k, ring).terrain = { id, g, fn: () => coords.H0 + rel };
   }
   for (const z of ocZones) {
     const S = z.slab, V = (id, show) => ({ change: id, show });
@@ -178,6 +180,9 @@ export function buildExcavation(ctx) {
     const plansFn = Ta ? Ta.fn : finalZ;
     z.versions = [];
     if (!T && !S) { z.versions.push({ variant: null, fn: plansFn, plans: true, applied: Ta, ids: [Ta.id] }); continue; }
+    if (S?.s.applied) {   // slab applied by Avihai's decision: always cast; the soil stays under it (or at the applied level, if lower)
+      z.versions.push({ variant: null, fn: Ta ? (E, N) => Math.min(Ta.fn(E, N), S.fn(E, N)) : S.fn, applied: S, plans: true, ids: [S.id] }); continue;
+    }
     const plansVar = T && S ? { all: [V(S.id, 'original'), V(T.id, 'original')] } : V((T || S).id, 'original');
     z.versions.push({ variant: plansVar, fn: plansFn, plans: true, applied: Ta, ids: [T?.id, S?.id].filter(Boolean) });
     if (T) z.versions.push({ variant: S ? { all: [V(S.id, 'original'), V(T.id, 'changed')] } : V(T.id, 'changed'), fn: T.fn, oc: T });
@@ -358,11 +363,11 @@ const exMeta = {
         gz.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: ocColor })));
       }
       registry.add(gz, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: 'topoPlanned' }, { ...fillMeta,
-        name: v.applied ? `מגרש 5187 – פני קרקע ${coords.fmtH(v.fn(z.ring[0][0], z.ring[0][1]))} (${v.applied.id}, החלטת אביחי)${z.slab ? ` · ${z.slab.id}: לפי התוכניות` : ''}` : v.plans ? `מגרש 5187 – פני קרקע מתוכננים (${v.ids.join(' / ')}: לפי התוכניות)` : `${v.oc.id} – ${c.title}${v.oc === z.slab ? ' (הקרקע מתחת לרצפה)' : ''}`,
+        name: v.applied ? `מגרש 5187 – פני קרקע ${coords.fmtH(v.fn(z.ring[0][0], z.ring[0][1]))} (${v.applied.id}, החלטת אביחי)${z.slab && v.applied !== z.slab && !z.slab.s.applied ? ` · ${z.slab.id}: לפי התוכניות` : v.applied === z.slab ? ' – מתחת לרצפה' : ''}` : v.plans ? `מגרש 5187 – פני קרקע מתוכננים (${v.ids.join(' / ')}: לפי התוכניות)` : `${v.oc.id} – ${c.title}${v.oc === z.slab ? ' (הקרקע מתחת לרצפה)' : ''}`,
         role: 'plot', hMax: m.userData.hMax, hMin: m.userData.hMin, area: Math.abs(ringArea(z.ring)),
         status: v.applied ? 'owner-change' : v.plans ? 'source' : 'owner-change', ...(v.variant ? { variant: v.variant } : {}),
         note: v.applied ? (ocById[v.applied.id]?.description || '') : v.plans ? 'לפי גבהי הפיתוח בהיתר (data/site/development-heights.json).' : c.description,
-        source: v.applied ? v.applied.g.terrain.source : v.plans ? fillMeta.source : (v.oc.g.terrain || v.oc.g.slab).source });
+        source: v.applied ? (v.applied.g.terrain || v.applied.g.slab).source : v.plans ? fillMeta.source : (v.oc.g.terrain || v.oc.g.slab).source });
       scene.add(gz);
     }
     if (!z.slab) continue;
@@ -378,7 +383,7 @@ const exMeta = {
       const cen = z.ring.reduce((a, p) => [a[0] + p[0] / z.ring.length, a[1] + p[1] / z.ring.length], [0, 0]);
       const lo = new CSS2DObject(d); lo.position.copy(coords.toLocal(cen[0], cen[1], coords.H0 + z.slab.topRel + 0.3)); gs.add(lo);
       registry.add(gs, { floor: 'ground', system: 'structure', stage: 'slab', step: 'outdoorSlabs', layer: 'groundOutdoorSlabs' }, {
-        name: `${z.slab.id} – ${c.title}`, kind: 'slab', status: 'owner-change', variant: { change: z.id, show: 'changed' },
+        name: `${z.slab.id} – ${c.title}`, kind: 'slab', status: 'owner-change', ...(z.slab.applied ? {} : { variant: { change: z.id, show: 'changed' } }),
         rows: [['ראש', `${coords.fmtH(coords.H0 + z.slab.topRel)}`], ['עובי', `${z.slab.thickness_m} מ' (זמני)`], ['שטח', `${z.slab.area_m2.toFixed(2)} מ"ר`], ['נפח בטון', `${(z.slab.area_m2 * z.slab.thickness_m).toFixed(2)} מ"ק`]],
         note: c.description, source: z.slab.source });
       scene.add(gs);

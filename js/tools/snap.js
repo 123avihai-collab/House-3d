@@ -176,3 +176,66 @@ export function axesFromDeg(deg) {
   // ITM (E, N) -> scene (x = E, z = -N)
   return { deg, u1: new THREE.Vector3(Math.cos(r), 0, -Math.sin(r)), u2: new THREE.Vector3(-Math.sin(r), 0, -Math.cos(r)), up: new THREE.Vector3(0, 1, 0) };
 }
+
+// ---- element axes / element box (Avihai 09.11: "a wall that is not on one axis – its exact length") ----
+// The registry item under the pointer (one wall, beam, slab, block run …): its own horizontal direction = the
+// length-weighted dominant direction of its real horizontal edges (mod 90°); the longer of the two plan extents is
+// "length" (u1), the other "width" (u2), Z = height. Instanced parts (blocks) use their instance matrices.
+const _elemCache = new WeakMap();
+function itemRoot(obj) { let o = obj; while (o) { if (o.userData?.component) return o.userData.component.object || o; o = o.parent; } return obj; }
+function eachMeshMatrix(root, f, maxInst = 400) {
+  root.updateMatrixWorld(true);
+  const im = new THREE.Matrix4(), m = new THREE.Matrix4();
+  root.traverse((o) => {
+    if (!o.isMesh || !o.geometry?.attributes?.position || o.visible === false) return;
+    if (o.isInstancedMesh) { const n = Math.min(o.count, maxInst); for (let i = 0; i < n; i++) { o.getMatrixAt(i, im); f(o.geometry, m.copy(o.matrixWorld).multiply(im)); } }
+    else f(o.geometry, o.matrixWorld);
+  });
+}
+export function elementOf(hit) { return hit?.object ? itemRoot(hit.object) : null; }
+export function elementAxes(snapper, hit, binDeg = 0.5, maxVerts = 300000) {
+  const root = elementOf(hit); if (!root) return null;
+  if (_elemCache.has(root)) return _elemCache.get(root);
+  const nb = Math.round(90 / binDeg), hist = new Float64Array(nb), segs = [];
+  const a = new THREE.Vector3(), b = new THREE.Vector3(); let nv = 0, tooBig = false;
+  eachMeshMatrix(root, (geo, M) => {
+    nv += geo.attributes.position.count; if (nv > maxVerts) { tooBig = true; return; }
+    const E = snapper.edgesOf(geo); if (!E) return;
+    const p = E.pos;
+    for (let o = 0; o < p.length; o += 6) {
+      a.set(p[o], p[o + 1], p[o + 2]).applyMatrix4(M); b.set(p[o + 3], p[o + 4], p[o + 5]).applyMatrix4(M);
+      const dx = b.x - a.x, dN = -(b.z - a.z), dy = b.y - a.y, L = Math.hypot(dx, dN);
+      if (L < 0.02 || Math.abs(dy) > 0.05 * L) continue;     // horizontal edges only
+      let ang = Math.atan2(dN, dx) * 180 / Math.PI; ang = ((ang % 90) + 90) % 90;
+      hist[Math.min(nb - 1, Math.floor(ang / binDeg))] += L; segs.push([ang, L]);
+    }
+  });
+  let res = null;
+  if (!tooBig && segs.length) {
+    let bi = 0; for (let i = 1; i < nb; i++) if (hist[i] > hist[bi]) bi = i;
+    const peak = (bi + 0.5) * binDeg; let sw = 0, sa = 0;
+    for (const [ang, L] of segs) { let d = ang - peak; if (d > 45) d -= 90; if (d < -45) d += 90; if (Math.abs(d) <= 2 * binDeg) { sw += L; sa += L * d; } }
+    let deg = peak + (sw ? sa / sw : 0); if (deg > 45) deg -= 90;
+    let ax = axesFromDeg(deg);
+    const box = elementBox(root, ax);
+    if (box && box.w > box.l) { ax = axesFromDeg(deg > 0 ? deg - 90 : deg + 90); }   // u1 = the longer plan extent
+    res = { ...ax, element: true };
+  }
+  _elemCache.set(root, res);
+  return res;
+}
+// oriented box of the item in the given axes: { l, w, h, a0, a1, b0, b1, y0, y1 }
+export function elementBox(root, ax, maxVerts = 300000) {
+  let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity, y0 = Infinity, y1 = -Infinity, nv = 0, tooBig = false;
+  const v = new THREE.Vector3();
+  eachMeshMatrix(root, (geo, M) => {
+    const P = geo.attributes.position; nv += P.count; if (nv > maxVerts) { tooBig = true; return; }
+    for (let i = 0; i < P.count; i++) {
+      v.fromBufferAttribute(P, i).applyMatrix4(M);
+      const a = v.dot(ax.u1), b = v.dot(ax.u2);
+      if (a < a0) a0 = a; if (a > a1) a1 = a; if (b < b0) b0 = b; if (b > b1) b1 = b; if (v.y < y0) y0 = v.y; if (v.y > y1) y1 = v.y;
+    }
+  });
+  if (tooBig || !isFinite(a0)) return null;
+  return { l: a1 - a0, w: b1 - b0, h: y1 - y0, a0, a1, b0, b1, y0, y1 };
+}

@@ -75,6 +75,32 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return r && Math.abs(r.d3 - t.L) < 0.001 && r.k === 'vertex/vertex' ? 'ok' : JSON.stringify({ src: t.L, r });
     })();
     if (info.measureSnap !== 'ok') errors.push('measure snap: ' + info.measureSnap);
+    // smart measure (Avihai 09.11): a wall off the house axes (PW3, 4.9°) – corner to corner in "element" axes = its length
+    // along itself (named "אורך", width ~0), and 📦 element box = length × thickness × height of the source
+    info.measureElement = await (async () => {
+      const t = await page.evaluate(() => {
+        const a = window.__app, C = a.coords; const w = a.data.perimeter.walls.find(x => x.id === 'PW3'); const r = w.ringITM;
+        let b = null; for (let i = 0; i < r.length; i++) { const P = r[i], Q = r[(i + 1) % r.length]; const L = Math.hypot(Q[0] - P[0], Q[1] - P[1]); if (!b || L > b.L) b = { L, P, Q }; }
+        const pa = C.toLocal(b.P[0], b.P[1], C.H0 + w.topRel), pb = C.toLocal(b.Q[0], b.Q[1], C.H0 + w.topRel), c = pa.clone().lerp(pb, 0.5);
+        a.store.set({ stageIndex: a.data.tags.sequence.length - 1 }, { record: false });
+        a.viewer.controls.target.copy(c); a.viewer.camera.position.set(c.x - 9, c.y + 12, c.z + 8); a.viewer.controls.update(); a.viewer.camera.updateMatrixWorld(); a.viewer.invalidate();
+        a.setTool('measure'); const m = a.tools.measure; m.clearAll(); m.setOpt('snap', true); m.setOpt('ortho', false); m.setOpt('axes', 'element');
+        const el = a.viewer.renderer.domElement.getBoundingClientRect(); const sc = (v) => { const s = m.snapper.toScreen(v); return [s.x + el.left, s.y + el.top]; };
+        const item = a.registry.items.find(i => i.meta.id === 'PW3' || /PW3/.test(i.meta.name || ''));
+        return { L: b.L, pts: [sc(pa), sc(pb)], th: w.thickness_m, h: w.topRel - w.bottomRel, hasItem: !!item };
+      });
+      await page.waitForTimeout(600);
+      // 5 px from each corner towards the other one (along the wall top)
+      const [[x0, y0], [x1, y1]] = t.pts; const L = Math.hypot(x1 - x0, y1 - y0) || 1; const ux = (x1 - x0) / L * 5, uy = (y1 - y0) / L * 5;
+      for (const [x, y] of [[x0 + ux, y0 + uy], [x1 - ux, y1 - uy]]) { await page.mouse.move(x, y); await page.waitForTimeout(80); await page.mouse.click(x, y); await page.waitForTimeout(150); }
+      const r = await page.evaluate(() => { const m = window.__app.tools.measure; const it = m.items[0]; return it && { what: it.what, first: m.items[0]?.A, dx: Math.abs(it.dx), dy: Math.abs(it.dy), d3: it.d3, k: it.ka + '/' + it.kb }; });
+      const bx = await page.evaluate(() => { const a = window.__app, m = a.tools.measure; const item = a.registry.items.find(i => i.meta.id === 'PW3' || /PW3/.test(i.meta.name || ''));
+        let mesh = null; item.object.traverse(o => { if (!mesh && o.isMesh) mesh = o; }); m.measureElement({ object: mesh }); const it = m.items[m.items.length - 1];
+        const res = it?.box && { l: it.box.l, w: it.box.w, h: it.box.h }; m.clearAll(); m.setOpt('axes', 'element'); a.setTool('inspect'); return res; });
+      const ok = r && r.what === 'אורך' && Math.abs(r.dx - t.L) < 0.001 && r.dy < 0.001 && bx && Math.abs(bx.l - t.L) < 0.005 && Math.abs(bx.w - t.th) < 0.005;
+      return ok ? 'ok' : JSON.stringify({ src: { L: t.L, th: t.th, h: t.h }, r, bx });
+    })();
+    if (info.measureElement !== 'ok') errors.push('measure element: ' + info.measureElement);
     await page.evaluate(() => window.__app.setTool('note'));
     await page.mouse.click(cx, cy + 20);
     await page.fill('.modal textarea', 'בדיקה אוטומטית'); await page.click('.modal .primary');

@@ -175,7 +175,7 @@
   "lintelColor": "#a9a9a4"
  },
  "measure": {
-  "_doc": "js/tools/measure.js + js/tools/snap.js: snap radius on screen (mouse / touch), edge angle that counts as a real edge (not a triangle diagonal), spatial grid cell for the edge search, the largest mesh that gets full edge snapping (bigger – triangle corners only), colors of the direct line and of the house axes X/Y/Z, marker / dot sizes. Display constants, not model dimensions. The house axes are not set here: they are derived at runtime from the ground floor walls (data/structure/floor-ground.json walls[].footprintITM).",
+  "_doc": "js/tools/measure.js + js/tools/snap.js: snap radius on screen (mouse / touch), edge angle that counts as a real edge (not a triangle diagonal), spatial grid cell for the edge search, the largest mesh that gets full edge snapping (bigger – triangle corners only), colors of the direct line and of the house axes X/Y/Z, marker / dot sizes. Display constants, not model dimensions. The house axes are not set here: they are derived at runtime from the ground floor walls (data/structure/floor-ground.json walls[].footprintITM). markerOffsetPx(_touch): the snap label / position HUD sits this far right-up of the pointer (px) so it does not hide the point; trackDeg: a free point within this angle of an axis locks onto it; axisShare: a line with this share of its length on one axis is named after it (length / width / height).",
   "snapPx_mouse": 14,
   "snapPx_touch": 30,
   "edgeThresholdDeg": 20,
@@ -192,6 +192,16 @@
    "preview": "#ffd740",
    "horizontal": "#b0bec5"
   },
-  "minLegShare": 0.02
+  "minLegShare": 0.02,
+  "markerOffsetPx": [
+   18,
+   18
+  ],
+  "markerOffsetPx_touch": [
+   34,
+   46
+  ],
+  "trackDeg": 3,
+  "axisShare": 0.98
  }
 }

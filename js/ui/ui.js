@@ -159,7 +159,10 @@ export class UI {
     this.measureBar = h('div', { id: 'measurebar', class: 'hidden' },
       tg('snap', '🧲', 'הצמדה', 'הצמדה לפינה ■ / אמצע ▲ / קצה ◆ (כבוי = נקודה חופשית על המשטח)'),
       tg('ortho', '⊾', 'אורתו', 'אורתו (F8): הנקודה השנייה ננעלת לציר הקרוב – X / Y / Z'),
-      h('div', { class: 'seg small', title: 'צירי הפירוק: צירי הבית (כיוון הקירות) או רשת ITM' },
+      tg('track', '∥', 'מעקב', 'מעקב צירים: נקודה חופשית קרובה לציר (עד 3°) ננעלת עליו – אורך / רוחב / גובה'),
+      h('button', { 'data-box': 1, title: 'מידות אלמנט: לחיצה על קיר / קורה / רצפה – אורך × רוחב × גובה בכיוון האלמנט (גם Shift+לחיצה)', onclick: () => { m().boxMode = !m().boxMode; this.syncMeasureBar(); } }, lb('📦', 'אלמנט')),
+      h('div', { class: 'seg small', title: 'צירי הפירוק: כיוון האלמנט שנלחץ (קיר בכל זווית), צירי הבית או רשת ITM' },
+        h('button', { 'data-ax': 'element', onclick: () => { m().setOpt('axes', 'element'); m().redraw(); } }, 'אלמנט'),
         h('button', { 'data-ax': 'house', onclick: () => { m().setOpt('axes', 'house'); m().redraw(); } }, 'בית'),
         h('button', { 'data-ax': 'itm', onclick: () => { m().setOpt('axes', 'itm'); m().redraw(); } }, 'ITM')),
       h('button', { title: 'ביטול הנקודה הראשונה (Esc)', onclick: () => m().undoPoint() }, lb('↶', 'נקודה')),
@@ -173,6 +176,7 @@ export class UI {
     document.body.classList.toggle('measuring', this.app.activeTool === 'measure');
     this.measureBar.querySelectorAll('[data-o]').forEach(b => b.classList.toggle('on', !!m.opts[b.dataset.o]));
     this.measureBar.querySelectorAll('[data-ax]').forEach(b => b.classList.toggle('on', m.opts.axes === b.dataset.ax));
+    this.measureBar.querySelector('[data-box]')?.classList.toggle('on', !!m.boxMode);
   }
   setActiveTool(id) { document.querySelectorAll('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === id)); this.syncMeasureBar(); }
   setWalkUI(on) {
@@ -402,25 +406,30 @@ export class UI {
   panel_tools() {
     const { app } = this; const m = app.tools.measure; const n = m.axisNames();
     const on = app.activeTool === 'measure';
-    const kind = (k) => ({ vertex: '■', mid: '▲', edge: '◆', face: '●' })[k.split('+')[0]] + (k.includes('ortho') ? '⊾' : '');
+    const kind = (k) => (({ vertex: '■', mid: '▲', edge: '◆', face: '●', box: '📦' })[k.split('+')[0]] || '') + (k.includes('ortho') ? '⊾' : k.includes('track') ? '∥' : '');
     return h('div', { class: 'measure-panel' },
-      h('p', { class: 'muted' }, 'לוחצים על שתי נקודות. הסמן נצמד לפינה ■, לאמצע ▲ או לקצה ◆ (אחרת ● משטח). הקו הישיר (האלכסוני) הוא המידה הראשית, והקווים המקווקווים מפרקים אותו לצירי הבית: ',
-        h('b', { class: 'ax-x' }, n.x), ' · ', h('b', { class: 'ax-y' }, n.y), ' · ', h('b', { class: 'ax-z' }, n.z), '. אורתו (F8) – מדידה ישרה לאורך ציר. Esc – ביטול נקודה.'),
+      h('p', { class: 'muted' }, 'לוחצים על שתי נקודות. הסמן נצמד לפינה ■, לאמצע ▲ או לקצה ◆ (אחרת ● משטח); ליד הסמן מוצגים E / N / H, ואחרי הנקודה הראשונה – הפירוק לצירים. בצירי "אלמנט" הכיוון נלקח מהאלמנט שנלחץ ראשון – קיר בכל זווית נמדד לאורכו, והמידה מקבלת שם: ',
+        h('b', { class: 'ax-x' }, n.x), ' · ', h('b', { class: 'ax-y' }, n.y), ' · ', h('b', { class: 'ax-z' }, n.z), '. 📦 (או Shift+לחיצה) – אורך × רוחב × גובה של אלמנט. אורתו (F8) – נעילה לציר. Esc – ביטול נקודה.'),
       h('div', { class: 'btns' },
         h('button', { class: on ? 'on' : 'primary', onclick: () => app.setTool(on ? 'inspect' : 'measure') }, on ? '✓ מודד – לחץ לסיום' : '📏 התחל מדידה'),
         h('button', { class: m.opts.snap ? 'on' : '', onclick: () => m.setOpt('snap', !m.opts.snap) }, '🧲 הצמדה'),
-        h('button', { class: m.opts.ortho ? 'on' : '', onclick: () => m.setOpt('ortho', !m.opts.ortho) }, '⊾ אורתו')),
+        h('button', { class: m.opts.ortho ? 'on' : '', onclick: () => m.setOpt('ortho', !m.opts.ortho) }, '⊾ אורתו'),
+        h('button', { class: m.opts.track ? 'on' : '', onclick: () => m.setOpt('track', !m.opts.track) }, '∥ מעקב'),
+        h('button', { class: m.boxMode ? 'on' : '', onclick: () => { m.boxMode = !m.boxMode; if (!on) app.setTool('measure'); else { this.syncMeasureBar(); this.refreshPanel('tools'); } } }, '📦 מידות אלמנט')),
       h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'צירים:'),
         h('div', { class: 'seg small' },
+          h('button', { class: m.opts.axes === 'element' ? 'on' : '', onclick: () => { m.setOpt('axes', 'element'); m.redraw(); } }, 'אלמנט'),
           h('button', { class: m.opts.axes === 'house' ? 'on' : '', onclick: () => { m.setOpt('axes', 'house'); m.redraw(); } }, 'צירי בית'),
           h('button', { class: m.opts.axes === 'itm' ? 'on' : '', onclick: () => { m.setOpt('axes', 'itm'); m.redraw(); } }, 'רשת ITM'))),
       h('p', { class: 'muted' }, m.axesText()),
       m.items.length ? h('table', { class: 'mtable' },
-        h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'ישיר'), h('th', { class: 'ax-x' }, n.x), h('th', { class: 'ax-y' }, n.y), h('th', { class: 'ax-z' }, n.z), h('th', {}, ''))),
+        h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'מידה'), h('th', {}, 'ישיר'), h('th', { class: 'ax-x' }, n.x), h('th', { class: 'ax-y' }, n.y), h('th', { class: 'ax-z' }, n.z), h('th', {}, ''))),
         h('tbody', {}, m.items.map((it, i) => h('tr', {},
           h('td', { title: `מ: ${kind(it.ka)}  עד: ${kind(it.kb)}` }, `${i + 1}`, h('small', {}, ` ${kind(it.ka)}${kind(it.kb)}`)),
-          h('td', { title: `אופקי ${it.dh.toFixed(3)}` }, h('b', {}, it.d3.toFixed(3))),
-          h('td', {}, Math.abs(it.dx).toFixed(3)), h('td', {}, Math.abs(it.dy).toFixed(3)), h('td', {}, m.sgn(it.dz)),
+          h('td', { title: it.box ? it.name : '' }, it.box ? '📦 תיבה' : it.what || 'ישיר'),
+          h('td', { title: `אופקי ${it.dh.toFixed(3)}` }, it.box ? '' : h('b', {}, it.d3.toFixed(3))),
+          ...(it.box ? [h('td', {}, h('b', {}, it.box.l.toFixed(3))), h('td', {}, h('b', {}, it.box.w.toFixed(3))), h('td', {}, h('b', {}, it.box.h.toFixed(3)))]
+            : [h('td', {}, Math.abs(it.dx).toFixed(3)), h('td', {}, Math.abs(it.dy).toFixed(3)), h('td', {}, m.sgn(it.dz))]),
           h('td', { class: 'acts' }, h('button', { class: 'small', title: 'הצג במודל', onclick: () => m.focus(i) }, '👁'), h('button', { class: 'small x', title: 'מחק', onclick: () => m.remove(i) }, '✕'))))))
         : h('p', { class: 'muted' }, 'אין מדידות.'),
       h('div', { class: 'btns' },

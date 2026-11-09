@@ -240,7 +240,11 @@ body.no-minimap #minimap, body.no-minimap #minimapClose { display: none; }
 .lbl.pile.over { background: #e53935; }
 
 /* measuring tool: snap marker, labels per axis, floating bar, results table (09.11.2026) */
-.snapmark { pointer-events: none; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; white-space: nowrap; transform: translateY(-16px); background: rgba(20,22,26,.85); color: #fff; border: 1px solid #fff4; }
+.snapmark { pointer-events: none; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 7px; white-space: nowrap; background: rgba(20,22,26,.88); color: #fff; border: 1px solid #fff4; direction: rtl; line-height: 1.35; }
+.snapmark .v { display: flex; flex-direction: column; font-weight: 500; color: #eceff1; direction: rtl; text-align: right; font-variant-numeric: tabular-nums; }
+.snapmark .v span[dir=ltr] { text-align: left; }
+.snapmark .v b { color: #00e5ff; font-size: 12px; }
+.snapmark.touch { font-size: 12.5px; }
 .snapmark.k-vertex { color: #ffd740; border-color: #ffd740; }
 .snapmark.k-mid { color: #69f0ae; border-color: #69f0ae; }
 .snapmark.k-edge { color: #40c4ff; border-color: #40c4ff; }

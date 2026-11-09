@@ -532,15 +532,15 @@
     0.927276
    ],
    "width_m": 1.15,
-   "sillRel": 1.085,
-   "headRel": 2.6,
+   "sillRel": 1.1,
+   "headRel": 2.1,
    "floorFinishRel": 0.0,
-   "UK_cm": 109,
-   "OK_cm": 260,
+   "UK_cm": 110,
+   "OK_cm": 210,
    "status": "source",
    "note": "",
-   "heightSource": "sources/permit/permit-sheet1-gramushka.dwg: חזית מערבית, חתך א-א (מזהה 1063985)",
-   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"Tovna_Mamad_Window_Dubble - 2010 - mamad win\" (מזהה 1063985); גובה: sources/permit/permit-sheet1-gramushka.dwg: חזית מערבית, חתך א-א (מזהה 1063985)",
+   "heightSource": "העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"Tovna_Mamad_Window_Dubble - 2010 - mamad win\" (מזהה 1063985); גובה: העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
    "host": "GW10",
    "hostThickness_m": 0.3,
    "cutITM": [
@@ -581,29 +581,10 @@
       576243.846
      ]
     ],
-    "bottomRel": 1.085,
-    "topRel": 2.6,
+    "bottomRel": 1.1,
+    "topRel": 2.1,
     "width_m": 0.995,
-    "pocketITM": [
-     [
-      179591.609,
-      576244.769
-     ],
-     [
-      179591.887,
-      576244.657
-     ],
-     [
-      179591.756,
-      576244.334
-     ],
-     [
-      179591.478,
-      576244.446
-     ]
-    ],
-    "pocketWidth_m": 0.348,
-    "note": "משקוף פלדה של חלון הממ\"ד – מוצב בתבנית ונוצק עם הקירות. רוחב הפתח בבטון 1.00 מ' = הרווח בין הקירות ב-K-21 (משפחת Revit 1.15 כוללת את המשקוף / הכנף הנגררת). הקטע האפור ב-K-21 לצד הפתח = כיס תריס ההדף. פרופיל המשקוף – לפי תוכנית הג\"א (חסרה); בתצוגה – קבוע תצוגה."
+    "note": "משקוף פלדה של חלון הממ\"ד – מוצב בתבנית ונוצק עם הקירות. הפתח בבטון (K-21) = המשקוף בתוכנית האדריכל (1.00 מ', פתח נקי 0.90). שתי כנפי הפלדה נגררות לגומחות בתוך הקירות משני צידי הפתח (data/architecture/mamad.json). הקטע האפור 34 ס\"מ ב-K-21 בתוך הפתח לא מופיע בתוכנית האדריכל – לא מוצג (open-issues #101)."
    }
   },
   {
@@ -1289,7 +1270,7 @@
     -0.927276
    ],
    "dia_m": 0.102,
-   "zRel": 2.52,
+   "zRel": 2.525,
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"mmd_za_8quot_1 - צינור אורור 4 _\" (מזהה 1061366)",
    "id": "S01",
    "host": "GW7",
@@ -1311,7 +1292,7 @@
     -0.927276
    ],
    "dia_m": 0.102,
-   "zRel": 2.52,
+   "zRel": 2.525,
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"mmd_za_8quot_1 - צינור אורור 4 _\" (מזהה 1061366)",
    "id": "S02",
    "host": "GW18",
@@ -1363,28 +1344,6 @@
    "mamad": true,
    "status": "source",
    "note": "גובה לפי חזיתות / חתכים; קוטר מהשם (אינץ')"
-  },
-  {
-   "floor": "first",
-   "name": "mmd_za_8quot_1 - צינור אורור 4 _",
-   "revitId": "V319",
-   "centerITM": [
-    179591.372,
-    576243.789
-   ],
-   "axisITM": [
-    -0.374379,
-    -0.927276
-   ],
-   "dia_m": 0.102,
-   "zRel": null,
-   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק alef, שכבה A-GLAZ, \"mmd_za_8quot_1 - צינור אורור 4 _\" (מזהה V319)",
-   "id": "S05",
-   "host": "FW6",
-   "hostThickness_m": 0.27,
-   "mamad": false,
-   "status": "provisional",
-   "note": "אין גובה במקורות – מוצג זמני; קוטר מהשם (אינץ')"
   }
  ]
 }

@@ -18,6 +18,7 @@ python3 tools/environment/extract_sheet04.py       # גיליון 04 סרוק: �
 python3 tools/environment/derive_details.py        # בינוי ופיתוח מפורטים -> data/environment/details.json
 python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
+python3 tools/extract_mamad.py  # ממ"ד: חלון, דלת הזזה ושרוולים לפי תוכנית האדריכל + החזית המערבית -> data/architecture/mamad.json (אחרי extract_openings.py)
 python3 tools/plumbing/extract_plan_background.py  # עורך הצנרת: רקע אדריכלי לכל קומה (מה-DXF של היועץ) -> data/plumbing/plan-background.json
 python3 tools/plumbing/seed_routes.py              # עורך הצנרת: זריעה חד-פעמית של data/plumbing/routes.json מההצעה (לא דורס עריכות)
 python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבלת אימות -> docs/verification/editor-stage-1.md
@@ -54,6 +55,7 @@ js/
     props.js               תמיכות תקרת הגג וקורות ההיקף – המחשה, עד אחרי יציקת חומת הגג (K-43 הערה 12)
     proposals.js           הצעות בעלים שמבטלות אלמנט (OC-2: קיר הפרגולה → קורת זיז), מצב קיים/מוצע
     (js/tools/prefs.js     תצוגות שמורות + שחזור השכבות האחרונות – לכל משתמש ב-db של הארטיפקט, data/users/<id>/prefs)
+    mamad.js               ממ"ד לפי תוכנית האדריכל: כנפי חלון (נגררות לגומחות) ודלת הזזה – נפתחות / נסגרות בלחיצה, שרוולים ביציקה (data/architecture/mamad.json ← tools/extract_mamad.py)
     blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס + משקופים (דלתות וחלונות) מבלוק משקוף (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx) · בדיקת מגע: python3 tools/verify_blocks.py → docs/verification/blocks-check.md
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
@@ -108,7 +110,12 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 - **מתחת לרצפת הקרקע ולקורות K-21 שמחוץ למרתף:** בטון רזה 5 ס"מ ומעליו ארגזי פוליביד 25 ס"מ. המידות מ-`excavation.json`, והשכבה היא `underSlabFormers`.
 - **חלון ודלת הממ"ד:**
   - הפתח בבטון הוא הרווח בין הקירות ב-K-21: ‏0.99 מ' בחלון (כולל כיס תריס ההדף 0.34) ו-0.80 מ' בדלת. משפחת Revit רחבה יותר.
-  - משקופי הפלדה נוצקים עם הקירות, בשכבה `mamadFrames` בשלב "קירות קרקע". הכנפיים יגיעו עם הגמרים.
+  - משקופי הפלדה נוצקים עם הקירות, בשכבה `mamadFrames` בשלב "קירות קרקע".
+  - **לפי תוכנית האדריכל (09.11.2026)** – `data/architecture/mamad.json` ← `tools/extract_mamad.py`, נבנה ב-`js/geometry/mamad.js`:
+    - חלון: שתי כנפי פלדה 55 ס"מ שנגררות לגומחות (כוכים) בתוך הקירות משני צידי הפתח + כנף זכוכית פנימית. אדן / ראש ‎+1.10 / ‎+2.10 (חזית מערבית).
+    - דלת: כנף הזזה על פני הקיר, מחוץ לממ"ד.
+    - **לחיצה על החלון / הדלת (בכלי "מידע") פותחת וסוגרת.** שכבה `mamadLeaves`, שלב "גמרים".
+    - שרוולים ביציקה (4" אוורור ×3, 8" סינון) עם אוגנים – שכבה `mamadSleeves`. אימות: [docs/verification/mamad.md](docs/verification/mamad.md).
 - **קיר מקווקו ב-PDF של K-21 שחסר ב-DXF ומחבר קירות:** נוסף. כך GW22, הקיר הדרומי של הממ"ד.
 - **שקעים וחריצים בקו הקיר:** נסגרים אם ב-PDF של K-21 הקיר מקווקו ורציף שם.
 - **קיר שהונמך לתחתית קורה:** החלק שאין מעליו קורה ממשיך עד תחתית התקרה (ק17).

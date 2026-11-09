@@ -126,7 +126,7 @@
   "anchorColor": "#5d6d7e"
  },
  "openings": {
-  "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר); sleeveDefaultRel – גובה תצוגה זמני לשרוול בלי גובה במקור; leafParkColor – סימון אזור חניית הכנף",
+  "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר); sleeveDefaultRel – גובה תצוגה זמני לשרוול בלי גובה במקור; leafParkColor – סימון אזור חניית הכנף; slideSeconds – משך פתיחה / סגירה של כנפי הממ\"ד; nicheColor – קו המתאר של גומחות חלון הממ\"ד (נראה דרך הקיר); handleRel / handleHeight_m – ידית דלת הממ\"ד להמחשה (אין גובה במקור); sleeveBoreColor / sleeveBoreRatio – סימון קדח השרוול",
   "frame_m": 0.05,
   "frameDepth_m": 0.07,
   "mullion_m": 0.05,
@@ -134,7 +134,13 @@
   "doorLeaf_m": 0.045,
   "defaultWallDepth_m": 0.2,
   "leafParkColor": "#ffb300",
-  "sleeveDefaultRel": 2.2
+  "sleeveDefaultRel": 2.2,
+  "slideSeconds": 0.9,
+  "nicheColor": "#00acc1",
+  "handleRel": 1.05,
+  "handleHeight_m": 0.25,
+  "sleeveBoreColor": "#15181b",
+  "sleeveBoreRatio": 0.86
  },
  "xray": {
   "_doc": "כפתור \"צנרת מוסתרת\" – שקיפות הבטון (קבוע תצוגה)",

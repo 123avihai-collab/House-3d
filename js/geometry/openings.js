@@ -90,22 +90,6 @@ export function buildMamadFrames(ctx) {
     });
     scene.add(g);
   }
-  // ventilation / filter sleeves of the mamad (architect's families "צינור אוורור 4"", "Zinor8") – cast in the wall
-  for (const sv of data.openings?.sleeves || []) {
-    if (!sv.dia_m) continue;
-    const z = sv.zRel ?? display.openings.sleeveDefaultRel, t = sv.hostThickness_m || display.openings.defaultWallDepth_m;
-    const [x0, z0] = coords.xz(...sv.centerITM), [x1, z1] = coords.xz(sv.centerITM[0] + sv.axisITM[0], sv.centerITM[1] + sv.axisITM[1]);
-    const ax = new THREE.Vector3(x1 - x0, 0, z1 - z0).normalize(), nrm = new THREE.Vector3(-ax.z, 0, ax.x);
-    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(sv.dia_m / 2, sv.dia_m / 2, t + 0.04, 24), steel);
-    cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), nrm); cyl.position.set(x0, z, z0);
-    const g = new THREE.Group(); g.add(cyl); if (sv.status !== 'source') g.add(new THREE.BoxHelper(cyl, DF.provisionalEdgeColor));
-    const hostW = (sv.floor === 'ground' ? data.floorGround : data.floorFirst)?.walls?.find(w => w.id === sv.host);
-    registry.add(g, { floor: sv.floor, system: 'structure', stage: 'walls', layer: 'mamadFrames', ...(hostW?.mamad ? { step: 'groundCeiling' } : {}) }, {
-      id: sv.id, name: `שרוול ${Math.round(sv.dia_m / 0.0254)}" ${/Zinor8|8__ext/.test(sv.name) ? '(סינון / חיצוני)' : '(אוורור)'} – ${sv.host}`, status: sv.status,
-      rows: [['קוטר', `${Math.round(sv.dia_m * 1000)} מ"מ (${Math.round(sv.dia_m / 0.0254)}")`], ['גובה מרכז', sv.zRel != null ? coords.fmtH(coords.H0 + sv.zRel) : 'לא ידוע – זמני'], ['קיר', sv.host], ['משפחת Revit', sv.name]],
-      note: `${sv.note}. שרוול שנוצק בקיר – פרט היצרן המאושר של פיקוד העורף חסר.`, source: sv.source,
-    });
-    scene.add(g);
-  }
+  // the sleeves, the leaves and the niches: js/geometry/mamad.js (data/architecture/mamad.json)
   return { count: OP.length };
 }

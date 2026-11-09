@@ -28,6 +28,18 @@ def levels_at(items, tree, p, pick):
 def main():
     C = XB.context(); B = J('data/architecture/blocks.json')
     B['walls'] = [w for w in B['walls'] if (w.get('variant') or {}).get('show') != 'changed']   # the owner-change copies are checked apart (variants); L_ = J('data/architecture/blocks.json')['walls']
+    # a merged run (segments: parts with their own bottom / top) is checked part by part
+    ex = []
+    for w in B['walls']:
+        if not w.get('segments'): ex.append(w); continue
+        (x0, y0), (x1, y1) = w['axisITM']; L = w['length_m']; ux, uy = (x1 - x0) / L, (y1 - y0) / L
+        for sg in w['segments']:
+            cl = lambda o: {**o, 's0': r3(max(o['s0'], sg['s0']) - sg['s0']), 's1': r3(min(o['s1'], sg['s1']) - sg['s0'])}
+            ins = lambda o: o['s1'] > sg['s0'] + 0.005 and o['s0'] < sg['s1'] - 0.005
+            ex.append({**w, '_of': w['id'], 'id': f"{w['id']}/{sg['id']}" if sg['id'] != w['id'] else w['id'], 'axisITM': [[x0 + ux * sg['s0'], y0 + uy * sg['s0']], [x0 + ux * sg['s1'], y0 + uy * sg['s1']]],
+                       'length_m': r3(sg['s1'] - sg['s0']), 'bottomRel': sg['bottomRel'], 'topRel': sg['topRel'],
+                       'openings': [cl(o) for o in w['openings'] if ins(o)], 'lintels': [cl(o) for o in w.get('lintels', []) if ins(o)]})
+    B['walls'] = ex
     trees = {fl: {k: STRtree([g for g, _ in C[k][fl]]) for k in ('under', 'over')} for fl in C['over']}
     runs_by_fl = {}
     for w in B['walls']: runs_by_fl.setdefault(w['floor'], []).append(w)
@@ -39,6 +51,7 @@ def main():
         top = {'open': 0.0, 'gap': [], 'clash': []}; bot = {'open': 0.0, 'gap': [], 'clash': []}
         for i in range(n + 1):
             s = L * i / n
+            if w.get('_of'): s = min(max(s, 0.02), L - 0.02)   # a part of a merged run: its ends are inside the wall, not a level change
             # an opening that reaches the ceiling / floor is not a block top / bottom there
             op_top = any(o['s0'] - 0.01 <= s <= o['s1'] + 0.01 and o['z1'] >= w['topRel'] - 0.01 for o in w['openings'])
             op_bot = any(o['s0'] - 0.01 <= s <= o['s1'] + 0.01 and o['z0'] <= w['bottomRel'] + 0.01 for o in w['openings'])
@@ -57,12 +70,13 @@ def main():
                     elif z > w['bottomRel'] + TOL: bot['clash'].append((round(s, 2), round(z - w['bottomRel'], 3)))
         # run ends: what does each end meet?
         others = [poly(o) for o in runs_by_fl[fl] if o is not w] + C['conc'][fl]
+        sib = [poly(o).buffer(0.03) for o in runs_by_fl[fl] if o is not w and w.get('_of') and o.get('_of') == w['_of']]   # the other parts of the same merged run: one wall, no joint
         ends = []
         for (ex, ey), sg in (((x0, y0), -1), ((x1, y1), 1)):
             e = Point(ex, ey)
             face = LineString([(ex + nx * w['thickness_m'] / 2, ey + ny * w['thickness_m'] / 2), (ex - nx * w['thickness_m'] / 2, ey - ny * w['thickness_m'] / 2)])
             d = min((g.distance(face) for g in others), default=9)
-            if 0.005 < d < 0.40: ends.append({'end': 'start' if sg < 0 else 'end', 'gap_m': r3(d)})
+            if 0.005 < d < 0.40 and not any(g.intersects(face) for g in sib): ends.append({'end': 'start' if sg < 0 else 'end', 'gap_m': r3(d)})
         ops = []
         for o in w['openings']:
             o_ = {'id': o['id']}

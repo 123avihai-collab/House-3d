@@ -573,6 +573,82 @@ def main():
                 ring = [[r3(a_[0] + nx * d0), r3(a_[1] + ny * d0)], [r3(b_[0] + nx * d0), r3(b_[1] + ny * d0)], [r3(b_[0] + nx * d1), r3(b_[1] + ny * d1)], [r3(a_[0] + nx * d1), r3(a_[1] + ny * d1)]]
                 additions.append({'id': f'{oc}-step', 'change': oc, 'floor': 'first', 'kind': 'step', 'ringITM': ring, 'bottomRel': st['bottomRel'], 'topRel': st['topRel'],
                                   'width_m': r3(Lsp), 'note': st['note'], 'source': g.get('source', '')})
+    # ---- one wall = one run (Avihai 09.11: vertical "break lines" inside one wall) ----
+    # runs that continue each other on one straight line (ends touching, same thickness) were laid apart, each on its own
+    # grid, which left a straight vertical joint through every course. They are merged into ONE run laid as one wall: the
+    # blocks bond across the old seam. Where the parts stand on / reach different levels (slab / upturned beam), the merged
+    # run spans the lowest bottom … highest top and the missing rectangles are "voids" (holes, like openings); "segments"
+    # keeps each part's own bottom / top for the contact check (tools/verify_blocks.py). Walls of an owner change stay apart.
+    locked = {wid for g in OCG.values() for wid in (g.get('blocks') or {}).get('removeWalls', [])}
+    free = [w for w in walls if not w.get('variant') and not w.get('ownerChange') and w['id'] not in locked]
+    par = {w['id']: w['id'] for w in free}
+    def find(x):
+        while par[x] != x: par[x] = par[par[x]]; x = par[x]
+        return x
+    for i, a_ in enumerate(free):
+        (ax0, ay0), (ax1, ay1) = a_['axisITM']; ux, uy = (ax1 - ax0) / a_['length_m'], (ay1 - ay0) / a_['length_m']
+        for b_ in free[i + 1:]:
+            if a_['floor'] != b_['floor'] or abs(a_['thickness_m'] - b_['thickness_m']) > 0.031: continue   # 20 / 22 drawn on one line = one wall (hatch width), the longest part's thickness
+            (bx0, by0), (bx1, by1) = b_['axisITM']; vx, vy = (bx1 - bx0) / b_['length_m'], (by1 - by0) / b_['length_m']
+            if abs(ux * vy - uy * vx) > 0.02: continue
+            if max(abs(-(px - ax0) * uy + (py - ay0) * ux) for px, py in b_['axisITM']) > 0.02: continue
+            if min(math.dist(p_, q_) for p_ in a_['axisITM'] for q_ in b_['axisITM']) > 0.02: continue
+            par[find(b_['id'])] = find(a_['id'])
+    groups = defaultdict(list)
+    for w in free: groups[find(w['id'])].append(w)
+    renamed = {}
+    for grp in groups.values():
+        if len(grp) < 2: continue
+        (x0, y0), (x1, y1) = grp[0]['axisITM']; ux, uy = (x1 - x0) / grp[0]['length_m'], (y1 - y0) / grp[0]['length_m']
+        pr = lambda p_: (p_[0] - x0) * ux + (p_[1] - y0) * uy
+        # the line of the merged run: through its two extreme end points (not the direction of one short part)
+        pts_ = [p_ for w in grp for p_ in w['axisITM']]; pa, pb = min(pts_, key=pr), max(pts_, key=pr); Lab = math.dist(pa, pb)
+        x0, y0 = pa; ux, uy = (pb[0] - pa[0]) / Lab, (pb[1] - pa[1]) / Lab
+        t0 = min(pr(p_) for w in grp for p_ in w['axisITM']); t1 = max(pr(p_) for w in grp for p_ in w['axisITM'])
+        Lm = r3(t1 - t0); zb, zt = min(w['bottomRel'] for w in grp), max(w['topRel'] for w in grp)
+        m = {k: v for k, v in grp[0].items()}; m['thickness_m'] = max(grp, key=lambda w: w['length_m'])['thickness_m']
+        m.update({'axisITM': [[r3(x0 + ux * t0), r3(y0 + uy * t0)], [r3(x0 + ux * t1), r3(y0 + uy * t1)]], 'length_m': Lm, 'bottomRel': zb, 'topRel': zt,
+                  'openings': [], 'lintels': [], 'voids': [], 'segments': [], 'mergedFrom': [w['id'] for w in grp],
+                  'status': 'source' if all(w['status'] == 'source' for w in grp) else next(w['status'] for w in grp if w['status'] != 'source'),
+                  'note': ' '.join(dict.fromkeys(w['note'] for w in grp if w.get('note'))) or None,
+                  'area_m2': r3(sum(w['area_m2'] for w in grp))})
+        if m['note'] is None: m.pop('note')
+        SW = {'L': 'R', 'R': 'L'}
+        for w in sorted(grp, key=lambda w: min(pr(p_) for p_ in w['axisITM'])):
+            a0, a1 = pr(w['axisITM'][0]) - t0, pr(w['axisITM'][1]) - t0; rev = a1 < a0; s_ = min(a0, a1); Lw = w['length_m']
+            mv = (lambda v: r3(s_ + Lw - v)) if rev else (lambda v: r3(s_ + v))
+            for key in ('openings', 'lintels'):
+                for o in w.get(key, []):
+                    o = dict(o); u0, u1 = sorted((mv(o['s0']), mv(o['s1']))); o['s0'], o['s1'] = u0, u1
+                    if rev:
+                        for f in ('clip', 'onConcrete', 'continues', 'intoCrossWall', 'pier', 'shortBearing'):
+                            if f in o: o[f] = [SW.get(x, x) for x in o[f]]
+                        if 'bearL_m' in o: o['bearL_m'], o['bearR_m'] = o['bearR_m'], o['bearL_m']
+                    m[key].append(o)
+            e0, e1 = r3(s_), r3(min(Lm, s_ + Lw))
+            m['segments'].append({'id': w['id'], 's0': e0, 's1': e1, 'bottomRel': w['bottomRel'], 'topRel': w['topRel']})
+            if w['bottomRel'] > zb + 0.005: m['voids'].append({'s0': e0, 's1': e1, 'z0': zb, 'z1': w['bottomRel']})
+            if w['topRel'] < zt - 0.005: m['voids'].append({'s0': e0, 's1': e1, 'z0': w['topRel'], 'z1': zt})
+            renamed[w['id']] = m['id']
+        dx, dy = ux, uy; cu = (hx, hy) if abs(dx * hx + dy * hy) >= abs(-dx * hy + dy * hx) else (-hy, hx)
+        sg = 1 if dx * cu[0] + dy * cu[1] >= 0 else -1; mx0, my0 = m['axisITM'][0]
+        m['bond'] = {'p0': r3((mx0 - OE) * cu[0] + (my0 - ON) * cu[1]), 'sign': sg}
+        holes = m['openings'] + m['lintels'] + m['voids']; best = None
+        for gi in range(int(round(BL / 0.01))):
+            f_, c_, k_, _ = count_blocks(Lm, zb, zt, holes, BL, BH, {**m['bond'], 'g': gi * 0.01}, m['courseDatum'])
+            if best is None or (c_, -f_) < (best[1], -best[2]): best = (gi * 0.01, c_, f_, k_)
+        m['bond']['g'] = r3(best[0]); m['blocksCut'], m['blocksFull'], m['courses'] = best[1], best[2], best[3]
+        ids = {w['id'] for w in grp}; at = min(i for i, w in enumerate(walls) if w['id'] in ids)
+        walls[:] = [w for w in walls[:at] if w['id'] not in ids] + [m] + [w for w in walls[at:] if w['id'] not in ids]
+    for b in boxes_out:
+        if b.get('hostWall') in renamed: b['hostWall'] = renamed[b['hostWall']]
+        hw = next((w for w in walls if w['id'] == b.get('hostWall') and not w.get('variant')), None)
+        if hw and b.get('depth_m') and not b.get('variant'): b['depth_m'] = hw['thickness_m']
+    Q.clear()
+    for w in walls:
+        if (w.get('variant') or {}).get('show') == 'changed': continue
+        tc = round(w['thickness_m'] * 100)
+        Q[w['floor']][f't{tc}_full'] += w['blocksFull']; Q[w['floor']][f't{tc}_cut'] += w['blocksCut']; Q[w['floor']][f't{tc}_m2'] += w['area_m2']
     out = {'_doc': 'נוצר ע"י tools/extract_blocks.py – קירות בלוקים (איטונג 60×25 לפי בחירת אביחי), ארגזי תריס וכמויות. לא לערוך ידנית.',
            'block': CFG['block'], 'houseAxisDeg': r3(ang), 'walls': walls, 'shutterBoxes': boxes_out,
            'outsideWalls': {'items': outside, 'note': 'קירות בתוכנית האדריכל בלי תקרה מעליהם (גינה / גדרות) – לשלב הפיתוח, לא נספרו'},

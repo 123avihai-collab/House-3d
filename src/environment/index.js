@@ -20,18 +20,22 @@ export function buildEnvironment(ctx) {
 
   supersedeStage1(ctx);
   const mats = new MaterialLibrary(ctx.data.envMaterials, ctx.viewer.renderer, './');
-  const streets = buildStreets(ctx, mats);
   const lots = buildLots(ctx, mats);
-  const envelopes = buildEnvelopes(ctx, mats, lots);
-  const sheet04 = buildSheet04(ctx, mats, lots);
-  const details = buildDetails(ctx, mats, lots);
-  return {
-    lots, envelopes, sheet04, streets, details,
-    volumes: [...envelopes, ...sheet04], // transparency slider applies to all neighbour volumes
+  // layers that are off on open are built the first time one of them is switched on (Avihai 08.11: "layers that are off
+  // shouldn't load") – registry.defer runs the builder inside registry.apply, before visibility is set
+  const env = {
+    lots, streets: null, envelopes: [], sheet04: [], details: { houseMaterials: [] },
+    get volumes() { return [...this.envelopes, ...this.sheet04]; }, // transparency slider applies to all neighbour volumes
     // called from main.js once the app/store exist; returns the DOM for the "סביבה" group of the layers panel
     attach(app) { this.controls = buildControls(app, this); },
     panel() { return this.controls?.panel(); },
   };
+  const R = ctx.registry;
+  R.defer(['street', 'streetHeightOutline'], () => { env.streets = buildStreets(ctx, mats); });
+  R.defer(['neighborEnvelopes'], () => { env.envelopes = buildEnvelopes(ctx, mats, lots); });
+  R.defer(['neighborSheet04', 'neighborParking', 'neighborEntrances'], () => { env.sheet04 = buildSheet04(ctx, mats, lots); });
+  R.defer(['neighborHouses', 'neighborFences', 'neighborYards', 'streetFurniture'], () => { env.details = buildDetails(ctx, mats, lots); });
+  return env;
 }
 
 function supersedeStage1(ctx) {

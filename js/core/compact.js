@@ -17,16 +17,16 @@ function matKey(m) {
   keys.set(m, k); return k;
 }
 
-export function compactRegistry(registry, scene) {
+export function compactRegistry(registry, scene, items = registry.items) {
   scene.updateMatrixWorld(true);
   const inv = new THREE.Matrix4(), rel = new THREE.Matrix4();
   let before = 0, after = 0;
-  for (const it of registry.items) {
+  for (const it of items) {
     const root = it.object;
     const groups = new Map();
     root.traverse((o) => {
       if (o === root || o.userData.keep) return;
-      const kind = o.isInstancedMesh || o.isSkinnedMesh ? null : o.isMesh ? 'mesh' : o.isLineSegments ? 'lines' : null;
+      const kind = o.isInstancedMesh || o.isSkinnedMesh || o.isLine2 || o.isLineSegments2 || o.geometry?.isInstancedBufferGeometry ? null : o.isMesh ? 'mesh' : o.isLineSegments ? 'lines' : null;
       if (!kind || Array.isArray(o.material) || !o.geometry?.attributes?.position) return;
       // (draw groups of a single-material geometry – e.g. a cylinder's side + caps – don't matter: merged as one)
       if (o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) return;
@@ -53,7 +53,7 @@ export function compactRegistry(registry, scene) {
     }
   }
   // empty groups left behind after their meshes moved
-  for (const it of registry.items) {
+  for (const it of items) {
     const dead = []; it.object.traverse((o) => { if (o !== it.object && o.isGroup && !o.children.length) dead.push(o); });
     dead.forEach((o) => o.parent?.remove(o));
   }

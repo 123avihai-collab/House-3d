@@ -26,7 +26,8 @@ export class MaterialLibrary {
     if (d.texture) {
       const rep = 1 / d.size_m;
       const tex = (file, srgb) => {
-        const t = this.loader.load(`${this.base}${d.texture}/${file}.${file === "normal" ? "jpg" : "webp"}`);   // WebP q92 – tools/optimize_textures.py
+        // WebP q92 – tools/optimize_textures.py; a texture that arrives after the first frame (layers built later) redraws the view
+        const t = this.loader.load(`${this.base}${d.texture}/${file}.${file === "normal" ? "jpg" : "webp"}`, () => MaterialLibrary.onTexture?.());
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
         t.repeat.set(rep, rep);
         t.anisotropy = this.maxAniso;

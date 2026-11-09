@@ -78,7 +78,7 @@ export function checkRun(run, ctx) {
   for (let i = 0; i + 1 < V.length; i++) {
     const a = V[i], b = V[i + 1], plan = Math.hypot(b.xy[0] - a.xy[0], b.xy[1] - a.xy[1]); if (plan < cfg.edit.stationTol_m) continue;
     for (const o of obstacles) {
-      if (o.cat !== 'wall' && o.cat !== 'block') continue;
+      if (o.cat !== 'wall' && !(o.cat === 'block' && C.blockWallAngle)) continue;   // diagonal allowed (Avihai 09.11): blocks are crossed in the fill
       const P = o.poly;
       for (let e = 0; e < P.length; e++) {
         const c = P[e], d = P[(e + 1) % P.length], eL = Math.hypot(d[0] - c[0], d[1] - c[1]); if (eL < C.minFace_m) continue;   // only the long faces

@@ -160,7 +160,7 @@ export function moveNodeSystem(node, runs, dx, dy, ctx) {
     };
     if (atStart) S = moveEnd(S);
     if (atEnd) S = moveEnd([...S].reverse().map(q => ({ ...q, H: [...q.H].reverse() }))).reverse().map(q => ({ ...q, H: [...q.H].reverse() }));
-    out.runs[run.id] = fromStations(run, mergeCollinear(S, opt), fr);
+    out.runs[run.id] = fromStations(run, S, fr);   // no merging: the far end must stay exactly where it was
   }
   return out;
 }

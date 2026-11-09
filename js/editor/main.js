@@ -64,7 +64,7 @@ async function start() {
   const nodeRuns = (n) => {   // proposal runs connected to the point (by name or by an end within connectTol)
     const P = n.xy, tol = cfg.checks.connectTol_m;
     const water = ['cold', 'hot', 'return'];   // a manifold pulls only water lines that end at it (risers in the shaft pass right by)
-    return store.runs().filter(r => r.from === n.id || r.to === n.id || ((n.kind !== 'manifold' || water.includes(r.system)) && [r.vertices[0], r.vertices[r.vertices.length - 1]].some(v => { const q = fr.toLocal(v[0], v[1]); return Math.hypot(q[0] - P[0], q[1] - P[1]) <= tol; })));
+    return store.runs().filter(r => r.from === n.id || r.to === n.id || ((n.kind !== 'manifold' || water.includes(r.system)) && r.floor === n.floor && [r.vertices[0], r.vertices[r.vertices.length - 1]].some(v => { const q = fr.toLocal(v[0], v[1]); return Math.hypot(q[0] - P[0], q[1] - P[1]) <= tol; })));
   };
   const moveNode = (n, dx, dy) => OP.moveNodeSystem(n, nodeRuns(n), dx, dy, { fr, opt: opt(), zone: n.kind === 'manifold' ? E.manifoldZone_m : E.stationTol_m, connectTol: cfg.checks.connectTol_m, stationTol: E.stationTol_m });
   // outlets of a manifold ↔ the runs they feed (by destination, else the run that starts at the outlet)
@@ -306,7 +306,7 @@ async function start() {
             const W = Math.max(160, L.length * 26 + 20);
             const svg = `<svg class="mf-svg" viewBox="0 0 ${W} 46" width="${W}" height="46"><line x1="8" y1="12" x2="${W - 8}" y2="12" stroke="${col}" stroke-width="6" stroke-linecap="round"/>${L.map((x, j) => `<g class="mf-o" data-run="${x.run?.id || ''}"><line x1="${18 + j * 26}" y1="12" x2="${18 + j * 26}" y2="28" stroke="${col}" stroke-width="2.5"/><circle cx="${18 + j * 26}" cy="36" r="9" fill="${x.run ? col : '#999'}"/><text x="${18 + j * 26}" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${x.i + 1}</text></g>`).join('')}</svg>`;
             return `<div class="mf-sec"><b style="color:${col}">${title}</b> <span class="muted">(${h != null ? '+' + h.toFixed(2) + ' מעל הרצפה' : ''})</span>${svg}
-              <table class="mf-t">${L.map(x => `<tr data-run="${x.run?.id || ''}"><td><span class="mf-n" style="background:${x.run ? col : '#999'}">${x.label}</span></td><td>ø${x.o.D_mm ?? '?'}</td><td>${esc(x.o.to.split('@')[0])}</td><td>${x.run ? runLen(x.run).toFixed(1) + " מ'" : '⚠ אין קו'}</td></tr>`).join('')}</table></div>`; };
+              <table class="mf-t">${L.map(x => `<tr data-run="${x.run?.id || ''}"><td><span class="mf-n" style="background:${x.run ? col : '#999'}">${x.label}</span></td><td>ø${x.o.D_mm ?? '?'}</td><td>${esc(x.o.to.split('@')[0])}${x.o.room ? ` <span class="muted">${esc(x.o.room)}</span>` : ''}</td><td>${x.run ? runLen(x.run).toFixed(1) + " מ'" : '⚠ אין קו'}</td></tr>`).join('')}</table></div>`; };
           form = `<div class="mf">${sect('cold', 'מים קרים', '#1f6fd1', n.coldH)}${sect('hot', 'מים חמים', '#cf3a2c', n.hotH)}
             ${other.length ? `<div class="mf-sec"><b>מחובר גם</b> <span class="muted">(הזנה / סחרור)</span><table class="mf-t">${other.map(r => `<tr data-run="${r.id}"><td><span class="mf-n" style="background:${(sys[r.system] || {}).color}">↔</span></td><td>ø${r.D_mm ?? '?'}</td><td>${esc(r.id.split('@')[0])}</td><td>${runLen(r).toFixed(1)} מ'</td></tr>`).join('')}</table></div>` : ''}</div>` + form;
         }

@@ -456,23 +456,32 @@
    "id": "electrical",
    "label": "חשמל",
    "system": "electrical",
-   "implemented": false,
+   "implemented": true,
    "layers": [
     {
+     "id": "elSupply",
+     "label": "הזנה ראשית (הצעה): קו הזנה מהפילר, לוח ראשי, שרוולים",
+     "visible": true
+    },
+    {
      "id": "sockets",
-     "label": "שקעים"
+     "label": "שקעים",
+     "implemented": false
     },
     {
      "id": "switches",
-     "label": "מפסקים"
+     "label": "מפסקים",
+     "implemented": false
     },
     {
      "id": "lighting",
-     "label": "תאורה"
+     "label": "תאורה",
+     "implemented": false
     },
     {
      "id": "comm",
-     "label": "תקשורת"
+     "label": "תקשורת",
+     "implemented": false
     }
    ]
   },

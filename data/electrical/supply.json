@@ -1,0 +1,369 @@
+{
+ "_doc": "ח1 – הצעת הזנה ראשית (חשמל). נוצר ע\"י tools/electrical/propose_supply.py – לא לערוך ידנית. כל הערכים הצעת תכנון (provisional) עד אישור אביחי.",
+ "status": "proposal",
+ "source": "tools/electrical/propose_supply.py + tools/electrical/supply-inputs.json",
+ "connection": {
+  "size": "3×63A",
+  "kVA": 43.5,
+  "status": "provisional",
+  "note": "המלצה מקדמית; ממתין לאישור (E1)"
+ },
+ "meterCabinet": {
+  "id": "MC",
+  "name": "ארון מונה בפילר (חברת החשמל)",
+  "ringITM": [
+   [
+    179584.499,
+    576236.667
+   ],
+   [
+    179584.326,
+    576236.307
+   ],
+   [
+    179585.008,
+    576235.982
+   ],
+   [
+    179585.174,
+    576236.349
+   ]
+  ],
+  "bottomRel": -1.15,
+  "topRel": 1.25,
+  "status": "approx",
+  "note": "מיקום הארון מתוכנית הפיתוח; מידות הארון ופרט היסוד חסרים (open-issues #64, E8)",
+  "source": "data/structure/stairs.json pillar.cabinet"
+ },
+ "mainPanel": {
+  "id": "MDB",
+  "name": "לוח ראשי",
+  "hostWall": "BK-G27",
+  "faceITM": [
+   179600.615,
+   576235.326
+  ],
+  "alongITM": [
+   0.374,
+   0.927
+  ],
+  "normalITM": [
+   -0.927,
+   0.374
+  ],
+  "width_m": 0.8,
+  "height_m": 1.2,
+  "depth_m": 0.2,
+  "bottomRel": 0.9,
+  "topRel": 2.1,
+  "wallClearLength_m": 1.31,
+  "wallThickness_m": 0.22,
+  "status": "provisional",
+  "decision": "אביחי 10.11.2026: בכניסה לבית, בצד ימין, בתוך ארון נגרות",
+  "note": "מידות הלוח זמניות – ייקבעו אחרי טבלת המעגלים (ח7). לוח על הטיח, בתוך ארון הנגרות",
+  "source": "מיקום: החלטת אביחי 10.11.2026; קיר: data/architecture/blocks.json BK-G27; מידות: הנחת תכנון"
+ },
+ "feeder": {
+  "id": "FD-MAIN",
+  "name": "קו הזנה ראשי: ארון מונה → לוח ראשי",
+  "cable": {
+   "type": "N2XY 5×16 ממ\"ר נחושת",
+   "status": "provisional",
+   "note": "חתך מקדמי ל-63A; ייקבע סופית ע\"י החשמלאי"
+  },
+  "conduits": [
+   {
+    "role": "קו הזנה",
+    "D_mm": 75,
+    "material": "צינור שרשורי דו-שכבתי (קוברה)"
+   },
+   {
+    "role": "שמור (רזרבה)",
+    "D_mm": 75,
+    "material": "צינור שרשורי דו-שכבתי (קוברה)"
+   }
+  ],
+  "conduitSpacing_m": 0.15,
+  "pts3d": [
+   [
+    179584.752,
+    576236.326,
+    279.65
+   ],
+   [
+    179585.196,
+    576236.89,
+    279.65
+   ],
+   [
+    179585.196,
+    576236.89,
+    278.95
+   ],
+   [
+    179586.256,
+    576237.378,
+    278.95
+   ],
+   [
+    179598.146,
+    576232.577,
+    278.95
+   ],
+   [
+    179599.447,
+    576235.798,
+    278.95
+   ],
+   [
+    179600.467,
+    576235.386,
+    278.95
+   ],
+   [
+    179600.467,
+    576235.386,
+    281.4
+   ]
+  ],
+  "centreRel": -1.55,
+  "levelRule": "ציר הצינור מתחת לקווי הביוב שהוא חוצה ומתחת לתחתית קורות היסוד",
+  "length_m": 22.431,
+  "cableLength_m": 25.131,
+  "cableLengthNote": "אורך התוואי + גובה הלוח + 1.5 מ' קצוות בארון המונה",
+  "throughSlab": "GS1",
+  "status": "provisional",
+  "pillarEnd": {
+   "points": [
+    0,
+    1,
+    2
+   ],
+   "status": "provisional",
+   "note": "כלונס 115 נמצא מתחת לארון המונה, ולכן אין כניסה מלמטה. הצינור עולה בפינת חדר האשפה שמאחורי הארון ונכנס לארון דרך הקיר האחורי. זמני עד קבלת פרט הפילר (E8)"
+  },
+  "source": "tools/electrical/propose_supply.py (הנחת תכנון; מכשולים מ-data/structure, data/plumbing)"
+ },
+ "sleeves": [
+  {
+   "id": "ES-1",
+   "through": "רצפת הקרקע GS1 (תלויה) – עלייה ללוח הראשי",
+   "at": [
+    179600.467,
+    576235.386,
+    280.35
+   ],
+   "axis": "v",
+   "count": 2,
+   "sleeveD_mm": 110,
+   "note": "שרוול לכל צינור, לפני יציקת הרצפה; צמוד לדופן קורה B-49 – לאישור הקונסטרוקטור. להשאיר רפיון בצינור בגובה ארגזי ההפרדה",
+   "status": "provisional"
+  },
+  {
+   "id": "ES-2",
+   "through": "הקיר האחורי של ארון המונה בפילר (מחדר האשפה)",
+   "at": [
+    179584.974,
+    576236.608,
+    279.65
+   ],
+   "axis": "h",
+   "count": 2,
+   "sleeveD_mm": 110,
+   "note": "כלונס 115 נמצא מתחת לארון המונה, ולכן אין כניסה מלמטה. הצינור עולה בפינת חדר האשפה שמאחורי הארון ונכנס לארון דרך הקיר האחורי. זמני עד קבלת פרט הפילר (E8)",
+   "status": "provisional"
+  }
+ ],
+ "checks": [
+  {
+   "kind": "pile",
+   "ref": "כלונס 10",
+   "clear_m": 0.493,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "pile",
+   "ref": "כלונס 11",
+   "clear_m": 0.402,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "pile",
+   "ref": "כלונס 12",
+   "clear_m": 0.752,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "pile",
+   "ref": "כלונס 16",
+   "clear_m": 0.673,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "pile",
+   "ref": "כלונס 17",
+   "clear_m": 0.96,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "pile",
+   "ref": "כלונס 115",
+   "clear_m": 0.234,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "מרחק אופקי משפת הכלונס"
+  },
+  {
+   "kind": "chamber",
+   "ref": "S-1",
+   "clear_m": 0.722,
+   "required_m": 0.3,
+   "ok": true,
+   "note": "מרחק אופקי מדופן פנימית של השוחה"
+  },
+  {
+   "kind": "chamber",
+   "ref": "S-2",
+   "clear_m": 1.5,
+   "required_m": 0.3,
+   "ok": true,
+   "note": "מרחק אופקי מדופן פנימית של השוחה"
+  },
+  {
+   "kind": "chamber",
+   "ref": "S-4",
+   "clear_m": 0.821,
+   "required_m": 0.3,
+   "ok": true,
+   "note": "מרחק אופקי מדופן פנימית של השוחה"
+  },
+  {
+   "kind": "beam",
+   "ref": "B-48",
+   "clear_m": 0.442,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית קורה -1.07; ראש הצינור -1.51"
+  },
+  {
+   "kind": "beam",
+   "ref": "B-42",
+   "clear_m": 0.602,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית קורה -0.91; ראש הצינור -1.51"
+  },
+  {
+   "kind": "beam",
+   "ref": "B-56",
+   "clear_m": 0.452,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית קורה -1.06; ראש הצינור -1.51"
+  },
+  {
+   "kind": "beam",
+   "ref": "B-58",
+   "clear_m": 0.442,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית קורה -1.07; ראש הצינור -1.51"
+  },
+  {
+   "kind": "footing",
+   "ref": "PF1",
+   "clear_m": 0.712,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית יסוד החומה -0.80"
+  },
+  {
+   "kind": "footing",
+   "ref": "PF6",
+   "clear_m": 0.712,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "תחתית יסוד החומה -0.80"
+  },
+  {
+   "kind": "pipe",
+   "ref": "SW4@ground",
+   "clear_m": 0.289,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "ø110 sewage, רום תחתית בחצייה 279.277; הצינור עובר מתחת"
+  },
+  {
+   "kind": "pipe",
+   "ref": "SW5@ground",
+   "clear_m": 0.173,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "ø110 sewage, רום תחתית בחצייה 279.161; הצינור עובר מתחת"
+  },
+  {
+   "kind": "pipe",
+   "ref": "SW7@ground",
+   "clear_m": 0.251,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "ø160 sewage, רום תחתית בחצייה 279.239; הצינור עובר מתחת"
+  },
+  {
+   "kind": "pipe",
+   "ref": "SW8@ground",
+   "clear_m": 0.318,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "ø160 sewage, רום תחתית בחצייה 279.305; הצינור עובר מתחת"
+  },
+  {
+   "kind": "pipe",
+   "ref": "SW8@ground",
+   "clear_m": 0.334,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "ø160 sewage, רום תחתית בחצייה 279.322; הצינור עובר מתחת"
+  },
+  {
+   "kind": "basement",
+   "ref": "קיר המרתף הדרומי (קו חוץ)",
+   "clear_m": 1.187,
+   "required_m": 0.5,
+   "ok": true,
+   "note": "מרחק אופקי של המסדרון מקו החוץ של קירות המרתף"
+  },
+  {
+   "kind": "plot",
+   "ref": "גבול המגרש",
+   "clear_m": 0.337,
+   "required_m": 0.1,
+   "ok": true,
+   "note": "כל נקודות התוואי בתוך המגרש"
+  },
+  {
+   "kind": "beamSide",
+   "ref": "B-49 (מתחת לקיר הלוח)",
+   "clear_m": 0.054,
+   "required_m": 0.0,
+   "ok": true,
+   "note": "העלייה דרך הרצפה צמודה לדופן הקורה – בלי לחדור לקורה"
+  }
+ ],
+ "summary": {
+  "length_m": 22.431,
+  "checks": 23,
+  "failed": 0,
+  "riserFromWallFace_m": 0.16
+ }
+}

@@ -10,5 +10,25 @@
  "sleeveLength_m": 0.3,
  "provisionalTint": "#ffb74d",
  "labelOffset_m": 0.25,
- "statusLabel": { "proposal": "הצעה לאישור", "provisional": "זמני – הנחת תכנון" }
+ "statusLabel": {
+  "proposal": "הצעה לאישור",
+  "provisional": "זמני – הנחת תכנון"
+ },
+ "trenchColor": "#8a6a45",
+ "trenchOpacity": 0.35,
+ "sandColor": "#d9c48f",
+ "sandOpacity": 0.55,
+ "pitColor": "#9a9a96",
+ "pitCoverColor": "#2f3033",
+ "pitWall_m": 0.05,
+ "pitCover_m": 0.04,
+ "cableColor": "#151515",
+ "cableD_m": 0.03,
+ "stepFilter": [
+  "electrical",
+  "structure",
+  "site",
+  "sewage",
+  "water"
+ ]
 }

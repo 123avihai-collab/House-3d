@@ -133,7 +133,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | מתגי "רצפה" ו"תקרה" לכל קומה (לשונית "קומות") | ✅ | השכבות של כל תקרה – `data/config/tags.json` floors[].ceilingLayers. תקרת יחידת הדיור = רצפת הקרקע וקורות K-21. שבב "בלי תקרה" בסרגל העליון מחזיר את כולן |
 | סרגל שלבי בנייה + "רק שלד" / "הכול" | ✅ | בשלב "מצב קיים" המגרש מוצג לפי מדידת 2025. מ"גמרים" ואילך מוצגים פני הקרקע המתוכננים |
 | שכבות ותשתיות, הדלקה וכיבוי לפי סוג, צבע לכל מערכת | ✅ (מגרש, סביבה) · מערכות: בקרוב | `data/config/layers.json` |
-| תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, הצעה): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py`. ממתין להחלטות E1–E13 |
+| תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, הצעה): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ממתין להחלטות E1–E14 |
 | מידות: לחיצה על רכיב → מידות, מקור, מרחקים לגבולות (ולקירות כשיהיו) | ✅ | |
 | מדידה חופשית: שתי נקודות → מרחק תלת-ממדי, מרחק אופקי, ΔH | ✅ | |
 | חתך אופקי ואנכי, ניתן להזזה | ✅ | |

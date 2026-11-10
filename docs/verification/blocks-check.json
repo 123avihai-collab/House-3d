@@ -1341,7 +1341,7 @@
   {
    "id": "BK-F65",
    "floor": "first",
-   "length_m": 0.719,
+   "length_m": 0.879,
    "bottomRel": 3.7,
    "topRel": 6.9,
    "topOpen_m": 0.0,
@@ -1363,8 +1363,8 @@
    "bottomRel": 3.7,
    "topRel": 6.65,
    "topOpen_m": 0.0,
-   "topGap_m": 0.083,
-   "topGapMax_m": 0.25,
+   "topGap_m": 0.0,
+   "topGapMax_m": 0,
    "topClash_m": 0.0,
    "bottomOpen_m": 0.0,
    "bottomGap_m": 0.0,
@@ -1372,7 +1372,7 @@
    "bottomClash_m": 0.0,
    "endGaps": [],
    "openings": [],
-   "ok": false
+   "ok": true
   },
   {
    "id": "BK-F67/BK-F70",
@@ -1707,6 +1707,6 @@
  ],
  "summary": {
   "runs": 86,
-  "withIssues": 1
+  "withIssues": 0
  }
 }

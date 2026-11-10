@@ -491,6 +491,7 @@ def main():
         for w in walls:
             (x0, y0), (x1, y1) = w['axisITM']
             if w['floor'] != c['floor'] or math.dist(((x0 + x1) / 2, (y0 + y1) / 2), c['centerITM']) > 0.10: continue
+            old_poly = LineString(w['axisITM']).buffer(w['thickness_m'] / 2, cap_style=2)
             if c['thickness_m']:
                 if c.get('insidePointITM'):   # the extra drawn depth is outside (cladding): keep the inner face
                     L = w['length_m']; nx, ny = -(y1 - y0) / L, (x1 - x0) / L; ix, iy = c['insidePointITM']
@@ -499,6 +500,21 @@ def main():
                     w['axisITM'] = [[r3(x0 + nx * d), r3(y0 + ny * d)], [r3(x1 + nx * d), r3(y1 + ny * d)]]
                 w['thickness_m'] = c['thickness_m']
             w['status'] = c['status']; w['note'] = 'בדיקה מול תוכנית ההיתר (08.11): ' + c['finding']
+            if c.get('extendNeighbours'):   # runs that ended on the old (thicker) face are extended to the new face
+                new_poly = LineString(w['axisITM']).buffer(w['thickness_m'] / 2, cap_style=2)
+                for o in walls:
+                    if o is w or o['floor'] != w['floor']: continue
+                    for k_ in (0, 1):
+                        e_ = Point(o['axisITM'][k_]); far = o['axisITM'][1 - k_]
+                        if old_poly.distance(e_) > 0.02 or new_poly.distance(e_) < 0.02: continue
+                        Lo = o['length_m']; dx, dy = (e_.x - far[0]) / Lo, (e_.y - far[1]) / Lo
+                        hit = LineString([(e_.x, e_.y), (e_.x + dx * 0.6, e_.y + dy * 0.6)]).intersection(new_poly)
+                        if hit.is_empty: continue
+                        add = e_.distance(hit); ne = [r3(e_.x + dx * add), r3(e_.y + dy * add)]
+                        o['axisITM'][k_] = ne; o['length_m'] = r3(Lo + add)
+                        if k_ == 0:
+                            for key in ('openings', 'lintels'):
+                                for q_ in o.get(key, []): q_['s0'], q_['s1'] = r3(q_['s0'] + add), r3(q_['s1'] + add)
     # one bond for the whole house: block grid along each wall line (house axes) and one course line per floor (the most
     # common bottom = the floor slab) – the head joints of neighbouring runs line up, no half-course steps (Avihai 09.11)
     hx, hy = math.cos(math.radians(ang)), math.sin(math.radians(ang)); OE, ON = FG['slab'][0]['footprintITM'][0]
@@ -596,7 +612,13 @@ def main():
     # blocks bond across the old seam. Where the parts stand on / reach different levels (slab / upturned beam), the merged
     # run spans the lowest bottom … highest top and the missing rectangles are "voids" (holes, like openings); "segments"
     # keeps each part's own bottom / top for the contact check (tools/verify_blocks.py). Walls of an owner change stay apart.
-    locked = {wid for g in OCG.values() for wid in (g.get('blocks') or {}).get('removeWalls', [])}
+    locked = set()
+    for oc_, g in OCG.items():   # walls cancelled by an owner change: by id or by a point on the wall (ids change on re-extraction)
+        for r_ in (g.get('blocks') or {}).get('removeWalls', []):
+            if isinstance(r_, str): locked.add(r_); continue
+            cand = [w for w in walls if w['floor'] == r_['floor'] and not w.get('variant')]
+            hit = min(cand, key=lambda w: LineString(w['axisITM']).buffer(w['thickness_m'] / 2, cap_style=2).distance(Point(r_['nearITM'])))
+            hit['removedBy'] = oc_; locked.add(hit['id'])
     free = [w for w in walls if not w.get('variant') and not w.get('ownerChange') and w['id'] not in locked]
     # a thin partition drawn THROUGH a thicker wall (the hatch splits the thick wall and leaves a gap as wide as the
     # partition): on site the thick wall runs through and the partition stops at its face. The gap is closed (the thicker

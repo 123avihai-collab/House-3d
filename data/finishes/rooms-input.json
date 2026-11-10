@@ -1,0 +1,4 @@
+{
+ "_doc": "החלטות לחדרים: סוג החדר (dry / wet / kitchen / mamad / basement / stairs / void / outdoor), שם, וקירות מקלחת. המפתח – rooms.json key. ריק = ברירת מחדל לפי שם החדר בתוכנית האדריכל.",
+ "rooms": {}
+}

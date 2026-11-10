@@ -278,3 +278,14 @@ table.mtable td.acts { white-space: nowrap; }
 
 .oc .q.applied { background: #2e7d32; }
 .lbl.el { background: #c62828; }
+/* finishes (src/finishes) */
+.lbl.room { background: rgba(38, 50, 56, .82); font-size: 11px; }
+.lbl.room.unk { background: #e65100; }
+.finishes table.qty { width: 100%; border-collapse: collapse; font-size: 12px; margin: 4px 0 8px; }
+.finishes table.qty td, .finishes table.qty th { border-bottom: 1px solid rgba(128,128,128,.25); padding: 2px 4px; text-align: right; }
+.finishes table.qty tr.tot td { font-weight: 700; }
+.finishes td.warn { color: #e65100; }
+.finishes .sw { display: inline-flex; align-items: center; gap: 4px; }
+.finishes .sw i, .finishes i.swc { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.3); }
+.finishes input.price { width: 64px; }
+.plaster-edit { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }

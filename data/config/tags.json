@@ -430,6 +430,30 @@
    "includes": []
   },
   {
+   "id": "electricalRough",
+   "label": "הכנות חשמל",
+   "hint": "הכנה לביצוע: צנרת וקופסאות חשמל בקירות ובתקרות לפני הטיח. ממתין לתוכנית החשמל – כאן ייכנסו נקודות החשמל (שכבת 'חשמל').",
+   "includes": []
+  },
+  {
+   "id": "plaster",
+   "label": "טיח",
+   "hint": "טיח פנים / חוץ ושליכט / טיח רטוב / הרבצה / שפכטל, ואיטום ביטומני למרתף – לפי סוג (שכבות 'טיח וריצוף'). נגזר מהגיאומטריה: tools/finishes/derive_finishes.py.",
+   "includes": []
+  },
+  {
+   "id": "wetProofing",
+   "label": "איטום חדרים רטובים",
+   "hint": "איטום מעל הטיח הרטוב: רצפות החדרים הרטובים, 15 ס\"מ בקירות, קירות מקלחת עד 2.0 מ'.",
+   "includes": []
+  },
+  {
+   "id": "tiling",
+   "label": "ריצוף",
+   "hint": "הכנה לריצוף: שטח הרצפה לכל חדר ופני הריצוף. סוגי האריחים – טרם הוחלטו.",
+   "includes": []
+  },
+  {
    "id": "finishes",
    "label": "גמרים",
    "hint": "גמרים: מדרגות קלות קרקע←קומה א', ארון חשמל. חלונות ודלתות – בהמתנה עד סיום השלד.",
@@ -450,7 +474,7 @@
    ]
   }
  ],
- "_docSequence": "Construction-step slider (24 steps). A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) or from its explicit tag \"step\", up to its stageTo / stepTo (\"skeletonEnd\" = the step before finishes). Steps with no includes are reached only by explicit \"step\" tags (piles outside the pit, backfill, under-slab pipes, perimeter, site sewer, outdoor beams, development).",
+ "_docSequence": "Construction-step slider (34 steps). A component is shown from the step that holds its {floor, stage} (an include with the same floor wins over a stage-only include) or from its explicit tag \"step\", up to its stageTo / stepTo (\"skeletonEnd\" = the step before finishes). Steps with no includes are reached only by explicit \"step\" tags (piles outside the pit, backfill, under-slab pipes, perimeter, site sewer, outdoor beams, development).",
  "outdoorZones": [
   "terrace",
   "eastYard",

@@ -219,5 +219,17 @@
   "axisShare": 0.98,
   "dotPx": 4,
   "dotShare": 0.04
+ },
+ "finishes": {
+  "_doc": "תצוגת שכבות הגמר (src/finishes) – קבועי תצוגה בלבד, לא מידות בנייה.",
+  "offset_m": 0.006,
+  "waterproofOffset_m": 0.014,
+  "tilingOffset_m": 0.004,
+  "roughness": 0.92,
+  "selectColor": "#ff3d00",
+  "providedOpacity": 1,
+  "roomLabelHeight_m": 1.4,
+  "interiorCutAbove_m": 1.3,
+  "provisionalHatch": "#e53935"
  }
 }

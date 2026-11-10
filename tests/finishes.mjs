@@ -79,7 +79,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   }
   if (shotsDir) {
     fs.mkdirSync(shotsDir, { recursive: true });
-    await page.evaluate(() => { const a = window.__app; a.ui.setPanel(false); });
+    await page.evaluate(() => { const a = window.__app; a.ui.setPanel(false); a.ui.showInfo(null); a.modules.finishes.highlight(null); });
     const views = [['out', [-22, 16, 26], [1, 2, 3]], ['in-ground', [6, 9, 13], [-4, 0.5, 2]]];
     for (const [v, pos, tgt] of views) {
       await page.evaluate(([v, pos, tgt]) => {

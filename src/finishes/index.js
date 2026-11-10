@@ -385,7 +385,13 @@ class Finishes {
     sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.P.waterproofing.map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner, w.rule, w.z0, w.z1, w.area]),
       ...this.TL.rooms.filter(r => r.roomType === 'wet').map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, 'רצפה', 'רצפת חדר רטוב', '', '', r.area])]);
     sheet('ריצוף', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני ריצוף', 'חיפוי קירות', 'סוג אריח'], ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.finishRel ?? '', r.wallTiling ? 'טרם הוחלט' : '', 'טרם הוחלט'])]);
-    X.writeFile(wb, 'plaster-tiling-5187.xlsx');
+    const name = 'plaster-tiling-5187.xlsx';
+    const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
+    const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    // inside claude.ai the frame cannot download directly: the downloads capability asks the viewer to save
+    const dl = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
+    if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
   attach(app) { this.app = app; this.connect(); }
 }

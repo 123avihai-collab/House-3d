@@ -250,7 +250,7 @@ for i in range(2, len(pts3d)-2):
     trSegs.append({'from': a_[:2], 'to': b_[:2], 'topAbs': r3(topZ), 'depth_m': r3(topZ-trBottom), 'topRule': why})
 out = {
   '_doc': 'ח1 – הצעת הזנה ראשית (חשמל). נוצר ע"י tools/electrical/propose_supply.py – לא לערוך ידנית. כל הערכים הצעת תכנון (provisional) עד אישור אביחי.',
-  'status': 'proposal', 'source': 'tools/electrical/propose_supply.py + tools/electrical/supply-inputs.json',
+  'status': 'approved' if I.get('approval') else 'proposal', 'source': 'tools/electrical/propose_supply.py + tools/electrical/supply-inputs.json',
   'connection': I['connection'],
   'meterCabinet': {'id': 'MC', 'name': 'ארון מונה בפילר (חברת החשמל)', 'ringITM': cr, 'bottomRel': cab['bottomRel'], 'topRel': cab['topRel'], 'status': cab['status'],
                    'note': 'מיקום הארון מתוכנית הפיתוח; מידות הארון ופרט היסוד חסרים (open-issues #64, E8)', 'source': 'data/structure/stairs.json pillar.cabinet'},
@@ -272,7 +272,7 @@ out = {
      'count': len(I['conduits']), 'sleeveD_mm': 110, 'note': 'שרוול לכל צינור, לפני יציקת הרצפה; צמוד לדופן קורה B-49 – לאישור הקונסטרוקטור. רפיון בצינור בגובה ארגזי ההפרדה', 'status': 'provisional', 'step': 'groundSlab'},
     {'id': 'ES-2', 'through': 'הקיר האחורי של ארון המונה בפילר (מחדר האשפה)', 'at': [r3((cc[0]+cabR[0])/2), r3((cc[1]+cabR[1])/2), r3(zin)], 'axis': 'h',
      'count': len(I['conduits']), 'sleeveD_mm': 110, 'note': ce['note'], 'status': 'provisional', 'step': 'perimeterWalls'}],
-  'steps': I['steps'],
+  'steps': I['steps'], 'approval': I.get('approval'),
   'checks': checks, 'summary': {'length_m': r3(length), 'checks': len(checks), 'failed': sum(1 for c in checks if not c['ok']), 'bendsTotal_deg': round(sum(p_['bends_deg'] for p_ in pulls), 1)},
 }
 json.dump(out, open(os.path.join(ROOT, 'data/electrical/supply.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

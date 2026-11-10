@@ -23,7 +23,7 @@ export function buildElectrical(ctx) {
   const add = (grp, tags, meta) => {
     scene.add(grp); const it = registry.add(grp, tags, { ...meta, rows: [...(meta.rows || []), stepRow(tags.step)] }); it.meta.electrical = true; items.push(it); return it;
   };
-  const st = (s) => D.statusLabel[s] || s;
+  const st = (s) => (S.approval ? `אושר ${S.approval.date.split('-').reverse().join('.')} · ` : '') + (D.statusLabel[s] || s);
   const L = (p) => coords.toLocal(p[0], p[1], p[2]);
   const dirOf = (a, b) => new THREE.Vector3(b[0] - a[0], 0, -(b[1] - a[1])).normalize();
   const F = S.feeder, P = S.mainPanel, T = S.trench, PP = S.pullPit;

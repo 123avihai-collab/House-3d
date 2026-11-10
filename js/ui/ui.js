@@ -630,7 +630,7 @@ export class UI {
       const it = E?.items.find(i => i.meta.kind === 'elFeeder'); if (it) app.tools.search.show(it);
     };
     const supply = S ? h('div', {},
-      h('h4', {}, 'ח1 – חיבור מהפילר ללוח הראשי (הצעה)'),
+      h('h4', {}, `ח1 – חיבור מהפילר ללוח הראשי (${S.approval ? 'אושר ' + S.approval.date.split('-').reverse().join('.') : 'הצעה'})`),
       h('table', { class: 'kv' }, tr('גודל חיבור', `${S.connection.size} – ${S.connection.note}`), tr('כבל', S.feeder.cable.type),
         tr('צנרת', S.feeder.conduits.map(c => `ø${c.D_mm} ${c.role}`).join(' + ')), tr('אורך', `${S.feeder.length_m.toFixed(1)} מ'`),
         ...S.feeder.pulls.map(p => tr(`משיכה: ${p.name}`, `${p.length_m.toFixed(1)} מ' · ${p.bends_deg}°`)),

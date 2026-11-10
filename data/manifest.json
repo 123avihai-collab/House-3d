@@ -51,7 +51,11 @@
   "plumbingDisplay": "data/plumbing/display.json",
   "plumbingProposal": "data/plumbing/proposal.json",
   "electricalSupply": "data/electrical/supply.json",
-  "electricalDisplay": "data/electrical/display.json"
+  "electricalDisplay": "data/electrical/display.json",
+  "rooms": "data/architecture/rooms.json",
+  "plaster": "data/finishes/plaster/surfaces.json",
+  "plasterTypes": "data/finishes/plaster/types.json",
+  "tiling": "data/finishes/tiling/surfaces.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

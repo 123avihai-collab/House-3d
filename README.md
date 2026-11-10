@@ -57,6 +57,9 @@ js/
     (js/tools/prefs.js     תצוגות שמורות + שחזור השכבות האחרונות – לכל משתמש ב-db של הארטיפקט, data/users/<id>/prefs)
     mamad.js               ממ"ד לפי תוכנית האדריכל: כנפי חלון (נגררות לגומחות) ודלת הזזה – נפתחות / נסגרות בלחיצה, שרוולים ביציקה (data/architecture/mamad.json ← tools/extract_mamad.py)
     blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס + משקופים (דלתות וחלונות) מבלוק משקוף (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx) · בדיקת מגע: python3 tools/verify_blocks.py → docs/verification/blocks-check.md
+src/finishes/index.js      שלב 5א: טיח לפי סוג (7 סוגים, צבע לכל סוג), איטום חדרים רטובים, הכנה לריצוף, שמות חדרים – שכבות "טיח, איטום וריצוף", לשונית "טיח וריצוף" (מקרא, כמויות, מחירון, ייצוא xlsx, מבט פנימי), לחיצה על משטח → שינוי סוג (נשמר ב-db של הארטיפקט, collection "plaster")
+                           נתונים: python3 tools/finishes/derive_finishes.py → data/architecture/rooms.json, data/finishes/plaster/surfaces.json, data/finishes/tiling/surfaces.json, docs/quantities/plaster-quantities.xlsx
+                           החלטות: data/finishes/plaster/types.json (סוגים, פרמטרים, מחירים), overrides.json (דריסות), data/finishes/rooms-input.json (סוג/שם חדר), data/finishes/config.json · בדיקה: python3 tools/finishes/verify_finishes.py → docs/verification/finishes-check.md · node tests/finishes.mjs
   tools/                   כל כלי בקובץ נפרד
     sun.js                 מיקום שמש אמיתי (NOAA) לפי קואורדינטות המגרש ושעון ישראל
     measure.js             מדידה: הצמדה לפינה / אמצע / קצה, קו ישיר (אלכסוני) + פירוק לצירים, צירי אלמנט (ברירת מחדל – קיר בכל זווית נמדד לאורכו: אורך / רוחב / גובה) / בית / ITM, מעקב צירים, אורתו (F8), 📦 מידות אלמנט (Shift+לחיצה), תווית + E/N/H ליד הסמן, סרגל מדידה צף וטבלה בלשונית "מדידה"
@@ -133,6 +136,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | מתגי "רצפה" ו"תקרה" לכל קומה (לשונית "קומות") | ✅ | השכבות של כל תקרה – `data/config/tags.json` floors[].ceilingLayers. תקרת יחידת הדיור = רצפת הקרקע וקורות K-21. שבב "בלי תקרה" בסרגל העליון מחזיר את כולן |
 | סרגל שלבי בנייה + "רק שלד" / "הכול" | ✅ | בשלב "מצב קיים" המגרש מוצג לפי מדידת 2025. מ"גמרים" ואילך מוצגים פני הקרקע המתוכננים |
 | שכבות ותשתיות, הדלקה וכיבוי לפי סוג, צבע לכל מערכת | ✅ (מגרש, סביבה) · מערכות: בקרוב | `data/config/layers.json` |
+| טיח, איטום, הכנה לריצוף (שלב 5א) | ✅ | לשונית "טיח וריצוף": מקרא וכמויות לפי סוג / קומה / חזית / חדר, מחירון, ייצוא xlsx; לחיצה על משטח במצב מידות → שינוי סוג. שלבים בסרגל: הכנות חשמל → טיח → איטום → ריצוף. פתוחים: open-issues #151–#162 |
 | תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, אושר 10.11.2026): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ממתין להחלטות E1–E14 |
 | מידות: לחיצה על רכיב → מידות, מקור, מרחקים לגבולות (ולקירות כשיהיו) | ✅ | |
 | מדידה חופשית: שתי נקודות → מרחק תלת-ממדי, מרחק אופקי, ΔH | ✅ | |

@@ -201,7 +201,7 @@ export class UI {
     const p = this.$('panel');
     this.tabs = [
       ['fixes', 'תיקונים לקלוד'], ['layers', 'שכבות'], ['floors', 'קומות'], ['rebar', 'ביקורת ברזל'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
-      ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
+      ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['finishes', 'טיח וריצוף'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
     ];
     this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
     this.body = h('div', { class: 'panel-body' });
@@ -621,6 +621,7 @@ export class UI {
       h('div', { class: 'btns' }, h('button', { onclick: () => this.copy(list.map(({ item, info, key }) => `${T.checks[key]?.ok ? '✓' : '☐'} ${item.meta.id || ''} ${item.meta.name || ''}\n` + info.map(([k, v]) => `   ${k}: ${v}`).join('\n') + (T.checks[key]?.note ? `\n   הערה: ${T.checks[key].note}` : '')).join('\n'), 'רשימת הביקורת הועתקה') }, '📋 העתק רשימה')));
   }
 
+  panel_finishes() { return this.app.modules?.finishes?.panel(this) || h('div', { class: 'muted' }, 'אין נתוני גמרים'); }
   panel_electric() {
     const { app } = this; const el = app.data.tools.electrical;
     const S = app.data.electricalSupply, ED = app.data.electricalDisplay, E = app.modules.electrical;
@@ -720,7 +721,8 @@ export class UI {
       h('h3', {}, info.title), h('div', { class: 'tags' }, tagNames(info.tags)),
       h('table', { class: 'kv' }, info.rows.map(([k, v]) => tr(k, v))),
       info.note ? h('div', { class: 'warn' }, '⚠ ', info.note) : '',
-      info.source ? h('div', { class: 'src' }, 'מקור: ', info.source) : '');
+      info.source ? h('div', { class: 'src' }, 'מקור: ', info.source) : '',
+      info.extra || '');
     el.classList.remove('hidden');
   }
   showInfoFor(item) { this.app.tools.inspect?.showFor(item); }

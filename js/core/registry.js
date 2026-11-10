@@ -24,6 +24,12 @@ export class Registry {
     this.items.push(item);
     return item;
   }
+  // remove components (a module that rebuilds its parts – e.g. the plaster layer after a type change)
+  remove(items) {
+    const set = new Set(items);
+    this.items = this.items.filter(it => !set.has(it));
+    for (const it of items) { it.object.parent?.remove(it.object); it.object.traverse(o => { o.geometry?.dispose?.(); }); }
+  }
   // deferred builders: components of layers that are off on open are created only when one of their layers is first
   // switched on (lighter start, same model). onBuilt hooks get the new items (main.js compacts them, environment re-applies opacity)
   defer(layers, build) { (this.pending ||= []).push({ layers, build }); }

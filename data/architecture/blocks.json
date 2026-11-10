@@ -1792,39 +1792,92 @@
    "floor": "ground",
    "axisITM": [
     [
-     179595.68,
-     576250.372
+     179598.839,
+     576249.053
     ],
     [
-     179593.785,
-     576251.137
+     179593.77,
+     576251.1
     ]
    ],
-   "length_m": 2.043,
-   "thickness_m": 0.22,
+   "length_m": 5.467,
+   "thickness_m": 0.3,
    "bottomRel": -0.15,
    "topRel": 3.45,
-   "openings": [],
+   "openings": [
+    {
+     "id": "G18",
+     "kind": "vitrine",
+     "s0": 0.0,
+     "s1": 2.3,
+     "z0": -0.15,
+     "z1": 2.8,
+     "clip": [],
+     "shutter": true
+    }
+   ],
    "courses": 15,
-   "blocksFull": 35,
-   "blocksCut": 25,
-   "area_m2": 7.355,
+   "blocksFull": 66,
+   "blocksCut": 31,
+   "area_m2": 12.146,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
-   "lintels": [],
+   "lintels": [
+    {
+     "id": "LT-G18",
+     "opening": "G18",
+     "s0": 0.0,
+     "s1": 2.5,
+     "z0": 2.8,
+     "z1": 3.1,
+     "bearL_m": 0.0,
+     "bearR_m": 0.2,
+     "length_m": 2.5,
+     "status": "provisional",
+     "onConcrete": [
+      "L"
+     ],
+     "continues": [],
+     "pier": [],
+     "intoCrossWall": [],
+     "shortBearing": []
+    }
+   ],
    "drawnThickness_m": 0.22,
+   "note": "בדיקה מול תוכנית ההיתר (08.11): החלטת אביחי 10.11.2026 (ק49, OC-14): הקיר הצפוני החיצוני אחיד בעובי 30 לכל האורך, על קו הקיר של הוויטרינה G18. בשרטוט האדריכל החלק הזה 22 ס\"מ; הפאה המשותפת נשמרת.",
    "bond": {
-    "p0": -2.364,
+    "p0": -5.787,
     "sign": 1,
-    "g": 0.03
+    "g": 0.28
    },
    "courseDatum": -0.15,
+   "voids": [],
+   "segments": [
+    {
+     "id": "BK-G39",
+     "s0": 0.0,
+     "s1": 3.322,
+     "bottomRel": -0.15,
+     "topRel": 3.45
+    },
+    {
+     "id": "BK-G37",
+     "s0": 3.323,
+     "s1": 5.467,
+     "bottomRel": -0.15,
+     "topRel": 3.45
+    }
+   ],
+   "mergedFrom": [
+    "BK-G37",
+    "BK-G39"
+   ],
    "bonding": {
-    "firstCourse_m": 2.043,
-    "mortar_l": 8.989,
-    "bedJoints_m2": 6.292,
-    "headJoints_m2": 3.168,
-    "adhesive_l": 28.381
+    "firstCourse_m": 3.167,
+    "mortar_l": 19.002,
+    "bedJoints_m2": 14.621,
+    "headJoints_m2": 6.885,
+    "adhesive_l": 64.519
    }
   },
   {
@@ -1859,84 +1912,13 @@
     "g": 0.18
    },
    "courseDatum": -0.15,
-   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-G39) – בשרטוט היא חוצה אותו.",
+   "note": "המחיצה נעצרת בפאת הקיר העבה (BK-G37) – בשרטוט היא חוצה אותו.",
    "bonding": {
     "firstCourse_m": 0.513,
     "mortar_l": 1.026,
     "bedJoints_m2": 0.722,
     "headJoints_m2": 0.535,
     "adhesive_l": 3.77
-   }
-  },
-  {
-   "id": "BK-G39",
-   "floor": "ground",
-   "axisITM": [
-    [
-     179598.839,
-     576249.053
-    ],
-    [
-     179595.664,
-     576250.335
-    ]
-   ],
-   "length_m": 3.424,
-   "thickness_m": 0.3,
-   "bottomRel": -0.15,
-   "topRel": 3.45,
-   "openings": [
-    {
-     "id": "G18",
-     "kind": "vitrine",
-     "s0": 0.0,
-     "s1": 2.3,
-     "z0": -0.15,
-     "z1": 2.8,
-     "clip": [],
-     "shutter": true
-    }
-   ],
-   "courses": 15,
-   "blocksFull": 18,
-   "blocksCut": 27,
-   "area_m2": 4.791,
-   "status": "source",
-   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
-   "lintels": [
-    {
-     "id": "LT-G18",
-     "opening": "G18",
-     "s0": 0.0,
-     "s1": 2.5,
-     "z0": 2.8,
-     "z1": 3.1,
-     "bearL_m": 0.0,
-     "bearR_m": 0.2,
-     "length_m": 2.5,
-     "status": "provisional",
-     "onConcrete": [
-      "L"
-     ],
-     "continues": [],
-     "pier": [],
-     "intoCrossWall": [],
-     "shortBearing": []
-    }
-   ],
-   "drawnThickness_m": 0.301,
-   "bond": {
-    "p0": -5.787,
-    "sign": 1,
-    "g": 0.03
-   },
-   "courseDatum": -0.15,
-   "bonding": {
-    "firstCourse_m": 1.117,
-    "mortar_l": 6.702,
-    "bedJoints_m2": 6.026,
-    "headJoints_m2": 3.165,
-    "adhesive_l": 27.573
    }
   },
   {
@@ -4329,7 +4311,7 @@
    "status": "source",
    "source": "Drive: תוכניות בנייה / תוכניות חזיתות ושטחים מהגרמושקא - PDF / קומה קרקע - מבט על קנמ 1-10.pdf: \"250 +35\" (שרשרת עליונה (חזית צפונית), פתח ברוחב ~2.3 מ')",
    "depth_m": 0.3,
-   "hostWall": "BK-G39",
+   "hostWall": "BK-G37",
    "depthSource": "החלטת אביחי 08.11.2026: ארגז מובנה בעובי הקיר"
   },
   {
@@ -4629,12 +4611,12 @@
    "t16_cut": 22,
    "t16_full": 0,
    "t16_m2": 1.26,
-   "t22_cut": 422,
-   "t22_full": 356,
-   "t22_m2": 82.55,
-   "t30_cut": 134,
-   "t30_full": 109,
-   "t30_m2": 22.84
+   "t22_cut": 397,
+   "t22_full": 321,
+   "t22_m2": 75.19,
+   "t30_cut": 138,
+   "t30_full": 157,
+   "t30_m2": 30.19
   },
   "first": {
    "t10_cut": 204,

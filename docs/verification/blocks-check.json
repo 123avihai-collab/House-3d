@@ -726,9 +726,32 @@
    "ok": true
   },
   {
+   "id": "BK-G37/BK-G39",
+   "floor": "ground",
+   "length_m": 3.322,
+   "bottomRel": -0.15,
+   "topRel": 3.45,
+   "topOpen_m": 0.0,
+   "topGap_m": 0.0,
+   "topGapMax_m": 0,
+   "topClash_m": 0.0,
+   "bottomOpen_m": 0.0,
+   "bottomGap_m": 0.0,
+   "bottomGapMax_m": 0,
+   "bottomClash_m": 0.0,
+   "endGaps": [],
+   "openings": [
+    {
+     "id": "G18",
+     "blocksOverHead_m": 0.65
+    }
+   ],
+   "ok": true
+  },
+  {
    "id": "BK-G37",
    "floor": "ground",
-   "length_m": 2.043,
+   "length_m": 2.144,
    "bottomRel": -0.15,
    "topRel": 3.45,
    "topOpen_m": 0.0,
@@ -759,29 +782,6 @@
    "bottomClash_m": 0.0,
    "endGaps": [],
    "openings": [],
-   "ok": true
-  },
-  {
-   "id": "BK-G39",
-   "floor": "ground",
-   "length_m": 3.424,
-   "bottomRel": -0.15,
-   "topRel": 3.45,
-   "topOpen_m": 0.0,
-   "topGap_m": 0.0,
-   "topGapMax_m": 0,
-   "topClash_m": 0.0,
-   "bottomOpen_m": 0.0,
-   "bottomGap_m": 0.0,
-   "bottomGapMax_m": 0,
-   "bottomClash_m": 0.0,
-   "endGaps": [],
-   "openings": [
-    {
-     "id": "G18",
-     "blocksOverHead_m": 0.65
-    }
-   ],
    "ok": true
   },
   {

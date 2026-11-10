@@ -67,20 +67,20 @@
   {
    "floor": "ground",
    "thickness_cm": 22,
-   "firstCourse_m": 24.89,
-   "mortar_l": 109.5,
-   "bedJoints_m2": 71.77,
-   "headJoints_m2": 41.5,
-   "adhesive_l": 339.8
+   "firstCourse_m": 22.85,
+   "mortar_l": 100.5,
+   "bedJoints_m2": 65.48,
+   "headJoints_m2": 38.34,
+   "adhesive_l": 311.5
   },
   {
    "floor": "ground",
    "thickness_cm": 30,
-   "firstCourse_m": 9.21,
-   "mortar_l": 55.3,
-   "bedJoints_m2": 27.23,
-   "headJoints_m2": 17.57,
-   "adhesive_l": 134.4
+   "firstCourse_m": 11.26,
+   "mortar_l": 67.6,
+   "bedJoints_m2": 35.82,
+   "headJoints_m2": 21.29,
+   "adhesive_l": 171.4
   },
   {
    "floor": "unit",
@@ -93,8 +93,8 @@
   }
  ],
  "total": {
-  "firstCourse_m": 101.55,
-  "mortar_l": 382.1,
-  "adhesive_l": 1059.5
+  "firstCourse_m": 101.56,
+  "mortar_l": 385.4,
+  "adhesive_l": 1068.0
  }
 }

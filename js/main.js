@@ -22,6 +22,7 @@ import { buildProps } from './geometry/props.js';
 import { buildBlocks } from './geometry/blocks.js';
 import { buildOwnerElements } from './geometry/ownerElements.js';
 import { buildPlumbing } from '../src/plumbing/index.js';
+import { buildElectrical } from '../src/electrical/index.js';
 import { SunController } from './tools/sun.js';
 import { MeasureTool } from './tools/measure.js';
 import { InspectTool } from './tools/inspect.js';
@@ -64,6 +65,7 @@ async function main() {
   buildOwnerChangeZones(ctx);
   buildOwnerElements(ctx);   // OC-12 / OC-13 – elements from the architectural plans, red, for Avihai's check
   const plumbing = tm('plumbing', () => buildPlumbing(ctx));   // plumbing layer (separate module, src/plumbing)
+  const electrical = tm('electrical', () => buildElectrical(ctx));   // electrical layer (separate module, src/electrical) – stage ח1: main supply
 
   const pc = centroid(data.plot.ring);
   const plotCenter = coords.toLocal(pc[0], pc[1], ctx.ground.heightAt(pc[0], pc[1]));
@@ -102,7 +104,7 @@ async function main() {
   app.sun.center.copy(plotCenter);
   app.environment = environment;
   environment.attach(app);
-  app.modules = { plumbing }; plumbing?.attach(app);
+  app.modules = { plumbing, electrical }; plumbing?.attach(app);
   app.compacted = tm('compact', () => compactRegistry(registry, viewer.scene));   // same picture, far fewer objects / draw calls (Avihai 08.11 – after every module built its parts)
   MaterialLibrary.onTexture = () => viewer.invalidate();
   registry.compactor = (fresh) => { compactRegistry(registry, viewer.scene, fresh); viewer.invalidate(); };   // layers built later (registry.defer) – compacted the same way

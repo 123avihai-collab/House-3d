@@ -623,8 +623,24 @@ export class UI {
 
   panel_electric() {
     const { app } = this; const el = app.data.tools.electrical;
-    return h('div', {},
-      h('h4', {}, 'תכנון חשמל ', soon()),
+    const S = app.data.electricalSupply, ED = app.data.electricalDisplay, E = app.modules.electrical;
+    const goStep = (st) => {   // construction step of the supply + only the systems that matter for it, then frame the feeder
+      const cur = app.store.get();   // ground and concrete see-through (the conduits are buried / cast in)
+      app.store.set({ stageIndex: app.registry.stepById(st.step), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, plumbing: { ...(cur.plumbing || {}), xray: true }, showHidden: true }, { label: 'elStep' });
+      const it = E?.items.find(i => i.meta.kind === 'elFeeder'); if (it) app.tools.search.show(it);
+    };
+    const supply = S ? h('div', {},
+      h('h4', {}, `ח1 – חיבור מהפילר ללוח הראשי (${S.approval ? 'אושר ' + S.approval.date.split('-').reverse().join('.') : 'הצעה'})`),
+      h('table', { class: 'kv' }, tr('גודל חיבור', `${S.connection.size} – ${S.connection.note}`), tr('כבל', S.feeder.cable.type),
+        tr('צנרת', S.feeder.conduits.map(c => `ø${c.D_mm} ${c.role}`).join(' + ')), tr('אורך', `${S.feeder.length_m.toFixed(1)} מ'`),
+        ...S.feeder.pulls.map(p => tr(`משיכה: ${p.name}`, `${p.length_m.toFixed(1)} מ' · ${p.bends_deg}°`)),
+        tr('תא משיכה', `${S.pullPit.id} – ${S.pullPit.location}, עומק ${S.pullPit.depth_m.toFixed(2)} מ'`),
+        tr('בדיקות', `${S.summary.checks} · נכשלו ${S.summary.failed}`)),
+      h('p', { class: 'muted' }, 'שלב אחר שלב – לחיצה מעבירה את המודל לשלב הבנייה:'),
+      h('div', { class: 'list' }, S.steps.map(st => h('button', { class: 'li', title: st.text, onclick: () => goStep(st) }, `${st.n}. ${st.title}`))),
+      h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => app.store.set({ systemFilter: null }, { label: 'all' }) }, 'הצג את כל המערכות'))) : null;
+    return h('div', {}, supply,
+      h('h4', {}, 'נקודות חשמל ', soon()),
       h('p', { class: 'muted' }, 'הצבת שקעים, מפסקים, נקודות תאורה ותקשורת לפי גבהים סטנדרטיים, עם כתב כמויות נקודות.'),
       h('div', { class: 'list' }, el.pointTypes.map(p => h('button', { class: 'li na', disabled: true }, p.label))),
       h('p', { class: 'muted' }, el.note),

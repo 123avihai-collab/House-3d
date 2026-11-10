@@ -264,3 +264,6 @@
 | ED25 | **צנרת בתוך הקיר** | כלל חדש: נקודה על הקיר של המחלק ועד 1.5 מ' ממנו מקבלת צנרת בקיר (BS3, SH2, WMC). לא נבדק אם יש פתח בקיר בדרך. | provisional (`reroute-inputs.json` inWall). | לאשר. |
 | ED26 | **המודל התלת-ממדי עדיין מציג את התוואי הישן** | המודל קורא את `proposal.json`; הניתוב החדש נמצא ב-`routes.json` ומוצג בעורך הדו-ממדי בלבד. | — | שלב 4 של העורך: המודל יקרא את `routes.json`. |
 
+## חשמל (10.11.2026)
+
+השאלות הפתוחות של תכנון החשמל (E1–E13) מנוהלות ב-[docs/electrical/01-program.md](electrical/01-program.md) §6 וב-[docs/electrical/02-supply.md](electrical/02-supply.md) §6. כל שכבת החשמל במודל היא הצעה (provisional).

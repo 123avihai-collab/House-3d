@@ -49,7 +49,9 @@
   "plumbing": "data/plumbing/network.json",
   "plumbingCatalog": "data/plumbing/catalog.json",
   "plumbingDisplay": "data/plumbing/display.json",
-  "plumbingProposal": "data/plumbing/proposal.json"
+  "plumbingProposal": "data/plumbing/proposal.json",
+  "electricalSupply": "data/electrical/supply.json",
+  "electricalDisplay": "data/electrical/display.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

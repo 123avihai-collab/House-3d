@@ -1,0 +1,483 @@
+{
+ "_doc": "ח1ב – לוחות יחידות הדיור במרתף. נוצר ע\"י tools/electrical/propose_units.py – לא לערוך ידנית. הצעת תכנון (provisional).",
+ "status": "proposal",
+ "source": "tools/electrical/propose_units.py + tools/electrical/units-inputs.json",
+ "decision": "אביחי 10.11.2026: לוח נפרד לכל יחידה; כניסה ליחידה 1 – U06, ליחידה 2 – U07; מוני המשנה בלוח הראשי בכניסה",
+ "units": [
+  {
+   "id": "unit1",
+   "name": "יחידה 1 (דרום)",
+   "door": "U06",
+   "doorKind": "door",
+   "doorName": "דלת חד כנפית - 96_210",
+   "doorSill_rel": -2.6,
+   "warning": null,
+   "panel": {
+    "id": "DB-U1",
+    "name": "לוח יחידה 1 (דרום)",
+    "centreITM": [
+     179589.786,
+     576242.8
+    ],
+    "faceITM": [
+     179589.786,
+     576242.8
+    ],
+    "alongITM": [
+     -0.927,
+     0.375
+    ],
+    "normalITM": [
+     -0.375,
+     -0.927
+    ],
+    "width_m": 0.45,
+    "height_m": 0.6,
+    "depth_m": 0.12,
+    "bottomAbs": 279.1,
+    "topAbs": 279.7,
+    "modules": 36,
+    "fromDoor_m": 0.714,
+    "status": "provisional",
+    "note": "לוח על הטיח (לא שקוע בקיר המרתף – קיר תמך בטון עם איטום מבחוץ). 36 מודולים: מפסק ראשי, פחת, כ-8–10 מעגלים ומקום שמור",
+    "source": "ליד פתח U06 (data/architecture/openings.json); החלטת אביחי 10.11.2026; מידות: הנחת תכנון"
+   },
+   "feeder": {
+    "id": "FD-UNIT1",
+    "from": "MDB",
+    "to": "DB-U1",
+    "protection": "3×25A",
+    "cable": "N2XY 5×6 ממ\"ר נחושת",
+    "conduit": "צינור מריכף ø40 ביציקה",
+    "conduitD_mm": 40,
+    "pts3d": [
+     [
+      179600.616,
+      576235.595,
+      281.4
+     ],
+     [
+      179600.616,
+      576235.595,
+      280.17
+     ],
+     [
+      179599.082,
+      576237.783,
+      280.17
+     ],
+     [
+      179590.228,
+      576242.427,
+      280.17
+     ],
+     [
+      179590.228,
+      576242.427,
+      280.06
+     ],
+     [
+      179589.719,
+      576242.633,
+      280.06
+     ],
+     [
+      179589.756,
+      576242.726,
+      280.06
+     ],
+     [
+      179589.756,
+      576242.726,
+      279.7
+     ]
+    ],
+    "slabLength_m": 12.67,
+    "soffitRun_m": 0.65,
+    "slabExitITM": [
+     179590.228,
+     576242.427
+    ],
+    "length_m": 15.019,
+    "cableLength_m": 17.019,
+    "dropInMamadZone": false,
+    "status": "provisional",
+    "source": "tools/electrical/propose_units.py"
+   },
+   "meter": {
+    "id": "SM-U1",
+    "type": "מונה משנה דיגיטלי תלת-פאזי MID על פס DIN",
+    "where": "בלוח הראשי (MDB) בכניסה",
+    "modules": 4
+   }
+  },
+  {
+   "id": "unit2",
+   "name": "יחידה 2 (צפון)",
+   "door": "U07",
+   "doorKind": "sliding",
+   "doorName": "הזזה-דו-כנפי - 80_80",
+   "doorSill_rel": -1.3,
+   "warning": "בתוכניות U07 הוא חלון הזזה 80×80 באדן +1.30 מעל רצפת המרתף (לא דלת), והחצר האנגלית שמולו במפלס ‎-1.50 – כלומר 1.10 מ' מעל רצפת היחידה. ככניסה הוא דורש שינוי פתח לדלת ומדרגות בחצר (E16)",
+   "panel": {
+    "id": "DB-U2",
+    "name": "לוח יחידה 2 (צפון)",
+    "centreITM": [
+     179591.283,
+     576243.161
+    ],
+    "faceITM": [
+     179591.283,
+     576243.161
+    ],
+    "alongITM": [
+     -0.375,
+     -0.927
+    ],
+    "normalITM": [
+     0.927,
+     -0.375
+    ],
+    "width_m": 0.45,
+    "height_m": 0.6,
+    "depth_m": 0.12,
+    "bottomAbs": 279.1,
+    "topAbs": 279.7,
+    "modules": 36,
+    "fromDoor_m": 0.79,
+    "status": "provisional",
+    "note": "לוח על הטיח (לא שקוע בקיר המרתף – קיר תמך בטון עם איטום מבחוץ). 36 מודולים: מפסק ראשי, פחת, כ-8–10 מעגלים ומקום שמור",
+    "source": "ליד פתח U07 (data/architecture/openings.json); החלטת אביחי 10.11.2026; מידות: הנחת תכנון"
+   },
+   "feeder": {
+    "id": "FD-UNIT2",
+    "from": "MDB",
+    "to": "DB-U2",
+    "protection": "3×25A",
+    "cable": "N2XY 5×6 ממ\"ר נחושת",
+    "conduit": "צינור מריכף ø40 ביציקה",
+    "conduitD_mm": 40,
+    "pts3d": [
+     [
+      179600.616,
+      576235.595,
+      281.4
+     ],
+     [
+      179600.616,
+      576235.595,
+      280.17
+     ],
+     [
+      179599.082,
+      576237.783,
+      280.17
+     ],
+     [
+      179594.227,
+      576240.892,
+      280.17
+     ],
+     [
+      179594.227,
+      576240.892,
+      280.06
+     ],
+     [
+      179594.602,
+      576241.819,
+      280.06
+     ],
+     [
+      179591.357,
+      576243.131,
+      280.06
+     ],
+     [
+      179591.357,
+      576243.131,
+      279.7
+     ]
+    ],
+    "slabLength_m": 8.437,
+    "soffitRun_m": 4.5,
+    "slabExitITM": [
+     179594.227,
+     576240.892
+    ],
+    "length_m": 14.637,
+    "cableLength_m": 16.637,
+    "dropInMamadZone": true,
+    "status": "provisional",
+    "source": "tools/electrical/propose_units.py"
+   },
+   "meter": {
+    "id": "SM-U2",
+    "type": "מונה משנה דיגיטלי תלת-פאזי MID על פס DIN",
+    "where": "בלוח הראשי (MDB) בכניסה",
+    "modules": 4
+   }
+  }
+ ],
+ "subMeter": {
+  "type": "מונה משנה דיגיטלי תלת-פאזי MID על פס DIN",
+  "modules": 4,
+  "where": "בלוח הראשי (MDB) בכניסה",
+  "count": 2
+ },
+ "slabRoute": {
+  "inSlab": "GS1",
+  "coverFromSoffit_m": 0.05,
+  "obstacleBuffer_m": 0.2,
+  "avoid": [
+   "openZones",
+   "GS7"
+  ],
+  "note": "הצינורות נוצקים ברצפת הקרקע (= תקרת המרתף), על רשת הברזל התחתונה, לפני היציקה. לא עוברים ברצפת הממ\"ד (GS7) ולא בפתחי הרצפה (פיר המדרגות, חצרות אנגליות)"
+ },
+ "drop": {
+  "from": "תחתית הרצפה מעל הלוח",
+  "how": "יציאה מתחתית התקרה מעל הלוח, ירידה גלויה בתעלה (או במחיצה לפי הסקיצה) עד ראש הלוח",
+  "sleeveD_mm": 50
+ },
+ "steps": [
+  {
+   "n": 1,
+   "step": "groundSlab",
+   "title": "צנרת ביציקת רצפת הקרקע",
+   "text": "צינור ø40 מהלוח הראשי לכל יחידה, קשור לרשת התחתונה של רצפת הקרקע; קצה עם קופסה / שרוול בתחתית התקרה מעל מקום הלוח. לפני היציקה"
+  },
+  {
+   "n": 2,
+   "step": "blockWalls",
+   "title": "מחיצות היחידות",
+   "text": "לפי הסקיצה: אם יש מחיצה ליד הכניסה – הירידה בתוכה; אחרת תעלה גלויה"
+  },
+  {
+   "n": 3,
+   "step": "finishes",
+   "title": "לוח, כבל ומונה משנה",
+   "text": "התקנת לוח 36 מודולים בכל יחידה ליד הכניסה, משיכת כבל 5×6 מהלוח הראשי, מונה משנה תלת-פאזי בלוח הראשי לכל יחידה, בדיקת בודק"
+  }
+ ],
+ "levels": {
+  "unitFloorAbs": 277.9,
+  "slabSoffitAbs": 280.1,
+  "conduitInSlabAbs": 280.17,
+  "source": "רצפת המרתף ‎-2.60; תחתית GS1 (data/structure/floor-ground.json)"
+ },
+ "checks": [
+  {
+   "kind": "opening",
+   "ref": "DB-U1 – מרחק מפתח קרוב",
+   "clear_m": 9,
+   "required_m": 0.15,
+   "ok": true,
+   "note": "מרחק הלוח מפתח U06: 0.71 מ' (מרכז למרכז)"
+  },
+  {
+   "kind": "panelWall",
+   "ref": "DB-U1 – על קיר המרתף לכל רוחבו",
+   "clear_m": 1,
+   "required_m": 0,
+   "ok": true,
+   "note": "הלוח כולו על קיר (לא חורג מפינה או מפתח)"
+  },
+  {
+   "kind": "panelRoom",
+   "ref": "DB-U1 – בתוך היחידה",
+   "clear_m": 1,
+   "required_m": 0,
+   "ok": true,
+   "note": "צד הלוח הרחוק בתוך המרתף"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – גינה",
+   "clear_m": 10.819,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 4.006,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – מדרגות ירידה למרתף",
+   "clear_m": 0.273,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 0.4,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – פיר מדרגות (פתח ברצפה)",
+   "clear_m": 0.219,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 3.583,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – ממ\"ד",
+   "clear_m": 0.468,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – פתח ברצפה",
+   "clear_m": 0.377,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – פתח ברצפה",
+   "clear_m": 4.006,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U1 – פתח ברצפה",
+   "clear_m": 0.337,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "opening",
+   "ref": "DB-U2 – מרחק מפתח קרוב",
+   "clear_m": 9,
+   "required_m": 0.15,
+   "ok": true,
+   "note": "מרחק הלוח מפתח U07: 0.79 מ' (מרכז למרכז)"
+  },
+  {
+   "kind": "panelWall",
+   "ref": "DB-U2 – על קיר המרתף לכל רוחבו",
+   "clear_m": 1,
+   "required_m": 0,
+   "ok": true,
+   "note": "הלוח כולו על קיר (לא חורג מפינה או מפתח)"
+  },
+  {
+   "kind": "panelRoom",
+   "ref": "DB-U2 – בתוך היחידה",
+   "clear_m": 1,
+   "required_m": 0,
+   "ok": true,
+   "note": "צד הלוח הרחוק בתוך המרתף"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – גינה",
+   "clear_m": 10.745,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 6.146,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – מדרגות ירידה למרתף",
+   "clear_m": 4.555,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 3.893,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – פיר מדרגות (פתח ברצפה)",
+   "clear_m": 0.233,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – חצר אנגלית (רשת מדרך)",
+   "clear_m": 3.733,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – ממ\"ד",
+   "clear_m": 0.348,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – פתח ברצפה",
+   "clear_m": 0.357,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – פתח ברצפה",
+   "clear_m": 6.146,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  },
+  {
+   "kind": "slabObstacle",
+   "ref": "DB-U2 – פתח ברצפה",
+   "clear_m": 4.537,
+   "required_m": 0.199,
+   "ok": true,
+   "note": "מרחק אופקי של הצינור ביציקה מפתח / ממ\"ד"
+  }
+ ],
+ "summary": {
+  "checks": 26,
+  "failed": 0
+ }
+}

@@ -55,7 +55,8 @@
   "rooms": "data/architecture/rooms.json",
   "plaster": "data/finishes/plaster/surfaces.json",
   "plasterTypes": "data/finishes/plaster/types.json",
-  "tiling": "data/finishes/tiling/surfaces.json"
+  "tiling": "data/finishes/tiling/surfaces.json",
+  "electricalUnits": "data/electrical/units.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

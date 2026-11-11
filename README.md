@@ -137,7 +137,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | סרגל שלבי בנייה + "רק שלד" / "הכול" | ✅ | בשלב "מצב קיים" המגרש מוצג לפי מדידת 2025. מ"גמרים" ואילך מוצגים פני הקרקע המתוכננים |
 | שכבות ותשתיות, הדלקה וכיבוי לפי סוג, צבע לכל מערכת | ✅ (מגרש, סביבה) · מערכות: בקרוב | `data/config/layers.json` |
 | טיח, איטום, הכנה לריצוף (שלב 5א) | ✅ | לשונית "טיח וריצוף": מקרא וכמויות לפי סוג / קומה / חזית / חדר, מחירון, ייצוא xlsx; לחיצה על משטח במצב מידות → שינוי סוג. שלבים בסרגל: הכנות חשמל → טיח → איטום → ריצוף. פתוחים: open-issues #151–#162 |
-| תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, אושר 10.11.2026): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ממתין להחלטות E1–E14 |
+| תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, אושר 10.11.2026): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ח1ב (לוח לכל יחידת דיור, הצעה): [docs/electrical/03-unit-panels.md](docs/electrical/03-unit-panels.md) – `python3 tools/electrical/propose_units.py && python3 tools/electrical/verify_units.py`. ממתין להחלטות E8–E18 |
 | מידות: לחיצה על רכיב → מידות, מקור, מרחקים לגבולות (ולקירות כשיהיו) | ✅ | |
 | מדידה חופשית: שתי נקודות → מרחק תלת-ממדי, מרחק אופקי, ΔH | ✅ | |
 | חתך אופקי ואנכי, ניתן להזזה | ✅ | |

@@ -73,7 +73,8 @@ export class Registry {
       // owner-change variants: "original" shows while the change is off, "changed" while it is on
       const v = it.meta.variant;
       // variant.all = several changes at once (a zone touched by two owner changes): every condition must match
-      const varOk = (c) => (state.ownerChanges?.[c.change] ?? false) === (c.show === 'changed');
+      // which variant shows is decided by the proposals layer (js/tools/proposals.js: plan / proposals mode, status per change)
+      const varOk = (c) => (this.ocChanged ? this.ocChanged(c.change, state) : false) === (c.show === 'changed');
       const varOn = !v || (v.all ? v.all.every(varOk) : varOk(v));
       let visible = layerOn && floor.visible && sysOn && varOn && si >= from && si <= to;
       // "צנרת מוסתרת": pipes hidden by the pour (meta.concealed) are shown again from their own step on

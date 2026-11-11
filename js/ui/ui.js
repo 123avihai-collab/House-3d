@@ -1,6 +1,7 @@
 import { askConfirm, askText } from '../core/dialog.js';
 import * as THREE from 'three';
 import { fmtMin } from '../tools/sun.js';
+import { STATUS_HE } from '../tools/proposals.js';
 
 const h = (tag, attrs = {}, ...kids) => {
   const e = document.createElement(tag);
@@ -60,10 +61,10 @@ export class UI {
     top.append(
       h('div', { class: 'brand' }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
       modes, modeSel, h('div', { class: 'search-wrap' }, sInput, results), ws,
-      (this.ocBadge = h('button', { class: 'oc-badge', title: 'שינויים של אביחי: הפעלה / כיבוי של כל השינויים (להשוואה מול התוכניות)', onclick: () => {
-        const cur = app.store.get().ownerChanges || {}; const anyOn = Object.values(cur).some(Boolean);
-        app.store.set({ ownerChanges: Object.fromEntries(Object.keys(cur).map(k => [k, !anyOn])) }, { label: 'ownerChanges' });
-        this.toast(anyOn ? 'מוצג לפי התוכניות (שינויים כבויים)' : 'מוצגים השינויים של אביחי');
+      // proposals layer (js/tools/proposals.js): plan mode / proposals mode – the red markings of changes waiting for the architect
+      (this.ocBadge = h('button', { class: 'oc-badge', title: 'שכבת הצעות לשינוי: מצב תוכנית (לפי תוכנית האדריכל, בלי אדום) / מצב הצעות (השינויים הממתינים – באדום). הרשימה: בקרה ← הערות', onclick: () => {
+        const on = !app.store.get().proposals; app.proposals.setMode(on);
+        this.toast(on ? 'מצב הצעות – השינויים הממתינים מוצגים באדום' : 'מצב תוכנית – לפי תוכנית האדריכל, בלי סימונים אדומים');
       } }, '')),
       // floors made see-through in the "קומות" tab (saved in the browser): shown here, one click restores
       (this.opBadge = h('button', { class: 'oc-badge op-badge', title: 'יש קומה שקופה (לשונית "קומות"). לחיצה – החזרת כל הקומות לאטומות', onclick: () => {
@@ -97,9 +98,9 @@ export class UI {
   }
   syncTop() {
     if (this.ocBadge) {
-      const cur = this.app.store.get().ownerChanges || {}; const n = Object.keys(cur).length, on = Object.values(cur).filter(Boolean).length;
-      this.ocBadge.style.display = n ? '' : 'none';
-      this.ocBadge.textContent = on ? `שינויים: פעילים (${on})` : 'לפי התוכניות';
+      const P = this.app.proposals, on = !!this.app.store.get().proposals, n = P ? P.pending().length : 0;
+      this.ocBadge.style.display = P?.list.length ? '' : 'none';
+      this.ocBadge.textContent = on ? `מצב הצעות (${n})` : 'מצב תוכנית';
       this.ocBadge.classList.toggle('off', !on);
     }
     const s = this.app.store.get();
@@ -322,6 +323,10 @@ export class UI {
         h('button', { class: s.showHidden ? 'on' : '', title: 'צנרת מתחת לרצפות ובתוך הקירות (בטון שקוף למחצה)', onclick: () => app.store.set({ showHidden: !s.showHidden }, { label: 'xray' }) }, s.showHidden ? '✓ צנרת מוסתרת' : 'צנרת מוסתרת')));
       if (g.id === 'plumbing' && pl?.panel) box.append(pl.panel());
       else if (g.id !== 'environment' && app.modules?.[g.id]?.panel && !['finishes'].includes(g.id)) box.append(app.modules[g.id].panel());
+      if (app.proposals && g.layers.some(l => l.id === 'ownerChanges')) box.append(h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'הצעות לשינוי:'),
+        h('div', { class: 'ocseg' }, h('button', { class: s.proposals ? '' : 'on', onclick: () => app.proposals.setMode(false) }, 'מצב תוכנית'),
+          h('button', { class: s.proposals ? 'on' : '', onclick: () => app.proposals.setMode(true) }, 'מצב הצעות')),
+        h('button', { class: 'small', onclick: () => this.openTab('notes') }, 'רשימת השינויים')));
       if (['plaster', 'tiling', 'waterproofingGroup'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
       for (const l of L) {
         const on = s.layers[l.id] !== false; const lblOff = !!(s.labelsOff || {})[l.id]; const fresh = P?.isNew(l.id);
@@ -480,6 +485,43 @@ export class UI {
       h('button', { onclick: () => app.nav.walking ? app.nav.stopWalk() : app.nav.startWalk() }, app.nav.walking ? 'יציאה מהליכה' : '🚶 התחל הליכה'));
   }
 
+  // the proposals layer: mode switch + the list of changes (name, note, status; click = jump to it) + the queries
+  proposalsBox() {
+    const { app } = this; const s = app.store.get(), P = app.proposals;
+    if (!P) return '';
+    const on = !!s.proposals;
+    const box = h('div', { class: 'proposals' },
+      h('h4', {}, 'הצעות לשינוי (הסימונים האדומים)'),
+      h('div', { class: 'ocseg' },
+        h('button', { class: on ? '' : 'on', onclick: () => P.setMode(false) }, 'מצב תוכנית'),
+        h('button', { class: on ? 'on' : '', onclick: () => P.setMode(true) }, `מצב הצעות (${P.pending().length})`)),
+      h('div', { class: 'muted' }, on ? 'מוצגים השינויים שממתינים לאדריכל – באדום. שינוי שאושר – חלק מהתוכנית, בלי אדום. שינוי שנדחה – לא מוצג.'
+        : 'המודל לפי תוכנית האדריכל. השינויים הממתינים כבויים; שינוי שאושר כבר בתוכנית הבסיס.'));
+    const row = (c) => {
+      const st = P.status(c.id), applied = c.kind === 'applied', shown = s.proposalShow?.[c.id] !== false;
+      const sel = h('select', { class: 'pstatus ' + st, disabled: applied, title: applied ? 'בוצע במודל באישור אביחי' : 'סטטוס מול האדריכל', onchange: (e) => P.setStatus(c.id, e.target.value) },
+        Object.entries(STATUS_HE).map(([k, v]) => { const o = h('option', { value: k }, applied && k === 'approved' ? 'אושר (בוצע במודל)' : v); if (k === st) o.selected = true; return o; }));
+      return h('div', { class: 'oc ' + st },
+        h('a', { href: '#', class: 'ptitle', title: 'הצג במודל', onclick: (e) => { e.preventDefault(); P.go(c); } }, `${c.id} · ${c.title}`),
+        h('div', { class: 'prow' }, sel,
+          st === 'pending' && !applied ? h('label', { class: 'pshow', title: 'במצב הצעות: להציג את השינוי הזה' }, h('input', { type: 'checkbox', checked: shown,
+            onchange: (e) => app.store.set({ proposalShow: { ...s.proposalShow, [c.id]: e.target.checked } }, { label: 'proposals' }) }), 'מוצג') : '',
+          ...(c.targets?.length ? c.targets.map(t => h('button', { class: 'small', onclick: () => P.go(c, t) }, `הצג ${t.label}`)) : [h('button', { class: 'small', onclick: () => P.go(c) }, 'הצג')])),
+        h('details', {}, h('summary', {}, 'הערה'), h('div', {}, c.description),
+          c.changed ? h('div', {}, h('small', {}, 'מה השתנה: ' + c.changed)) : null,
+          c.removedLabel || c.addedLabel ? h('div', { class: 'muted' }, `${c.removedLabel || ''} → ${c.addedLabel || ''}`) : null,
+          h('small', {}, `${c.date} · מי צריך לאשר:`),
+          h('ul', { class: 'appr' }, ...(c.approvals || []).map(a => h('li', {}, `${a.who}${a.what ? ' – ' + a.what : ''}${a.status === 'pending' ? '' : ' ✔'}`))),
+          c.link ? h('div', {}, h('a', { href: c.link.url, target: '_blank', rel: 'noopener' }, c.link.label)) : null));
+    };
+    box.append(...P.list.map(row));
+    const qs = (app.data.ownerChanges?.changes || []).filter(c => c.kind === 'query');
+    if (qs.length) box.append(h('h4', {}, 'לבירור (לא בשכבת ההצעות)'), ...qs.map(c => h('div', { class: 'oc query' },
+      h('a', { href: '#', class: 'ptitle', onclick: (e) => { e.preventDefault(); P.go(c); } }, `${c.id} · ${c.title}`), h('details', {}, h('summary', {}, 'הערה'), h('div', {}, c.description)))));
+    box.append(h('div', { class: 'muted' }, P.where === 'db' ? 'הסטטוסים נשמרים במסד הארטיפקט – קלוד יסנכרן ל-owner-changes.json.' : 'הסטטוסים נשמרים בדפדפן הזה.'));
+    return box;
+  }
+
   panel_notes() {
     const { app } = this; const s = app.store.get();
     return h('div', {},
@@ -487,27 +529,7 @@ export class UI {
       h('div', { class: 'btns' },
         h('button', { class: app.activeTool === 'note' ? 'on' : '', onclick: () => app.setTool('note') }, '📝 הוסף הערה'),
         h('button', { onclick: () => this.copy(app.tools.notes.toText(), 'כל ההערות הועתקו') }, '📋 העתק את כל ההערות')),
-      h('h4', {}, 'שינויים של אביחי (מעבר לתוכניות)'),
-      ...(app.data.ownerChanges?.changes || []).map(c => {
-        const on = s.ownerChanges?.[c.id] ?? false, applied = c.kind === 'applied', q = c.kind === 'query' || applied;
-        // "הצג": the step of the change (showStep = id in tags.json sequence; older entries: showStage) and the place
-        const go = (t) => { const si = t.showStep ? app.registry.stepById(t.showStep) : app.registry.stepIndex(t.showStage || c.showStage, 'unit');
-          if (si >= 0) app.store.set({ stageIndex: si }, { label: 'stage' });
-          const P = { E: t.locationITM[0], N: t.locationITM[1], H: app.coords.H0 + t.locationRel };
-          if (t.viewOffset) { const tg = app.coords.toLocal(P.E, P.N, P.H); app.viewer.flyTo(tg, tg.clone().add(new THREE.Vector3(...t.viewOffset))); } else app.flyToPoint(P); };
-        return h('div', { class: 'oc' },
-          h('b', {}, `${c.id} · ${c.title}`, q ? h('span', { class: 'q' + (applied ? ' applied' : '') }, applied ? 'בוצע במודל' : 'לבירור') : null), h('div', {}, c.description),
-          c.changed ? h('div', {}, h('small', {}, 'מה השתנה: ' + c.changed)) : null,
-          h('small', {}, `${c.date} · מי צריך לאשר:`),
-          h('ul', { class: 'appr' }, ...c.approvals.map(a => h('li', {}, `${a.who}${a.what ? ' – ' + a.what : ''}${a.status === 'pending' ? '' : ' ✔'}`))),
-          q ? null : h('div', { class: 'ocseg' },
-            h('button', { class: on ? '' : 'on', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: false } }, { label: 'ownerChanges' }) }, 'לפי התוכניות'),
-            h('button', { class: on ? 'on' : '', onclick: () => app.store.set({ ownerChanges: { ...s.ownerChanges, [c.id]: true } }, { label: 'ownerChanges' }) }, 'עם השינוי')),
-          q ? null : h('div', { class: 'muted' }, on ? `${c.removedLabel || ''} → ${c.addedLabel || ''}` : 'מוצג כמו בתוכניות המקור'),
-          c.link ? h('div', {}, h('a', { href: c.link.url, target: '_blank', rel: 'noopener' }, c.link.label)) : null,
-          h('div', { class: 'btns' }, ...(c.targets?.length ? c.targets.map(t => h('button', { class: 'small', onclick: () => go(t) }, `הצג ${t.label}`))
-            : [h('button', { class: 'small', onclick: () => go(c) }, 'הצג')])));
-      }),
+      this.proposalsBox(),
       h('h4', {}, 'הערות ותיקונים'),
       s.notes.length ? h('ol', { class: 'notes' }, s.notes.map((n, i) => h('li', { class: n.done ? 'done' : '' },
         h('div', {}, n.text), h('small', {}, `${n.component || '—'} · ${app.coords.fmtH(n.H)}`),

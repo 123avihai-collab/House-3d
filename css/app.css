@@ -323,3 +323,13 @@ table.mtable td.acts { white-space: nowrap; }
 .layers .lfoot { margin-top: 10px; }
 .finishes.ctl { margin: 6px 0; }
 @media (max-width: 760px) { .mainbar button { padding: 8px 2px; } .layers .domains { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }
+/* proposals layer (js/tools/proposals.js) – list in "בקרה ← הערות" */
+.proposals .oc.approved { border-inline-start-color: #43a047; }
+.proposals .oc.rejected { border-inline-start-color: #777; opacity: 0.75; }
+.proposals .oc.query { border-inline-start-color: #ffb300; }
+.proposals .ptitle { display: block; font-weight: 600; color: inherit; text-decoration: none; cursor: pointer; }
+.proposals .ptitle:hover { text-decoration: underline; }
+.proposals .prow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0; }
+.proposals select.pstatus.pending { border-color: #e53935; }
+.proposals select.pstatus.approved { border-color: #43a047; }
+.proposals .pshow { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; }

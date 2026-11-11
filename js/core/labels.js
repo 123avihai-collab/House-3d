@@ -23,7 +23,7 @@ export class LabelManager {
       const sel = it === this.selected; const alw = always.has(it.tags.layer);
       const base = !lo && (sel || alw || mode === 'all' || R.range(it.tags)[0] === si);
       for (const o of it._labels) {
-        let vis = base;
+        let vis = base && !o.userData.ocHide;   // ocHide: a red proposal tag in plan mode (js/tools/proposals.js)
         if (vis && (!sel || planes.length)) {
           o.getWorldPosition(this.v);
           if (!sel && !alw && this.v.distanceTo(cam) > maxD) vis = false;

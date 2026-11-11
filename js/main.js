@@ -35,6 +35,7 @@ import { Prefs } from './tools/prefs.js';
 import { compactRegistry } from './core/compact.js';
 import { SearchTool } from './tools/search.js';
 import { LabelManager } from './core/labels.js';
+import { Proposals } from './tools/proposals.js';
 import { Navigation, Minimap } from './tools/navigation.js';
 import { UI } from './ui/ui.js';
 
@@ -88,7 +89,8 @@ async function main() {
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
     notes: [], bookmarks: [], labelsOff: {},
-    ownerChanges: Object.fromEntries((data.ownerChanges?.changes || []).filter(c => c.kind !== 'query' && c.kind !== 'applied').map(c => [c.id, c.defaultOn ?? false])),
+    // proposals layer (js/tools/proposals.js): false = plan mode (as the plans, no red); proposalShow[id] = false hides one change in proposals mode
+    proposals: false, proposalShow: {},
     quality: { ao: !mobile, shadows: true, labels: true, exposure: 1.0, minimap: true },
   };
   const store = new StateStore(defaults);
@@ -119,6 +121,7 @@ async function main() {
   app.tools.rebar = new RebarTool(app);
   app.tools.search = new SearchTool(app);
   app.labels = new LabelManager(app);
+  app.proposals = new Proposals(app);
   app.tools.section = new SectionTool(app);
   const minimap = app.minimap = new Minimap(app, document.getElementById('minimap'));
   viewer.afterRender = () => { minimap.draw(); updateCompass(); };
@@ -136,8 +139,8 @@ async function main() {
   app.flyToPoint = (n) => { const t = coords.toLocal(n.E, n.N, n.H); viewer.flyTo(t, t.clone().add(new THREE.Vector3(6, 6, 6))); };
   app.viewLink = () => {
     const v = app.currentView(); const s = store.get();
-    const oc = Object.entries(s.ownerChanges || {}).map(([k, v]) => `${k}:${v ? 1 : 0}`).join(',');
-    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${data.tags.sequence[s.stageIndex]?.id || ''}&date=${s.sun.date}&t=${s.sun.minutes}${oc ? '&oc=' + oc : ''}`;
+    const oc = s.proposals ? '1' : '';
+    return `${location.origin}${location.pathname}#v=${[...v.cam, ...v.target].join(',')}&stage=${data.tags.sequence[s.stageIndex]?.id || ''}&date=${s.sun.date}&t=${s.sun.minutes}${oc ? '&prop=1' : ''}`;
   };
   let playTimer = null;
   app.toggleSunPlay = () => {
@@ -180,11 +183,8 @@ async function main() {
   // deep link
   const hp = new URLSearchParams(location.hash.slice(1));
   if (hp.get('v')) { const a = hp.get('v').split(',').map(Number); if (a.length === 6) { viewer.camera.position.set(a[0], a[1], a[2]); viewer.controls.target.set(a[3], a[4], a[5]); } }
-  if (hp.get('oc')) {
-    const cur = { ...(store.get().ownerChanges || {}) };
-    for (const kv of hp.get('oc').split(',')) { const [k, v] = kv.split(':'); if (k in cur) cur[k] = v === '1'; }
-    store.set({ ownerChanges: cur }, { record: false });
-  }
+  // proposals mode from a link (&prop=1; older links: &oc=OC-n:1 – any change on = proposals mode)
+  if (hp.get('prop') || hp.get('oc')) store.set({ proposals: hp.get('prop') === '1' || /:1/.test(hp.get('oc') || '') }, { record: false });
   if (hp.get('stage') || hp.get('date')) {
     const sp = hp.get('stage'); const byId = data.tags.sequence.findIndex(x => x.id === sp);
     store.set({ stageIndex: sp == null ? store.get().stageIndex : byId >= 0 ? byId : clampStage(sp), sun: { date: hp.get('date') || store.get().sun.date, minutes: +(hp.get('t') ?? store.get().sun.minutes) } }, { record: false });

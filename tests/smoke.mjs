@@ -115,18 +115,34 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     info.walkEyeAboveGround = await page.evaluate(() => { const a = window.__app; const c = a.viewer.camera.position; const g = a.nav.groundAt(c.x, c.z, c.y + 5); a.nav.stopWalk(); return g == null ? null : +(c.y - g).toFixed(3); });
     for (const t of ['layers', 'floors', 'sun', 'section', 'tools', 'nav', 'notes', 'electric', 'settings']) await page.evaluate((t) => window.__app.ui.openTab(t), t);
     info.exportOk = await page.evaluate(() => JSON.parse(window.__app.store.exportJson()).app === 'house3d-5187');
-    // owner-change toggle: "changed" items visible with the change on, "original" with it off
+    // proposals layer (js/tools/proposals.js): plan mode = no waiting change and no red mark; proposals mode = the red ones;
+    // approved = joins the plan (shown in plan mode, not red); rejected = never shown
     info.ownerChange = await page.evaluate(() => {
-      const a = window.__app; const ids = Object.keys(a.store.get().ownerChanges || {}); if (!ids.length) return 'none';
-      const vis = (show) => a.registry.items.filter(i => i.meta.variant?.show === show && i.object.visible).length;
-      a.store.set({ stageIndex: a.data.tags.sequence.length - 1, ownerChanges: Object.fromEntries(ids.map(k => [k, true])) });
-      const on = { changed: vis('changed'), original: vis('original') };
-      a.store.set({ ownerChanges: Object.fromEntries(ids.map(k => [k, false])) });
-      const off = { changed: vis('changed'), original: vis('original') };
-      a.store.undo();
-      return on.changed > 0 && on.original === 0 && off.changed === 0 && off.original > 0 ? 'ok' : JSON.stringify({ on, off });
+      const a = window.__app, P = a.proposals; if (!P?.list.length) return 'none';
+      const L = { ...a.store.get().layers }; for (const k in L) L[k] = true;
+      a.store.set({ stageIndex: a.data.tags.sequence.length - 1, layers: L, proposals: false, proposalShow: {} });
+      const red = new Set([a.display.framing.ownerChangeColor, a.display.framing.ownerChangeRemovedColor].map(c => parseInt(c.slice(1), 16)));
+      const redShown = () => { let n = 0; for (const it of a.registry.items) { if (!it.object.visible || !it._oc?.id) continue;
+        it.object.traverse(o => { if (o.visible && o.material && !Array.isArray(o.material) && o.material.color && red.has(o.material.color.getHex())) n++; });
+        n += it._oc.labels.filter(o => !o.userData.ocHide).length; } return n; };
+      const vis = (id, show) => a.registry.items.filter(i => i.meta.variant?.change === id && i.meta.variant.show === show && i.object.visible).length;
+      const plan = { red: redShown(), oc4c: vis('OC-4', 'changed'), oc4o: vis('OC-4', 'original'), oc12o: vis('OC-12', 'original') };
+      a.store.set({ proposals: true });
+      const prop = { red: redShown(), oc4c: vis('OC-4', 'changed'), oc4o: vis('OC-4', 'original'), oc12o: vis('OC-12', 'original') };
+      a.store.set({ proposalShow: { 'OC-4': false } });
+      const one = { oc4c: vis('OC-4', 'changed'), oc4o: vis('OC-4', 'original') };
+      a.store.set({ proposals: false, proposalShow: {} });
+      P.live['OC-4'] = 'approved'; a.registry.apply(a.store.get());
+      const appr = { oc4c: vis('OC-4', 'changed'), oc4o: vis('OC-4', 'original'), red: redShown() };
+      P.live['OC-4'] = 'rejected'; a.store.set({ proposals: true });
+      const rej = { oc4c: vis('OC-4', 'changed'), oc4o: vis('OC-4', 'original') };
+      delete P.live['OC-4']; a.store.set({ proposals: false });
+      const r = { plan, prop, one, appr, rej };
+      const ok = plan.red === 0 && plan.oc4c === 0 && plan.oc4o > 0 && plan.oc12o === 0 && prop.red > 0 && prop.oc4c > 0 && prop.oc4o === 0 && prop.oc12o > 0
+        && one.oc4c === 0 && one.oc4o > 0 && appr.oc4c > 0 && appr.oc4o === 0 && appr.red === 0 && rej.oc4c === 0 && rej.oc4o > 0;
+      return ok ? 'ok' : JSON.stringify(r);
     });
-    if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('owner-change toggle: ' + info.ownerChange);
+    if (info.ownerChange !== 'ok' && info.ownerChange !== 'none') errors.push('proposals layer: ' + info.ownerChange);
     // per-layer label switch: piles stay visible, their labels hide
     info.labelsOff = await page.evaluate(() => {
       const a = window.__app; a.store.set({ stageIndex: a.data.tags.sequence.findIndex(s => s.id === 'pilesBasement'), labelsOff: { piles: true } });

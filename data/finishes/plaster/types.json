@@ -5,7 +5,7 @@
   {
    "id": "interior",
    "label": "טיח פנים (צמנטי)",
-   "color": "#b4b5b0",
+   "color": "#9c9d98",
    "drawn": true,
    "layers": [
     "טיח צמנטי"
@@ -17,7 +17,7 @@
   {
    "id": "exterior",
    "label": "טיח חוץ (צמנטי)",
-   "color": "#b4b5b0",
+   "color": "#9c9d98",
    "drawn": true,
    "layers": [
     "טיח צמנטי"
@@ -29,7 +29,7 @@
   {
    "id": "wet",
    "label": "טיח צמנטי מוחלק (חדרים רטובים)",
-   "color": "#b4b5b0",
+   "color": "#9c9d98",
    "drawn": true,
    "layers": [
     "טיח צמנטי מוחלק"
@@ -41,7 +41,7 @@
   {
    "id": "skim",
    "label": "שפכטל (תקרת ממ\"ד)",
-   "color": "#d2d2ce",
+   "color": "#b9bab5",
    "drawn": true,
    "layers": [
     "שפכטל"

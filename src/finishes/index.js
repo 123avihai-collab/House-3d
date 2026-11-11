@@ -104,9 +104,9 @@ class Finishes {
     return [P[0], P[1], P[2], P[0], P[2], P[3]];
   }
   surfTris(s, off) {
-    if (s.cat === 'wall') return this.wallTris(s, off);
+    if (s.cat === 'wall') return this.wallTris(s, off + (s.proud || 0));   // in front of a beam / curb that stands a little proud of the wall
     if (s.cat === 'ceiling') return this.ringTris(s.ringITM, s.holesITM, s.z - off);
-    if (s.cat === 'top') return this.ringTris(s.ringITM, [], s.z + off);
+    if (s.cat === 'top') return this.ringTris(s.ringITM, s.holesITM || [], s.z + off);
     if (s.cat === 'reveal') return s.quads.flatMap(q => this.quadTris(q.q));
     if (s.cat === 'beam') return [...s.sides.flatMap(x => this.wallTris(x, off, x.z0, x.z1, [])),
       ...s.flats.flatMap(x => this.ringTris(x.ringITM, [], x.part === 'soffit' ? x.z - off : x.z + off))];
@@ -275,6 +275,7 @@ class Finishes {
       if (s.beads_m) rows.push(['זוויתנים', `${f2(s.beads_m)} מ"א`]);
       if (s.ownerKind === 'concrete' || s.ownerKind === 'column') rows.push(['הכנה', this.T.scratchNote]);
     } else if (s.cat === 'reveal') rows.push(['פתח', `${s.opening} (${s.openingKind}) · רוחב ${f2(s.width)} · גובה ${f2(s.height)} · עומק ${f2(s.depth)} מ'`], ['חלקים', s.quads.map(q => q.part === 'jamb' ? 'צד' : 'משקוף').join(' + ') + ' (בלי אדן)'], ['שטח', `${f2(s.amount)} מ"ר`]);
+    else if (s.cat === 'beam' && s.edge) rows.push(['שפת תקרה', `${s.beam} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['שטח', `${f2(s.amount)} מ"ר`], ['הכנה', this.T.scratchNote]);
     else if (s.cat === 'beam') rows.push(['קורה', `${s.beam}${s.pergola ? ' (פרגולה)' : ''} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['דפנות / תחתית / ראש', `${f2(s.sides.reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'soffit').reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'top').reduce((a, x) => a + x.area, 0))} מ"ר`], ['הכנה', this.T.scratchNote]);
     else rows.push(['שטח', `${f2(s.amount)} מ"ר`], ['מפלס', c.fmtRel(s.z)]);
     rows.push(['פיגום', s.scaffold ? `דורש פיגום (מעל ${this.T.params.scaffoldAbove_m} מ') – ${f2(s.scaffoldArea || 0)} מ"ר מעל הגובה` : 'לא']);
@@ -289,7 +290,7 @@ class Finishes {
     const extra = h('div', { class: 'plaster-edit' }, h('b', {}, 'שינוי סוג: '), sel,
       this.overridden(s) ? h('button', { class: 'small', onclick: () => this.setType(s, s.defaultType) }, 'חזרה לברירת המחדל') : '',
       h('div', { class: 'muted' }, this.state === 'online' ? 'נשמר במסד הנתונים של הארטיפקט – קלוד יסנכרן לקובץ overrides.json' : 'נשמר בדפדפן הזה'));
-    this.app.ui.showInfo({ title: `טיח · ${CAT_HE[s.cat]} · ${f2(s.amount)} מ"ר`, rows: this.rowsOf(s), source: s.source, extra });
+    this.app.ui.showInfo({ title: `טיח · ${s.edge ? 'שפת תקרה' : CAT_HE[s.cat]} · ${f2(s.amount)} מ"ר`, rows: this.rowsOf(s), source: s.source, extra });
   }
   // ---------------------------------------------------------------- persistence (artifact db, else this browser)
   saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ live: this.live, prices: this.prices })); } catch {} }

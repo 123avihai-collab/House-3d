@@ -385,63 +385,54 @@
   },
   {
    "id": "finishes",
-   "label": "טיח, איטום וריצוף (שלב 5)",
+   "label": "טיח, איטום ושכבות רצפה (שלב 5א)",
    "system": "finishes",
    "implemented": true,
    "layers": [
     {
      "id": "plaster_interior",
-     "label": "טיח פנים",
-     "visible": false,
-     "color": "#e8d9b5"
+     "label": "טיח פנים (צמנטי)",
+     "visible": false
     },
     {
      "id": "plaster_exterior",
-     "label": "טיח חוץ ושליכט",
-     "visible": false,
-     "color": "#c9a27e"
+     "label": "טיח חוץ (צמנטי)",
+     "visible": false
     },
     {
      "id": "plaster_wet",
-     "label": "טיח רטוב (צמנטי)",
-     "visible": false,
-     "color": "#7fb3d5"
-    },
-    {
-     "id": "plaster_scratch",
-     "label": "הרבצה בלבד",
-     "visible": false,
-     "color": "#9e9e9e"
+     "label": "טיח צמנטי מוחלק (חדרים רטובים)",
+     "visible": false
     },
     {
      "id": "plaster_skim",
-     "label": "שפכטל בלבד",
-     "visible": false,
-     "color": "#f4f1ea"
+     "label": "שפכטל (תקרת ממ\"ד)",
+     "visible": false
     },
     {
-     "id": "plaster_bitumen",
-     "label": "איטום ביטומני (חוץ, מרתף)",
-     "visible": false,
-     "color": "#3b3b3b"
+     "id": "wetProofing",
+     "label": "איטום חדרים רטובים – צמנטי גמיש (טורקיז, קו וגובה האיטום)",
+     "visible": false
     },
     {
-     "id": "plaster_none",
-     "label": "ללא",
-     "visible": false,
-     "color": "#d0d0d0"
+     "id": "floorFill",
+     "label": "רצפה: סומסום (מילוי מעל היציקה)",
+     "visible": false
     },
     {
-     "id": "waterproofing",
-     "label": "איטום חדרים רטובים (שכבה בולטת בגובה האמיתי)",
-     "visible": false,
-     "color": "#1e88e5"
+     "id": "floorScreed",
+     "label": "רצפה: טיט / מדה",
+     "visible": false
     },
     {
-     "id": "tilingPrep",
-     "label": "ריצוף – הכנה (שטח רצפה לחדר)",
-     "visible": false,
-     "color": "#b0866a"
+     "id": "floorAdhesive",
+     "label": "רצפה: דבק לאריחים",
+     "visible": false
+    },
+    {
+     "id": "floorTile",
+     "label": "רצפה: אריח – מקום שמור (בלי צבע / סוג / מידות)",
+     "visible": false
     },
     {
      "id": "roomLabels",
@@ -565,6 +556,34 @@
     {
      "id": "hvacDucts",
      "label": "תעלות"
+    }
+   ]
+  },
+  {
+   "id": "cladding",
+   "label": "חיפויי חוץ (שליכט, אבן, סרגלי אלומיניום) – לפי האדריכל",
+   "system": "finishes",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "claddingSchlicht",
+     "label": "שליכט",
+     "visible": false
+    },
+    {
+     "id": "claddingStone",
+     "label": "חיפוי אבן",
+     "visible": false
+    },
+    {
+     "id": "claddingAluminium",
+     "label": "סרגלי אלומיניום",
+     "visible": false
+    },
+    {
+     "id": "claddingOther",
+     "label": "חיפוי אחר",
+     "visible": false
     }
    ]
   }

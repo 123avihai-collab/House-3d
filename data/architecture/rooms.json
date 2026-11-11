@@ -3,7 +3,7 @@
  "source": "tools/finishes/derive_finishes.py – נגזר מגיאומטריית המודל (ראו _doc)",
  "generated": "derived",
  "cuts": {
-  "unit": -1.6,
+  "unit": -1.4,
   "ground": 1.5,
   "first": 5.2,
   "roof": 7.4
@@ -443,8 +443,7 @@
    ],
    "area_m2": 1.46,
    "perimeter_m": 5.238,
-   "showerFaces": [],
-   "ceilingUncovered_m2": 0.277
+   "showerFaces": []
   },
   {
    "key": "unit@179591.50,576247.50",
@@ -529,8 +528,7 @@
    ],
    "area_m2": 1.603,
    "perimeter_m": 6.343,
-   "showerFaces": [],
-   "ceilingUncovered_m2": 1.354
+   "showerFaces": []
   },
   {
    "key": "unit@179591.00,576245.00",
@@ -611,8 +609,7 @@
    ],
    "area_m2": 5.115,
    "perimeter_m": 9.882,
-   "showerFaces": [],
-   "ceilingUncovered_m2": 4.898
+   "showerFaces": []
   },
   {
    "key": "unit@179588.75,576240.50",
@@ -705,8 +702,7 @@
    ],
    "area_m2": 4.071,
    "perimeter_m": 11.547,
-   "showerFaces": [],
-   "ceilingUncovered_m2": 3.675
+   "showerFaces": []
   },
   {
    "key": "ground@179593.25,576243.50",
@@ -1689,7 +1685,7 @@
    "area_m2": 12.756,
    "perimeter_m": 14.351,
    "showerFaces": [],
-   "ceilingUncovered_m2": 0.278
+   "ceilingUncovered_m2": 0.0
   },
   {
    "key": "ground@179593.00,576246.75",
@@ -2569,8 +2565,7 @@
    ],
    "area_m2": 5.012,
    "perimeter_m": 11.792,
-   "showerFaces": [],
-   "ceilingUncovered_m2": 5.012
+   "showerFaces": []
   }
  ]
 }

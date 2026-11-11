@@ -1,0 +1,73 @@
+{
+ "_doc": "חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.",
+ "source": "tools/finishes/derive_finishes.py – נגזר מגיאומטריית המודל (ראו _doc)",
+ "generated": "derived",
+ "kinds": [
+  {
+   "id": "claddingSchlicht",
+   "label": "שליכט",
+   "color": null
+  },
+  {
+   "id": "claddingStone",
+   "label": "חיפוי אבן",
+   "color": null
+  },
+  {
+   "id": "claddingAluminium",
+   "label": "סרגלי אלומיניום",
+   "color": null
+  },
+  {
+   "id": "claddingOther",
+   "label": "חיפוי אחר",
+   "color": null
+  }
+ ],
+ "items": [
+  {
+   "kind": "claddingStone",
+   "owner": "PW7",
+   "a": [
+    179596.243,
+    576230.715
+   ],
+   "b": [
+    179586.529,
+    576235.178
+   ],
+   "normal": [
+    -0.417,
+    -0.909
+   ],
+   "z0": -0.21,
+   "z1": 0.69,
+   "area": 9.621,
+   "color": null,
+   "source": "החלטת אביחי 11.11.2026 – צד הרחוב של החומה לרחוב: חיפוי אבן; גבהים – נקודת גובה פיתוח 280.29 (2.7 מ')",
+   "status": "owner"
+  },
+  {
+   "kind": "claddingStone",
+   "owner": "PW9",
+   "a": [
+    179598.577,
+    576229.712
+   ],
+   "b": [
+    179598.284,
+    576229.841
+   ],
+   "normal": [
+    -0.403,
+    -0.915
+   ],
+   "z0": -0.34,
+   "z1": 1.25,
+   "area": 0.51,
+   "color": null,
+   "source": "החלטת אביחי 11.11.2026 – צד הרחוב של החומה לרחוב: חיפוי אבן; גבהים – נקודת גובה פיתוח 280.16 (2.6 מ')",
+   "status": "owner"
+  }
+ ]
+}

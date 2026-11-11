@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-// Finishes layer (separate module): plaster by type, waterproofing of the wet rooms, tiling preparation, room names.
+// Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
+// exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
+// exterior cladding (own category, off) and room names.
 // Data (derived from the model geometry – tools/finishes/derive_finishes.py): data/finishes/plaster/surfaces.json,
 // data/finishes/tiling/surfaces.json, data/architecture/rooms.json. Decisions: data/finishes/plaster/types.json
 // (types, colours, parameters, prices), overrides.json (Avihai's type per surface). Changes made in the model are kept in
@@ -12,7 +14,7 @@ const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
 const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', unknown: 'לא מסווג' };
-const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה' };
+const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה' };
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 'p' + (x >>> 0).toString(36); };
 const h = (tag, attrs = {}, ...kids) => {
@@ -27,7 +29,7 @@ const h = (tag, attrs = {}, ...kids) => {
 
 export function buildFinishes(ctx) {
   const { data, coords, registry, scene } = ctx;
-  const P = data.plaster, T = data.plasterTypes, TL = data.tiling, R = data.rooms;
+  const P = data.plaster, T = data.plasterTypes, TL = data.tiling, R = data.rooms; ctx.cladding = data.cladding;
   if (!P || !T) return null;
   const D = data.display.finishes;
   const F = new Finishes(ctx, P, T, TL, R, D);
@@ -39,11 +41,15 @@ class Finishes {
   constructor(ctx, P, T, TL, R, D) {
     Object.assign(this, { ctx, P, T, TL, R, D });
     this.types = T.types; this.typeBy = Object.fromEntries(T.types.map(t => [t.id, t]));
+    this.drawn = T.types.filter(t => t.drawn !== false);   // plaster that is shown (no plaster on membrane / cladding / neighbour side)
+    this.CL = ctx.cladding; this.BU = TL.buildUp;
     this.rooms = Object.fromEntries(R.rooms.map(r => [r.key, r]));
     this.surf = [
       ...P.walls.map(s => ({ ...s, cat: 'wall', amount: s.net })),
       ...P.ceilings.map(s => ({ ...s, cat: 'ceiling', amount: s.net })),
       ...P.tops.map(s => ({ ...s, cat: 'top', amount: s.area })),
+      ...(P.reveals || []).map(s => ({ ...s, cat: 'reveal', amount: s.area })),
+      ...(P.beams || []).map(s => ({ ...s, cat: 'beam', amount: s.area })),
     ];
     this.byKey = Object.fromEntries(this.surf.map(s => [s.key, s]));
     this.live = {};          // overrides made in the model (db / this browser): key -> type
@@ -93,6 +99,19 @@ class Finishes {
     for (const t of tri) for (const i of t) out.push(this.V(all[i].x, all[i].y, z));
     return out;
   }
+  quadTris(q, off = 0, n = null) {   // q: 4 corners [E, N, z]; optional offset along a plan normal
+    const P = q.map(([E, N, z]) => this.V(E + (n ? n[0] * off : 0), N + (n ? n[1] * off : 0), z));
+    return [P[0], P[1], P[2], P[0], P[2], P[3]];
+  }
+  surfTris(s, off) {
+    if (s.cat === 'wall') return this.wallTris(s, off);
+    if (s.cat === 'ceiling') return this.ringTris(s.ringITM, s.holesITM, s.z - off);
+    if (s.cat === 'top') return this.ringTris(s.ringITM, [], s.z + off);
+    if (s.cat === 'reveal') return s.quads.flatMap(q => this.quadTris(q.q));
+    if (s.cat === 'beam') return [...s.sides.flatMap(x => this.wallTris(x, off, x.z0, x.z1, [])),
+      ...s.flats.flatMap(x => this.ringTris(x.ringITM, [], x.part === 'soffit' ? x.z - off : x.z + off))];
+    return [];
+  }
   mesh(triPts, map, material) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(triPts.flat(), 3));
@@ -103,10 +122,11 @@ class Finishes {
 
   build() {
     const { registry, scene } = this.ctx;
-    const plasterLayers = this.types.map(t => 'plaster_' + t.id);
+    const plasterLayers = this.drawn.map(t => 'plaster_' + t.id);
     registry.defer([...plasterLayers], () => this.buildPlaster());
-    registry.defer(['waterproofing'], () => this.buildWaterproofing());
-    registry.defer(['tilingPrep'], () => this.buildTiling());
+    registry.defer(['wetProofing'], () => this.buildWaterproofing());
+    registry.defer(this.BU.layers.map(l => l.id), () => this.buildFloors());
+    registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
   }
   add(obj, tags, meta) {
@@ -119,8 +139,9 @@ class Finishes {
     const groups = {};
     for (const s of this.surf) {
       const ty = this.typeOf(s), fl = s.floor;
+      if (this.typeBy[ty]?.drawn === false) continue;   // no plaster there (membrane, cladding, neighbour side, "ללא")
       const g = groups[ty + '|' + fl] ||= { ty, fl, pts: [], map: [] };
-      const tris = s.cat === 'wall' ? this.wallTris(s, off) : s.cat === 'ceiling' ? this.ringTris(s.ringITM, s.holesITM, s.z - off) : this.ringTris(s.ringITM, [], s.z + off);
+      const tris = this.surfTris(s, off);
       for (let i = 0; i < tris.length; i += 3) { g.pts.push(tris[i], tris[i + 1], tris[i + 2]); g.map.push(s.key); }
     }
     this.plasterItems = [];
@@ -130,7 +151,7 @@ class Finishes {
       const m = this.mesh(g.pts, g.map, this.mat(t.color));
       const it = this.add(m, { floor: g.fl, step: 'plaster', layer: 'plaster_' + g.ty }, {
         name: `${t.label} – ${FLOOR_HE[g.fl]}`, kind: 'plaster', id: 'PL-' + g.ty + '-' + g.fl, pickable: true,
-        rows: [], source: 'data/finishes/plaster/surfaces.json (נגזר מהגיאומטריה – tools/finishes/derive_finishes.py)',
+        rows: [], source: 'data/finishes/plaster/surfaces.json (נגזר מהגיאומטריה – tools/finishes/derive_finishes.py)', note: this.T.scratchNote,
         onClick: (hit) => this.pick(hit) });
       this.plasterItems.push(it);
     }
@@ -143,45 +164,77 @@ class Finishes {
     this.app?.viewer.invalidate();
   }
   buildWaterproofing() {
-    const off = this.D.waterproofOffset_m, byFl = {};
+    const W = this.T.waterproofing, off = this.D.waterproofOffset_m, byFl = {};
+    const lineMat = new THREE.LineBasicMaterial({ color: W.colorFloor });
     for (const w of this.P.waterproofing) {
-      const g = byFl[w.floor] ||= { pts: [], map: [] };
-      const tris = this.wallTris(w, off, w.z0, w.z1, []);
-      for (let i = 0; i < tris.length; i += 3) { g.pts.push(tris[i], tris[i + 1], tris[i + 2]); g.map.push('wp:' + w.owner); }
-    }
-    for (const r of this.TL.rooms.filter(r => r.roomType === 'wet' && r.ringITM.length >= 3)) {
-      const z = Math.min(...this.P.walls.filter(s => s.room === r.room).map(s => s.z0)) + off;
-      const g = byFl[r.floor] ||= { pts: [], map: [] };
-      const tris = this.ringTris(r.ringITM, [], z);
-      for (let i = 0; i < tris.length; i += 3) { g.pts.push(tris[i], tris[i + 1], tris[i + 2]); g.map.push('wpf:' + r.room); }
+      const g = byFl[w.floor] ||= { wall: [], wmap: [], floor: [], fmap: [], lines: [], labels: [] };
+      if (w.kind === 'floor') {
+        const tris = this.ringTris(w.ringITM, w.holesITM, w.z + 0.002);
+        for (let i = 0; i < tris.length; i += 3) { g.floor.push(tris[i], tris[i + 1], tris[i + 2]); g.fmap.push('wpf:' + w.room); }
+        continue;
+      }
+      const tris = this.wallTris(w, off, w.z0, w.z1, w.openings || []);
+      for (let i = 0; i < tris.length; i += 3) { g.wall.push(tris[i], tris[i + 1], tris[i + 2]); g.wmap.push('wp:' + w.owner); }
+      // the top edge of the waterproofing on the wall + its height
+      const o2 = off * 1.4, [nx, ny] = w.normal;
+      const A = this.V(w.a[0] + nx * o2, w.a[1] + ny * o2, w.z1), B = this.V(w.b[0] + nx * o2, w.b[1] + ny * o2, w.z1);
+      g.lines.push(...A, ...B);
+      if (Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) > 0.35) g.labels.push({ p: A.map((v, i) => (v + B[i]) / 2), t: w.label });
     }
     for (const [fl, g] of Object.entries(byFl)) {
-      const m = this.mesh(g.pts, g.map, this.mat(this.T.waterproofing.color));
+      const grp = new THREE.Group();
+      if (g.wall.length) { const m = this.mesh(g.wall, g.wmap, this.mat(W.colorWall, { transparent: true, opacity: 0.9 })); grp.add(m); }
+      if (g.floor.length) { const m = this.mesh(g.floor, g.fmap, this.mat(W.colorFloor)); grp.add(m); }
+      if (g.lines.length) {
+        const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(g.lines, 3));
+        const ls = new THREE.LineSegments(lg, lineMat); ls.userData.keep = true; grp.add(ls);
+      }
+      for (const L of g.labels) { const d = h('div', { class: 'lbl wp' }, L.t); const o = new CSS2DObject(d); o.position.set(L.p[0], L.p[1] + 0.03, L.p[2]); grp.add(o); }
       const a = this.P.waterproofing.filter(w => w.floor === fl);
-      this.add(m, { floor: fl, step: 'wetProofing', layer: 'waterproofing' }, {
+      this.add(grp, { floor: fl, step: 'wetProofing', layer: 'wetProofing' }, {
         name: `איטום חדרים רטובים – ${FLOOR_HE[fl]}`, kind: 'waterproofing', id: 'WP-' + fl,
-        rows: [['קירות', `${f2(a.reduce((s, w) => s + w.area, 0))} מ"ר (${a.filter(w => w.shower).length} קירות מקלחת עד ${this.T.waterproofing.showerHeight_m} מ')`],
-          ['רצפות', `${f2(this.TL.rooms.filter(r => r.floor === fl && r.roomType === 'wet').reduce((s, r) => s + r.area, 0))} מ"ר`],
-          ['כלל', this.T.waterproofing.note]],
-        source: 'data/finishes/plaster/surfaces.json → waterproofing', note: 'קירות המקלחת לפי מיקום נקודת המקלחת בתוכנית האינסטלציה – זמני עד סימון של אביחי' });
+        rows: [['חומר', W.label], ['קירות', `${f2(a.filter(w => w.kind === 'wall').reduce((s, w) => s + w.area, 0))} מ"ר – ${W.wetRoomHeight_m * 100} ס"מ מפני הריצוף, אזור המקלחת עד ${W.showerHeight_m} מ'`],
+          ['רצפות', `${f2(a.filter(w => w.kind === 'floor').reduce((s, w) => s + w.area, 0))} מ"ר – כל רצפת החדר`], ['כלל', W.note]],
+        source: 'data/finishes/plaster/surfaces.json → waterproofing', note: 'אזור המקלחת – ±0.9 מ\' לאורך הקיר מנקודת המקלחת בתוכנית האינסטלציה (זמני)' });
     }
   }
-  buildTiling() {
-    const off = this.D.tilingOffset_m, byFl = {};
-    for (const r of this.TL.rooms) {
-      if (r.ringITM.length < 3 || r.finishRel == null || ['court', 'outdoor'].includes(r.roomType)) continue;
-      const g = byFl[r.floor] ||= { pts: [], map: [], rooms: [] };
-      const tris = this.ringTris(r.ringITM, [], r.finishRel + off);
-      for (let i = 0; i < tris.length; i += 3) { g.pts.push(tris[i], tris[i + 1], tris[i + 2]); g.map.push('tile:' + r.room); }
-      g.rooms.push(r);
+  // the floor build-up over the slab: fill / screed / adhesive / tile placeholder – one layer each (no plaster on floors)
+  buildFloors() {
+    const byLayer = {};
+    for (const r of this.TL.rooms) for (const l of r.layers || []) for (const p of r.parts) {
+      const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set() };
+      const top = this.ringTris(p.ringITM, p.holesITM, l.z1), bot = this.ringTris(p.ringITM, p.holesITM, l.z0 + 0.0005);
+      const ring = p.ringITM, sides = [];
+      for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length];
+        sides.push(...this.quadTris([[a[0], a[1], l.z0], [b[0], b[1], l.z0], [b[0], b[1], l.z1], [a[0], a[1], l.z1]])); }
+      for (const t of [top, bot, sides]) for (let i = 0; i < t.length; i += 3) { g.pts.push(t[i], t[i + 1], t[i + 2]); g.map.push('floor:' + r.room); }
+      g.rooms.add(r.room);
     }
-    for (const [fl, g] of Object.entries(byFl)) {
-      const m = this.mesh(g.pts, g.map, this.mat('#b0866a', { transparent: true, opacity: 0.85 }));
-      this.add(m, { floor: fl, step: 'tiling', layer: 'tilingPrep' }, {
-        name: `ריצוף (הכנה) – ${FLOOR_HE[fl]}`, kind: 'tiling', id: 'TL-' + fl,
-        rows: [['שטח ריצוף', `${f2(g.rooms.reduce((s, r) => s + r.area, 0))} מ"ר`], ['פנלים', `${f2(g.rooms.reduce((s, r) => s + r.skirting_m, 0))} מ"א`],
-          ['פני ריצוף', this.ctx.coords.fmtRel(g.rooms[0].finishRel)], ['סוג אריח', 'טרם הוחלט']],
-        source: 'data/finishes/tiling/surfaces.json', onClick: (hit) => this.pickTile(hit) });
+    const def = Object.fromEntries(this.BU.layers.map(l => [l.id, l]));
+    for (const g of Object.values(byLayer)) {
+      const d = def[g.l.id];
+      const mat = d.color ? this.mat(d.color) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false });
+      const m = this.mesh(g.pts, g.map, mat);
+      const grp = new THREE.Group(); grp.add(m);
+      if (!d.color) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineBasicMaterial({ color: '#90a4ae' })); e.userData.keep = true; grp.add(e); }
+      const rs = this.TL.rooms.filter(r => g.rooms.has(r.room)), area = rs.reduce((a, r) => a + r.area, 0);
+      this.add(grp, { floor: g.fl, step: 'tiling', layer: g.l.id }, {
+        name: `${d.label} – ${FLOOR_HE[g.fl]}`, kind: 'floorLayer', id: g.l.id + '-' + g.fl,
+        rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', `${f2(g.l.thickness_m * 100)} ס"מ (${d.status === 'placeholder' ? 'מקום שמור' : 'זמני'})`],
+          ['נפח', `${f2(area * g.l.thickness_m)} מ"ק`], ['סדר', 'יציקה → סומסום → טיט / מדה → דבק → אריח']],
+        source: 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json', note: this.BU._doc });
+    }
+  }
+  // exterior cladding – own category (off): known items only (the street side of the street wall – stone)
+  buildCladding() {
+    for (const k of this.CL?.kinds || []) {
+      const it = this.CL.items.filter(x => x.kind === k.id); if (!it.length) continue;
+      const pts = [], map = [];
+      for (const x of it) { const t = this.wallTris(x, this.D.offset_m * 2, x.z0, x.z1, []); for (const p of t) pts.push(p); for (let i = 0; i < t.length; i += 3) map.push('clad:' + x.owner); }
+      const m = this.mesh(pts, map, this.mat(k.color || '#b9ad9a'));
+      this.add(m, { floor: 'site', step: 'cladding', layer: k.id }, { name: `${k.label} (חיפויי חוץ)`, kind: 'cladding', id: k.id,
+        rows: [['משטחים', it.map(x => x.owner).join(', ')], ['שטח', `${f2(it.reduce((a, x) => a + x.area, 0))} מ"ר`], ['צבע / דגם', 'טרם נקבע – לפי האדריכל']],
+        source: it[0].source, note: 'אזורי החיפוי של הבית – לפי האדריכל (data/finishes/cladding/zones.json)' });
     }
   }
   buildLabels() {
@@ -201,7 +254,7 @@ class Finishes {
   highlight(s) {
     this.sel.clear();
     if (s) {
-      const tris = s.cat === 'wall' ? this.wallTris(s, this.D.offset_m * 1.6, s.z0, s.z1, []) : s.cat === 'ceiling' ? this.ringTris(s.ringITM, s.holesITM, s.z - this.D.offset_m * 1.6) : this.ringTris(s.ringITM, [], s.z + this.D.offset_m * 1.6);
+      const tris = s.cat === 'wall' ? this.wallTris(s, this.D.offset_m * 1.6, s.z0, s.z1, []) : this.surfTris(s, this.D.offset_m * 1.6);
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
       const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 1), new THREE.LineBasicMaterial({ color: this.D.selectColor, depthTest: false }));
       e.renderOrder = 30; this.sel.add(e);
@@ -220,7 +273,10 @@ class Finishes {
       if (s.openings.length) rows.push(['פתחים', s.openings.map(o => o.id).join(', ')]);
       if (s.meshV_m || s.meshH_m) rows.push(['רשת פיברגלס', `${f2((s.meshV_m || 0) + (s.meshH_m || 0))} מ"א`]);
       if (s.beads_m) rows.push(['זוויתנים', `${f2(s.beads_m)} מ"א`]);
-    } else rows.push(['שטח', `${f2(s.amount)} מ"ר${s.beamSides ? ` (כולל דפנות קורות ${f2(s.beamSides)})` : ''}`], ['מפלס', c.fmtRel(s.z)]);
+      if (s.ownerKind === 'concrete' || s.ownerKind === 'column') rows.push(['הכנה', this.T.scratchNote]);
+    } else if (s.cat === 'reveal') rows.push(['פתח', `${s.opening} (${s.openingKind}) · רוחב ${f2(s.width)} · גובה ${f2(s.height)} · עומק ${f2(s.depth)} מ'`], ['חלקים', s.quads.map(q => q.part === 'jamb' ? 'צד' : 'משקוף').join(' + ') + ' (בלי אדן)'], ['שטח', `${f2(s.amount)} מ"ר`]);
+    else if (s.cat === 'beam') rows.push(['קורה', `${s.beam}${s.pergola ? ' (פרגולה)' : ''} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['דפנות / תחתית / ראש', `${f2(s.sides.reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'soffit').reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'top').reduce((a, x) => a + x.area, 0))} מ"ר`], ['הכנה', this.T.scratchNote]);
+    else rows.push(['שטח', `${f2(s.amount)} מ"ר`], ['מפלס', c.fmtRel(s.z)]);
     rows.push(['פיגום', s.scaffold ? `דורש פיגום (מעל ${this.T.params.scaffoldAbove_m} מ') – ${f2(s.scaffoldArea || 0)} מ"ר מעל הגובה` : 'לא']);
     if (s.status === 'provisional') rows.push(['מעמד', 'זמני – ' + (s.zSource || '')]);
     rows.push(['מפתח', s.key]);
@@ -229,20 +285,12 @@ class Finishes {
   pick(hit) { const s = this.surfaceAt(hit); if (s) this.showSurface(s); }
   showSurface(s) {
     this.selected = s; this.highlight(s);
-    const sel = h('select', { onchange: (e) => this.setType(s, e.target.value) }, this.types.map(t => { const o = h('option', { value: t.id }, t.label); if (t.id === this.typeOf(s)) o.selected = true; return o; }));
+    const sel = h('select', { onchange: (e) => this.setType(s, e.target.value) }, [...this.drawn, this.typeBy.none].map(t => { const o = h('option', { value: t.id }, t.label); if (t.id === this.typeOf(s)) o.selected = true; return o; }));
     const extra = h('div', { class: 'plaster-edit' }, h('b', {}, 'שינוי סוג: '), sel,
       this.overridden(s) ? h('button', { class: 'small', onclick: () => this.setType(s, s.defaultType) }, 'חזרה לברירת המחדל') : '',
       h('div', { class: 'muted' }, this.state === 'online' ? 'נשמר במסד הנתונים של הארטיפקט – קלוד יסנכרן לקובץ overrides.json' : 'נשמר בדפדפן הזה'));
     this.app.ui.showInfo({ title: `טיח · ${CAT_HE[s.cat]} · ${f2(s.amount)} מ"ר`, rows: this.rowsOf(s), source: s.source, extra });
   }
-  pickTile(hit) {
-    const k = hit.object.userData.faceMap?.[hit.faceIndex]?.slice(5); const r = this.TL.rooms.find(x => x.room === k); if (!r) return;
-    const room = this.rooms[k];
-    this.app.ui.showInfo({ title: `ריצוף (הכנה) · ${room?.name || 'חדר'}`, rows: [['קומה', FLOOR_HE[r.floor]], ['סוג חדר', TYPE_ROOM_HE[r.roomType]],
-      ['שטח ריצוף', `${f2(r.area)} מ"ר`], ['פנלים (היקף פחות דלתות)', `${f2(r.skirting_m)} מ"א`], ['פני ריצוף', this.ctx.coords.fmtRel(r.finishRel)],
-      ['חיפוי קירות', r.wallTiling ? 'נדרש – גובה טרם הוחלט' : '—'], ['סוג אריח', 'טרם הוחלט'], ['מפתח', r.room]], source: 'data/finishes/tiling/surfaces.json' });
-  }
-
   // ---------------------------------------------------------------- persistence (artifact db, else this browser)
   saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ live: this.live, prices: this.prices })); } catch {} }
   async connect() {
@@ -282,17 +330,18 @@ class Finishes {
       if (s.cat === 'wall' && s.side === 'out' && s.facade) add(T.byFacade, s.facade, ty, s.amount);
       if (s.scaffoldArea) add(T.scaffold, s.floor, ty, s.scaffoldArea);
     }
-    const rev = this.P.reveals.reduce((a, r) => a + r.area, 0);
+    const rev = this.surf.filter(s => s.cat === 'reveal').reduce((a, r) => a + r.amount, 0), beam = this.surf.filter(s => s.cat === 'beam').reduce((a, r) => a + r.amount, 0);
     const mesh = this.P.walls.reduce((a, s) => a + (s.meshV_m || 0) + (s.meshH_m || 0), 0);
-    const beads = this.P.walls.reduce((a, s) => a + (s.beads_m || 0), 0) + this.P.reveals.reduce((a, r) => a + (r.beads || 0), 0);
-    const wpW = this.P.waterproofing.reduce((a, w) => a + w.area, 0), wpF = this.TL.rooms.filter(r => r.roomType === 'wet').reduce((a, r) => a + r.area, 0);
-    T.extras = { reveals: rev, mesh, beads, waterproofing: wpW + wpF, waterproofWalls: wpW, waterproofFloors: wpF };
+    const beads = this.P.walls.reduce((a, s) => a + (s.beads_m || 0), 0) + (this.P.reveals || []).reduce((a, r) => a + (r.beads || 0), 0);
+    const wpW = this.P.waterproofing.filter(w => w.kind === 'wall').reduce((a, w) => a + w.area, 0), wpF = this.P.waterproofing.filter(w => w.kind === 'floor').reduce((a, w) => a + w.area, 0);
+    T.extras = { reveals: rev, beams: beam, mesh, beads, waterproofing: wpW + wpF, waterproofWalls: wpW, waterproofFloors: wpF };
+    T.floors = Object.fromEntries(this.BU.layers.map(l => [l.id, this.TL.rooms.reduce((a, r) => a + ((r.layers || []).some(x => x.id === l.id) ? r.area : 0), 0)]));
     T.tiling = { area: this.TL.rooms.filter(r => !['court', 'outdoor'].includes(r.roomType)).reduce((a, r) => a + r.area, 0), skirting: this.TL.rooms.reduce((a, r) => a + r.skirting_m, 0) };
     const price = (id) => this.prices[id];
     T.cost = { byType: {}, byFloor: {}, total: 0, missing: [] };
-    for (const [ty, v] of Object.entries(T.byType)) { if (price(ty) == null) { if (ty !== 'none') T.cost.missing.push(this.typeBy[ty].label); continue; } T.cost.byType[ty] = v * price(ty); T.cost.total += v * price(ty); }
+    for (const [ty, v] of Object.entries(T.byType)) { if (price(ty) == null) { if (this.typeBy[ty]?.drawn !== false) T.cost.missing.push(this.typeBy[ty].label); continue; } T.cost.byType[ty] = v * price(ty); T.cost.total += v * price(ty); }
     for (const [fl, o] of Object.entries(T.byFloor)) T.cost.byFloor[fl] = Object.entries(o).reduce((a, [ty, v]) => a + (price(ty) != null ? v * price(ty) : 0), 0);
-    for (const [id, v] of [['reveals', rev], ['mesh', mesh], ['beads', beads], ['waterproofing', wpW + wpF]]) { if (price(id) != null) T.cost.total += v * price(id); }
+    for (const [id, v] of [['mesh', mesh], ['beads', beads], ['wetProofing', wpW + wpF]]) { if (price(id) != null) T.cost.total += v * price(id); }
     return T;
   }
 
@@ -300,15 +349,19 @@ class Finishes {
   panel(ui) {
     const app = this.app, s = app.store.get(), T = this.totals();
     const setLayers = (patch) => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label: 'layers' });
-    const allPl = Object.fromEntries(this.types.map(t => ['plaster_' + t.id, true]));
-    const anyOn = this.types.some(t => s.layers['plaster_' + t.id] !== false);
+    const allPl = Object.fromEntries(this.drawn.map(t => ['plaster_' + t.id, true]));
+    const anyOn = this.drawn.some(t => s.layers['plaster_' + t.id] !== false);
+    const on = (id) => s.layers[id] !== false, tog = (id) => setLayers({ [id]: !on(id) });
     const wrap = h('div', { class: 'finishes' });
-    wrap.append(h('p', { class: 'muted' }, 'כל משטח קיר ותקרה נגזר מהגיאומטריה של המודל (קירות, פתחים, תקרות, קורות). הסוג נקבע לפי כללים (צד הקיר, סוג החדר) ואפשר לדרוס אותו: לחיצה על משטח במצב "מידות".'),
+    wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי על כל פני הקירות (בלוק ובטון, פנים וחוץ), על קורות ועמודים גלויים, על הגליפים ועל התקרות – באפור בהיר אחד: שלב הטיח, לא הגמר. בלי טיח על רצפות. ' + this.T.scratchNote + '. לחיצה על משטח במצב "מידות" – פרטים ושינוי סוג.'),
       h('div', { class: 'btns' },
         h('button', { class: anyOn ? 'on' : '', onclick: () => setLayers(anyOn ? Object.fromEntries(Object.keys(allPl).map(k => [k, false])) : allPl) }, anyOn ? 'הסתר טיח' : 'הצג טיח'),
-        h('button', { class: s.layers.waterproofing !== false ? 'on' : '', onclick: () => setLayers({ waterproofing: s.layers.waterproofing === false }) }, 'איטום'),
-        h('button', { class: s.layers.tilingPrep !== false ? 'on' : '', onclick: () => setLayers({ tilingPrep: s.layers.tilingPrep === false }) }, 'ריצוף (הכנה)'),
-        h('button', { class: s.layers.roomLabels !== false ? 'on' : '', onclick: () => setLayers({ roomLabels: s.layers.roomLabels === false }) }, 'שמות חדרים')));
+        h('button', { class: on('wetProofing') ? 'on' : '', onclick: () => tog('wetProofing') }, 'איטום חדרים רטובים'),
+        h('button', { class: on('roomLabels') ? 'on' : '', onclick: () => tog('roomLabels') }, 'שמות חדרים')),
+      h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'שכבות רצפה:'),
+        this.BU.layers.map(l => h('button', { class: 'small' + (on(l.id) ? ' on' : ''), onclick: () => tog(l.id) }, l.label.split(' (')[0].split(' –')[0]))),
+      h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'חיפויי חוץ (קטגוריה נפרדת):'),
+        (this.CL?.kinds || []).map(k => h('button', { class: 'small' + (on(k.id) ? ' on' : ''), onclick: () => tog(k.id), title: this.CL.items.some(x => x.kind === k.id) ? '' : 'עדיין אין אזורים – לפי האדריכל' }, k.label))));
     // interior view: one floor, horizontal cut above its floor, no ceilings above
     const fls = ['unit', 'ground', 'first', 'roof'];
     const lvl = { unit: -2.6, ground: 0, first: 3.85, roof: 6.9 };
@@ -328,14 +381,15 @@ class Finishes {
       h('tr', {}, h('th', {}, ''), h('th', {}, 'סוג'), h('th', {}, 'נטו מ"ר'), h('th', {}, 'מזה בפיגום'), h('th', {}, 'מחיר ליח\''), h('th', {}, 'עלות')),
       this.types.map(t => {
         const lid = 'plaster_' + t.id, on = s.layers[lid] !== false;
-        return h('tr', {}, h('td', {}, h('label', { class: 'sw' }, h('input', { type: 'checkbox', checked: on, onchange: (e) => setLayers({ [lid]: e.target.checked }) }), h('i', { style: `background:${t.color}` }))),
+        return h('tr', {}, h('td', {}, t.drawn === false ? h('i', { class: 'swc off', title: 'לא מוצג כטיח' }) : h('label', { class: 'sw' }, h('input', { type: 'checkbox', checked: on, onchange: (e) => setLayers({ [lid]: e.target.checked }) }), h('i', { style: `background:${t.color}` }))),
           h('td', { title: `${t.applies} · שכבות: ${t.layers.join(' + ') || '—'}` }, t.label), h('td', {}, f2(T.byType[t.id] || 0)), h('td', {}, f2(scaf(t.id))),
           h('td', {}, priceIn(t.id)), h('td', {}, T.cost.byType[t.id] != null ? f2(T.cost.byType[t.id]) : '—'));
       }),
-      [['waterproofing', this.T.waterproofing.label, T.extras.waterproofing, 'מ"ר'], ['reveals', 'ספלטות וגליפים', T.extras.reveals, 'מ"ר'], ['mesh', 'רשת פיברגלס (בלוק / בטון)', T.extras.mesh, 'מ"א'], ['beads', 'פינות מגן (זוויתנים)', T.extras.beads, 'מ"א']]
-        .map(([id, label, v, u]) => h('tr', {}, h('td', {}, id === 'waterproofing' ? h('i', { class: 'swc', style: `background:${this.T.waterproofing.color}` }) : ''), h('td', {}, label), h('td', {}, `${f2(v)} ${u === 'מ"א' ? 'מ"א' : ''}`), h('td', {}, ''),
+      [['wetProofing', this.T.waterproofing.label, T.extras.waterproofing, 'מ"ר'], ['mesh', 'רשת פיברגלס (בלוק / בטון)', T.extras.mesh, 'מ"א'], ['beads', 'פינות מגן (זוויתנים)', T.extras.beads, 'מ"א']]
+        .map(([id, label, v, u]) => h('tr', {}, h('td', {}, id === 'wetProofing' ? h('i', { class: 'swc', style: `background:${this.T.waterproofing.colorWall}` }) : ''), h('td', {}, label), h('td', {}, `${f2(v)} ${u === 'מ"א' ? 'מ"א' : ''}`), h('td', {}, ''),
           h('td', {}, priceIn(id)), h('td', {}, this.prices[id] != null ? f2(v * this.prices[id]) : '—'))),
       h('tr', { class: 'tot' }, h('td', {}, ''), h('td', {}, 'סה"כ עלות'), h('td', {}, ''), h('td', {}, ''), h('td', {}, ''), h('td', {}, T.cost.total ? f2(T.cost.total) + ' ₪' : '—'))));
+    wrap.append(h('div', { class: 'muted' }, `כולל גליפים ${f2(T.extras.reveals)} מ"ר וקורות גלויות ${f2(T.extras.beams)} מ"ר.`));
     if (T.cost.missing.length) wrap.append(h('div', { class: 'muted' }, 'חסר מחיר: ' + T.cost.missing.join(', ')));
     // by floor
     wrap.append(h('h4', {}, 'לפי קומה (מ"ר)'), h('table', { class: 'qty' },
@@ -343,7 +397,9 @@ class Finishes {
       Object.entries(T.byFloor).map(([fl, o]) => h('tr', {}, h('td', {}, FLOOR_HE[fl]), this.types.filter(t => T.byType[t.id]).map(t => h('td', {}, o[t.id] ? f2(o[t.id]) : '')), h('td', {}, T.cost.byFloor[fl] ? f2(T.cost.byFloor[fl]) : '—')))));
     wrap.append(h('h4', {}, 'טיח חוץ לפי חזית (מ"ר)'), h('table', { class: 'qty' },
       Object.entries(T.byFacade).sort().map(([fc, o]) => h('tr', {}, h('td', {}, FACADE_HE[fc]), h('td', {}, Object.entries(o).map(([ty, v]) => `${this.typeBy[ty].label}: ${f2(v)}`).join(' · '))))));
-    wrap.append(h('h4', {}, 'ריצוף – הכנה'), h('div', {}, `שטח רצפות: ${f2(T.tiling.area)} מ"ר · פנלים: ${f2(T.tiling.skirting)} מ"א · סוגי אריחים וגובה חיפוי – טרם הוחלטו.`));
+    wrap.append(h('h4', {}, 'שכבות רצפה'), h('table', { class: 'qty' }, this.BU.layers.map(l => h('tr', {}, h('td', {}, l.color ? h('i', { class: 'swc', style: `background:${l.color}` }) : h('i', { class: 'swc off' })),
+        h('td', {}, l.label), h('td', {}, `${f2(T.floors[l.id] || 0)} מ"ר`), h('td', {}, l.thickness_m != null ? `${f2(l.thickness_m * 100)} ס"מ` : 'השארית'), h('td', { class: 'muted' }, l.status === 'placeholder' ? 'מקום שמור' : 'עובי זמני')))),
+      h('div', { class: 'muted' }, `פנלים: ${f2(T.tiling.skirting)} מ"א · סוג אריח וגובה חיפוי – טרם הוחלטו · ${this.BU._wetProofingOn}`));
     // rooms
     wrap.append(h('h4', {}, 'לפי חדר'), h('table', { class: 'qty' },
       h('tr', {}, h('th', {}, 'קומה'), h('th', {}, 'חדר'), h('th', {}, 'סוג'), h('th', {}, 'רצפה מ"ר'), h('th', {}, 'טיח מ"ר')),
@@ -369,22 +425,24 @@ class Finishes {
     const tl = (id) => this.typeBy[id]?.label || id;
     sheet('סיכום', [['סוג', 'כמות', 'יחידה', 'מזה בפיגום', 'מחיר ליחידה', 'עלות'],
       ...this.types.map(t => [t.label, +(T.byType[t.id] || 0).toFixed(2), 'מ"ר', +Object.values(T.scaffold).reduce((a, o) => a + (o[t.id] || 0), 0).toFixed(2), this.prices[t.id] ?? '', T.cost.byType[t.id] != null ? +T.cost.byType[t.id].toFixed(2) : '']),
-      [this.T.waterproofing.label, +T.extras.waterproofing.toFixed(2), 'מ"ר', '', this.prices.waterproofing ?? '', this.prices.waterproofing != null ? +(T.extras.waterproofing * this.prices.waterproofing).toFixed(2) : ''],
-      ['ספלטות וגליפים', +T.extras.reveals.toFixed(2), 'מ"ר', '', this.prices.reveals ?? '', this.prices.reveals != null ? +(T.extras.reveals * this.prices.reveals).toFixed(2) : ''],
+      [this.T.waterproofing.label, +T.extras.waterproofing.toFixed(2), 'מ"ר', '', this.prices.wetProofing ?? '', this.prices.wetProofing != null ? +(T.extras.waterproofing * this.prices.wetProofing).toFixed(2) : ''],
+      ['מזה גליפים (כלול בסוגים)', +T.extras.reveals.toFixed(2), 'מ"ר'], ['מזה קורות גלויות (כלול בסוגים)', +T.extras.beams.toFixed(2), 'מ"ר'],
       ['רשת פיברגלס', +T.extras.mesh.toFixed(2), 'מ"א', '', this.prices.mesh ?? '', this.prices.mesh != null ? +(T.extras.mesh * this.prices.mesh).toFixed(2) : ''],
       ['פינות מגן', +T.extras.beads.toFixed(2), 'מ"א', '', this.prices.beads ?? '', this.prices.beads != null ? +(T.extras.beads * this.prices.beads).toFixed(2) : ''],
       ['סה"כ', '', '', '', '', +T.cost.total.toFixed(2)],
-      [], ['ריצוף – שטח רצפות (הכנה)', +T.tiling.area.toFixed(2), 'מ"ר'], ['פנלים', +T.tiling.skirting.toFixed(2), 'מ"א']]);
+      [], ...this.BU.layers.map(l => [l.label, +(T.floors[l.id] || 0).toFixed(2), 'מ"ר', l.thickness_m != null ? `${l.thickness_m * 100} ס"מ – ${l.status === 'placeholder' ? 'מקום שמור' : 'זמני'}` : 'השארית – זמני']),
+      ['פנלים', +T.tiling.skirting.toFixed(2), 'מ"א'], [], [this.T.scratchNote]]);
     sheet('לפי קומה', [['קומה', ...this.types.map(t => t.label), 'עלות'], ...Object.entries(T.byFloor).map(([fl, o]) => [FLOOR_HE[fl], ...this.types.map(t => +(o[t.id] || 0).toFixed(2)), +(T.cost.byFloor[fl] || 0).toFixed(2)])]);
     sheet('חוץ לפי חזית', [['חזית', ...this.types.map(t => t.label)], ...Object.entries(T.byFacade).map(([fc, o]) => [FACADE_HE[fc], ...this.types.map(t => +(o[t.id] || 0).toFixed(2))])]);
     sheet('לפי חדר', [['קומה', 'חדר', 'סוג חדר', 'רצפה מ"ר', ...this.types.map(t => t.label)], ...this.R.rooms.map(r => { const o = T.byRoom[r.key] || {}; return [FLOOR_HE[r.floor], r.name || r.key, TYPE_ROOM_HE[r.type], +(this.TL.rooms.find(x => x.room === r.key)?.area || 0).toFixed(2), ...this.types.map(t => +(o[t.id] || 0).toFixed(2))]; })]);
     sheet('משטחים', [['מפתח', 'קומה', 'משטח', 'צד', 'חזית', 'חדר', 'רכיב', 'סוג', 'ברירת מחדל', 'דריסה', 'אורך', 'מגובה', 'עד גובה', 'ברוטו', 'פתחים', 'נטו', 'פיגום', 'שטח בפיגום', 'רשת מ"א', 'זוויתנים מ"א'],
-      ...this.surf.map(s => [s.key, FLOOR_HE[s.floor], CAT_HE[s.cat], s.side === 'in' ? 'פנים' : s.side === 'out' ? 'חוץ' : '', FACADE_HE[s.facade] || '', this.rooms[s.room]?.name || '', s.owner || s.slab || '', tl(this.typeOf(s)), tl(s.defaultType), this.overridden(s) ? 'כן' : '',
-        s.length ?? '', s.z0 ?? s.z, s.z1 ?? '', s.gross ?? s.amount, s.openingsArea ?? 0, +s.amount.toFixed(3), s.scaffold ? 'כן' : '', s.scaffoldArea || 0, +((s.meshV_m || 0) + (s.meshH_m || 0)).toFixed(3), s.beads_m || 0])]);
-    sheet('גליפים', [['פתח', 'סוג', 'קומה', 'רוחב', 'גובה', 'עומק', 'היקף', 'שטח', 'זוויתנים'], ...this.P.reveals.map(r => [r.opening, r.kind, FLOOR_HE[r.floor], r.width, r.height, r.depth, r.perimeter, r.area, r.beads])]);
-    sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.P.waterproofing.map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner, w.rule, w.z0, w.z1, w.area]),
-      ...this.TL.rooms.filter(r => r.roomType === 'wet').map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, 'רצפה', 'רצפת חדר רטוב', '', '', r.area])]);
-    sheet('ריצוף', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני ריצוף', 'חיפוי קירות', 'סוג אריח'], ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.finishRel ?? '', r.wallTiling ? 'טרם הוחלט' : '', 'טרם הוחלט'])]);
+      ...this.surf.map(s => [s.key, FLOOR_HE[s.floor], CAT_HE[s.cat], s.side === 'in' ? 'פנים' : s.side === 'out' ? 'חוץ' : '', FACADE_HE[s.facade] || '', this.rooms[s.room]?.name || '', s.owner || s.slab || s.opening || s.beam || '', tl(this.typeOf(s)), tl(s.defaultType), this.overridden(s) ? 'כן' : '',
+        s.length ?? s.width ?? '', s.z0 ?? s.z ?? s.bottom, s.z1 ?? s.top ?? '', s.gross ?? s.amount, s.openingsArea ?? 0, +s.amount.toFixed(3), s.scaffold ? 'כן' : '', s.scaffoldArea || 0, +((s.meshV_m || 0) + (s.meshH_m || 0)).toFixed(3), s.beads_m || 0])]);
+    sheet('גליפים', [['פתח', 'סוג', 'קומה', 'רוחב', 'גובה', 'עומק', 'חלקים', 'שטח', 'זוויתנים'], ...(this.P.reveals || []).map(r => [r.opening, r.openingKind, FLOOR_HE[r.floor], r.width, r.height, r.depth, r.quads.map(q => q.part).join('+'), r.area, r.beads])]);
+    sheet('קורות', [['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'שטח', 'סוג'], ...(this.P.beams || []).map(b => [b.beam, FLOOR_HE[b.floor], b.bottom, b.top, b.pergola ? 'כן' : '', b.area, tl(this.typeOf(b))])]);
+    sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.P.waterproofing.map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
+    sheet('רצפות', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', ...this.BU.layers.map(l => l.label + " (מ')"), 'סוג אריח'],
+      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), 'טרם הוחלט'])]);
     const name = 'plaster-tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

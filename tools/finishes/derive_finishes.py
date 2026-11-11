@@ -72,9 +72,12 @@ for fl, D in (('ground', GF), ('first', FF), ('roof', RF)):
         add_solid(w['id'], 'concrete', poly(w['footprintITM'], w.get('holesITM', [])), w['bottomRel'], w['topRel'], w['thickness_m'], w['source'], fl)
     for c in D['columns']:
         add_solid(c['id'], 'column', poly(c['footprintITM']), c['bottomRel'], c['topRel'], min(c['size_cm']) / 100, c['source'], fl)
+INFILL = []
 for w in FR['basementWalls']:
-    parts = w.get('partsITM') or [w['footprintITM']]
     add_solid(w['id'], 'concrete', poly(w['footprintITM'], w.get('holesITM', [])), w['bottomRel'], w['topRel'], None, w['source'], 'unit')
+    for k_, f_ in enumerate(w.get('infill', [])):   # concrete over / under the openings of the basement walls (K-11)
+        INFILL.append(dict(id=f"{w['id']}-{f_['kind']}-{f_.get('opening', k_)}", kind='infill', poly=poly(f_['ringITM']), bottom=f_['bottomRel'], top=f_['topRel'],
+                           thickness=None, src=w['source'], floor='unit', host=w['id']))
 
 
 def block_rect(a, b, t):
@@ -125,15 +128,26 @@ SLAB_BY = {s['id']: s for s in SLABS}
 BEAMS = [dict(b, floorOf=fl) for fl, D in (('ground', GF), ('first', FF), ('roof', RF)) for b in D['ceiling']['beams'] if b.get('axisITM')]
 
 
-def floor_at(pt, z):
-    """top of the highest slab under (pt, z) – the floor a face at that point stands on"""
-    P = Point(pt); c = [s for s in SLABS if s['top'] <= z + 1e-6 and s['poly'].buffer(0.02).contains(P)]
-    return max(c, key=lambda s: s['top']) if c else None
+def LinearRingCCW(P):
+    return P.exterior.is_ccw
 
 
-def ceiling_at(pt, z):
-    P = Point(pt); c = [s for s in SLABS if s['bottom'] >= z - 1e-6 and s['poly'].buffer(0.02).contains(P)]
-    return min(c, key=lambda s: s['bottom']) if c else None
+def floor_at(pt, z, reach=(0.02, 0.35)):
+    """top of the highest slab under (pt, z) – the floor a face at that point stands on (a slab drawn a few cm short of
+    the wall still counts)"""
+    P = Point(pt)
+    for r in reach:
+        c = [s for s in SLABS if s['top'] <= z + 1e-6 and s['poly'].distance(P) <= r]
+        if c: return max(c, key=lambda s: s['top'])
+    return None
+
+
+def ceiling_at(pt, z, reach=(0.02, 0.35)):
+    P = Point(pt)
+    for r in reach:
+        c = [s for s in SLABS if s['bottom'] >= z - 1e-6 and s['poly'].distance(P) <= r]
+        if c: return min(c, key=lambda s: s['bottom'])
+    return None
 
 
 # ---------------------------------------------------------------- room names (architect's Revit plans)
@@ -211,7 +225,7 @@ def owner_of(a, b, S):
         ov = s['poly'].boundary.buffer(0.006).intersection(seg).length
         if ov > bl + 1e-6: best, bl = s, ov
     if not best or bl <= 0.5 * seg.length: return None
-    return best.get('hostSolid') if best['kind'] == 'opening' else best   # an opening's edge is a face of its host wall
+    return best   # an opening / gap edge: plaster only where material stands over / under it (lintel, sill) – see face_record
 
 
 def unit_normal(a, b, inside_left):
@@ -256,7 +270,8 @@ def merge_faces(edges):
 def opening_cut(face, z0, z1):
     """openings in the face's wall line: [(id, s0, s1, zlo, zhi, kind)] in face coordinates (s from a)"""
     a, b = face['a'], face['b']; L = math.dist(a, b); ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
-    t = (face['owner'] or {}).get('thickness') or 0.3
+    ow = face['owner']
+    t = (ow.get('thickness') if isinstance(ow, dict) else face.get('thickness')) or 0.3
     out = []
     for o in OP:
         if o['id'].startswith('OC-'): continue
@@ -266,11 +281,47 @@ def opening_cut(face, z0, z1):
         if d > t / 2 + 0.08: continue
         sc = (c[0] - a[0]) * ux + (c[1] - a[1]) * uy
         s0, s1 = max(0, sc - o['width_m'] / 2), min(L, sc + o['width_m'] / 2)
-        zlo, zhi = max(z0, o['sillRel']), min(z1, o['headRel'])
+        ff = CFG['finishFloor'].get(o['floor'])
+        door = o['kind'] in ('door', 'sliding', 'vitrine') and ff is not None and o['sillRel'] <= ff + 0.05
+        zlo, zhi = (z0 if door else max(z0, o['sillRel'])), min(z1, o['headRel'])
         if s1 - s0 < 0.02 or zhi - zlo < 0.02: continue
         out.append(dict(id=o['id'], s0=r3(s0), s1=r3(s1), z0=r3(zlo), z1=r3(zhi), kind=o['kind'], width=o['width_m'],
                         sill=o['sillRel'], head=o['headRel']))
     return out
+
+
+GBEAMS = [b for b in FR['groundBeams'] if b.get('axisITM')]
+
+
+def beam_rect(b):
+    (x0, y0), (x1, y1) = b['axisITM'][0], b['axisITM'][-1]
+    return block_rect((x0, y0), (x1, y1), b['width_m'])[0]
+
+
+STACK = [dict(kind='wall', poly=s_['poly'], bottom=s_['bottom'], top=s_['top']) for s_ in SOL + INFILL] + \
+        [dict(kind='beam', poly=beam_rect(b), bottom=b['bottomRel'], top=b['topRel']) for b in BEAMS + GBEAMS] + \
+        [dict(kind='slab', poly=s_['poly'], bottom=s_['bottom'], top=s_['top']) for s_ in SLABS]
+
+
+def stack(strip, z, way, limit, slabs=True, walls=True):
+    """follow the material behind a face (the strip 2 cm inside the wall) from level z up / down: a beam, slab or wall whose
+    bottom (up) / top (down) meets z and covers most of the strip carries the face on – to its other end. Stops at limit,
+    or where nothing is behind (no plaster on air)."""
+    for _ in range(8):
+        best = None
+        for c in STACK:
+            if c['kind'] == 'slab' and not slabs: continue
+            if c['kind'] == 'wall' and (not walls or any(c['bottom'] <= zc <= c['top'] for zc in CFG['cuts'].values())): continue
+            meet = c['bottom'] if way == 'up' else c['top']
+            if abs(meet - z) > 0.05: continue
+            nxt = c['top'] if way == 'up' else c['bottom']
+            if (way == 'up' and nxt <= z + 0.01) or (way == 'down' and nxt >= z - 0.01): continue
+            if c['poly'].intersection(strip).length < 0.5 * strip.length: continue
+            if best is None or (nxt > best if way == 'up' else nxt < best): best = nxt
+        if best is None: break
+        z = best
+        if (way == 'up' and z >= limit) or (way == 'down' and z <= limit): break
+    return min(z, limit) if way == 'up' else max(z, limit)
 
 
 def standing_level(fl, flo, z0, side):
@@ -283,19 +334,44 @@ def standing_level(fl, flo, z0, side):
 def face_record(fl, f, side, room, inside_left, z_cut):
     a, b = f['a'], f['b']; L = math.dist(a, b)
     if L < 0.03: return None
+    if f['owner']['kind'] == 'opening':   # a gap in a concrete wall: the wall material over the head / under the sill only
+        o = f['owner']; nx, ny = unit_normal(a, b, inside_left)
+        strip = LineString([(a[0] - nx * 0.02, a[1] - ny * 0.02), (b[0] - nx * 0.02, b[1] - ny * 0.02)])
+        m = ((a[0] + b[0]) / 2 + nx * 0.08, (a[1] + b[1]) / 2 + ny * 0.08); cei = ceiling_at(m, z_cut); flo = floor_at(m, z_cut)
+        host = o.get('hostSolid') or {}
+        parts = []
+        if o['top'] < 90:
+            zt = stack(strip, o['top'], 'up', cei['bottom'] if (cei and side == 'in') else 99)
+            if zt - o['top'] > 0.02: parts.append((o['top'], zt))
+            if flo and o['bottom'] - flo['top'] > 0.05:
+                zb = stack(strip, o['bottom'], 'down', flo['top'])
+                if o['bottom'] - zb > 0.02: parts.append((zb, o['bottom']))
+        if not parts: return None
+        z0, z1 = parts[0]
+        ow = dict(id=host.get('id', o['id']), kind=host.get('kind', 'concrete'), floor=host.get('floor', fl), thickness=o['thickness'], src=host.get('src', o['src']))
+        recs = []
+        for z0, z1 in parts:
+            g = L * (z1 - z0)
+            recs.append(dict(kind='wall', floor=fl, side=side, room=room['key'] if room else None, roomName=room['name'] if room else None,
+                             roomType=room['type'] if room else ('outdoor' if side == 'out' else None), owner=ow['id'], ownerKind=ow['kind'], ownerFloor=ow['floor'],
+                             thickness=ow['thickness'], a=[r3(a[0]), r3(a[1])], b=[r3(b[0]), r3(b[1])], normal=[r3(nx), r3(ny)], length=r3(L), z0=r3(z0), z1=r3(z1),
+                             gross=r3(g), openingsArea=0.0, net=r3(g), openings=[], overOpening=o['id'], floorSlab=flo['id'] if flo else None,
+                             ceilingSlab=cei['id'] if cei else None, standing=r3(standing_level(fl, flo, z0, side)), source=ow['src'],
+                             scaffold=False, scaffoldArea=0.0, **({'facade': facade_of(nx, ny)} if side == 'out' else {})))
+        return recs
     nx, ny = unit_normal(a, b, inside_left)
     m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
     probe = (m[0] + nx * 0.08, m[1] + ny * 0.08)       # just off the face, in the space it faces
     ow = f['owner']
     flo, cei = floor_at(probe, z_cut), ceiling_at(probe, z_cut)
-    if side == 'in':
-        z0 = flo['top'] if flo else ow['bottom']
-        if ow['bottom'] > z0 + CFG['beamFlushMax_m']: z0 = ow['bottom']
-        z1 = cei['bottom'] if cei else ow['top']
-        if ow['top'] < z1 - CFG['beamFlushMax_m']: z1 = ow['top']
-    else:   # façade: from the outdoor slab / ground under the face to the wall top
-        z0 = max(ow['bottom'], flo['top']) if flo else ow['bottom']
-        z1 = ow['top']
+    strip = LineString([(a[0] - nx * 0.02, a[1] - ny * 0.02), (b[0] - nx * 0.02, b[1] - ny * 0.02)])   # 2 cm into the wall
+    if side == 'in':   # from the wall's bottom down through what carries it (beam / curb) to the floor slab; up through beams / slab edge to the ceiling
+        z0 = max(stack(strip, ow['bottom'], 'down', flo['top'] if flo else -99, slabs=False), flo['top'] if flo else -99)
+        z1 = min(stack(strip, ow['top'], 'up', cei['bottom'] if cei else 99, slabs=True), cei['bottom'] if cei else 99)
+    else:   # façade: down through beams / curbs to the outdoor slab, up through the slab edge / beams (overlaps between floors clipped later)
+        z0 = stack(strip, ow['bottom'], 'down', flo['top'] if flo else -99, slabs=False)
+        z0 = max(z0, flo['top']) if flo else z0
+        z1 = stack(strip, ow['top'], 'up', 99, slabs=True)
     if z1 - z0 < 0.05: return None
     ops = opening_cut(f, z0, z1)
     gross = L * (z1 - z0)
@@ -321,10 +397,15 @@ def process_ring(fl, ring, side, room, inside_left, S, z):
     protruding corners (seen from the space the faces look at)"""
     mf = merge_faces([dict(a=a, b=b, owner=owner_of(a, b, S)) for a, b in ring_edges(ring)])
     recs = []
+    extra = []
     for f in mf:
         r = face_record(fl, f, side, room, inside_left, z) if f['owner'] else None
+        if isinstance(r, list):   # material over / under a gap opening: no corner quantities of its own
+            for x in r: x['meshV_m'] = 0.0; x['beads_m'] = 0.0; x['meshH_m'] = 0.0
+            extra += r; r = None
         if r: r['meshV_m'] = 0.0; r['beads_m'] = 0.0; r['meshH_m'] = 0.0
         recs.append(r)
+    FACES.extend(extra)
     n = len(mf)
     for i in range(n):
         f, g = mf[i], mf[(i + 1) % n]; rf, rg = recs[i], recs[(i + 1) % n]
@@ -419,6 +500,34 @@ def dedupe():
 
 
 FACES[:] = dedupe()
+
+
+def clip_facade():
+    """the same façade plane seen from two floor cuts (slab edge, beams carried up / down): the upper face starts where
+    the lower one ends"""
+    out = [f for f in FACES if f['side'] == 'out']
+    out.sort(key=lambda f: f['z0'])
+    for i, lo in enumerate(out):
+        A, B = lo['a'], lo['b']; L = math.dist(A, B); ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L
+        for up in out[i + 1:]:
+            if up is lo or up['z0'] >= lo['z1'] - 0.005 or up['z1'] <= lo['z1']: continue
+            if abs(up['normal'][0] * lo['normal'][0] + up['normal'][1] * lo['normal'][1]) < 0.995: continue
+            d = abs((up['a'][0] - A[0]) * -uy + (up['a'][1] - A[1]) * ux)
+            if d > 0.03: continue
+            s0 = sorted([(up['a'][0] - A[0]) * ux + (up['a'][1] - A[1]) * uy, (up['b'][0] - A[0]) * ux + (up['b'][1] - A[1]) * uy])
+            ov = min(L, s0[1]) - max(0, s0[0])
+            if ov < 0.5 * min(L, up['length']): continue
+            up['z0'] = lo['z1']
+    for f in out:   # re-measure the clipped faces
+        if f['z1'] - f['z0'] < 0.05: f['drop'] = True; continue
+        f['openings'] = opening_cut(f, f['z0'], f['z1'])
+        f['gross'] = r3(f['length'] * (f['z1'] - f['z0']))
+        f['openingsArea'] = r3(sum((o['s1'] - o['s0']) * (o['z1'] - o['z0']) for o in f['openings']))
+        f['net'] = r3(f['gross'] - f['openingsArea'])
+    FACES[:] = [f for f in FACES if not f.get('drop')]
+
+
+clip_facade()
 ROOM_BY = {r['key']: r for r in ROOMS}
 PRM = TYPES['params']; WP = TYPES['waterproofing']
 
@@ -429,44 +538,59 @@ def seg_dist(pt, a, b):
 
 # ---------------------------------------------------------------- default plaster type of each wall face (rules)
 def default_type(f):
+    """all wall faces, block and concrete, inside and outside: cement plaster (Avihai 11.11); wet rooms: smoothed cement
+    plaster under the waterproofing; basement walls against the soil: waterproofing + protection sheet, no plaster"""
     rt = f['roomType']
     if f['side'] == 'in':
-        if rt in ('wet', 'basement'): return 'wet', 'חדר רטוב / מרתף מבפנים'
-        if rt == 'mamad': return 'skim', 'ממ"ד – אסור טיח (פיקוד העורף)'
+        if rt == 'wet': return 'wet', 'חדר רטוב – טיח צמנטי מוחלק (לא גבס), האיטום מעליו'
         if rt in ('court', 'outdoor'): return 'exterior', 'חצר אנגלית / גג פתוח'
         if rt == 'kitchen':
             sinks = [x for x in FIX if x['floor'] == f['floor'] and x['kind'] in ('sink', 'kitchenPoint')]
             if sinks and min(seg_dist((x['E'], x['N']), f['a'], f['b']) for x in sinks) < CFG['sinkWall_m']:
-                return 'wet', 'הקיר שמאחורי כיור המטבח'
-        return 'interior', 'קיר פנים'
-    if f['floor'] == 'unit': return 'bitumen', 'קיר מרתף במגע עם קרקע (מבחוץ)'
-    return 'exterior', 'קיר חיצוני (החיפוי בחזיתות טרם סומן – open-issues)'
+                return 'wet', 'הקיר שמאחורי כיור המטבח – טיח צמנטי מוחלק'
+        return 'interior', 'קיר פנים – טיח צמנטי'
+    if f['floor'] == 'unit': return 'membrane', 'קיר מרתף במגע עם הקרקע: איטום + יריעת הגנה, בלי טיח (שכבת "איטום חיצוני לקירות המרתף")'
+    return 'exterior', 'קיר חיצוני – טיח צמנטי (השליכט / החיפוי – בקטגוריית חיפויי חוץ)'
 
 
 for f in FACES:
     f['defaultType'], f['typeReason'] = default_type(f)
 
-# ---------------------------------------------------------------- waterproofing (over the wet plaster) – wet rooms
+# ---------------------------------------------------------------- waterproofing (over the smoothed cement plaster) – wet rooms
+# walls: up to wetRoomHeight above the finished floor; in the shower zone (the stretch of wall in front of the shower
+# point, ± showerZoneHalf_m – provisional, no shower layout in the sources) up to showerHeight; floors: the whole room.
 WPROOF = []
 for f in FACES:
     if f['side'] != 'in' or f['roomType'] != 'wet': continue
     room = ROOM_BY[f['room']]; ff = CFG['finishFloor'].get(f['floor'], f['standing'])
-    showers = [x for x in FIX if x['floor'] == f['floor'] and x['kind'] == 'shower' and room['poly'].contains(Point(x['E'], x['N']))]
-    sh = f['owner'] in room['showerFaces'] or any(seg_dist((x['E'], x['N']), f['a'], f['b']) < CFG['showerWall_m'] for x in showers)
-    h = WP['showerHeight_m'] if sh else WP['wetRoomHeight_m']
-    z1 = min(f['z1'], ff + h)
-    if z1 <= f['z0']: continue
-    doors = sum(o['s1'] - o['s0'] for o in f['openings'] if o['sill'] <= f['z0'] + 0.3)
-    area = (f['length'] - doors) * (z1 - f['z0'])
-    WPROOF.append(dict(kind='wall', face=None, floor=f['floor'], room=f['room'], owner=f['owner'], a=f['a'], b=f['b'], normal=f['normal'],
-                       z0=f['z0'], z1=r3(z1), shower=sh, area=r3(area),
-                       rule=("קיר מקלחת – עד %.2f מ' מפני הריצוף" % h) if sh else ("%.2f מ' מפני הריצוף" % h),
-                       status='provisional' if sh and f['owner'] not in room['showerFaces'] else 'rule'))
+    A, B = f['a'], f['b']; L = f['length']; ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L
+    showers = [x for x in FIX if x['floor'] == f['floor'] and x['kind'] == 'shower' and room['poly'].buffer(CFG['fixtureReach_m']).contains(Point(x['E'], x['N']))]
+    cuts = []   # shower stretches along the face [s0, s1]
+    for x in showers:
+        if seg_dist((x['E'], x['N']), A, B) > CFG['showerWall_m']: continue
+        sc = (x['E'] - A[0]) * ux + (x['N'] - A[1]) * uy
+        lo, hi = max(0, sc - WP['showerZoneHalf_m']), min(L, sc + WP['showerZoneHalf_m'])
+        if hi - lo > 0.05: cuts.append((lo, hi))
+    if f['owner'] in room['showerFaces']: cuts = [(0, L)]
+    marks = sorted({0, L, *[c for ab in cuts for c in ab]})
+    for s0, s1 in zip(marks, marks[1:]):
+        if s1 - s0 < 0.02: continue
+        sh = any(lo <= (s0 + s1) / 2 <= hi for lo, hi in cuts)
+        h = WP['showerHeight_m'] if sh else WP['wetRoomHeight_m']
+        z1 = min(f['z1'], ff + h)
+        if z1 <= f['z0']: continue
+        doors = sum(max(0, min(o['s1'], s1) - max(o['s0'], s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01)
+        pa = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; pb = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
+        WPROOF.append(dict(kind='wall', floor=f['floor'], room=f['room'], owner=f['owner'], a=pa, b=pb, normal=f['normal'],
+                           s0=r3(s0), s1=r3(s1), z0=f['z0'], z1=r3(z1), height_m=h, shower=sh, area=r3((s1 - s0 - doors) * (z1 - f['z0'])),
+                           openings=[dict(o, s0=r3(max(o['s0'], s0) - s0), s1=r3(min(o['s1'], s1) - s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01 and min(o['s1'], s1) > max(o['s0'], s0)],
+                           label=f"איטום {round(h * 100):.0f} ס\"מ", rule=(f"אזור מקלחת – עד {h:.2f} מ' מפני הריצוף" if sh else f"{h:.2f} מ' מפני הריצוף"),
+                           status='provisional' if sh and f['owner'] not in room['showerFaces'] else 'rule'))
 
 # ---------------------------------------------------------------- ceilings: room split by the slabs above (lowest first)
 CEILS = []
 for fl in FLOORS:
-    for room in [r for r in ROOMS if r['floor'] == fl]:
+    for room in [r for r in ROOMS if r['floor'] == fl and r['type'] not in ('court', 'outdoor')]:   # open to the sky: no ceiling
         z = CFG['cuts'][fl]; rem = room['poly']
         for sl in sorted([s for s in SLABS if s['bottom'] >= z], key=lambda s: s['bottom']):
             free = sl['poly']
@@ -474,28 +598,21 @@ for fl in FLOORS:
             pc = rem.intersection(free)
             if pc.area < 0.05: continue
             CLAIMED[sl['id']].append(pc); rem = rem.difference(pc)
-            # exposed ceiling beams of that slab inside the piece: two sides each
-            sides, bl = 0.0, []
-            inner = pc.buffer(-0.05)
-            for b in BEAMS:
-                drop = sl['bottom'] - b['bottomRel']
-                if drop < 0.05 or abs(b['topRel'] - sl['top']) > 0.6: continue
-                L = LineString(b['axisITM']).intersection(inner).length
-                if L > 0.05: sides += 2 * L * drop; bl.append(dict(id=b['id'], length=r3(L), drop=r3(drop)))
             st = sl['bottom'] - (floor_at(pc.representative_point().coords[0], z) or {'top': z})['top']
+            st = sl['bottom'] - (CFG['finishFloor'].get(fl, sl['bottom'] - st))
             rt = room['type']
-            dt = ('skim', 'תקרת ממ"ד – שפכטל בלבד') if rt == 'mamad' else (('exterior', 'תקרה חיצונית') if rt in ('court', 'outdoor') else ('interior', 'תקרה – טיח פנים'))
+            dt = ('skim', 'תקרת ממ"ד – שפכטל בלבד (אסור טיח)') if rt == 'mamad' else ('interior', 'תקרה – טיח צמנטי')
             for g in getattr(pc, 'geoms', [pc]):
                 if g.geom_type != 'Polygon' or g.area < 0.05: continue
-                share = g.area / pc.area
                 CEILS.append(dict(kind='ceiling', floor=fl, room=room['key'], roomName=room['name'], roomType=rt, slab=sl['id'], z=sl['bottom'],
                                   ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]],
                                   holesITM=[[[r3(x), r3(y)] for x, y in list(h.coords)[:-1]] for h in g.interiors],
-                                  area=r3(g.area), beamSides=r3(sides * share), beams=bl if share > 0.5 else [], net=r3(g.area + sides * share),
-                                  scaffold=st > PRM['scaffoldAbove_m'] + 1e-6, scaffoldArea=r3(g.area + sides * share) if st > PRM['scaffoldAbove_m'] + 1e-6 else 0, height=r3(st), defaultType=dt[0], typeReason=dt[1], source=sl['src']))
+                                  area=r3(g.area), net=r3(g.area), scaffold=st > PRM['scaffoldAbove_m'] + 1e-6,
+                                  scaffoldArea=r3(g.area) if st > PRM['scaffoldAbove_m'] + 1e-6 else 0, height=r3(st),
+                                  defaultType=dt[0], typeReason=dt[1], source=sl['src']))
         room['ceilingUncovered_m2'] = r3(rem.area)
 
-# ---------------------------------------------------------------- tops of free-standing walls (parapets, courtyard walls, low walls): under the coping
+# ---------------------------------------------------------------- tops of free-standing walls (parapets, low walls): under the coping
 TOPS = []
 for sd in SOL:
     if sd['kind'] not in ('concrete', 'block') or sd['floor'] == 'unit': continue
@@ -504,13 +621,18 @@ for sd in SOL:
     if over or any(abs(b['bottomRel'] - sd['top']) < 0.02 and LineString(b['axisITM']).buffer(b['width_m'] / 2 + 0.05).contains(Point(c)) for b in BEAMS): continue
     # a wall standing on another one carries it: not a free top
     if any(o is not sd and o['kind'] in ('concrete', 'block') and abs(o['bottom'] - sd['top']) < 0.3 and o['poly'].intersection(sd['poly']).area > 0.5 * sd['poly'].area for o in SOL): continue
+    # a wall top at the level of a slab next to it is part of the floor – no plaster on floors
+    if any(abs(sl['top'] - sd['top']) < 0.06 and sl['poly'].distance(sd['poly']) < 0.05 for sl in SLABS): continue
     TOPS.append(dict(kind='top', floor=sd['floor'], owner=sd['id'], ownerKind=sd['kind'], z=sd['top'], area=r3(sd['poly'].area),
                      ringITM=[[r3(x), r3(y)] for x, y in list(getattr(sd['poly'], 'geoms', [sd['poly']])[0].exterior.coords)[:-1]],
                      defaultType='exterior', typeReason='ראש קיר / מעקה מתחת לקופינג', scaffold=False, source=sd['src']))
 
-# ---------------------------------------------------------------- courtyard walls (site): both sides
+# ---------------------------------------------------------------- courtyard walls (site): the plot side plastered; street side stone cladding; neighbour side nothing
 DEV = J('data/site/development-heights.json')['spots']
 H0 = ORIGIN['H0']
+PLOT = Polygon(J('data/site/plot-5187.json')['ring'])
+PARCELS = [(Polygon(p_['ring']), p_['use']) for p_ in J('data/site/parcels.json')['parcels']]
+CLAD = []
 for w in PER['walls']:
     P = poly(w['ringITM'])
     mr = P.minimum_rotated_rectangle; pts = list(mr.exterior.coords)[:4]
@@ -521,6 +643,11 @@ for w in PER['walls']:
         nx, ny = unit_normal(a, b, True)
         if (m[0] + nx - cx) ** 2 + (m[1] + ny - cy) ** 2 < (m[0] - cx) ** 2 + (m[1] - cy) ** 2: nx, ny = -nx, -ny
         probe = (m[0] + nx * 0.3, m[1] + ny * 0.3)
+        if PLOT.contains(Point(probe)): side, dt = 'plot', ('exterior', 'חומה – צד המגרש: טיח צמנטי (שליכט בהמשך – חיפויי חוץ)')
+        else:
+            use = next((u for pg, u in PARCELS if pg.contains(Point(probe))), None)
+            side, dt = ('street', ('cladding', 'חומה לרחוב – צד הרחוב: חיפוי אבן, בלי טיח (אביחי 11.11)')) if use == 'public' else \
+                       ('neighbour', ('none', 'חומה עם השכן – צד השכן: בלי טיח (אביחי 11.11)'))
         sl = floor_at(probe, w['topRel'])
         if sl: z0, zs = sl['top'], 'רצפת חוץ ' + sl['id']
         else:
@@ -529,30 +656,139 @@ for w in PER['walls']:
             z0, zs = (r3(sp['z'] - H0), f"נקודת גובה פיתוח {sp['z']:.2f} ({dd:.1f} מ')") if dd < 4 else (w['bottomRel'], 'אין גובה קרקע – ראש היסוד')
         z0 = max(z0, w['bottomRel'])
         if w['topRel'] - z0 < 0.05: continue
-        FACES.append(dict(kind='wall', floor='site', side='out', room=None, roomName=None, roomType='outdoor', owner=w['id'], ownerKind='concrete',
-                          ownerFloor='site', thickness=w['thickness_m'], a=[r3(a[0]), r3(a[1])], b=[r3(b[0]), r3(b[1])], normal=[r3(nx), r3(ny)],
-                          length=r3(L), z0=r3(z0), z1=w['topRel'], gross=r3(L * (w['topRel'] - z0)), openingsArea=0, net=r3(L * (w['topRel'] - z0)),
-                          openings=[], floorSlab=sl['id'] if sl else None, ceilingSlab=None, standing=r3(z0), source=w['source'],
-                          scaffold=w['topRel'] - z0 > PRM['scaffoldAbove_m'], scaffoldArea=r3(L * max(0, w['topRel'] - z0 - PRM['scaffoldAbove_m'])), facade=facade_of(nx, ny), meshV_m=0, beads_m=0, meshH_m=0,
-                          defaultType='exterior', typeReason='קיר חצר – שני הצדדים', zSource=zs,
-                          status='provisional' if 'אין' in zs or 'נקודת' in zs else 'source'))
+        rec = dict(kind='wall', floor='site', side='out', wallSide=side, room=None, roomName=None, roomType='outdoor', owner=w['id'], ownerKind='concrete',
+                   ownerFloor='site', thickness=w['thickness_m'], a=[r3(a[0]), r3(a[1])], b=[r3(b[0]), r3(b[1])], normal=[r3(nx), r3(ny)],
+                   length=r3(L), z0=r3(z0), z1=w['topRel'], gross=r3(L * (w['topRel'] - z0)), openingsArea=0, net=r3(L * (w['topRel'] - z0)),
+                   openings=[], floorSlab=sl['id'] if sl else None, ceilingSlab=None, standing=r3(z0), source=w['source'],
+                   scaffold=w['topRel'] - z0 > PRM['scaffoldAbove_m'], scaffoldArea=r3(L * max(0, w['topRel'] - z0 - PRM['scaffoldAbove_m'])), facade=facade_of(nx, ny),
+                   meshV_m=0, beads_m=0, meshH_m=0, defaultType=dt[0], typeReason=dt[1], zSource=zs,
+                   status='provisional' if 'אין' in zs or 'נקודת' in zs or side == 'neighbour' else 'source')
+        FACES.append(rec)
+        if side == 'street':
+            CLAD.append(dict(kind='claddingStone', owner=w['id'], a=rec['a'], b=rec['b'], normal=rec['normal'], z0=rec['z0'], z1=rec['z1'], area=rec['net'],
+                             color=None, source='החלטת אביחי 11.11.2026 – צד הרחוב של החומה לרחוב: חיפוי אבן; גבהים – ' + zs, status='owner'))
     TOPS.append(dict(kind='top', floor='site', owner=w['id'], ownerKind='concrete', z=w['topRel'], area=r3(P.area),
                      ringITM=[[r3(x), r3(y)] for x, y in list(P.exterior.coords)[:-1]], defaultType='exterior',
-                     typeReason='ראש קיר חצר מתחת לקופינג', scaffold=False, source=w['source']))
+                     typeReason='ראש חומה מתחת לקופינג', scaffold=False, source=w['source']))
 
-# ---------------------------------------------------------------- reveals of openings (depth = wall thickness), once per opening
+# ---------------------------------------------------------------- reveals: jambs and head of every opening, in the wall depth (no sill)
+CLOSER_T = {c['id']: c['thickness'] for c in CLOSERS}
 REV = {}
 for f in sorted(FACES, key=lambda f: f['side'] != 'in'):
+    if f['floor'] == 'site': continue
+    A, B = f['a'], f['b']; L = f['length']; ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L; nx, ny = f['normal']
     for o in f['openings']:
         if o['id'] in REV: continue
-        oo = next(x for x in OP if x['id'] == o['id'])
-        h = oo['headRel'] - max(oo['sillRel'], f['z0']); w = oo['width_m']
-        sill = oo['kind'] in ('window', 'vitrine') and oo['sillRel'] > f['z0'] + 0.05
-        per = 2 * h + w + (w if sill else 0)
-        depth = f['thickness'] or 0.2
-        REV[o['id']] = dict(opening=o['id'], kind=oo['kind'], floor=oo['floor'], room=f['room'], width=w, height=r3(h), depth=r3(depth),
-                            perimeter=r3(per), area=r3(per * depth), type=f['defaultType'] if f['side'] == 'in' else 'exterior',
-                            beads=r3((2 * h + w) * (2 if PRM['beadsAtOpenings'] else 0)), host=f['owner'])
+        t = f['thickness'] or CLOSER_T.get(o['id']) or 0.2
+        P_ = lambda s_, d_, z_: [r3(A[0] + ux * s_ - nx * d_), r3(A[1] + uy * s_ - ny * d_), r3(z_)]
+        quads = []
+        if o['s0'] > 0.01: quads.append(dict(part='jamb', q=[P_(o['s0'], 0, o['z0']), P_(o['s0'], t, o['z0']), P_(o['s0'], t, o['z1']), P_(o['s0'], 0, o['z1'])]))
+        if o['s1'] < L - 0.01: quads.append(dict(part='jamb', q=[P_(o['s1'], 0, o['z0']), P_(o['s1'], t, o['z0']), P_(o['s1'], t, o['z1']), P_(o['s1'], 0, o['z1'])]))
+        if o['z1'] < f['z1'] - 0.01: quads.append(dict(part='head', q=[P_(o['s0'], 0, o['z1']), P_(o['s1'], 0, o['z1']), P_(o['s1'], t, o['z1']), P_(o['s0'], t, o['z1'])]))
+        h = o['z1'] - o['z0']; w = o['s1'] - o['s0']
+        area = sum(h * t if q['part'] == 'jamb' else w * t for q in quads)
+        if not quads: continue
+        REV[o['id']] = dict(kind='reveal', opening=o['id'], openingKind=o['kind'], floor=f['floor'], room=f['room'], roomType=f['roomType'], width=r3(w), height=r3(h),
+                            depth=r3(t), area=r3(area), net=r3(area), quads=quads, host=f['owner'], scaffold=False, scaffoldArea=0,
+                            beads=r3(sum((h if q['part'] == 'jamb' else w) * 2 for q in quads) if PRM['beadsAtOpenings'] else 0),
+                            defaultType=f['defaultType'] if f['side'] == 'in' and f['defaultType'] in ('interior', 'wet', 'exterior') else 'exterior',
+                            typeReason='גליף – צדי הפתח והמשקוף בעומק הקיר (בלי אדן)', source=f['source'])
+# ---------------------------------------------------------------- exposed beams: sides, soffit, top (ceiling beams + ground beams that rise above the slab)
+from shapely.prepared import prep
+OCC = [dict(kind='wall', P=prep(s_['poly']), poly=s_['poly'], bottom=s_['bottom'], top=s_['top'], id=s_['id']) for s_ in SOL] + \
+      [dict(kind='slab', P=prep(s_['poly']), poly=s_['poly'], bottom=s_['bottom'], top=s_['top'], id=s_['id']) for s_ in SLABS]
+BEAM_LIST = [dict(b_, src=b_['source'], ground=False) for b_ in BEAMS] + [dict(b_, src=b_['source'], ground=True, floorOf='ground') for b_ in GBEAMS]
+for b_ in BEAM_LIST: b_['R'] = beam_rect(b_); b_['P'] = prep(b_['R'])
+NEXT_FINISH = {'unit': CFG['finishFloor']['ground'], 'ground': CFG['finishFloor']['first'], 'first': 6.9}
+
+
+def room_at(pt, z):
+    """the room a point at height z belongs to (interior) – or None (outside)"""
+    for r in ROOMS:
+        fl = r['floor']
+        if fl == 'roof' or r['type'] in ('court', 'outdoor'): continue
+        lo = CFG['finishFloor'].get(fl, -9) - 0.5; hi = NEXT_FINISH.get(fl, 99)
+        if lo <= z <= hi and r['poly'].contains(Point(pt)): return r
+    return None
+
+
+def floor_of_z(z):
+    for fl in ('unit', 'ground', 'first'):
+        if z < NEXT_FINISH[fl] - 0.05: return fl
+    return 'roof'
+
+
+BEAMSURF = []
+for k, bm in enumerate(BEAM_LIST):
+    R, bz, tz = bm['R'], bm['bottomRel'], bm['topRel']
+    others = [x for j, x in enumerate(BEAM_LIST) if j != k]
+    if bm['ground']:   # floor beams: only what rises above the slab next to them
+        c = R.centroid
+        sl = [s_['top'] for s_ in SLABS if s_['top'] <= tz + 0.01 and s_['poly'].buffer(0.3).contains(c)]
+        if not sl or tz - max(sl) < 0.05: continue
+        bz = max(sl)
+    touch = lambda o: (o['bottom'] < tz - 0.02 and o['top'] > bz + 0.02) or abs(o['top'] - bz) < 0.05 or abs(o['bottom'] - tz) < 0.05
+    # inside a wall / standing on a wall: the wall faces carry the plaster over the beam there
+    inwall = [o for o in OCC if o['kind'] == 'wall' and touch(o)]
+    quads = []
+    pts = list(R.exterior.coords)[:4]
+    for i in range(4):
+        A, B = pts[i], pts[(i + 1) % 4]; L = math.dist(A, B)
+        if L < 0.03: continue
+        ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L
+        nx, ny = unit_normal(A, B, not LinearRingCCW(R))   # outward
+        n = max(1, int(L / 0.1)); ds = L / n; run = None
+        for j in range(n):
+            sm = (j + 0.5) * ds
+            across = LineString([(A[0] + ux * sm - nx * 0.005, A[1] + uy * sm - ny * 0.005), (A[0] + ux * sm - nx * (bm['width_m'] - 0.005), A[1] + uy * sm - ny * (bm['width_m'] - 0.005))])
+            q = (A[0] + ux * sm + nx * 0.05, A[1] + uy * sm + ny * 0.05)
+            iv = []
+            if not any(o['P'].intersects(across) for o in inwall):
+                iv = [[bz, tz]]
+                for o in OCC + [dict(P=x['P'], bottom=x['bottomRel'], top=x['topRel']) for x in others]:
+                    if o['top'] <= bz or o['bottom'] >= tz or not o['P'].contains(Point(q)): continue
+                    nv = []
+                    for lo, hi in iv:
+                        if o['bottom'] > lo: nv.append([lo, min(hi, o['bottom'])])
+                        if o['top'] < hi: nv.append([max(lo, o['top']), hi])
+                    iv = [v for v in nv if v[1] - v[0] > 0.02]
+            key_ = tuple((r3(lo), r3(hi)) for lo, hi in iv)
+            if run and run[2] == key_: run[1] = (j + 1) * ds
+            else:
+                if run and run[2]: quads.append((A, ux, uy, nx, ny) + tuple(run))
+                run = [j * ds, (j + 1) * ds, key_]
+        if run and run[2]: quads.append((A, ux, uy, nx, ny) + tuple(run))
+    sides = []
+    for A, ux, uy, nx, ny, s0, s1, ivs in quads:
+        for lo, hi in ivs:
+            pa = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; pb = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
+            mid = ((pa[0] + pb[0]) / 2 + nx * 0.1, (pa[1] + pb[1]) / 2 + ny * 0.1)
+            sides.append(dict(a=pa, b=pb, normal=[r3(nx), r3(ny)], z0=lo, z1=hi, area=r3((s1 - s0) * (hi - lo)), room=(room_at(mid, (lo + hi) / 2) or {}).get('key')))
+    # soffit and top: what is not resting on / carrying something
+    cov_b = [o['poly'] for o in OCC if (o['kind'] == 'wall' and touch(o)) or (o['kind'] == 'slab' and o['bottom'] - 0.05 <= bz <= o['top'] + 0.05)] + \
+            [x['R'] for j, x in enumerate(BEAM_LIST) if j < k and x['bottomRel'] - 0.05 <= bz <= x['topRel'] + 0.05]
+    cov_t = [o['poly'] for o in OCC if (o['kind'] == 'wall' and (touch(o) or o['bottom'] <= tz + 0.01 < o['top'])) or (o['kind'] == 'slab' and o['bottom'] - 0.05 <= tz <= o['top'] + 0.05)] + \
+            [x['R'] for j, x in enumerate(BEAM_LIST) if j < k and x['bottomRel'] - 0.05 <= tz <= x['topRel'] + 0.05]
+    bot = R.difference(unary_union(cov_b)) if (cov_b and not bm['ground']) else (Polygon() if bm['ground'] else R)
+    top = R.difference(unary_union(cov_t)) if cov_t else R
+    flats = []
+    for g, z_, part in [(bot, bz, 'soffit'), (top, tz, 'top')]:
+        for q in getattr(g, 'geoms', [g]):
+            if q.geom_type != 'Polygon' or q.area < 0.01: continue
+            flats.append(dict(part=part, z=r3(z_), ringITM=[[r3(x), r3(y)] for x, y in list(q.exterior.coords)[:-1]], area=r3(q.area),
+                              room=(room_at(q.representative_point().coords[0], z_ - 0.05 if part == 'soffit' else z_ + 0.05) or {}).get('key')))
+    if not sides and not flats: continue
+    area = sum(x['area'] for x in sides) + sum(x['area'] for x in flats)
+    zin = [x for x in sides + flats if x['room']]
+    room = max(zin, key=lambda x: x['area'])['room'] if zin else None
+    fl = floor_of_z((bz + tz) / 2)
+    BEAMSURF.append(dict(kind='beam', beam=bm['id'], floor=fl, room=room, roomType=ROOM_BY[room]['type'] if room else 'outdoor',
+                         width=bm['width_m'], bottom=r3(bz), top=r3(tz), pergola=bool(bm.get('pergola')), sides=sides, flats=flats,
+                         area=r3(area), net=r3(area), scaffold=tz - CFG['finishFloor'].get(fl, bz) > PRM['scaffoldAbove_m'],
+                         scaffoldArea=r3(area) if tz - CFG['finishFloor'].get(fl, bz) > PRM['scaffoldAbove_m'] else 0,
+                         defaultType='interior' if room and ROOM_BY[room]['type'] != 'wet' else ('wet' if room else 'exterior'),
+                         typeReason=('קורה גלויה בתוך החדר' if room else 'קורה גלויה מבחוץ / פרגולה') + ' – טיח צמנטי', source=bm['src']))
+
 
 # ---------------------------------------------------------------- keys, overrides
 def keyed(items, fn):
@@ -568,8 +804,11 @@ FACES.sort(key=lambda f: (FLOORS.index(f['floor']) if f['floor'] in FLOORS else 
 keyed(FACES, lambda f: f"{f['floor']}|{f['owner']}|{f['side']}|{(f['room'] or f.get('facade') or '').split('@')[-1]}")
 keyed(CEILS, lambda c: f"{c['floor']}|ceil|{c['slab']}|{c['room'].split('@')[-1]}")
 keyed(TOPS, lambda t: f"{t['floor']}|top|{t['owner']}")
+REVS = list(REV.values()); keyed(REVS, lambda r: f"{r['floor']}|rev|{r['opening']}")
+keyed(BEAMSURF, lambda b: f"{b['floor']}|beam|{b['beam']}")
 
-# ---------------------------------------------------------------- tiling preparation: floor area per room, skirting
+# ---------------------------------------------------------------- floors: area per room, skirting, the floor build-up layers (no plaster on floors)
+BU = J('data/finishes/floors/buildup.json')
 TILES = []
 for room in ROOMS:
     fl = room['floor']; z = CFG['cuts'][fl]
@@ -578,20 +817,38 @@ for room in ROOMS:
     on = unary_union([s['poly'] for s in own if top is not None and abs(s['top'] - top) < 0.6]) if top is not None else Polygon()
     pc = room['poly'].intersection(on) if not on.is_empty else Polygon()
     faces = [f for f in FACES if f['room'] == room['key'] and f['side'] == 'in']
-    doors = sum(o['s1'] - o['s0'] for f in faces for o in f['openings'] if o['sill'] <= f['z0'] + 0.3)
+    doors = sum(o['s1'] - o['s0'] for f in faces for o in f['openings'] if o['z0'] <= f['z0'] + 0.01)
     skirting = sum(f['length'] for f in faces) - doors
     wet = room['type'] in ('wet',)
+    parts = [g for g in getattr(pc, 'geoms', [pc]) if g.geom_type == 'Polygon' and g.area > 0.05] if not pc.is_empty else []
+    ff = CFG['finishFloor'].get(fl)
+    layers = []
+    if parts and ff is not None and top is not None and room['type'] not in ('court', 'outdoor'):
+        tot = ff - top; fixed = sum(l['thickness_m'] for l in BU['layers'] if l['thickness_m'])
+        zc = top
+        for l in BU['layers']:
+            th = l['thickness_m'] if l['thickness_m'] is not None else tot - fixed
+            layers.append(dict(id=l['id'], z0=r3(zc), z1=r3(zc + th), thickness_m=r3(th), status=l['status'])); zc += th
     TILES.append(dict(room=room['key'], floor=fl, roomName=room['name'], roomType=room['type'], area=r3(pc.area),
-                      void_m2=r3(room['area_m2'] - pc.area), finishRel=CFG['finishFloor'].get(fl), skirting_m=r3(max(0, skirting)) if room['type'] not in ('wet', 'court', 'outdoor') else 0,
+                      void_m2=r3(room['area_m2'] - pc.area), slabTop=top, finishRel=ff, buildUp_m=r3(ff - top) if (ff is not None and top is not None) else None,
+                      skirting_m=r3(max(0, skirting)) if room['type'] not in ('wet', 'court', 'outdoor') else 0,
                       wallTiling=dict(height_m=None, note='גובה חיפוי קירות – טרם הוחלט') if wet or room['type'] == 'kitchen' else None,
-                      ringITM=[[r3(x), r3(y)] for x, y in list(pc.exterior.coords)[:-1]] if pc.geom_type == 'Polygon' and not pc.is_empty else
-                              ([[r3(x), r3(y)] for x, y in list(max(pc.geoms, key=lambda g: g.area).exterior.coords)[:-1]] if not pc.is_empty else []),
-                      tileType=None, status='prep'))
+                      parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(h.coords)[:-1]] for h in g.interiors]) for g in parts],
+                      ringITM=[[r3(x), r3(y)] for x, y in list(max(parts, key=lambda g: g.area).exterior.coords)[:-1]] if parts else [],
+                      layers=layers, tileType=None, status='prep'))
+# wet floors: the waterproofing on the screed, under the adhesive (provisional – no floor detail)
+for t in TILES:
+    if t['roomType'] != 'wet' or not t['layers']: continue
+    zs = next(l['z1'] for l in t['layers'] if l['id'] == BU['wetProofingOn'])
+    for pp in t['parts']:
+        WPROOF.append(dict(kind='floor', floor=t['floor'], room=t['room'], ringITM=pp['ringITM'], holesITM=pp['holesITM'], z=zs,
+                           area=r3(poly(pp['ringITM'], pp['holesITM']).area), rule='כל רצפת החדר הרטוב (על המדה, מתחת לדבק – זמני)', status='provisional'))
+
 
 # ---------------------------------------------------------------- summaries
 def summarize():
     S = defaultdict(lambda: defaultdict(float))
-    for f in FACES + CEILS + TOPS:
+    for f in FACES + CEILS + TOPS + REVS + BEAMSURF:
         S[(f['floor'], f['type'])]['net'] += f['net'] if 'net' in f else f['area']
         S[(f['floor'], f['type'])]['scaffold'] += f.get('scaffoldArea', 0)
     return {f"{k[0]}|{k[1]}": {a: r3(b) for a, b in v.items()} for k, v in S.items()}
@@ -604,12 +861,14 @@ dump('data/architecture/rooms.json', dict(_doc='חדרים – נגזרים מה
      'שמות: תוכנית האדריכל (Revit, G-ANNO-TEXT). סוג: כלים סניטריים בתוכנית האינסטלציה / שם החדר, או החלטת אביחי ב-data/finishes/rooms-input.json.',
      **meta, cuts=CFG['cuts'], gaps=GAPS, rooms=ROOMS))
 dump('data/finishes/plaster/surfaces.json', dict(_doc='משטחי טיח – נגזרים (לא לערוך ידנית). type = הדריסה של אביחי (overrides.json) או defaultType לפי הכללים. '
-     'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה + דפנות קורות חשופות), top (ראש קיר / מעקה). '
+     'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה), top (ראש קיר / מעקה), reveal (גליפים: צדי הפתח והמשקוף), beam (קורה גלויה: דפנות, תחתית, ראש). '
      'net = ברוטו פחות פתחים. meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
-     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=list(REV.values()), waterproofing=WPROOF, totals=TOT))
-dump('data/finishes/tiling/surfaces.json', dict(_doc='הכנה לריצוף – שטח רצפה לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פאנלים (היקף פחות דלתות). '
-     'סוג אריח וגובה חיפוי קירות – טרם הוחלטו (tileType null).', **meta, rooms=TILES))
-print(len(ROOMS), 'rooms', len(FACES), 'walls', len(CEILS), 'ceilings', len(TOPS), 'tops', len(REV), 'reveals', len(WPROOF), 'waterproofing', len(GAPS), 'gaps')
+     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
+dump('data/finishes/tiling/surfaces.json', dict(_doc='רצפות – שטח לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פנלים (היקף פחות דלתות), ושכבות הרצפה: סומסום / טיט-מדה / דבק / אריח '
+     '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES))
+dump('data/finishes/cladding/surfaces.json', dict(_doc='חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.',
+     **meta, kinds=J('data/finishes/cladding/zones.json')['kinds'], items=CLAD))
+print(len(ROOMS), 'rooms', len(FACES), 'walls', len(CEILS), 'ceilings', len(TOPS), 'tops', len(REVS), 'reveals', len(BEAMSURF), 'beams', len(WPROOF), 'waterproofing', len(CLAD), 'cladding', len(GAPS), 'gaps')
 for k, v in sorted(TOT.items()): print(k, v)
 
 
@@ -629,22 +888,24 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
         for i, w in enumerate(widths or [16] * len(head)): ws.column_dimensions[chr(65 + i) if i < 26 else 'A' + chr(65 + i - 26)].width = w
         ws.freeze_panes = 'A2'
         return ws
-    allS = [dict(f, cat='wall', amount=f['net']) for f in FACES] + [dict(c, cat='ceiling', amount=c['net']) for c in CEILS] + [dict(t, cat='top', amount=t['area']) for t in TOPS]
+    allS = [dict(f, cat='wall', amount=f['net']) for f in FACES] + [dict(c, cat='ceiling', amount=c['net']) for c in CEILS] + [dict(t, cat='top', amount=t['area']) for t in TOPS] + \
+           [dict(r, cat='reveal', amount=r['area']) for r in REVS] + [dict(b, cat='beam', amount=b['area']) for b in BEAMSURF]
     by = defaultdict(float); scf = defaultdict(float)
     for s in allS: by[s['type']] += s['amount']; scf[s['type']] += s.get('scaffoldArea', 0)
-    rev = sum(r['area'] for r in REV.values()); mesh = sum(f.get('meshV_m', 0) + f.get('meshH_m', 0) for f in FACES)
-    beads = sum(f.get('beads_m', 0) for f in FACES) + sum(r['beads'] for r in REV.values())
-    wpw = sum(w['area'] for w in WPROOF); wpf = sum(t['area'] for t in TILES if t['roomType'] == 'wet')
+    rev = sum(r['area'] for r in REVS); mesh = sum(f.get('meshV_m', 0) + f.get('meshH_m', 0) for f in FACES)
+    beads = sum(f.get('beads_m', 0) for f in FACES) + sum(r['beads'] for r in REVS)
+    wpw = sum(w['area'] for w in WPROOF); wpf = 0
     price = lambda k: next((t['price'] for t in TYPES['types'] if t['id'] == k), None)
     rows = [[TL[t['id']], r3(by[t['id']]), 'מ"ר', r3(scf[t['id']]), t['price'], None] for t in TYPES['types']]
-    rows += [[TYPES['waterproofing']['label'], r3(wpw + wpf), 'מ"ר', None, TYPES['waterproofing']['price'], None],
-             ['ספלטות וגליפים', r3(rev), 'מ"ר', None, None, None], ['רשת פיברגלס', r3(mesh), 'מ"א', None, None, None], ['פינות מגן', r3(beads), 'מ"א', None, None, None]]
+    rows += [[TYPES['waterproofing']['label'], r3(wpw), 'מ"ר', None, TYPES['waterproofing']['price'], None],
+             ['מזה גליפים (כלול בסוגים)', r3(rev), 'מ"ר', None, None, None], ['מזה קורות גלויות (כלול בסוגים)', r3(sum(b['area'] for b in BEAMSURF)), 'מ"ר', None, None, None], ['רשת פיברגלס', r3(mesh), 'מ"א', None, None, None], ['פינות מגן', r3(beads), 'מ"א', None, None, None]]
     ws = sheet('סיכום', ['סוג', 'כמות', 'יחידה', 'מזה בפיגום (מעל %.1f מ\')' % PRM['scaffoldAbove_m'], 'מחיר ליחידה', 'עלות'], rows, [30, 12, 8, 18, 14, 14])
     for i in range(2, ws.max_row + 1): ws.cell(i, 6).value = f'=IF(E{i}="","",B{i}*E{i})'
     ws.append(['סה"כ', None, None, None, None, f'=SUM(F2:F{ws.max_row})'])
     for c in ws[ws.max_row]: c.font = Font(bold=True)
     ws.append([]); ws.append(['ריצוף – שטח רצפות (הכנה)', r3(sum(t['area'] for t in TILES if t['roomType'] not in ('court', 'outdoor'))), 'מ"ר'])
     ws.append(['פנלים', r3(sum(t['skirting_m'] for t in TILES)), 'מ"א'])
+    ws.append([]); ws.append([TYPES['scratchNote']])
     ws.append([]); ws.append(['המחירים – למילוי (ברירת מחדל ריק). מקור הכמויות: tools/finishes/derive_finishes.py – נגזר מגיאומטריית המודל.'])
     fl_rows = []
     for fl in FLOORS + ['site']:
@@ -666,19 +927,21 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
         rr.append([FLOOR_HE[r['floor']], RN[r['key']], TYPE_HE.get(r['type']), r['area_m2'], tl.get('area')] + [r3(d[t['id']]) for t in TYPES['types']])
     sheet('לפי חדר', ['קומה', 'חדר', 'סוג חדר', 'שטח חדר', 'שטח ריצוף'] + [TL[t['id']] for t in TYPES['types']], rr, [12, 30, 12, 10, 10] + [12] * 7)
     sheet('משטחים', ['מפתח', 'קומה', 'משטח', 'צד', 'חזית', 'חדר', 'רכיב', 'סוג', 'ברירת מחדל', 'סיבה', 'אורך', 'מגובה', 'עד גובה', 'ברוטו', 'פתחים', 'נטו', 'פיגום', 'שטח בפיגום', 'רשת מ"א', 'זוויתנים מ"א'],
-          [[s['key'], FLOOR_HE[s['floor']], {'wall': 'קיר', 'ceiling': 'תקרה', 'top': 'ראש קיר'}[s['cat']], {'in': 'פנים', 'out': 'חוץ'}.get(s.get('side'), ''),
-            FACADE_HE.get(s.get('facade'), ''), RN.get(s.get('room'), ''), s.get('owner') or s.get('slab'), TL[s['type']], TL[s['defaultType']], s['typeReason'],
+          [[s['key'], FLOOR_HE[s['floor']], {'wall': 'קיר', 'ceiling': 'תקרה', 'top': 'ראש קיר', 'reveal': 'גליף', 'beam': 'קורה'}[s['cat']], {'in': 'פנים', 'out': 'חוץ'}.get(s.get('side'), ''),
+            FACADE_HE.get(s.get('facade'), ''), RN.get(s.get('room'), ''), s.get('owner') or s.get('slab') or s.get('opening') or s.get('beam'), TL[s['type']], TL[s['defaultType']], s['typeReason'],
             s.get('length'), s.get('z0', s.get('z')), s.get('z1'), s.get('gross', s['amount']), s.get('openingsArea', 0), s['amount'],
             'כן' if s.get('scaffold') else '', s.get('scaffoldArea', 0), r3(s.get('meshV_m', 0) + s.get('meshH_m', 0)), s.get('beads_m', 0)] for s in allS],
           [30, 10, 8, 6, 8, 24, 10, 16, 16, 30] + [9] * 10)
-    sheet('גליפים', ['פתח', 'סוג', 'קומה', 'רוחב', 'גובה', 'עומק (עובי קיר)', 'היקף', 'שטח', 'זוויתנים'],
-          [[r['opening'], r['kind'], FLOOR_HE[r['floor']], r['width'], r['height'], r['depth'], r['perimeter'], r['area'], r['beads']] for r in REV.values()])
+    sheet('גליפים', ['פתח', 'סוג', 'קומה', 'רוחב', 'גובה', 'עומק (עובי קיר)', 'חלקים', 'שטח', 'זוויתנים'],
+          [[r['opening'], r['openingKind'], FLOOR_HE[r['floor']], r['width'], r['height'], r['depth'], ' + '.join(q['part'] for q in r['quads']), r['area'], r['beads']] for r in REVS])
+    sheet('קורות', ['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'דפנות מ"ר', 'תחתית/ראש מ"ר', 'סה"כ', 'סוג'],
+          [[b['beam'], FLOOR_HE[b['floor']], b['bottom'], b['top'], 'כן' if b['pergola'] else '', r3(sum(x['area'] for x in b['sides'])), r3(sum(x['area'] for x in b['flats'])), b['area'], TL[b['type']]] for b in BEAMSURF])
     sheet('איטום', ['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח', 'מעמד'],
-          [[FLOOR_HE[w['floor']], RN.get(w['room']), w['owner'], w['rule'], w['z0'], w['z1'], w['area'], w['status']] for w in WPROOF] +
-          [[FLOOR_HE[t['floor']], RN.get(t['room']), 'רצפה', 'רצפת חדר רטוב', None, None, t['area'], 'rule'] for t in TILES if t['roomType'] == 'wet'], [12, 30, 10, 30, 8, 8, 8, 10])
-    sheet('ריצוף', ['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'חלל (בלי רצפה) מ"ר', 'פנלים מ"א', 'פני ריצוף', 'חיפוי קירות', 'סוג אריח'],
-          [[FLOOR_HE[t['floor']], RN.get(t['room']), TYPE_HE.get(t['roomType']), t['area'], t['void_m2'], t['skirting_m'], t['finishRel'], 'טרם הוחלט' if t['wallTiling'] else '', 'טרם הוחלט'] for t in TILES],
-          [12, 30, 12, 10, 12, 10, 10, 12, 12])
+          [[FLOOR_HE[w['floor']], RN.get(w['room']), w.get('owner', 'רצפה'), w['rule'], w.get('z0', w.get('z')), w.get('z1'), w['area'], w['status']] for w in WPROOF], [12, 30, 10, 30, 8, 8, 8, 10])
+    sheet('רצפות', ['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'חלל (בלי רצפה) מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', 'סומסום מ\'', 'טיט/מדה מ\'', 'דבק מ\'', 'אריח מ\'', 'סוג אריח'],
+          [[FLOOR_HE[t['floor']], RN.get(t['room']), TYPE_HE.get(t['roomType']), t['area'], t['void_m2'], t['skirting_m'], t['slabTop'], t['finishRel']] +
+           [next((l['thickness_m'] for l in t['layers'] if l['id'] == i), None) for i in ('floorFill', 'floorScreed', 'floorAdhesive', 'floorTile')] + ['טרם הוחלט'] for t in TILES],
+          [12, 30, 12, 10, 12, 10, 9, 9, 9, 9, 9, 9, 12])
     os.makedirs(os.path.join(ROOT, os.path.dirname(path)), exist_ok=True)
     wb.save(os.path.join(ROOT, path))
     print('xlsx ->', path)

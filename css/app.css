@@ -289,3 +289,5 @@ table.mtable td.acts { white-space: nowrap; }
 .finishes .sw i, .finishes i.swc { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.3); }
 .finishes input.price { width: 64px; }
 .plaster-edit { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.lbl.wp { background: #00838f; font-size: 10px; }
+.finishes i.swc.off { background: repeating-linear-gradient(45deg, #ddd 0 3px, #fff 3px 6px); }

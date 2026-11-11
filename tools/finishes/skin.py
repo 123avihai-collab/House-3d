@@ -190,8 +190,7 @@ class Cover:
 def model_prisms(G):
     P = []
     # block walls: rebuilt from blocks.json with the openings cut out (sill below, lintel / shutter box above, jambs at the sides)
-    for w in G['BL']['walls']:
-        if w.get('removedBy'): continue
+    for w in G['BL']['walls']:   # incl. the walls an owner change would cancel – plan mode shows them (OC-10: BK-F83 / BK-F84)
         (x0, y0), (x1, y1) = w['axisITM']; L = math.hypot(x1 - x0, y1 - y0); ux, uy = (x1 - x0) / L, (y1 - y0) / L
         segs = w.get('segments') or [{'s0': 0, 's1': L, 'bottomRel': w['bottomRel'], 'topRel': w['topRel']}]
         ops = [o for o in w.get('openings') or [] if o['s1'] - o['s0'] > 0.005 and o['z1'] - o['z0'] > 0.005]
@@ -212,7 +211,25 @@ def model_prisms(G):
                 for lo, hi in iv:
                     pa = (x0 + ux * lo, y0 + uy * lo); pb = (x0 + ux * hi, y0 + uy * hi)
                     P.append(dict(id=w['id'], kind='block', poly=G['block_rect'](pa, pb, w['thickness_m'])[0], bottom=za, top=zc, floor=w['floor'], src=w['source']))
-    for s in [x for x in G['SOL'] if x['kind'] != 'block'] + G['INFILL']: P.append(dict(id=s['id'], kind=s['kind'], poly=s['poly'], bottom=s['bottom'], top=s['top'], floor=s.get('floor'), src=s.get('src')))
+    # concrete walls exactly as the model draws them (js/geometry/floors.js): the pieces around the openings, the concrete
+    # sill / lintel in them, the part raised to the slab where no beam is above (ק17); the heads of the basement walls up to
+    # the ground level (basementWallCaps, cast with the ground slab)
+    poly_ = G['poly']
+    for fl, D in (('ground', G['GF']), ('first', G['FF']), ('roof', G['RF'])):
+        for w in D['walls']:
+            pcs = [(p_['ringITM'], p_.get('holesITM', []), w['bottomRel'], w['topRel']) for p_ in w['partsITM']] if w.get('partsITM') else [(w['footprintITM'], w.get('holesITM', []), w['bottomRel'], w['topRel'])]
+            pcs += [(f_['ringITM'], [], f_['bottomRel'], f_['topRel']) for f_ in w.get('infill') or []]
+            pcs += [(f_['ringITM'], f_.get('holesITM', []), f_['bottomRel'], f_['topRel']) for f_ in w.get('raisedITM') or []]
+            for r_, h_, b_, t_ in pcs: P.append(dict(id=w['id'], kind='concrete', poly=poly_(r_, h_), bottom=b_, top=t_, floor=fl, src=w['source']))
+        for c in D['columns']: P.append(dict(id=c['id'], kind='column', poly=poly_(c['footprintITM']), bottom=c['bottomRel'], top=c['topRel'], floor=fl, src=c['source']))
+        for c in D.get('basementWallCaps') or []: P.append(dict(id=c['wall'], kind='concrete', poly=poly_(c['footprintITM'], c.get('holesITM', [])), bottom=c['bottomRel'], top=c['topRel'], floor='unit', src=c['source']))
+    for w in G['FR']['basementWalls']:
+        pcs = [(p_['ringITM'], p_.get('holesITM', [])) for p_ in w['partsITM']] if w.get('partsITM') else [(w['footprintITM'], w.get('holesITM', []))]
+        for r_, h_ in pcs: P.append(dict(id=w['id'], kind='concrete', poly=poly_(r_, h_), bottom=w['bottomRel'], top=w['topRel'], floor='unit', src=w['source']))
+    # the systems pillar + bin room (stairs.json pillar): concrete walls, plastered
+    pl = G['J']('data/structure/stairs.json').get('pillar')
+    if pl: P.append(dict(id=pl['id'], kind='concrete', poly=unary_union([poly_(r_, (pl.get('wallHolesITM') or [])[i_] if i_ < len(pl.get('wallHolesITM') or []) else []) for i_, r_ in enumerate(pl['wallsITM'])]), bottom=pl['bottomRel'], top=pl['topRel'], floor='site', src=pl['source']))
+    for s in G['INFILL']: P.append(dict(id=s['id'], kind=s['kind'], poly=s['poly'], bottom=s['bottom'], top=s['top'], floor=s.get('floor'), src=s.get('src')))
     for s in G['SLABS']: P.append(dict(id=s['id'], kind='slab', poly=s['poly'], bottom=s['bottom'], top=s['top'], floor=None, src=s.get('src')))
     for b in G['BEAM_LIST']: P.append(dict(id=b['id'], kind='beam', poly=b['R'], bottom=b['bottomRel'], top=b['topRel'], floor=b.get('floorOf'), src=b.get('src')))
     PER = G['PER']
@@ -291,10 +308,16 @@ def analyse(G, patches=(), grid=0.02):
         qx = A[0] + ux * s + nx * 0.03; qy = A[1] + uy * s + ny * 0.03
         T = thr(qx, qy)
         need = z[:, None] >= T[None, :] - 1e-6                           # not against the soil
-        if not need.any(): continue
         cov = C.covered_v(f, s, z)
         U = need & ~cov
         if U.any(): res.append(dict(kind='v', face=f, s=s, z=z, ds=ds, dz=dz, U=U, area=float(U.sum() * ds * dz)))
+        # basement walls against the soil / backfill with no finish at all (e.g. the courtyard side under the court floor):
+        # waterproofing + protection sheet (type membrane – not plaster), so the quantities and the check see them
+        Us = ~need & ~cov
+        if Us.any() and f['z0'] < -0.5:
+            m = ((A[0] + B[0]) / 2 - nx * 0.005, (A[1] + B[1]) / 2 - ny * 0.005)
+            o = S.owner(m[0], m[1], float(z[Us.any(1)].mean()))
+            if o and o.get('floor') == 'unit': res.append(dict(kind='v', face=f, s=s, z=z, ds=ds, dz=dz, U=Us, area=float(Us.sum() * ds * dz), soil=True))
     for h in S.horizontal:
         if h['up'] and isfloor(h['poly'], h['z']): continue
         X, Y = S.samples_horizontal(h)
@@ -350,6 +373,7 @@ def make_patches(S, res, G):
                     sm = (s0 + s1) / 2; px, py = A[0] + ux * sm, A[1] + uy * sm; zm = (z0 + z1) / 2
                     o = S.owner(px - nx * 0.005, py - ny * 0.005, zm)
                     ty, rm, why = typ(px + nx * 0.1, py + ny * 0.1, zm)
+                    if r.get('soil'): ty, rm, why = 'membrane', None, 'השלמה – קיר מרתף במגע עם הקרקע / המילוי: איטום + יריעת הגנה, בלי טיח'
                     a = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; b = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
                     out.append(dict(kind='patch', vertical=True, part='side', a=a, b=b, normal=[r3(nx), r3(ny)], z0=r3(z0), z1=r3(z1),
                                     length=r3(s1 - s0), area=round((s1 - s0) * (z1 - z0), 6), net=round((s1 - s0) * (z1 - z0), 6),

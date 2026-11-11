@@ -68,7 +68,7 @@ L += ['', 'קיר ← רצפה: רצועת הקיר מתחילה בפני הבט
 
 # ---------------------------------------------------------------- basement walls: external waterproofing
 W = FR['waterproofing']; band = Polygon(W['ringITM'], W.get('holesITM', []))
-mem = [f for f in P['walls'] if f['type'] == 'membrane']
+mem = [f for f in P['walls'] if f['type'] == 'membrane'] + [p for p in P.get('patches', []) if p.get('vertical') and p['type'] == 'membrane']   # + the round-4 patches against the soil (court side)
 tot = bad = 0.0; badpts = []
 for f in mem:
     A, B = f['a'], f['b']; Lf = math.dist(A, B); ux, uy = (B[0] - A[0]) / Lf, (B[1] - A[1]) / Lf; nx, ny = f['normal']
@@ -86,7 +86,7 @@ if badpts:
     by = {}
     for x, y, z, o in badpts: by.setdefault(o, []).append(z)
     L += ['', '| קיר | מ"ר בערך | מפלסים |', '|---|---|---|'] + [f"| {o} | {len(zs) * 0.02 * 0.05:.2f} | {min(zs):+.2f} … {max(zs):+.2f} |" for o, zs in sorted(by.items())]
-    issues.append(f"קירות המרתף: {bad:.2f} מ\"ר במגע עם הקרקע מחוץ לשכבת האיטום (ראו טבלה)")
+    issues.append(f"קירות המרתף: {bad:.2f} מ\"ר במגע עם הקרקע / המילוי מחוץ לשכבת האיטום החיצונית (ראו טבלה) – כולל צד החצרות האנגליות מתחת לרצפת החצר")
 L += ['']
 
 # ---------------------------------------------------------------- layers that do not exist

@@ -14,7 +14,7 @@ const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
 const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', unknown: 'לא מסווג' };
-const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה' };
+const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)' };
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 'p' + (x >>> 0).toString(36); };
 const h = (tag, attrs = {}, ...kids) => {
@@ -50,6 +50,7 @@ class Finishes {
       ...P.tops.map(s => ({ ...s, cat: 'top', amount: s.area })),
       ...(P.reveals || []).map(s => ({ ...s, cat: 'reveal', amount: s.area })),
       ...(P.beams || []).map(s => ({ ...s, cat: 'beam', amount: s.area })),
+      ...(P.patches || []).map(s => ({ ...s, cat: 'patch', amount: s.area })),   // round 4: the exposed skin nothing else covers (tools/finishes/skin.py)
     ];
     this.byKey = Object.fromEntries(this.surf.map(s => [s.key, s]));
     this.live = {};          // overrides made in the model (db / this browser): key -> type
@@ -110,6 +111,7 @@ class Finishes {
     if (s.cat === 'ceiling') return this.ringTris(s.ringITM, s.holesITM, s.z - off);
     if (s.cat === 'top') return this.ringTris(s.ringITM, s.holesITM || [], s.z + off);
     if (s.cat === 'reveal') return s.quads.flatMap(q => this.quadTris(q.q));
+    if (s.cat === 'patch') return s.vertical ? this.wallTris(s, off, s.z0, s.z1, []) : this.ringTris(s.ringITM, s.holesITM, s.up ? s.z + off : s.z - off);
     if (s.cat === 'beam') return [...s.sides.flatMap(x => this.wallTris(x, off, x.z0, x.z1, [])),
       ...s.flats.flatMap(x => this.ringTris(x.ringITM, [], x.part === 'soffit' ? x.z - off : x.z + off))];
     return [];
@@ -283,6 +285,8 @@ class Finishes {
     } else if (s.cat === 'reveal') rows.push(['פתח', `${s.opening} (${s.openingKind}) · רוחב ${f2(s.width)} · גובה ${f2(s.height)} · עומק ${f2(s.depth)} מ'`], ['חלקים', s.quads.map(q => q.part === 'jamb' ? 'צד' : 'משקוף').join(' + ') + ' (בלי אדן)'], ['שטח', `${f2(s.amount)} מ"ר`]);
     else if (s.cat === 'beam' && s.edge) rows.push(['שפת תקרה', `${s.beam} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['שטח', `${f2(s.amount)} מ"ר`], ['הכנה', this.T.scratchNote]);
     else if (s.cat === 'beam') rows.push(['קורה', `${s.beam}${s.pergola ? ' (פרגולה)' : ''} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['דפנות / תחתית / ראש', `${f2(s.sides.reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'soffit').reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'top').reduce((a, x) => a + x.area, 0))} מ"ר`], ['הכנה', this.T.scratchNote]);
+    else if (s.cat === 'patch') rows.push(['חלק', ({ side: 'פן אנכי', sill: 'אדן', top: 'ראש / מדף', soffit: 'תחתית' })[s.part] || s.part], ['רכיב', s.owner || '—'], ['שטח', `${f2(s.amount)} מ"ר`],
+      ['מפלס', s.vertical ? `${c.fmtRel(s.z0)} עד ${c.fmtRel(s.z1)}` : c.fmtRel(s.z)], ['למה', 'פן חשוף של השלד שאף משטח טיח אחר לא כיסה (בדיקת כיסוי 2 ס"מ – docs/verification/finishes-coverage.md)']);
     else rows.push(['שטח', `${f2(s.amount)} מ"ר`], ['מפלס', c.fmtRel(s.z)]);
     rows.push(['פיגום', s.scaffold ? `דורש פיגום (מעל ${this.T.params.scaffoldAbove_m} מ') – ${f2(s.scaffoldArea || 0)} מ"ר מעל הגובה` : 'לא']);
     if (s.status === 'provisional') rows.push(['מעמד', 'זמני – ' + (s.zSource || '')]);

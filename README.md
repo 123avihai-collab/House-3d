@@ -19,6 +19,8 @@ python3 tools/environment/derive_details.py        # בינוי ופיתוח מ�
 python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
 python3 tools/extract_mamad.py  # ממ"ד: חלון, דלת הזזה ושרוולים לפי תוכנית האדריכל + החזית המערבית -> data/architecture/mamad.json (אחרי extract_openings.py)
+python3 tools/finishes/verify_coverage.py   # טיח סבב 4: עור השלד ברשת 2 ס"מ – חייב 0 לא מכוסות (ב-npm test, --check); מדרגות מעל 2 ס"מ -> docs/verification/plaster-deviations.xlsx
+python3 tools/finishes/verify_waterproofing.py   # בדיקת איטום: חדרים רטובים, קירות המרתף -> docs/verification/waterproofing-check.md
 python3 tools/plumbing/extract_plan_background.py  # עורך הצנרת: רקע אדריכלי לכל קומה (מה-DXF של היועץ) -> data/plumbing/plan-background.json
 python3 tools/plumbing/seed_routes.py              # עורך הצנרת: זריעה חד-פעמית של data/plumbing/routes.json מההצעה (לא דורס עריכות)
 python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבלת אימות -> docs/verification/editor-stage-1.md

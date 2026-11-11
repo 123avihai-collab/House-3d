@@ -590,6 +590,9 @@ WPROOF = []
 for f in FACES:
     if f['side'] != 'in' or f['roomType'] != 'wet': continue
     room = ROOM_BY[f['room']]; ff = CFG['finishFloor'].get(f['floor'], f['standing'])
+    # the strip starts at the room's slab even where the face itself starts higher (an upturned beam / curb under the face): no gap
+    # at the floor (round 4 – waterproofing check)
+    wz0 = min(f['z0'], SLAB_BY[f['floorSlab']]['top']) if f.get('floorSlab') in SLAB_BY else f['z0']
     A, B = f['a'], f['b']; L = f['length']; ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L
     showers = [x for x in FIX if x['floor'] == f['floor'] and x['kind'] == 'shower' and room['poly'].buffer(CFG['fixtureReach_m']).contains(Point(x['E'], x['N']))]
     cuts = []   # shower stretches along the face [s0, s1]
@@ -609,7 +612,7 @@ for f in FACES:
         doors = sum(max(0, min(o['s1'], s1) - max(o['s0'], s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01)
         pa = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; pb = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
         WPROOF.append(dict(kind='wall', floor=f['floor'], room=f['room'], owner=f['owner'], a=pa, b=pb, normal=f['normal'],
-                           s0=r3(s0), s1=r3(s1), z0=f['z0'], z1=r3(z1), height_m=h, shower=sh, finish=r3(ff), faceTop=f['z1'], area=r3(max(0, (s1 - s0 - doors) * (z1 - f['z0']))),
+                           s0=r3(s0), s1=r3(s1), z0=r3(wz0), z1=r3(z1), height_m=h, shower=sh, finish=r3(ff), faceTop=f['z1'], area=r3(max(0, (s1 - s0 - doors) * (z1 - wz0))),
                            openings=[dict(o, s0=r3(max(o['s0'], s0) - s0), s1=r3(min(o['s1'], s1) - s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01 and min(o['s1'], s1) > max(o['s0'], s0)],
                            label=f"איטום {round(h * 100):.0f} ס\"מ", rule=(f"אזור מקלחת – עד {h:.2f} מ' מפני הריצוף" if sh else f"{h:.2f} מ' מפני הריצוף"),
                            status='provisional'))   # the heights are defaults (types.json waterproofing.status) – open-issues #156, #166
@@ -966,6 +969,16 @@ keyed(TOPS, lambda t: f"{t['floor']}|top|{t['owner']}")
 REVS = list(REV.values()); keyed(REVS, lambda r: f"{r['floor']}|rev|{r['opening']}")
 keyed(BEAMSURF, lambda b: f"{b['floor']}|beam|{b['beam']}")
 
+# ---------------------------------------------------------------- patches (plaster round 4): the exposed skin of the skeleton that no surface
+# above covers – sills, slab edges at level steps, niches, the ends of walls, soffits outside, ledges (tools/finishes/skin.py; check:
+# tools/finishes/verify_coverage.py, 2 cm grid – must be 0)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import skin as SKIN
+SKIN_S, SKIN_RES = SKIN.analyse(globals(), grid=CFG.get('skinGrid_m', 0.02))
+PATCHES = SKIN.make_patches(SKIN_S, SKIN_RES, globals())
+PATCHES.sort(key=lambda p_: (p_['floor'], p_['owner'] or '', p_['z0'] if p_['vertical'] else p_['z'], (p_['a'] if p_['vertical'] else p_['ringITM'][0])[0]))
+keyed(PATCHES, lambda p_: f"{p_['floor']}|patch|{p_['owner'] or 'x'}|{p_['part']}")
+
 # ---------------------------------------------------------------- floors: area per room, skirting, the floor build-up layers (no plaster on floors)
 BU = J('data/finishes/floors/buildup.json')
 TILES = []
@@ -1008,7 +1021,7 @@ for t in TILES:
 # ---------------------------------------------------------------- summaries
 def summarize():
     S = defaultdict(lambda: defaultdict(float))
-    for f in FACES + CEILS + TOPS + REVS + BEAMSURF:
+    for f in FACES + CEILS + TOPS + REVS + BEAMSURF + PATCHES:
         S[(f['floor'], f['type'])]['net'] += f['net'] if 'net' in f else f['area']
         S[(f['floor'], f['type'])]['scaffold'] += f.get('scaffoldArea', 0)
     return {f"{k[0]}|{k[1]}": {a: r3(b) for a, b in v.items()} for k, v in S.items()}
@@ -1022,13 +1035,13 @@ dump('data/architecture/rooms.json', dict(_doc='חדרים – נגזרים מה
      **meta, cuts=CFG['cuts'], gaps=GAPS, rooms=ROOMS))
 dump('data/finishes/plaster/surfaces.json', dict(_doc='משטחי טיח – נגזרים (לא לערוך ידנית). type = הדריסה של אביחי (overrides.json) או defaultType לפי הכללים. '
      'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה), top (ראש קיר / מעקה), reveal (גליפים: צדי הפתח והמשקוף), beam (קורה גלויה: דפנות, תחתית, ראש). '
-     'net = ברוטו פחות פתחים. meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
-     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
+     'patch (השלמה – פן חשוף של השלד שאף משטח אחר לא מכסה: אדן, שפת רצפה במדרגה, גומחה, קצה קיר, תחתית מבחוץ; vertical: a→b + z0..z1, אחרת ringITM ב-z, up = פונה למעלה). net = ברוטו פחות פתחים. meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
+     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, patches=PATCHES, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
 dump('data/finishes/tiling/surfaces.json', dict(_doc='רצפות – שטח לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פנלים (היקף פחות דלתות), ושכבות הרצפה: סומסום / טיט-מדה / דבק / אריח '
      '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES))
 dump('data/finishes/cladding/surfaces.json', dict(_doc='חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.',
      **meta, kinds=J('data/finishes/cladding/zones.json')['kinds'], items=CLAD))
-print(len(ROOMS), 'rooms', len(FACES), 'walls', len(CEILS), 'ceilings', len(TOPS), 'tops', len(REVS), 'reveals', len(BEAMSURF), 'beams', len(WPROOF), 'waterproofing', len(CLAD), 'cladding', len(GAPS), 'gaps')
+print(len(ROOMS), 'rooms', len(FACES), 'walls', len(CEILS), 'ceilings', len(TOPS), 'tops', len(REVS), 'reveals', len(BEAMSURF), 'beams', len(PATCHES), 'patches', r3(sum(p_['area'] for p_ in PATCHES)), 'm2 patches', len(WPROOF), 'waterproofing', len(CLAD), 'cladding', len(GAPS), 'gaps')
 for k, v in sorted(TOT.items()): print(k, v)
 
 
@@ -1049,7 +1062,7 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
         ws.freeze_panes = 'A2'
         return ws
     allS = [dict(f, cat='wall', amount=f['net']) for f in FACES] + [dict(c, cat='ceiling', amount=c['net']) for c in CEILS] + [dict(t, cat='top', amount=t['area']) for t in TOPS] + \
-           [dict(r, cat='reveal', amount=r['area']) for r in REVS] + [dict(b, cat='beam', amount=b['area']) for b in BEAMSURF]
+           [dict(r, cat='reveal', amount=r['area']) for r in REVS] + [dict(b, cat='beam', amount=b['area']) for b in BEAMSURF] + [dict(p_, cat='patch', amount=p_['area']) for p_ in PATCHES]
     by = defaultdict(float); scf = defaultdict(float)
     for s in allS: by[s['type']] += s['amount']; scf[s['type']] += s.get('scaffoldArea', 0)
     rev = sum(r['area'] for r in REVS); mesh = sum(f.get('meshV_m', 0) + f.get('meshH_m', 0) for f in FACES)
@@ -1058,7 +1071,7 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
     price = lambda k: next((t['price'] for t in TYPES['types'] if t['id'] == k), None)
     rows = [[TL[t['id']], r3(by[t['id']]), 'מ"ר', r3(scf[t['id']]), t['price'], None] for t in TYPES['types']]
     rows += [[TYPES['waterproofing']['label'], r3(wpw), 'מ"ר', None, TYPES['waterproofing']['price'], None],
-             ['מזה גליפים (כלול בסוגים)', r3(rev), 'מ"ר', None, None, None], ['מזה קורות גלויות (כלול בסוגים)', r3(sum(b['area'] for b in BEAMSURF)), 'מ"ר', None, None, None], ['רשת פיברגלס', r3(mesh), 'מ"א', None, None, None], ['פינות מגן', r3(beads), 'מ"א', None, None, None]]
+             ['מזה גליפים (כלול בסוגים)', r3(rev), 'מ"ר', None, None, None], ['מזה קורות גלויות (כלול בסוגים)', r3(sum(b['area'] for b in BEAMSURF)), 'מ"ר', None, None, None], ['מזה השלמות – אדנים, שפות, קצוות (כלול בסוגים)', r3(sum(p_['area'] for p_ in PATCHES)), 'מ"ר', None, None, None], ['רשת פיברגלס', r3(mesh), 'מ"א', None, None, None], ['פינות מגן', r3(beads), 'מ"א', None, None, None]]
     ws = sheet('סיכום', ['סוג', 'כמות', 'יחידה', 'מזה בפיגום (מעל %.1f מ\')' % PRM['scaffoldAbove_m'], 'מחיר ליחידה', 'עלות'], rows, [30, 12, 8, 18, 14, 14])
     for i in range(2, ws.max_row + 1): ws.cell(i, 6).value = f'=IF(E{i}="","",B{i}*E{i})'
     ws.append(['סה"כ', None, None, None, None, f'=SUM(F2:F{ws.max_row})'])
@@ -1087,7 +1100,7 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
         rr.append([FLOOR_HE[r['floor']], RN[r['key']], TYPE_HE.get(r['type']), r['area_m2'], tl.get('area')] + [r3(d[t['id']]) for t in TYPES['types']])
     sheet('לפי חדר', ['קומה', 'חדר', 'סוג חדר', 'שטח חדר', 'שטח ריצוף'] + [TL[t['id']] for t in TYPES['types']], rr, [12, 30, 12, 10, 10] + [12] * 7)
     sheet('משטחים', ['מפתח', 'קומה', 'משטח', 'צד', 'חזית', 'חדר', 'רכיב', 'סוג', 'ברירת מחדל', 'סיבה', 'אורך', 'מגובה', 'עד גובה', 'ברוטו', 'פתחים', 'נטו', 'פיגום', 'שטח בפיגום', 'רשת מ"א', 'זוויתנים מ"א'],
-          [[s['key'], FLOOR_HE[s['floor']], {'wall': 'קיר', 'ceiling': 'תקרה', 'top': 'ראש קיר', 'reveal': 'גליף', 'beam': 'קורה'}[s['cat']], {'in': 'פנים', 'out': 'חוץ'}.get(s.get('side'), ''),
+          [[s['key'], FLOOR_HE[s['floor']], {'wall': 'קיר', 'ceiling': 'תקרה', 'top': 'ראש קיר', 'reveal': 'גליף', 'beam': 'קורה', 'patch': 'השלמה'}[s['cat']], {'in': 'פנים', 'out': 'חוץ'}.get(s.get('side'), ''),
             FACADE_HE.get(s.get('facade'), ''), RN.get(s.get('room'), ''), s.get('owner') or s.get('slab') or s.get('opening') or s.get('beam'), TL[s['type']], TL[s['defaultType']], s['typeReason'],
             s.get('length'), s.get('z0', s.get('z')), s.get('z1'), s.get('gross', s['amount']), s.get('openingsArea', 0), s['amount'],
             'כן' if s.get('scaffold') else '', s.get('scaffoldArea', 0), r3(s.get('meshV_m', 0) + s.get('meshH_m', 0)), s.get('beads_m', 0)] for s in allS],

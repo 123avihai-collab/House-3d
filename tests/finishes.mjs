@@ -22,7 +22,7 @@ let failed = false;
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data/finishes/plaster/surfaces.json'), 'utf8'));
 const want = {};
 for (const s of [...data.walls, ...data.ceilings]) want[s.type] = (want[s.type] || 0) + s.net;
-for (const s of [...data.tops, ...data.reveals, ...data.beams]) want[s.type] = (want[s.type] || 0) + s.area;
+for (const s of [...data.tops, ...data.reveals, ...data.beams, ...(data.patches || [])]) want[s.type] = (want[s.type] || 0) + s.area;
 
 for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }, acceptDownloads: true }], ['phone', { ...devices['Pixel 7'], acceptDownloads: true }]]) {
   const ctx = await browser.newContext(opts);

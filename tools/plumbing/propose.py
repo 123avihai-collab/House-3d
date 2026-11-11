@@ -18,6 +18,7 @@ Output : data/plumbing/proposal.json
 import heapq, json, math, os, sys
 import numpy as np
 import shapely
+import shapely.ops
 from shapely.geometry import Polygon, Point, LineString, MultiLineString
 from shapely.ops import unary_union, nearest_points
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -119,116 +120,97 @@ def move_stacks(SH):
 
 # ------------------------------------------------------------------ routing grid
 class Grid:
+    """Orthogonal router in the BUILDING frame (axes UX / UY – parallel to the walls): 4 directions only, a penalty for
+    every bend, no overlap with a line already routed (crossing allowed only at a high cost), and a discount next to an
+    existing line so parallel lines bundle at one cell (= the spacing) instead of wandering."""
     def __init__(self, region, walls, concrete_polys, forbidden, keepouts):
-        R = I['routing']; self.c = R['cell_m']
-        x0, y0, x1, y1 = region.bounds; self.x0, self.y0 = x0 - 0.2, y0 - 0.2
-        self.nx, self.ny = int((x1 - x0 + 0.4) / self.c) + 1, int((y1 - y0 + 0.4) / self.c) + 1
-        xs = self.x0 + (np.arange(self.nx) + 0.5) * self.c; ys = self.y0 + (np.arange(self.ny) + 0.5) * self.c
-        X, Y = np.meshgrid(xs, ys, indexing='ij')
-        cost = np.full(X.shape, np.inf)
-        cost[shapely.contains_xy(region, X, Y)] = 1.0
+        R = I['routing']; self.c = R['cell_m']; self.O = O
+        tl = lambda geom: shapely.ops.transform(lambda x, y, z=None: (np.asarray(x) - O[0]) * UX[0] + (np.asarray(y) - O[1]) * UX[1] if False else
+                                                (((np.asarray(x) - O[0]) * UX[0] + (np.asarray(y) - O[1]) * UX[1]),
+                                                 ((np.asarray(x) - O[0]) * UY[0] + (np.asarray(y) - O[1]) * UY[1])), geom)
+        reg = tl(region)
+        u0, v0, u1, v1 = reg.bounds; self.x0, self.y0 = u0 - 0.2, v0 - 0.2
+        self.nx, self.ny = int((u1 - u0 + 0.4) / self.c) + 1, int((v1 - v0 + 0.4) / self.c) + 1
+        us = self.x0 + (np.arange(self.nx) + 0.5) * self.c; vs = self.y0 + (np.arange(self.ny) + 0.5) * self.c
+        U, V = np.meshgrid(us, vs, indexing='ij'); self.U, self.V = U, V
+        cost = np.full(U.shape, np.inf)
+        cost[shapely.contains_xy(reg, U, V)] = 1.0
         self.wallpoly = unary_union([w.buffer(R['wallBuffer_m']) for w in walls]) if walls else Polygon()
-        if not self.wallpoly.is_empty: cost[np.isfinite(cost) & shapely.contains_xy(self.wallpoly, X, Y)] = R['wallCost']
+        if not self.wallpoly.is_empty: cost[np.isfinite(cost) & shapely.contains_xy(tl(self.wallpoly), U, V)] = R['wallCost']
         self.conpoly = unary_union(concrete_polys) if concrete_polys else Polygon()
-        if not self.conpoly.is_empty: cost[np.isfinite(cost) & shapely.contains_xy(self.conpoly, X, Y)] = R['concreteCost'] if R['concreteCost'] else np.inf
-        for f in forbidden:
-            cost[shapely.contains_xy(f, X, Y)] = np.inf
-        for k in keepouts:
-            cost[shapely.contains_xy(k, X, Y)] = np.inf
-        self.base = cost; self.used = np.zeros_like(cost)
+        if not self.conpoly.is_empty: cost[np.isfinite(cost) & shapely.contains_xy(tl(self.conpoly), U, V)] = R['concreteCost'] if R['concreteCost'] else np.inf
+        for f in list(forbidden) + list(keepouts):
+            cost[shapely.contains_xy(tl(f), U, V)] = np.inf
+        self.base = cost; self.used = np.zeros(cost.shape, dtype=np.int8)
 
-    def ij(self, p): return (min(self.nx - 1, max(0, int((p[0] - self.x0) / self.c))), min(self.ny - 1, max(0, int((p[1] - self.y0) / self.c))))
-    def xy(self, ij): return (self.x0 + (ij[0] + 0.5) * self.c, self.y0 + (ij[1] + 0.5) * self.c)
+    def centers_world(self):
+        return self.O[0] + self.U * UX[0] + self.V * UY[0], self.O[1] + self.U * UX[1] + self.V * UY[1]
+    def ij(self, p):
+        u, v = local(p, self.O)
+        return (min(self.nx - 1, max(0, int((u - self.x0) / self.c))), min(self.ny - 1, max(0, int((v - self.y0) / self.c))))
+    def uv(self, ij): return (self.x0 + (ij[0] + 0.5) * self.c, self.y0 + (ij[1] + 0.5) * self.c)
 
-    def route(self, a, b):
+    def route(self, a, b, _open=0):
         R = I['routing']; s, t = self.ij(a), self.ij(b)
-        # cells already used by a pipe of the same manifold are CHEAPER (bundle: pipes run side by side, Avihai 08.11),
-        # unless the inputs ask for the old repulsion (usedCost > 0 and no bundleCost)
-        cost = np.where(self.used > 0, self.base * R['bundleCost'], self.base) if R.get('bundleCost') is not None else self.base + self.used * R['usedCost']
-        free = lambda ij: ij in (s, t) or np.isfinite(cost[ij])
-        D = {s: 0.0}; prev = {}; Q = [(0.0, s)]
-        nb = [(1, 0, 1), (-1, 0, 1), (0, 1, 1), (0, -1, 1), (1, 1, 1.4142), (1, -1, 1.4142), (-1, 1, 1.4142), (-1, -1, 1.4142)]
-        h = lambda ij: math.hypot(ij[0] - t[0], ij[1] - t[1])
-        Q = [(h(s), 0.0, s)]
+        cost = self.base.copy()
+        for c in (s, t):                       # retry: free a small ring around the end cells (point on a wall / keep-out)
+            if _open: cost[max(0, c[0] - _open):c[0] + _open + 1, max(0, c[1] - _open):c[1] + _open + 1][~np.isfinite(cost[max(0, c[0] - _open):c[0] + _open + 1, max(0, c[1] - _open):c[1] + _open + 1])] = 5.0
+        occ = self.used > 0
+        near = np.zeros_like(occ)
+        near[1:, :] |= occ[:-1, :]; near[:-1, :] |= occ[1:, :]; near[:, 1:] |= occ[:, :-1]; near[:, :-1] |= occ[:, 1:]
+        fin = np.isfinite(cost)
+        cost[fin & near & ~occ] *= R['hugFactor']
+        cost[fin & occ] += R['crossCost']
+        turn = R['turnCost']; D4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
+        h = lambda ij: abs(ij[0] - t[0]) + abs(ij[1] - t[1])
+        best = {}; prev = {}; Q = []
+        for d in range(4): best[(s, d)] = 0.0; heapq.heappush(Q, (h(s), 0.0, s, d))
+        end = None
         while Q:
-            f, g, u = heapq.heappop(Q)
-            if u == t: break
-            if g > D.get(u, 1e18): continue
-            for di, dj, w in nb:
+            f, g, u, d = heapq.heappop(Q)
+            if u == t: end = (u, d); break
+            if g > best.get((u, d), 1e18): continue
+            for nd, (di, dj) in enumerate(D4):
+                if (nd ^ 1) == d and u != s: continue           # no U-turn
                 v = (u[0] + di, u[1] + dj)
-                if not (0 <= v[0] < self.nx and 0 <= v[1] < self.ny) or not free(v): continue
+                if not (0 <= v[0] < self.nx and 0 <= v[1] < self.ny): continue
                 cv = 1.0 if v in (s, t) else cost[v]
-                ng = g + w * cv
-                if ng < D.get(v, 1e18): D[v] = ng; prev[v] = u; heapq.heappush(Q, (ng + h(v), ng, v))
-        if t not in D: return None
-        path = [t]
-        while path[-1] != s: path.append(prev[path[-1]])
-        path = path[::-1]
-        self.lastCells = path
-        for ij in path:
-            i, j = ij; self.used[max(0, i - 1):i + 2, max(0, j - 1):j + 2] = 1
-        return self.smooth(path, a, b)
+                if not np.isfinite(cv): continue
+                ng = g + cv + (turn if (nd != d and u != s) else 0.0)
+                if ng < best.get((v, nd), 1e18):
+                    best[(v, nd)] = ng; prev[(v, nd)] = (u, d); heapq.heappush(Q, (ng + h(v), ng, v, nd))
+        if end is None: return self.route(a, b, _open + 1) if _open < 3 else None
+        cells = [end]
+        while cells[-1][0] != s: cells.append(prev[cells[-1]])
+        cells = [c[0] for c in cells[::-1]]
+        for ij in cells: self.used[ij] = 1
+        return self.ortho(cells, a, b)
 
-    def los(self, p, q):
-        n = max(2, int(math.dist(p, q) / (self.c / 2)))
-        for k in range(n + 1):
-            x = p[0] + (q[0] - p[0]) * k / n; y = p[1] + (q[1] - p[1]) * k / n
-            ij = self.ij((x, y))
-            if self.base[ij] != 1.0: return False
-        return True
-
-    def smooth(self, path, a, b):
-        pts = [self.xy(ij) for ij in path]; pts[0] = a; pts[-1] = b
-        free = [self.base[ij] == 1.0 for ij in path]
-        out = [pts[0]]; i = 0
-        while i < len(pts) - 1:
-            j = len(pts) - 1
-            while j > i + 1:
-                if all(free[i + 1:j]) and self.los(pts[i], pts[j]): break
-                j -= 1
-            out.append(pts[j]); i = j
-        # merge collinear
-        res = [out[0]]
-        for k in range(1, len(out) - 1):
-            a_, b_, c_ = res[-1], out[k], out[k + 1]
-            cr = (b_[0] - a_[0]) * (c_[1] - a_[1]) - (b_[1] - a_[1]) * (c_[0] - a_[0])
-            if abs(cr) > 1e-4: res.append(b_)
-        res.append(out[-1])
-        return res
-
-
-# ------------------------------------------------------------------ bundles (Avihai 08.11.2026: PEX laid side by side,
-# a clear ribbon with a small gap, peeling off to the points – not on top of each other)
-def bundle(jobs, grid, gap):
-    """jobs: [{cells, start, tgt, pitch}] of one manifold (routed with attraction -> they share cells). Every shared grid
-    edge gets one lane per pipe, ordered by where each pipe is heading (left / right of the edge), so they fan out without
-    crossing; lane offset = (rank - (n-1)/2) × (conduit OD + gap). Corners rounded (Chaikin)."""
-    from collections import defaultdict
-    users = defaultdict(list)
-    for k, j in enumerate(jobs):
-        for a, b in zip(j['cells'], j['cells'][1:]): users[frozenset((a, b))].append(k)
-    out = []
-    for k, j in enumerate(jobs):
-        C = j['cells']; P = [grid.xy(c) for c in C]; offs = []
-        for i in range(len(C)):
-            e = (C[i], C[i + 1]) if i < len(C) - 1 else (C[i - 1], C[i])
-            (x0, y0), (x1, y1) = grid.xy(e[0]), grid.xy(e[1]); L = math.hypot(x1 - x0, y1 - y0) or 1
-            nx, ny = -(y1 - y0) / L, (x1 - x0) / L
-            us = users[frozenset(e)]
-            side = lambda q: (jobs[q]['tgt'][0] - x0) * nx + (jobs[q]['tgt'][1] - y0) * ny
-            rank = sorted(us, key=lambda q: (side(q), q)).index(k)
-            pitch = max(jobs[q]['pitch'] for q in us) + gap
-            off = (rank - (len(us) - 1) / 2) * pitch
-            offs.append((nx * off, ny * off))
-        Q = [(x + ox, y + oy) for (x, y), (ox, oy) in zip(P, offs)]
-        Q[0], Q[-1] = j['start'], j['tgt']
-        Q = list(LineString(Q).simplify(0.035).coords)   # grid stair-steps on the diagonals out, then round the corners
-        for _ in range(3):   # Chaikin: round the corners, keep the ends
-            R_ = [Q[0]]
-            for a, b in zip(Q, Q[1:]): R_ += [(0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]), (0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1])]
-            R_.append(Q[-1]); Q = R_
-        out.append([(r3(x), r3(y)) for x, y in Q])
-    return out
+    def ortho(self, cells, a, b):
+        """cell path -> corner points (collinear merged), ends snapped to the true end points with right angles only."""
+        P = [self.uv(c) for c in cells]
+        corners = [P[0]]
+        for k in range(1, len(P) - 1):
+            d1 = (round(P[k][0] - P[k - 1][0], 6), round(P[k][1] - P[k - 1][1], 6)); d2 = (round(P[k + 1][0] - P[k][0], 6), round(P[k + 1][1] - P[k][1], 6))
+            if d1 != d2: corners.append(P[k])
+        corners.append(P[-1])
+        la, lb = local(a, self.O), local(b, self.O)
+        if len(corners) == 1: corners = [la, lb]
+        horiz = lambda p, q: abs(q[1] - p[1]) < 1e-6
+        # first leg: keep its axis, move it onto the start point
+        if len(corners) >= 2:
+            if horiz(corners[0], corners[1]): corners[1] = (corners[1][0], la[1])
+            else: corners[1] = (la[0], corners[1][1])
+            if len(corners) >= 3:
+                if horiz(corners[-2], corners[-1]): corners[-2] = (corners[-2][0], lb[1])
+                else: corners[-2] = (lb[0], corners[-2][1])
+            corners[0], corners[-1] = la, lb
+        if len(corners) == 2 and abs(la[0] - lb[0]) > 1e-3 and abs(la[1] - lb[1]) > 1e-3:   # straight path, offset ends: one dog-leg
+            m = (la[0] + lb[0]) / 2; corners = [la, (m, la[1]), (m, lb[1]), lb]
+        out = [corners[0]]
+        for q in corners[1:]:
+            if math.dist(q, out[-1]) > 1e-4: out.append(q)
+        return [world(q, self.O) for q in out]
 
 
 # ------------------------------------------------------------------ helpers
@@ -249,7 +231,6 @@ def snap_to_wall(p, walls, maxd=0.9, into=0.05):
 
 def sketch_walls():
     import pymupdf
-    if not os.path.exists(os.path.join(ROOT, SKETCH)): return None   # local-only source (owner's private sketch) – see main()
     T, _ = sketch_fit(); p = pymupdf.open(os.path.join(ROOT, SKETCH))[0]; out = []
     for d in p.get_drawings():
         if tuple(round(v, 2) for v in (d.get('color') or ())) != (0.0, 0.0, 0.0) or round(d.get('width') or 0, 2) < 0.7: continue
@@ -351,9 +332,7 @@ def main():
     gs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['slab']])
     fs = unary_union([Polygon(s['footprintITM']).buffer(0) for s in FG['ceiling']['slab']] + [MAMAD.buffer(0.01)])
     bs = Polygon(BAS['outlineITM']).buffer(-0.02)
-    SW = sketch_walls()
-    if SW is None: print('WARNING: basement sketch not on this machine – the unit floor keeps its last proposal (data/plumbing/proposal.json)')
-    walls = {'ground': arch_walls(GG, 'ground'), 'first': arch_walls(GG, 'first'), 'unit': SW or []}
+    walls = {'ground': arch_walls(GG, 'ground'), 'first': arch_walls(GG, 'first'), 'unit': sketch_walls()}
     conc = {'ground': [P for k, e, P, b, t, s in CON if k in ('קיר בטון', 'עמוד')],
             'first': [], 'unit': [P for k, e, P, b, t, s in CON if k == 'קיר מרתף']}
     grids = {'ground': Grid(gs, walls['ground'], conc['ground'], [MAMAD.buffer(0.02)], keepouts),
@@ -390,6 +369,7 @@ def main():
 
     runs, sleeves = [], []
     def add_run(rid, system, floor, D, pts3d, frm, to, note='', insul=False, material='PEX'):
+        pts3d = orthoize([tuple(p) for p in pts3d])
         conduit = None if insul else next_sleeve(D, 8)
         runs.append({'id': rid, 'system': system, 'floor': floor, 'D_mm': D, 'material': material, 'pts3d': [[r3(a), r3(b), r3(c)] for a, b, c in pts3d],
                      'from': frm, 'to': to, 'conduitD_mm': conduit, 'insulation_mm': I['feeds']['insulation_mm'] if insul else None,
@@ -419,8 +399,7 @@ def main():
         mine.sort(key=lambda a: (a[3][0] - m['E']) * m['axis'][0] + (a[3][1] - m['N']) * m['axis'][1])
         n_c = sum(1 for a in mine if PT[a[2]]['cold']); n_h = sum(1 for a in mine if PT[a[2]]['hot'])
         m['outlets'] = {'cold': [], 'hot': []}
-        ci = hi = 0; jobs = []
-        grids[fl].used[:] = 0   # attraction only to the pipes of this manifold
+        ci = hi = 0
         for a in mine:
             _, fl_, kind, sp, fr, fid, title = a; spec = PT[kind]
             pt_out.append({'id': fid, 'floor': fl_, 'kind': kind, 'title': spec['title'], 'fixture': fid, 'E': r3(sp[0]), 'N': r3(sp[1]),
@@ -441,17 +420,12 @@ def main():
                         if path is not None: tgt = alt; break
                 if path is None: print('NO ROUTE', mk, fid, sysn); continue
                 rid = f'{"C" if sysn == "cold" else "H"}-{fid}'
-                jobs.append({'rid': rid, 'sysn': sysn, 'spec': spec, 'fid': fid, 'ox': ox, 'oy': oy, 'H': H, 'start': start, 'tgt': tgt,
-                             'cells': grids[fl].lastCells, 'pitch': next_sleeve(spec['D'], 8) / 1000})
+                pts3d = [(ox, oy, zf + H), (start[0], start[1], zf + H), (start[0], start[1], z)] + [(x, y, z) for x, y in path[1:-1]] + [(tgt[0], tgt[1], z), (tgt[0], tgt[1], zf + spec['H'])]
+                add_run(rid, sysn, fl, spec['D'], pts3d, m['id'], fid, f'{spec["title"]} – PEX ø{spec["D"]} בשרוול, ברז ניתוק במחלק')
+                sleeves.extend(crossings(path, grids[fl], rid, spec['D'], z, fl))
                 m['outlets'][sysn].append({'E': r3(ox), 'N': r3(oy), 'to': fid, 'D_mm': spec['D']})
                 if sysn == 'cold': ci += 1
                 else: hi += 1
-        for j, path in zip(jobs, bundle(jobs, grids[fl], I['routing'].get('bundleGap_m', 0.015))):
-            spec = j['spec']
-            pts3d = [(j['ox'], j['oy'], zf + j['H']), (j['start'][0], j['start'][1], zf + j['H']), (j['start'][0], j['start'][1], z)] + [(x, y, z) for x, y in path[1:-1]] \
-                    + [(j['tgt'][0], j['tgt'][1], z), (j['tgt'][0], j['tgt'][1], zf + spec['H'])]
-            add_run(j['rid'], j['sysn'], fl, spec['D'], pts3d, m['id'], j['fid'], f'{spec["title"]} – PEX ø{spec["D"]} בשרוול, ברז ניתוק במחלק; בצרור עם שאר הצינורות מהמחלק')
-            sleeves.extend(crossings(path, grids[fl], j['rid'], spec['D'], z, fl))
 
     # supply chain: main entry -> shaft -> manifolds; hot from the roof heater -> shaft -> manifolds, return
     F = I['feeds']; inner = SH['inner']; ent = NODES[I['mainEntry']['from']]
@@ -543,15 +517,6 @@ def main():
     out['unitSewer'] = PB6
     out['rain'] = PR1
     out['summary']['site'] = {'chambers': len(out['site']['chamberRaise']), 'drops': len(out['site']['drops']), 'hoseReel': 1, 'meterConn': 2}
-    if SW is None:   # keep the unit-floor design of the last run (it was routed against the sketch walls)
-        prev = J('data/plumbing/proposal.json')
-        for k in ('runs', 'points', 'sleeves'):
-            if isinstance(out.get(k), list) and isinstance(prev.get(k), list):
-                out[k] = [x for x in out[k] if x.get('floor') != 'unit'] + [x for x in prev[k] if x.get('floor') == 'unit']
-        if isinstance(out.get('manifolds'), list):
-            out['manifolds'] = [x for x in out['manifolds'] if x.get('floor') != 'unit'] + [x for x in prev.get('manifolds', []) if x.get('floor') == 'unit']
-        for k in ('unitHot', 'unitSewer'):
-            if k in prev: out[k] = prev[k]
     json.dump(out, open(os.path.join(ROOT, 'data/plumbing/proposal.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(json.dumps(out['summary'], ensure_ascii=False)); print('superseded', sup)
     for m in mans: print(m['id'], m['E'], m['N'], len(m['outlets']['cold']), len(m['outlets']['hot']))

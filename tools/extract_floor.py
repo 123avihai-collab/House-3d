@@ -813,13 +813,14 @@ def main():
     closing = WU.buffer(0.08, join_style=2).buffer(-0.08, join_style=2).difference(WU)
     shallow = [q for q in polys(closing) if q.area >= 0.001 and q.area / max(q.length / 2, 1e-6) < 0.03]
     for q in polys(unary_union(list(polys(closing.intersection(hatchP.buffer(0.01)))) + shallow)):
-        if q.area < 0.001: continue
+        if q.area < 0.00005: continue   # down to ~1 cm (a seam between two hatch pieces – GW19, Avihai ק20)
         touch = [w for w in wall_out if Polygon(w['footprintITM'], w['holesITM']).buffer(0).distance(q) < 0.005]
         if not touch: continue
         w = max(touch, key=lambda w: Polygon(w['footprintITM'], w['holesITM']).buffer(0).buffer(0.005).intersection(q).area)
         g = max(polys(unary_union([Polygon(w['footprintITM'], w['holesITM']).buffer(0), q]).buffer(0.002, join_style=2).buffer(-0.002, join_style=2)), key=lambda x: x.area)
         w['footprintITM'] = ring(g); w['holesITM'] = holes(g); w['area_m2'] = r3(g.area)
-        w['note'] = (w.get('note', '') + f' שקע / חריץ של {q.area * 1e4:.0f} סמ"ר בקו הקיר נסגר – ב-K-21 הקיר מקווקו ורציף שם (הערת אביחי ק16).').strip()
+        t_ = f' שקע / חריץ של {q.area * 1e4:.0f} סמ"ר בקו הקיר נסגר – ב-K-21 הקיר מקווקו ורציף שם (הערות אביחי ק16, ק20).'
+        if t_.strip() not in w.get('note', ''): w['note'] = (w.get('note', '') + t_).strip()
         slits.append(f"{w['id']}+{q.area:.4f}")
     print('wall notches / slits closed', slits)
     # a straight wall whose outline dips by < 3 cm along one face (two hatch pieces of one pour, Avihai ק46 – GW1): the wall
@@ -1390,6 +1391,8 @@ def main():
                            'source': f'{K41P} מילוי מוקווקו (קיר); {K31P} "ליציקת הקיר!"'})
         print('thick roof wall', roof_walls[-1]['id'], r3(q.area), bot, on)
     roof_notes(roof_walls, roof_beams, first_walls, first_cols, beams, m41, to)
+    import slab_seams   # seams between slab outlines over a beam (Avihai ק19)
+    print('slab seams closed', slab_seams.close_slab_seams(out, J('data/structure/framing.json')) if 'J' in globals() else slab_seams.close_slab_seams(out, json.load(open(os.path.join(ROOT, 'data/structure/framing.json'), encoding='utf-8'))))
     json.dump(out, open(os.path.join(ROOT, 'data/structure/floor-ground.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)   # B-30 into the corner wall
     verts41 = [(Polygon(e['footprintITM'], e.get('holesITM') or []).buffer(0), e['bottomRel'], e['topRel'], e['id']) for e in first_walls + first_cols + roof_walls]
     print('beam ends run on to their support K-41', bear_beam_ends(roof_beams, verts41, [(p['poly'], p['top'], p['D']) for p in panels41], bars_of('K-42')))

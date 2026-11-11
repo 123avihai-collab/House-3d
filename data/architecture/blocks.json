@@ -1386,7 +1386,7 @@
    "length_m": 2.241,
    "thickness_m": 0.22,
    "bottomRel": -0.15,
-   "topRel": 6.65,
+   "topRel": 3.7,
    "openings": [
     {
      "id": "G01",
@@ -1399,10 +1399,10 @@
      "shutter": false
     }
    ],
-   "courses": 28,
+   "courses": 16,
    "blocksFull": 12,
-   "blocksCut": 52,
-   "area_m2": 5.199,
+   "blocksCut": 40,
+   "area_m2": 4.635,
    "status": "source",
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "lintels": [
@@ -1436,7 +1436,7 @@
      "s0": 0.0,
      "s1": 2.05,
      "z0": 3.45,
-     "z1": 6.65
+     "z1": 3.7
     }
    ],
    "segments": [
@@ -1452,7 +1452,7 @@
      "s0": 2.05,
      "s1": 2.241,
      "bottomRel": -0.15,
-     "topRel": 6.65
+     "topRel": 3.7
     }
    ],
    "mergedFrom": [
@@ -1465,7 +1465,8 @@
     "bedJoints_m2": 4.684,
     "headJoints_m2": 3.399,
     "adhesive_l": 24.248
-   }
+   },
+   "note": "BK-G30 (19 ס\"מ בקצה, ליד GW19): עולה עד תחתית FW2 (+3.70) – לא דרך התקרה FS2 ובתוך FW2 עד +6.65 (הערות אביחי ק31, ק45)."
   },
   {
    "id": "BK-G31",
@@ -4611,9 +4612,9 @@
    "t16_cut": 22,
    "t16_full": 0,
    "t16_m2": 1.26,
-   "t22_cut": 397,
+   "t22_cut": 385,
    "t22_full": 321,
-   "t22_m2": 75.19,
+   "t22_m2": 74.626,
    "t30_cut": 138,
    "t30_full": 157,
    "t30_m2": 30.19

@@ -232,7 +232,10 @@ def context():
         'unit': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel'] if 'bottomRel' in s else s['topRel'] - s['thickness_m']) for s in FG['slab']]
                 + [(bpoly(b), b['bottomRel']) for b in FR['groundBeams'] if b.get('axisITM') and b.get('sheet') == 'K-21'],
         'ground': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FG['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FG['ceiling']['beams'] if b.get('axisITM')]
-                  + [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']],
+                  + [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']]
+                  # a first-floor concrete wall / column standing over the run (in the double-height void, no slab between): the
+                  # blocks stop at its bottom – not up through it to the roof slab (Avihai ק31 / ק45: BK-G30 under FW2)
+                  + [(P(w['footprintITM'], w.get('holesITM')), w['bottomRel']) for w in FF['walls']] + [(P(c['footprintITM']), c['bottomRel']) for c in FF['columns']],
         'first': [(P(s['footprintITM'], s.get('holesITM')), s['bottomRel']) for s in FF['ceiling']['slab']] + [(bpoly(b), b['bottomRel']) for b in FRF['ceiling']['beams'] if b.get('axisITM')]
                  + [(P(w['footprintITM'], w.get('holesITM')), w['bottomRel']) for w in FRF['walls'] if 6 <= w['bottomRel'] < 7],   # roof slab edge / parapets
     }

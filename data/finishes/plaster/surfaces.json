@@ -5807,10 +5807,10 @@
    ],
    "length": 0.22,
    "z0": -0.15,
-   "z1": 6.65,
-   "gross": 1.496,
+   "z1": 3.7,
+   "gross": 0.847,
    "openingsArea": 0.0,
-   "net": 1.496,
+   "net": 0.847,
    "openings": [],
    "floorSlab": "BS1",
    "ceilingSlab": "RS1",
@@ -5818,7 +5818,7 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "proud": 0.0,
    "scaffold": true,
-   "scaffoldArea": 1.298,
+   "scaffoldArea": 0.649,
    "meshV_m": 0.0,
    "beads_m": 3.65,
    "meshH_m": 0.22,
@@ -8999,8 +8999,8 @@
    "ownerFloor": "ground",
    "thickness": 0.25,
    "a": [
-    179594.118,
-    576241.343
+    179594.122,
+    576241.352
    ],
    "b": [
     179594.316,
@@ -9010,12 +9010,12 @@
     -0.927,
     0.375
    ],
-   "length": 0.528,
+   "length": 0.519,
    "z0": -0.15,
    "z1": 3.45,
-   "gross": 1.901,
+   "gross": 1.867,
    "openingsArea": 0.0,
-   "net": 1.901,
+   "net": 1.867,
    "openings": [],
    "floorSlab": "GS7",
    "ceilingSlab": "FS1",
@@ -9487,19 +9487,19 @@
     576240.998
    ],
    "b": [
-    179594.028,
-    576241.088
+    179594.036,
+    576241.084
    ],
    "normal": [
     -0.376,
     -0.927
    ],
-   "length": 0.239,
+   "length": 0.229,
    "z0": -0.15,
    "z1": 3.45,
-   "gross": 0.86,
+   "gross": 0.826,
    "openingsArea": 0.0,
-   "net": 0.86,
+   "net": 0.826,
    "openings": [],
    "floorSlab": "GS1",
    "ceilingSlab": "FS1",
@@ -9851,8 +9851,8 @@
    "ownerFloor": "ground",
    "thickness": 0.228,
    "a": [
-    179593.994,
-    576241.101
+    179593.982,
+    576241.106
    ],
    "b": [
     179592.23,
@@ -9862,12 +9862,12 @@
     -0.374,
     -0.927
    ],
-   "length": 1.903,
+   "length": 1.89,
    "z0": -0.15,
    "z1": 3.45,
-   "gross": 6.849,
+   "gross": 6.803,
    "openingsArea": 0.0,
-   "net": 6.849,
+   "net": 6.803,
    "openings": [],
    "floorSlab": "GS1",
    "ceilingSlab": "FS1",
@@ -10741,19 +10741,19 @@
     576242.817
    ],
    "b": [
-    179590.752,
-    576242.646
+    179590.746,
+    576242.648
    ],
    "normal": [
     0.376,
     0.926
    ],
-   "length": 0.455,
+   "length": 0.449,
    "z0": -0.15,
    "z1": 3.45,
-   "gross": 1.638,
+   "gross": 1.616,
    "openingsArea": 0.0,
-   "net": 1.638,
+   "net": 1.616,
    "openings": [],
    "floorSlab": "BS2",
    "ceilingSlab": "FS1",
@@ -10761,7 +10761,7 @@
    "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל",
    "proud": 0.0,
    "scaffold": true,
-   "scaffoldArea": 0.659,
+   "scaffoldArea": 0.65,
    "facade": "N",
    "meshV_m": 0.0,
    "beads_m": 0.0,
@@ -12630,8 +12630,8 @@
    "ownerFloor": "ground",
    "thickness": 0.3,
    "a": [
-    179590.767,
-    576242.684
+    179590.77,
+    576242.693
    ],
    "b": [
     179591.108,
@@ -12641,17 +12641,17 @@
     -0.927,
     0.375
    ],
-   "length": 0.91,
+   "length": 0.901,
    "z0": -0.15,
    "z1": 3.65,
-   "gross": 3.458,
-   "openingsArea": 0.186,
-   "net": 3.272,
+   "gross": 3.424,
+   "openingsArea": 0.187,
+   "net": 3.237,
    "openings": [
     {
      "id": "G09",
-     "s0": 0.724,
-     "s1": 0.91,
+     "s0": 0.714,
+     "s1": 0.901,
      "z0": 1.1,
      "z1": 2.1,
      "kind": "window",
@@ -12666,7 +12666,7 @@
    "source": "sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
    "proud": 0.0,
    "scaffold": true,
-   "scaffoldArea": 1.421,
+   "scaffoldArea": 1.405,
    "facade": "W",
    "meshV_m": 0.0,
    "beads_m": 0.0,
@@ -16230,98 +16230,6 @@
     576234.372
    ],
    "b": [
-    179597.93,
-    576235.466
-   ],
-   "normal": [
-    -0.927,
-    0.374
-   ],
-   "length": 1.179,
-   "z0": 3.7,
-   "z1": 6.65,
-   "gross": 3.479,
-   "openingsArea": 0.0,
-   "net": 3.479,
-   "openings": [],
-   "floorSlab": "BS1",
-   "ceilingSlab": "RS1",
-   "standing": -2.75,
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
-   "proud": 0.0,
-   "scaffold": true,
-   "scaffoldArea": 3.479,
-   "meshV_m": 0.0,
-   "beads_m": 0.0,
-   "meshH_m": 0.0,
-   "defaultType": "interior",
-   "typeReason": "קיר פנים – טיח צמנטי",
-   "key": "first|FW2|in|179601.75,576240.25#2",
-   "type": "interior",
-   "overridden": false
-  },
-  {
-   "kind": "wall",
-   "floor": "first",
-   "side": "in",
-   "room": "first@179601.75,576240.25",
-   "roomName": "חלל עולה / מדרגות קלות / פ תקן מדרגות",
-   "roomType": "dry",
-   "owner": "FW2",
-   "ownerKind": "concrete",
-   "ownerFloor": "first",
-   "thickness": 0.43,
-   "a": [
-    179597.93,
-    576235.466
-   ],
-   "b": [
-    179598.012,
-    576235.67
-   ],
-   "normal": [
-    -0.927,
-    0.374
-   ],
-   "length": 0.22,
-   "z0": 3.7,
-   "z1": 6.65,
-   "gross": 0.649,
-   "openingsArea": 0.0,
-   "net": 0.649,
-   "openings": [],
-   "floorSlab": "BS1",
-   "ceilingSlab": "RS1",
-   "standing": -2.75,
-   "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
-   "proud": 0.0,
-   "scaffold": true,
-   "scaffoldArea": 0.649,
-   "meshV_m": 0.0,
-   "beads_m": 0.0,
-   "meshH_m": 0.0,
-   "defaultType": "interior",
-   "typeReason": "קיר פנים – טיח צמנטי",
-   "key": "first|FW2|in|179601.75,576240.25#3",
-   "type": "interior",
-   "overridden": false
-  },
-  {
-   "kind": "wall",
-   "floor": "first",
-   "side": "in",
-   "room": "first@179601.75,576240.25",
-   "roomName": "חלל עולה / מדרגות קלות / פ תקן מדרגות",
-   "roomType": "dry",
-   "owner": "FW2",
-   "ownerKind": "concrete",
-   "ownerFloor": "first",
-   "thickness": 0.43,
-   "a": [
-    179598.013,
-    576235.67
-   ],
-   "b": [
     179598.578,
     576237.071
    ],
@@ -16329,12 +16237,12 @@
     -0.927,
     0.374
    ],
-   "length": 1.511,
+   "length": 2.91,
    "z0": 3.7,
    "z1": 6.65,
-   "gross": 4.457,
+   "gross": 8.586,
    "openingsArea": 0.0,
-   "net": 4.457,
+   "net": 8.586,
    "openings": [],
    "floorSlab": "BS1",
    "ceilingSlab": "RS1",
@@ -16342,13 +16250,13 @@
    "source": "sources/structure/k-31.dxf IfcWall \"Beton Ole\"; מפלסים: sources/structure/k-31.dxf/sources/structure/k-41.dxf Floor Tags",
    "proud": 0.0,
    "scaffold": true,
-   "scaffoldArea": 4.457,
+   "scaffoldArea": 8.586,
    "meshV_m": 0.0,
    "beads_m": 2.95,
    "meshH_m": 0.0,
    "defaultType": "interior",
    "typeReason": "קיר פנים – טיח צמנטי",
-   "key": "first|FW2|in|179601.75,576240.25#4",
+   "key": "first|FW2|in|179601.75,576240.25#2",
    "type": "interior",
    "overridden": false
   },
@@ -16394,7 +16302,7 @@
    "meshH_m": 0.0,
    "defaultType": "interior",
    "typeReason": "קיר פנים – טיח צמנטי",
-   "key": "first|FW2|in|179601.75,576240.25#5",
+   "key": "first|FW2|in|179601.75,576240.25#3",
    "type": "interior",
    "overridden": false
   },
@@ -16440,7 +16348,7 @@
    "meshH_m": 0.0,
    "defaultType": "interior",
    "typeReason": "קיר פנים – טיח צמנטי",
-   "key": "first|FW2|in|179601.75,576240.25#6",
+   "key": "first|FW2|in|179601.75,576240.25#4",
    "type": "interior",
    "overridden": false
   },
@@ -23185,11 +23093,7 @@
      576244.431
     ],
     [
-     179594.118,
-     576241.343
-    ],
-    [
-     179594.113,
+     179594.122,
      576241.352
     ],
     [
@@ -23276,24 +23180,20 @@
      576241.813
     ],
     [
-     179593.994,
-     576241.101
+     179593.982,
+     576241.106
     ],
     [
-     179593.994,
-     576241.082
+     179593.996,
+     576241.078
     ],
     [
      179594.005,
      576241.07
     ],
     [
-     179594.017,
-     576241.075
-    ],
-    [
-     179594.028,
-     576241.088
+     179594.036,
+     576241.084
     ],
     [
      179594.249,
@@ -23929,6 +23829,10 @@
    "z": 6.65,
    "ringITM": [
     [
+     179599.433,
+     576245.072
+    ],
+    [
      179600.628,
      576244.59
     ],
@@ -23955,10 +23859,6 @@
     [
      179596.742,
      576238.406
-    ],
-    [
-     179599.433,
-     576245.072
     ]
    ],
    "holesITM": [],
@@ -31110,32 +31010,16 @@
        576242.675
       ],
       [
-       179590.767,
-       576242.684
-      ],
-      [
-       179590.761,
-       576242.686
+       179590.77,
+       576242.693
       ],
       [
        179590.738,
        576242.68
       ],
       [
-       179590.742,
-       576242.661
-      ],
-      [
-       179590.754,
-       576242.652
-      ],
-      [
-       179590.744,
-       576242.628
-      ],
-      [
-       179590.751,
-       576242.646
+       179590.746,
+       576242.648
       ],
       [
        179590.33,
@@ -34189,20 +34073,12 @@
        576235.817
       ],
       [
-       179601.057,
-       576235.833
+       179601.056,
+       576235.832
       ],
       [
-       179603.269,
-       576234.939
-      ],
-      [
-       179603.273,
-       576234.949
-      ],
-      [
-       179603.849,
-       576234.716
+       179603.845,
+       576234.706
       ],
       [
        179603.839,
@@ -34213,12 +34089,12 @@
        576234.578
       ]
      ],
-     "area": 0.06,
+     "area": 0.051,
      "room": null
     }
    ],
-   "area": 0.673,
-   "net": 0.673,
+   "area": 0.664,
+   "net": 0.664,
    "scaffold": false,
    "scaffoldArea": 0,
    "defaultType": "interior",
@@ -38453,393 +38329,6 @@
    "edge": true,
    "beam": "GS1",
    "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179588.191,
-      576238.107
-     ],
-     "b": [
-      179588.787,
-      576239.583
-     ],
-     "normal": [
-      -0.927,
-      0.374
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.398,
-     "room": null
-    }
-   ],
-   "area": 0.398,
-   "net": 0.398,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#1",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179588.787,
-      576239.583
-     ],
-     "b": [
-      179589.534,
-      576241.435
-     ],
-     "normal": [
-      -0.927,
-      0.374
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.499,
-     "room": null
-    }
-   ],
-   "area": 0.499,
-   "net": 0.499,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#2",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.534,
-      576241.435
-     ],
-     "b": [
-      179589.612,
-      576241.627
-     ],
-     "normal": [
-      -0.926,
-      0.376
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.052,
-     "room": null
-    }
-   ],
-   "area": 0.052,
-   "net": 0.052,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#3",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.612,
-      576241.627
-     ],
-     "b": [
-      179589.651,
-      576241.722
-     ],
-     "normal": [
-      -0.925,
-      0.38
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.026,
-     "room": null
-    }
-   ],
-   "area": 0.026,
-   "net": 0.026,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#4",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.651,
-      576241.722
-     ],
-     "b": [
-      179589.748,
-      576241.964
-     ],
-     "normal": [
-      -0.928,
-      0.372
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.065,
-     "room": null
-    }
-   ],
-   "area": 0.065,
-   "net": 0.065,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#5",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.748,
-      576241.964
-     ],
-     "b": [
-      179589.934,
-      576242.424
-     ],
-     "normal": [
-      -0.927,
-      0.375
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.124,
-     "room": null
-    }
-   ],
-   "area": 0.124,
-   "net": 0.124,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#6",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.95,
-      576242.41
-     ],
-     "b": [
-      179590.024,
-      576242.593
-     ],
-     "normal": [
-      -0.927,
-      0.375
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.049,
-     "room": null
-    }
-   ],
-   "area": 0.049,
-   "net": 0.049,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#7",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179590.062,
-      576242.688
-     ],
-     "b": [
-      179589.281,
-      576243.004
-     ],
-     "normal": [
-      -0.375,
-      -0.927
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.211,
-     "room": null
-    }
-   ],
-   "area": 0.211,
-   "net": 0.211,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#8",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179589.281,
-      576243.004
-     ],
-     "b": [
-      179587.428,
-      576238.415
-     ],
-     "normal": [
-      0.927,
-      -0.374
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 1.237,
-     "room": null
-    }
-   ],
-   "area": 1.237,
-   "net": 1.237,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#9",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
    "room": "unit@179593.75,576242.50",
    "roomType": "basement",
    "width": null,
@@ -38874,7 +38363,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#10",
+   "key": "unit|beam|GS1#1",
    "type": "interior",
    "overridden": false
   },
@@ -38917,7 +38406,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#11",
+   "key": "unit|beam|GS1#2",
    "type": "interior",
    "overridden": false
   },
@@ -38960,7 +38449,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#12",
+   "key": "unit|beam|GS1#3",
    "type": "interior",
    "overridden": false
   },
@@ -39003,7 +38492,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#13",
+   "key": "unit|beam|GS1#4",
    "type": "interior",
    "overridden": false
   },
@@ -39046,7 +38535,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#14",
+   "key": "unit|beam|GS1#5",
    "type": "interior",
    "overridden": false
   },
@@ -39089,7 +38578,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#15",
+   "key": "unit|beam|GS1#6",
    "type": "interior",
    "overridden": false
   },
@@ -39132,7 +38621,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#16",
+   "key": "unit|beam|GS1#7",
    "type": "interior",
    "overridden": false
   },
@@ -39175,7 +38664,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#17",
+   "key": "unit|beam|GS1#8",
    "type": "exterior",
    "overridden": false
   },
@@ -39218,7 +38707,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#18",
+   "key": "unit|beam|GS1#9",
    "type": "exterior",
    "overridden": false
   },
@@ -39261,7 +38750,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#19",
+   "key": "unit|beam|GS1#10",
    "type": "interior",
    "overridden": false
   },
@@ -39304,7 +38793,7 @@
    "defaultType": "interior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#20",
+   "key": "unit|beam|GS1#11",
    "type": "interior",
    "overridden": false
   },
@@ -39347,7 +38836,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#21",
+   "key": "unit|beam|GS1#12",
    "type": "exterior",
    "overridden": false
   },
@@ -39385,6 +38874,393 @@
    ],
    "area": 0.108,
    "net": 0.108,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#13",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179588.191,
+      576238.107
+     ],
+     "b": [
+      179588.787,
+      576239.583
+     ],
+     "normal": [
+      -0.927,
+      0.374
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.398,
+     "room": null
+    }
+   ],
+   "area": 0.398,
+   "net": 0.398,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#14",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179588.787,
+      576239.583
+     ],
+     "b": [
+      179589.534,
+      576241.435
+     ],
+     "normal": [
+      -0.927,
+      0.374
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.499,
+     "room": null
+    }
+   ],
+   "area": 0.499,
+   "net": 0.499,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#15",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.534,
+      576241.435
+     ],
+     "b": [
+      179589.612,
+      576241.627
+     ],
+     "normal": [
+      -0.926,
+      0.376
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.052,
+     "room": null
+    }
+   ],
+   "area": 0.052,
+   "net": 0.052,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#16",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.612,
+      576241.627
+     ],
+     "b": [
+      179589.651,
+      576241.722
+     ],
+     "normal": [
+      -0.925,
+      0.38
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.026,
+     "room": null
+    }
+   ],
+   "area": 0.026,
+   "net": 0.026,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#17",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.651,
+      576241.722
+     ],
+     "b": [
+      179589.748,
+      576241.964
+     ],
+     "normal": [
+      -0.928,
+      0.372
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.065,
+     "room": null
+    }
+   ],
+   "area": 0.065,
+   "net": 0.065,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#18",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.748,
+      576241.964
+     ],
+     "b": [
+      179589.934,
+      576242.424
+     ],
+     "normal": [
+      -0.927,
+      0.375
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.124,
+     "room": null
+    }
+   ],
+   "area": 0.124,
+   "net": 0.124,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#19",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.95,
+      576242.41
+     ],
+     "b": [
+      179590.024,
+      576242.593
+     ],
+     "normal": [
+      -0.927,
+      0.375
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.049,
+     "room": null
+    }
+   ],
+   "area": 0.049,
+   "net": 0.049,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#20",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179590.062,
+      576242.688
+     ],
+     "b": [
+      179589.281,
+      576243.004
+     ],
+     "normal": [
+      -0.375,
+      -0.927
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.211,
+     "room": null
+    }
+   ],
+   "area": 0.211,
+   "net": 0.211,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#21",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179589.281,
+      576243.004
+     ],
+     "b": [
+      179587.428,
+      576238.415
+     ],
+     "normal": [
+      0.927,
+      -0.374
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 1.237,
+     "room": null
+    }
+   ],
+   "area": 1.237,
+   "net": 1.237,
    "scaffold": false,
    "scaffoldArea": 0,
    "defaultType": "exterior",
@@ -39753,135 +39629,6 @@
    "sides": [
     {
      "a": [
-      179591.623,
-      576247.119
-     ],
-     "b": [
-      179591.846,
-      576247.672
-     ],
-     "normal": [
-      -0.927,
-      0.374
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.149,
-     "room": null
-    }
-   ],
-   "area": 0.149,
-   "net": 0.149,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#31",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179591.846,
-      576247.672
-     ],
-     "b": [
-      179591.873,
-      576247.737
-     ],
-     "normal": [
-      -0.923,
-      0.384
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.018,
-     "room": null
-    }
-   ],
-   "area": 0.018,
-   "net": 0.018,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#32",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
-      179591.873,
-      576247.737
-     ],
-     "b": [
-      179591.985,
-      576248.015
-     ],
-     "normal": [
-      -0.928,
-      0.374
-     ],
-     "z0": -0.4,
-     "z1": -0.15,
-     "area": 0.075,
-     "room": null
-    }
-   ],
-   "area": 0.075,
-   "net": 0.075,
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "defaultType": "exterior",
-   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#33",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "slabEdge",
-   "edge": true,
-   "beam": "GS1",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "width": null,
-   "bottom": -0.4,
-   "top": -0.15,
-   "pergola": false,
-   "flats": [],
-   "sides": [
-    {
-     "a": [
       179591.985,
       576248.015
      ],
@@ -39906,7 +39653,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#34",
+   "key": "unit|beam|GS1#31",
    "type": "exterior",
    "overridden": false
   },
@@ -39949,7 +39696,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#35",
+   "key": "unit|beam|GS1#32",
    "type": "exterior",
    "overridden": false
   },
@@ -39992,7 +39739,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#36",
+   "key": "unit|beam|GS1#33",
    "type": "exterior",
    "overridden": false
   },
@@ -40035,7 +39782,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#37",
+   "key": "unit|beam|GS1#34",
    "type": "exterior",
    "overridden": false
   },
@@ -40078,7 +39825,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#38",
+   "key": "unit|beam|GS1#35",
    "type": "exterior",
    "overridden": false
   },
@@ -40121,7 +39868,7 @@
    "defaultType": "exterior",
    "typeReason": "שפת תקרה גלויה – טיח צמנטי",
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|beam|GS1#39",
+   "key": "unit|beam|GS1#36",
    "type": "exterior",
    "overridden": false
   },
@@ -40159,6 +39906,135 @@
    ],
    "area": 0.224,
    "net": 0.224,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#37",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179591.623,
+      576247.119
+     ],
+     "b": [
+      179591.846,
+      576247.672
+     ],
+     "normal": [
+      -0.927,
+      0.374
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.149,
+     "room": null
+    }
+   ],
+   "area": 0.149,
+   "net": 0.149,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#38",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179591.846,
+      576247.672
+     ],
+     "b": [
+      179591.873,
+      576247.737
+     ],
+     "normal": [
+      -0.923,
+      0.384
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.018,
+     "room": null
+    }
+   ],
+   "area": 0.018,
+   "net": 0.018,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "typeReason": "שפת תקרה גלויה – טיח צמנטי",
+   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
+   "key": "unit|beam|GS1#39",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "slabEdge",
+   "edge": true,
+   "beam": "GS1",
+   "floor": "unit",
+   "room": null,
+   "roomType": "outdoor",
+   "width": null,
+   "bottom": -0.4,
+   "top": -0.15,
+   "pergola": false,
+   "flats": [],
+   "sides": [
+    {
+     "a": [
+      179591.873,
+      576247.737
+     ],
+     "b": [
+      179591.985,
+      576248.015
+     ],
+     "normal": [
+      -0.928,
+      0.374
+     ],
+     "z0": -0.4,
+     "z1": -0.15,
+     "area": 0.075,
+     "room": null
+    }
+   ],
+   "area": 0.075,
+   "net": 0.075,
    "scaffold": false,
    "scaffoldArea": 0,
    "defaultType": "exterior",
@@ -41687,16 +41563,20 @@
      576242.801
     ],
     [
-     179590.736,
-     576242.639
+     179590.739,
+     576242.638
     ],
     [
-     179590.711,
-     576242.577
+     179590.734,
+     576242.622
     ],
     [
-     179590.719,
-     576242.573
+     179590.738,
+     576242.62
+    ],
+    [
+     179590.67,
+     576242.45
     ],
     [
      179590.667,
@@ -41724,8 +41604,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.091636,
-   "net": 0.091636,
+   "area": 0.092169,
+   "net": 0.092169,
    "owner": "B-16",
    "ownerKind": "beam",
    "floor": "first",
@@ -54669,8 +54549,8 @@
      576234.926
     ],
     [
-     179597.091,
-     576234.532
+     179596.872,
+     576234.621
     ],
     [
      179597.274,
@@ -54679,10 +54559,6 @@
     [
      179597.274,
      576234.453
-    ],
-    [
-     179597.248,
-     576234.388
     ],
     [
      179597.163,
@@ -56624,10 +56500,10 @@
     -1.0
    ],
    "z0": -0.4,
-   "z1": -0.161,
+   "z1": -0.15,
    "length": 0.011,
-   "area": 0.002633,
-   "net": 0.002633,
+   "area": 0.00275,
+   "net": 0.00275,
    "owner": "BU-1",
    "ownerKind": "beam",
    "floor": "ground",
@@ -57187,19 +57063,15 @@
      576242.72
     ],
     [
-     179590.774,
-     576242.702
+     179590.771,
+     576242.693
     ],
     [
-     179590.767,
-     576242.684
+     179590.758,
+     576242.689
     ],
     [
-     179590.764,
-     576242.685
-    ],
-    [
-     179590.761,
+     179590.757,
      576242.686
     ],
     [
@@ -57243,6 +57115,10 @@
      576242.661
     ],
     [
+     179590.743,
+     576242.66
+    ],
+    [
      179590.744,
      576242.659
     ],
@@ -57251,36 +57127,16 @@
      576242.657
     ],
     [
-     179590.747,
-     576242.656
-    ],
-    [
-     179590.748,
-     576242.655
-    ],
-    [
-     179590.749,
+     179590.744,
      576242.654
     ],
     [
-     179590.751,
-     576242.653
+     179590.745,
+     576242.65
     ],
     [
-     179590.751,
-     576242.653
-    ],
-    [
-     179590.754,
-     576242.652
-    ],
-    [
-     179590.753,
-     576242.649
-    ],
-    [
-     179590.752,
-     576242.646
+     179590.746,
+     576242.648
     ],
     [
      179590.33,
@@ -57372,8 +57228,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.97743,
-   "net": 0.97743,
+   "area": 0.977307,
+   "net": 0.977307,
    "owner": "FS1",
    "ownerKind": "slab",
    "floor": "ground",
@@ -57758,10 +57614,6 @@
      576244.392
     ],
     [
-     179595.452,
-     576244.396
-    ],
-    [
      179595.42,
      576244.409
     ],
@@ -57817,6 +57669,10 @@
     [
      179595.52,
      576244.374
+    ],
+    [
+     179595.553,
+     576244.361
     ],
     [
      179595.56,
@@ -58141,6 +57997,10 @@
      576236.993
     ],
     [
+     179598.385,
+     576236.058
+    ],
+    [
      179598.161,
      576235.504
     ],
@@ -58353,8 +58213,8 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179591.041,
-    576243.363
+    179591.042,
+    576243.365
    ],
    "b": [
     179591.101,
@@ -58366,9 +58226,9 @@
    ],
    "z0": 1.11,
    "z1": 2.09,
-   "length": 0.158,
-   "area": 0.155148,
-   "net": 0.155148,
+   "length": 0.157,
+   "area": 0.153493,
+   "net": 0.153493,
    "owner": "GW10",
    "ownerKind": "concrete",
    "floor": "ground",
@@ -59396,22 +59256,22 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179590.752,
-    576242.646
+    179590.746,
+    576242.648
    ],
    "b": [
-    179590.754,
-    576242.652
+    179590.744,
+    576242.654
    ],
    "normal": [
-    -0.928,
-    0.373
+    -0.949,
+    -0.316
    ],
    "z0": -0.15,
    "z1": 3.45,
-   "length": 0.007,
-   "area": 0.023828,
-   "net": 0.023828,
+   "length": 0.006,
+   "area": 0.022306,
+   "net": 0.022306,
    "owner": "GW22",
    "ownerKind": "concrete",
    "floor": "ground",
@@ -59423,6 +59283,41 @@
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
    "key": "ground|patch|GW22|side#3",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
+    179590.758,
+    576242.689
+   ],
+   "b": [
+    179590.77,
+    576242.693
+   ],
+   "normal": [
+    -0.316,
+    0.949
+   ],
+   "z0": -0.15,
+   "z1": 3.05,
+   "length": 0.013,
+   "area": 0.04157,
+   "net": 0.04157,
+   "owner": "GW22",
+   "ownerKind": "concrete",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "defaultType": "exterior",
+   "typeReason": "השלמה – פן חשוף מבחוץ",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
+   "key": "ground|patch|GW22|side#4",
    "type": "exterior",
    "overridden": false
   },
@@ -59457,7 +59352,7 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#4",
+   "key": "ground|patch|GW22|side#5",
    "type": "exterior",
    "overridden": false
   },
@@ -59492,7 +59387,7 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#5",
+   "key": "ground|patch|GW22|side#6",
    "type": "exterior",
    "overridden": false
   },
@@ -59501,22 +59396,22 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179593.992,
-    576241.089
+    179593.989,
+    576241.092
    ],
    "b": [
-    179593.992,
-    576241.097
+    179593.982,
+    576241.106
    ],
    "normal": [
-    -1.0,
-    0.0
+    -0.894,
+    -0.447
    ],
    "z0": -0.15,
    "z1": 3.45,
-   "length": 0.008,
-   "area": 0.0288,
-   "net": 0.0288,
+   "length": 0.016,
+   "area": 0.056349,
+   "net": 0.056349,
    "owner": "GW22",
    "ownerKind": "concrete",
    "floor": "ground",
@@ -59527,7 +59422,7 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#6",
+   "key": "ground|patch|GW22|side#7",
    "type": "interior",
    "overridden": false
   },
@@ -59536,22 +59431,57 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179594.116,
-    576241.348
+    179594.036,
+    576241.084
    ],
    "b": [
-    179594.119,
-    576241.344
+    179594.023,
+    576241.078
    ],
    "normal": [
-    0.832,
-    0.555
+    0.419,
+    -0.908
    ],
    "z0": -0.15,
    "z1": 3.45,
-   "length": 0.005,
-   "area": 0.016562,
-   "net": 0.016562,
+   "length": 0.015,
+   "area": 0.052924,
+   "net": 0.052924,
+   "owner": "GW22",
+   "ownerKind": "concrete",
+   "floor": "ground",
+   "room": "ground@179599.75,576240.00",
+   "roomType": "kitchen",
+   "defaultType": "interior",
+   "typeReason": "השלמה – פן חשוף בחדר",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
+   "key": "ground|patch|GW22|side#8",
+   "type": "interior",
+   "overridden": false
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
+    179594.108,
+    576241.356
+   ],
+   "b": [
+    179594.111,
+    576241.353
+   ],
+   "normal": [
+    0.707,
+    0.707
+   ],
+   "z0": -0.15,
+   "z1": 3.45,
+   "length": 0.004,
+   "area": 0.015274,
+   "net": 0.015274,
    "owner": "GW22",
    "ownerKind": "concrete",
    "floor": "ground",
@@ -59562,8 +59492,43 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#7",
+   "key": "ground|patch|GW22|side#9",
    "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
+    179594.112,
+    576241.355
+   ],
+   "b": [
+    179594.122,
+    576241.352
+   ],
+   "normal": [
+    0.287,
+    0.958
+   ],
+   "z0": -0.15,
+   "z1": 3.45,
+   "length": 0.01,
+   "area": 0.036625,
+   "net": 0.036625,
+   "owner": "GW22",
+   "ownerKind": "concrete",
+   "floor": "ground",
+   "room": "ground@179593.25,576243.50",
+   "roomType": "mamad",
+   "defaultType": "interior",
+   "typeReason": "השלמה – פן חשוף בחדר",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
+   "key": "ground|patch|GW22|side#10",
+   "type": "interior",
    "overridden": false
   },
   {
@@ -59597,7 +59562,7 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#8",
+   "key": "ground|patch|GW22|side#11",
    "type": "exterior",
    "overridden": false
   },
@@ -59632,7 +59597,42 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
-   "key": "ground|patch|GW22|side#9",
+   "key": "ground|patch|GW22|side#12",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
+    179590.758,
+    576242.689
+   ],
+   "b": [
+    179590.771,
+    576242.693
+   ],
+   "normal": [
+    -0.316,
+    0.949
+   ],
+   "z0": 3.05,
+   "z1": 3.45,
+   "length": 0.013,
+   "area": 0.005332,
+   "net": 0.005332,
+   "owner": "GW22",
+   "ownerKind": "concrete",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "defaultType": "exterior",
+   "typeReason": "השלמה – פן חשוף מבחוץ",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf מילוי קיר מקווקו; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags",
+   "key": "ground|patch|GW22|side#13",
    "type": "exterior",
    "overridden": false
   },
@@ -60285,12 +60285,12 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179594.514,
-    576242.324
+    179594.516,
+    576242.329
    ],
    "b": [
-    179594.522,
-    576242.342
+    179594.524,
+    576242.348
    ],
    "normal": [
     -0.927,
@@ -60299,8 +60299,8 @@
    "z0": 3.05,
    "z1": 3.45,
    "length": 0.02,
-   "area": 0.007974,
-   "net": 0.007974,
+   "area": 0.007953,
+   "net": 0.007953,
    "owner": "קורה ללא מספר 25/60",
    "ownerKind": "beam",
    "floor": "ground",
@@ -60320,12 +60320,12 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179595.141,
-    576243.876
+    179595.142,
+    576243.878
    ],
    "b": [
     179595.149,
-    576243.895
+    576243.896
    ],
    "normal": [
     -0.927,
@@ -60334,8 +60334,8 @@
    "z0": 3.05,
    "z1": 3.45,
    "length": 0.02,
-   "area": 0.007974,
-   "net": 0.007974,
+   "area": 0.007953,
+   "net": 0.007953,
    "owner": "קורה ללא מספר 25/60",
    "ownerKind": "beam",
    "floor": "ground",
@@ -66009,8 +66009,36 @@
    "z": -0.15,
    "ringITM": [
     [
-     179590.751,
-     576242.646
+     179590.746,
+     576242.648
+    ],
+    [
+     179590.744,
+     576242.653
+    ],
+    [
+     179590.744,
+     576242.654
+    ],
+    [
+     179590.744,
+     576242.655
+    ],
+    [
+     179590.745,
+     576242.657
+    ],
+    [
+     179590.747,
+     576242.656
+    ],
+    [
+     179590.753,
+     576242.65
+    ],
+    [
+     179590.75,
+     576242.643
     ],
     [
      179590.746,
@@ -66030,8 +66058,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.013793,
-   "net": 0.013793,
+   "area": 0.013847,
+   "net": 0.013847,
    "owner": "BK-G22",
    "ownerKind": "block",
    "floor": "unit",
@@ -81201,17 +81229,17 @@
      576234.774
     ],
     [
-     179600.628,
+     179600.629,
      576234.774
     ],
     [
-     179600.596,
+     179600.597,
      576234.694
     ]
    ],
    "holesITM": [],
-   "area": 0.001813,
-   "net": 0.001813,
+   "area": 0.001872,
+   "net": 0.001872,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81234,6 +81262,14 @@
    "z": -0.4,
    "ringITM": [
     [
+     179600.619,
+     576234.794
+    ],
+    [
+     179600.619,
+     576234.834
+    ],
+    [
      179600.639,
      576234.834
     ],
@@ -81246,13 +81282,13 @@
      576234.874
     ],
     [
-     179600.653,
-     576234.834
+     179600.637,
+     576234.794
     ]
    ],
    "holesITM": [],
-   "area": 0.000846,
-   "net": 0.000846,
+   "area": 0.001901,
+   "net": 0.001901,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81283,17 +81319,21 @@
      576234.974
     ],
     [
-     179600.709,
+     179600.71,
      576234.974
     ],
     [
-     179600.693,
+     179600.708,
+     576234.97
+    ],
+    [
+     179600.694,
      576234.934
     ]
    ],
    "holesITM": [],
-   "area": 0.000862,
-   "net": 0.000862,
+   "area": 0.000887,
+   "net": 0.000887,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81324,17 +81364,21 @@
      576235.074
     ],
     [
-     179600.749,
+     179600.75,
      576235.074
     ],
     [
-     179600.733,
+     179600.743,
+     576235.056
+    ],
+    [
+     179600.734,
      576235.034
     ]
    ],
    "holesITM": [],
-   "area": 0.000878,
-   "net": 0.000878,
+   "area": 0.000902,
+   "net": 0.000902,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81369,13 +81413,17 @@
      576235.174
     ],
     [
+     179600.775,
+     576235.135
+    ],
+    [
      179600.774,
      576235.134
     ]
    ],
    "holesITM": [],
-   "area": 0.000893,
-   "net": 0.000893,
+   "area": 0.000916,
+   "net": 0.000916,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81406,17 +81454,21 @@
      576235.274
     ],
     [
-     179600.83,
+     179600.831,
      576235.274
     ],
     [
-     179600.814,
+     179600.823,
+     576235.255
+    ],
+    [
+     179600.815,
      576235.234
     ]
    ],
    "holesITM": [],
-   "area": 0.000909,
-   "net": 0.000909,
+   "area": 0.00093,
+   "net": 0.00093,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81451,13 +81503,17 @@
      576235.374
     ],
     [
+     179600.87,
+     576235.37
+    ],
+    [
      179600.855,
      576235.334
     ]
    ],
    "holesITM": [],
-   "area": 0.000925,
-   "net": 0.000925,
+   "area": 0.000945,
+   "net": 0.000945,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81488,8 +81544,16 @@
      576235.474
     ],
     [
-     179600.911,
+     179600.899,
      576235.474
+    ],
+    [
+     179600.899,
+     576235.514
+    ],
+    [
+     179600.928,
+     576235.514
     ],
     [
      179600.895,
@@ -81497,8 +81561,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.000941,
-   "net": 0.000941,
+   "area": 0.001763,
+   "net": 0.001763,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81541,13 +81605,13 @@
      576235.614
     ],
     [
-     179600.935,
+     179600.936,
      576235.534
     ]
    ],
    "holesITM": [],
-   "area": 0.001761,
-   "net": 0.001761,
+   "area": 0.001792,
+   "net": 0.001792,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81595,8 +81659,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.001793,
-   "net": 0.001793,
+   "area": 0.001821,
+   "net": 0.001821,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81635,7 +81699,7 @@
      576235.814
     ],
     [
-     179601.048,
+     179601.049,
      576235.814
     ],
     [
@@ -81644,8 +81708,8 @@
     ]
    ],
    "holesITM": [],
-   "area": 0.001825,
-   "net": 0.001825,
+   "area": 0.001849,
+   "net": 0.001849,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -81665,16 +81729,16 @@
    "vertical": true,
    "part": "side",
    "a": [
-    179601.049,
+    179601.05,
     576235.817
    ],
    "b": [
     179601.042,
-    576235.799
+    576235.798
    ],
    "normal": [
     0.927,
-    -0.375
+    -0.374
    ],
    "z0": -0.4,
    "z1": -0.17,
@@ -83209,8 +83273,8 @@
    "z0": -0.17,
    "z1": -0.15,
    "length": 0.038,
-   "area": 0.000765,
-   "net": 0.000765,
+   "area": 0.000763,
+   "net": 0.000763,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -83231,21 +83295,21 @@
    "part": "side",
    "a": [
     179601.056,
-    576235.833
+    576235.832
    ],
    "b": [
-    179600.577,
-    576234.649
+    179600.58,
+    576234.653
    ],
    "normal": [
     0.927,
-    -0.375
+    -0.374
    ],
    "z0": -0.17,
    "z1": -0.15,
-   "length": 1.278,
-   "area": 0.02555,
-   "net": 0.02555,
+   "length": 1.271,
+   "area": 0.025427,
+   "net": 0.025427,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -83266,11 +83330,11 @@
    "part": "side",
    "a": [
     179601.296,
-    576235.736
+    576235.735
    ],
    "b": [
     179601.056,
-    576235.833
+    576235.832
    ],
    "normal": [
     -0.374,
@@ -83279,8 +83343,8 @@
    "z0": -0.17,
    "z1": -0.15,
    "length": 0.259,
-   "area": 0.00517,
-   "net": 0.00517,
+   "area": 0.005179,
+   "net": 0.005179,
    "owner": "GS1",
    "ownerKind": "slab",
    "floor": "unit",
@@ -83292,41 +83356,6 @@
    "scaffoldArea": 0,
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
    "key": "unit|patch|GS1|side#12",
-   "type": "exterior",
-   "overridden": false
-  },
-  {
-   "kind": "patch",
-   "vertical": true,
-   "part": "side",
-   "a": [
-    179603.273,
-    576234.949
-   ],
-   "b": [
-    179603.269,
-    576234.94
-   ],
-   "normal": [
-    0.914,
-    -0.406
-   ],
-   "z0": -0.17,
-   "z1": -0.15,
-   "length": 0.01,
-   "area": 0.000197,
-   "net": 0.000197,
-   "owner": "GS1",
-   "ownerKind": "slab",
-   "floor": "unit",
-   "room": null,
-   "roomType": "outdoor",
-   "defaultType": "exterior",
-   "typeReason": "השלמה – פן חשוף מבחוץ",
-   "scaffold": false,
-   "scaffoldArea": 0,
-   "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|patch|GS1|side#13",
    "type": "exterior",
    "overridden": false
   },
@@ -83361,7 +83390,7 @@
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
-   "key": "unit|patch|GS1|side#14",
+   "key": "unit|patch|GS1|side#13",
    "type": "exterior",
    "overridden": false
   },
@@ -94648,11 +94677,11 @@
  ],
  "totals": {
   "unit|exterior": {
-   "net": 96.464,
+   "net": 96.466,
    "scaffold": 0.0
   },
   "unit|interior": {
-   "net": 245.226,
+   "net": 245.217,
    "scaffold": 6.611
   },
   "unit|membrane": {
@@ -94660,20 +94689,20 @@
    "scaffold": 0.0
   },
   "ground|interior": {
-   "net": 545.492,
-   "scaffold": 88.764
+   "net": 544.846,
+   "scaffold": 88.115
   },
   "ground|wet": {
    "net": 121.201,
    "scaffold": 0.0
   },
   "ground|exterior": {
-   "net": 236.38,
-   "scaffold": 44.043
+   "net": 236.365,
+   "scaffold": 44.018
   },
   "first|interior": {
-   "net": 314.611,
-   "scaffold": 60.168
+   "net": 314.612,
+   "scaffold": 60.169
   },
   "first|wet": {
    "net": 33.737,

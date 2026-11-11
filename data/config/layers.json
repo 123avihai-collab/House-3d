@@ -214,11 +214,6 @@
      "visible": true
     },
     {
-     "id": "waterproofing",
-     "label": "איטום חיצוני לקירות המרתף (זמני)",
-     "visible": true
-    },
-    {
      "id": "basementWalls",
      "label": "קירות מרתף",
      "visible": true
@@ -384,10 +379,10 @@
    ]
   },
   {
-   "id": "finishes",
-   "label": "טיח, איטום וריצוף (שלב 5)",
    "system": "finishes",
    "implemented": true,
+   "id": "plaster",
+   "label": "טיח (שלב 5)",
    "layers": [
     {
      "id": "plaster_interior",
@@ -420,23 +415,44 @@
      "color": "#f4f1ea"
     },
     {
-     "id": "plaster_bitumen",
-     "label": "איטום ביטומני (חוץ, מרתף)",
-     "visible": false,
-     "color": "#3b3b3b"
-    },
-    {
      "id": "plaster_none",
      "label": "ללא",
      "visible": false,
      "color": "#d0d0d0"
     },
     {
-     "id": "waterproofing",
+     "id": "plaster_bitumen",
+     "label": "איטום ביטומני (חוץ, מרתף)",
+     "visible": false,
+     "color": "#3b3b3b"
+    }
+   ]
+  },
+  {
+   "system": "finishes",
+   "implemented": true,
+   "id": "waterproofingGroup",
+   "label": "איטום",
+   "layers": [
+    {
+     "id": "wetWaterproofing",
      "label": "איטום חדרים רטובים (שכבה בולטת בגובה האמיתי)",
      "visible": false,
      "color": "#1e88e5"
     },
+    {
+     "id": "waterproofing",
+     "label": "איטום חיצוני לקירות המרתף (זמני)",
+     "visible": true
+    }
+   ]
+  },
+  {
+   "system": "finishes",
+   "implemented": true,
+   "id": "tiling",
+   "label": "ריצוף",
+   "layers": [
     {
      "id": "tilingPrep",
      "label": "ריצוף – הכנה (שטח רצפה לחדר)",

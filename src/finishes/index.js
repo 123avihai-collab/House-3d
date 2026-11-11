@@ -105,7 +105,7 @@ class Finishes {
     const { registry, scene } = this.ctx;
     const plasterLayers = this.types.map(t => 'plaster_' + t.id);
     registry.defer([...plasterLayers], () => this.buildPlaster());
-    registry.defer(['waterproofing'], () => this.buildWaterproofing());
+    registry.defer(['wetWaterproofing'], () => this.buildWaterproofing());
     registry.defer(['tilingPrep'], () => this.buildTiling());
     registry.defer(['roomLabels'], () => this.buildLabels());
   }
@@ -158,7 +158,7 @@ class Finishes {
     for (const [fl, g] of Object.entries(byFl)) {
       const m = this.mesh(g.pts, g.map, this.mat(this.T.waterproofing.color));
       const a = this.P.waterproofing.filter(w => w.floor === fl);
-      this.add(m, { floor: fl, step: 'wetProofing', layer: 'waterproofing' }, {
+      this.add(m, { floor: fl, step: 'wetProofing', layer: 'wetWaterproofing' }, {
         name: `איטום חדרים רטובים – ${FLOOR_HE[fl]}`, kind: 'waterproofing', id: 'WP-' + fl,
         rows: [['קירות', `${f2(a.reduce((s, w) => s + w.area, 0))} מ"ר (${a.filter(w => w.shower).length} קירות מקלחת עד ${this.T.waterproofing.showerHeight_m} מ')`],
           ['רצפות', `${f2(this.TL.rooms.filter(r => r.floor === fl && r.roomType === 'wet').reduce((s, r) => s + r.area, 0))} מ"ר`],
@@ -296,19 +296,12 @@ class Finishes {
     return T;
   }
 
-  // ---------------------------------------------------------------- panel (tab "טיח וריצוף")
-  panel(ui) {
-    const app = this.app, s = app.store.get(), T = this.totals();
-    const setLayers = (patch) => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label: 'layers' });
-    const allPl = Object.fromEntries(this.types.map(t => ['plaster_' + t.id, true]));
-    const anyOn = this.types.some(t => s.layers['plaster_' + t.id] !== false);
-    const wrap = h('div', { class: 'finishes' });
-    wrap.append(h('p', { class: 'muted' }, 'כל משטח קיר ותקרה נגזר מהגיאומטריה של המודל (קירות, פתחים, תקרות, קורות). הסוג נקבע לפי כללים (צד הקיר, סוג החדר) ואפשר לדרוס אותו: לחיצה על משטח במצב "מידות".'),
-      h('div', { class: 'btns' },
-        h('button', { class: anyOn ? 'on' : '', onclick: () => setLayers(anyOn ? Object.fromEntries(Object.keys(allPl).map(k => [k, false])) : allPl) }, anyOn ? 'הסתר טיח' : 'הצג טיח'),
-        h('button', { class: s.layers.waterproofing !== false ? 'on' : '', onclick: () => setLayers({ waterproofing: s.layers.waterproofing === false }) }, 'איטום'),
-        h('button', { class: s.layers.tilingPrep !== false ? 'on' : '', onclick: () => setLayers({ tilingPrep: s.layers.tilingPrep === false }) }, 'ריצוף (הכנה)'),
-        h('button', { class: s.layers.roomLabels !== false ? 'on' : '', onclick: () => setLayers({ roomLabels: s.layers.roomLabels === false }) }, 'שמות חדרים')));
+  // ---------------------------------------------------------------- layer controls (layers panel: plaster / tiling domains)
+  // display only – no quantities or prices here (Avihai 11.11: those are data, tab "נתונים ← טיח, איטום וריצוף")
+  controls(groupId) {
+    const app = this.app;
+    const wrap = h('div', { class: 'finishes ctl' });
+    if (groupId === 'plaster') wrap.append(h('p', { class: 'muted' }, 'סוג הטיח נקבע לפי כללים (צד הקיר, סוג החדר). דריסה: לחיצה על משטח במצב "מידות".'));
     // interior view: one floor, horizontal cut above its floor, no ceilings above
     const fls = ['unit', 'ground', 'first', 'roof'];
     const lvl = { unit: -2.6, ground: 0, first: 3.85, roof: 6.9 };
@@ -321,6 +314,15 @@ class Finishes {
         const floors = Object.fromEntries(Object.entries(app.store.get().floors).map(([k, v]) => [k, { ...v, visible: true }]));
         app.store.set({ floors, section: { ...app.store.get().section, hOn: false } }, { label: 'interior' });
       } }, 'הכול')));
+    return wrap;
+  }
+
+  // ---------------------------------------------------------------- panel (tab "נתונים ← טיח, איטום וריצוף"): quantities, prices, rooms, Excel
+  panel(ui) {
+    const app = this.app, s = app.store.get(), T = this.totals();
+    const setLayers = (patch) => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label: 'layers' });
+    const wrap = h('div', { class: 'finishes' });
+    wrap.append(h('p', { class: 'muted' }, 'כמויות נגזרות מהגיאומטריה של המודל (קירות, פתחים, תקרות, קורות). הצגה / הסתרה של הטיח, האיטום והריצוף – בלשונית "שכבות".'));
     // legend + quantities + prices
     const priceIn = (id) => h('input', { type: 'number', min: 0, step: 1, class: 'price', placeholder: '₪', value: this.prices[id] ?? '', onchange: (e) => { this.setPrice(id, e.target.value); ui.refreshPanel('finishes'); } });
     const scaf = (ty) => Object.values(T.scaffold).reduce((a, o) => a + (o[ty] || 0), 0);

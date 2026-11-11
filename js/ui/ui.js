@@ -125,14 +125,19 @@ export class UI {
     const tools = [
       ['inspect', '⌖', 'מידות: לחיצה על רכיב מציגה מידות ומרחקים'],
       ['measure', '📏', 'מדידה: נצמד לפינות / אמצע / קצוות, מציג קו ישיר + פירוק לצירי הבית X / Y / Z'],
-      ['note', '📝', 'הוספת הערה לרכיב'],
       ['walk', '🚶', 'הליכה בגובה עיניים'],
     ];
     for (const [id, icon, title] of tools) {
       tb.append(h('button', { 'data-tool': id, title, onclick: () => id === 'walk' ? (app.nav.walking ? app.nav.stopWalk() : app.nav.startWalk()) : app.setTool(id) }, icon));
     }
     tb.querySelector('[data-tool="measure"]').addEventListener('click', () => { if (app.activeTool === 'measure' && !this.isMobile()) this.openTab('tools'); });
-    tb.append(h('button', { title: 'חתך', onclick: () => { this.openTab('section'); } }, '✂'));
+    // 📝 = quick access to edit mode (Avihai 11.11): click an element -> all its data + write a correction note; again = exit.
+    // A note at a free point stays in "בקרה ← הערות". The section tool is in "תצוגה ← חתך" (no toolbar button).
+    tb.insertBefore(h('button', { 'data-k': 'edit', title: 'מצב עריכה: לחיצה על אלמנט – כל המידע + כתיבת הערה / תיקון (לחיצה נוספת – יציאה)', onclick: () => {
+      const on = app.store.get().mode === 'edit'; app.store.set({ mode: on ? 'view' : 'edit' }, { label: 'mode' });
+      if (!on) this.openTab('fixes', !this.isMobile());
+    } }, '📝'), tb.querySelector('[data-tool="walk"]'));
+    app.store.on((st) => document.querySelector('#toolbar [data-k="edit"]')?.classList.toggle('on', st.mode === 'edit'));
     tb.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
     tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
     const setMap = (on) => { const q = app.store.get().quality; app.store.set({ quality: { ...q, minimap: on } }, { label: 'minimap' }); };
@@ -143,11 +148,6 @@ export class UI {
       app.store.set({ quality: { ...q, labels: mode !== 'off', labelMode: mode === 'off' ? (q.labelMode || 'step') : mode } }, { label: 'labels' });
       this.toast({ step: 'תוויות: רק של השלב הנוכחי (+ האלמנט שנבחר)', all: 'תוויות: הכול', off: 'בלי תוויות' }[mode]);
     } }, '🏷'));
-    // concealed pipes (under the slabs / in the walls) with half see-through concrete – in every step (Avihai's note 4)
-    tb.append(h('button', { 'data-k': 'xray', title: 'צנרת מוסתרת: הצגת הצנרת מתחת לרצפות ובתוך הקירות (בטון שקוף למחצה)', onclick: () => {
-      const on = !app.store.get().showHidden; app.store.set({ showHidden: on }, { label: 'xray' }); this.toast(on ? 'צנרת מוסתרת: מוצגת (בטון שקוף למחצה)' : 'צנרת מוסתרת: כבוי');
-    } }, '🔧'));
-    app.store.on((s) => document.querySelector('#toolbar [data-k="xray"]')?.classList.toggle('on', !!s.showHidden));
     document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
     this.buildMeasureBar();
   }
@@ -197,23 +197,35 @@ export class UI {
   }
 
   // ---------------- side panel with tabs ----------------
+  // Panel (Avihai 11.11): main button -> sub-topic -> its list. Tab ids are unchanged, so openTab('fixes' / 'sun' / 'tools' …)
+  // keeps working from anywhere and selects the right main button.
   buildPanel() {
     const p = this.$('panel');
-    this.tabs = [
-      ['fixes', 'תיקונים לקלוד'], ['layers', 'שכבות'], ['floors', 'קומות'], ['rebar', 'ביקורת ברזל'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['tools', 'מדידה'],
-      ['nav', 'ניווט'], ['notes', 'הערות'], ['quantities', 'כמויות'], ['finishes', 'טיח וריצוף'], ['electric', 'חשמל'], ['settings', 'תצוגה'],
+    this.sections = [
+      { id: 'layers', icon: '▦', label: 'שכבות', tabs: [['layers', 'שכבות']] },
+      { id: 'view', icon: '👁', label: 'תצוגה', tabs: [['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['nav', 'ניווט'], ['settings', 'הגדרות']] },
+      { id: 'review', icon: '📋', label: 'בקרה', tabs: [['fixes', 'תיקונים לקלוד'], ['notes', 'הערות'], ['tools', 'מדידה'], ['rebar', 'ביקורת ברזל']] },
+      { id: 'data', icon: '📊', label: 'נתונים', tabs: [['quantities', 'כמויות'], ['finishes', 'טיח, איטום וריצוף'], ['electric', 'חשמל']] },
     ];
-    this.tabBar = h('nav', { class: 'tabs' }, this.tabs.map(([id, label]) => h('button', { 'data-tab': id, onclick: () => this.openTab(id) }, label)));
+    // a panel_* added later and not placed above shows under "נתונים" (it never disappears)
+    const placed = new Set(this.sections.flatMap(x => x.tabs.map(t => t[0])));
+    for (const k of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) if (k.startsWith('panel_') && !placed.has(k.slice(6))) this.sections[3].tabs.push([k.slice(6), k.slice(6)]);
+    this.tabs = this.sections.flatMap(x => x.tabs);
+    try { this.lastTab = JSON.parse(localStorage.getItem('panelTabs') || '{}'); } catch { this.lastTab = {}; }
+    this.mainBar = h('nav', { class: 'mainbar' }, this.sections.map(x => h('button', { 'data-sec': x.id, title: x.tabs.map(t => t[1]).join(' · '),
+      onclick: () => this.openTab(this.lastTab[x.id] && x.tabs.some(t => t[0] === this.lastTab[x.id]) ? this.lastTab[x.id] : x.tabs[0][0]) }, h('span', { class: 'i' }, x.icon), h('span', {}, x.label))));
+    this.tabBar = h('nav', { class: 'tabs subtabs' });
     this.body = h('div', { class: 'panel-body' });
     this.wideBtn = h('button', { class: 'small', title: 'הרחבה / כיווץ של הפאנל', onclick: () => this.setPanel(this.panelOpen(), !document.body.classList.contains('panel-wide')) }, '⇤');
     const head = h('div', { class: 'panel-head' }, h('b', {}, 'פאנל'), this.wideBtn,
       h('button', { class: 'small', title: 'סגירת הפאנל', onclick: () => this.setPanel(false) }, '✕'));
-    p.append(head, this.tabBar, this.body);
+    p.append(head, this.mainBar, this.tabBar, this.body);
     let saved = {}; try { saved = JSON.parse(localStorage.getItem('panelState') || '{}'); } catch {}
     this.isMobile = () => window.matchMedia('(max-width: 760px)').matches;
     this.setPanel(this.isMobile() ? false : saved.open !== false, !!saved.wide, false);
     this.openTab(this.tab, false);
   }
+  sectionOf(id) { return this.sections.find(x => x.tabs.some(t => t[0] === id)) || this.sections[0]; }
   panelOpen() { return this.isMobile() ? document.body.classList.contains('panel-open') : !document.body.classList.contains('panel-closed'); }
   togglePanel() { this.setPanel(!this.panelOpen()); }
   setPanel(open, wide = document.body.classList.contains('panel-wide'), persist = true) {
@@ -228,7 +240,11 @@ export class UI {
   }
   openTab(id, show = true) {
     this.tab = id;
-    this.tabBar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === id));
+    const sec = this.sectionOf(id);
+    this.lastTab[sec.id] = id; try { localStorage.setItem('panelTabs', JSON.stringify(this.lastTab)); } catch {}
+    this.mainBar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === sec.id));
+    this.tabBar.replaceChildren(...(sec.tabs.length > 1 ? sec.tabs.map(([t, label]) => h('button', { 'data-tab': t, class: t === id ? 'on' : '', onclick: () => this.openTab(t) }, label)) : []));
+    this.tabBar.classList.toggle('hidden', sec.tabs.length < 2);
     if (show && !this.panelOpen()) this.setPanel(true);
     this.refreshPanel();
   }
@@ -240,89 +256,95 @@ export class UI {
     this.body.scrollTop = scroll;
   }
 
+  // Layers (Avihai 11.11): a button per domain; clicking it shows below it what is on / off in that domain, with the domain's
+  // "all / none / only this" at the top of its list. Saved views on one row ("שמור תצוגה" = the view the model opens with).
+  // A layer can be moved to "מוסתרות" or removed from this viewer's model (⋯); a layer added later is off and marked "חדש".
   panel_layers() {
     const { app } = this; const s = app.store.get(); const P = app.prefs;
     const colors = Object.fromEntries(app.data.tags.systems.map(x => [x.id, x.color]));
     const setLayers = (patch, label = 'layers') => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label });
-    const implLayers = (g) => g.implemented ? g.layers.filter(l => l.implemented !== false) : [];
+    const hidden = (id) => !!P?.hidden(id);
+    const implLayers = (g) => g.implemented ? g.layers.filter(l => l.implemented !== false && !hidden(l.id)) : [];
+    const groups = app.data.layers.groups.filter(g => implLayers(g).length);
+    const waiting = app.data.layers.groups.filter(g => !implLayers(g).length && !g.layers.every(l => hidden(l.id)));
+    const binned = app.data.layers.groups.flatMap(g => g.layers.filter(l => P?.isBinned(l.id)).map(l => ({ l, g })));
     const wrap = h('div', { class: 'layers' });
-    // ---- saved views ----
+    // ---- saved views: one row ----
     if (P) {
-      const vs = P.list();
-      const name = h('input', { type: 'text', placeholder: 'שם לתצוגה חדשה (למשל: שלד בלבד, אינסטלציה)', class: 'vname' });
-      const stage = h('input', { type: 'checkbox' });
-      const save = () => { const n = name.value.trim(); if (!n) { name.focus(); return; } P.current = P.save(n, stage.checked); this.refreshPanel('layers'); };
-      name.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
-      wrap.append(h('div', { class: 'views' },
-        h('h4', {}, 'תצוגות שמורות ', h('small', { class: 'muted' }, P.where === 'db' ? '· נשמר בחשבון שלך – בכל מכשיר' : '· נשמר בדפדפן הזה')),
-        vs.length ? h('div', { class: 'vlist' }, ...vs.map(v => h('div', { class: 'vrow' + (P.current === v.id ? ' cur' : '') },
-          h('button', { class: 'vuse', title: 'הצג את התצוגה', onclick: () => { P.use(v.id); this.refreshPanel('layers'); } }, v.name, v.withStage ? h('small', {}, ' · כולל שלב') : ''),
-          h('button', { class: 'small' + (P.p.start === v.id ? ' on' : ''), title: P.p.start === v.id ? 'נפתחת אוטומטית – לחץ לביטול' : 'פתח את המודל תמיד בתצוגה הזו', onclick: () => { P.setStart(v.id); this.refreshPanel('layers'); } }, '★'),
-          h('button', { class: 'small', title: 'עדכן לפי הבחירה הנוכחית', onclick: () => { P.update(v.id); this.hint(`"${v.name}" עודכנה`); } }, '⟳'),
-          h('button', { class: 'small', title: 'שנה שם', onclick: async () => { const n = await askText('שם חדש', v.name); if (n?.trim()) { P.rename(v.id, n.trim()); this.refreshPanel('layers'); } } }, '✎'),
-          h('button', { class: 'small', title: 'מחק', onclick: async () => { if (await askConfirm(`למחוק את "${v.name}"?`, { ok: 'מחק', danger: true })) { P.remove(v.id); this.refreshPanel('layers'); } } }, '🗑'))))
-          : h('p', { class: 'muted' }, 'עוד אין תצוגות. סמן שכבות ושמור כאן בשם – תחזור אליהן בלחיצה. ★ = התצוגה שבה המודל נפתח.'),
-        h('div', { class: 'row vsave' }, name, h('label', { title: 'לשמור גם את שלב הבנייה' }, stage, 'כולל שלב'), h('button', { onclick: save }, 'שמור תצוגה')),
-        h('p', { class: 'muted' }, 'הבחירה האחרונה נשמרת אוטומטית ותחזור בפתיחה הבאה' + (P.p.start ? ' (אלא אם סומנה ★ – אז נפתחת התצוגה המסומנת).' : '.'))));
+      const vs = P.list(); const cur = vs.find(v => v.id === P.current);
+      const sel = h('select', { class: 'vsel', title: 'תצוגות שמורות', onchange: (e) => { if (e.target.value) { P.use(e.target.value); this.refreshPanel('layers'); } } },
+        h('option', { value: '' }, vs.length ? '— בחר תצוגה —' : 'אין תצוגות שמורות'),
+        vs.map(v => h('option', { value: v.id, selected: v.id === P.current }, (P.p.start === v.id ? '★ ' : '') + v.name)));
+      const saveNew = async () => {
+        const n = await askText('שם לתצוגה (תיפתח כך בכל כניסה)', cur ? '' : 'התצוגה שלי'); if (!n?.trim()) return;
+        P.save(n.trim(), !!this.viewWithStage, true); this.toast(`"${n.trim()}" נשמרה – המודל ייפתח בה`); this.refreshPanel('layers');
+      };
+      wrap.append(h('div', { class: 'vbar' }, sel,
+        h('button', { class: 'primary', title: 'שמירת השכבות המסומנות כתצוגה – היא לא תתאפס ותיפתח בכניסה הבאה', onclick: saveNew }, '💾 שמור תצוגה'),
+        cur ? h('button', { title: `עדכון "${cur.name}" לפי הסימון הנוכחי`, onclick: () => { P.update(cur.id); this.toast(`"${cur.name}" עודכנה`); } }, '⟳ עדכן') : '',
+        h('details', { class: 'vmore' }, h('summary', { title: 'ניהול תצוגות' }, '⋯'),
+          h('div', { class: 'vmenu' },
+            h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: !!this.viewWithStage, onchange: (e) => { this.viewWithStage = e.target.checked; } }), 'לשמור גם את שלב הבנייה'),
+            cur ? h('button', { class: 'small' + (P.p.start === cur.id ? ' on' : ''), onclick: () => { P.setStart(cur.id); this.refreshPanel('layers'); } }, P.p.start === cur.id ? '★ נפתחת בכניסה – ביטול' : '★ לפתוח בכניסה') : '',
+            cur ? h('button', { class: 'small', onclick: async () => { const n = await askText('שם חדש', cur.name); if (n?.trim()) { P.rename(cur.id, n.trim()); this.refreshPanel('layers'); } } }, '✎ שינוי שם') : '',
+            cur ? h('button', { class: 'small x', onclick: async () => { if (await askConfirm(`למחוק את "${cur.name}"?`, { ok: 'מחק', danger: true })) { P.remove(cur.id); P.current = null; this.refreshPanel('layers'); } } }, '🗑 מחיקה') : '',
+            h('div', { class: 'muted' }, P.where === 'db' ? 'נשמר בחשבון שלך – בכל מכשיר.' : 'נשמר בדפדפן הזה.')))));
     }
-    // ---- navigation tools ----
-    const q = h('input', { type: 'search', placeholder: 'חיפוש שכבה…', class: 'lsearch', value: this.layerQ || '' });
-    const only = h('input', { type: 'checkbox', checked: !!this.layerOnlyOn });
-    const filter = () => {
-      this.layerQ = q.value; this.layerOnlyOn = only.checked; const t = q.value.trim();
-      for (const d of wrap.querySelectorAll('details.grp')) {
-        let any = false;
-        for (const r of d.querySelectorAll('.lrow')) {
-          const ok = (!t || r.dataset.label.includes(t) || d.dataset.label.includes(t)) && (!only.checked || r.dataset.on === '1');
-          r.style.display = ok ? '' : 'none'; any ||= ok;
-        }
-        d.style.display = any || (!t && !only.checked) ? '' : 'none';
-        if ((t || only.checked) && any) d.open = true;
+    // ---- domain buttons ----
+    const ids = [...groups.map(g => g.id), ...(binned.length ? ['__bin'] : [])];
+    if (!ids.includes(this.domain)) { try { this.domain = localStorage.getItem('layerDomain'); } catch {} }
+    if (!ids.includes(this.domain)) this.domain = groups.find(g => g.id === 'structure')?.id || ids[0];
+    const pick = (id) => { this.domain = id; try { localStorage.setItem('layerDomain', id); } catch {} this.refreshPanel('layers'); };
+    wrap.append(h('div', { class: 'domains' }, groups.map(g => {
+      const L = implLayers(g), n = L.filter(l => s.layers[l.id] !== false).length, fresh = L.some(l => P?.isNew(l.id));
+      return h('button', { class: 'dom' + (g.id === this.domain ? ' cur' : '') + (n === 0 ? ' none' : n < L.length ? ' part' : ' all'), title: g.label, onclick: () => pick(g.id) },
+        h('i', { class: 'sw', style: `background:${colors[g.system] || '#888'}` }), h('span', { class: 'dl' }, g.label.replace(/\s*\(שלב \d+\)/, '')), h('small', {}, `${n}/${L.length}`), fresh ? h('b', { class: 'newdot', title: 'יש שכבה חדשה' }) : '');
+    }), binned.length ? h('button', { class: 'dom bin' + (this.domain === '__bin' ? ' cur' : ''), onclick: () => pick('__bin') }, h('span', { class: 'dl' }, 'מוסתרות'), h('small', {}, `${binned.length}`)) : ''));
+    // ---- the chosen domain: its layers ----
+    const box = h('div', { class: 'dbody' });
+    if (this.domain === '__bin') {
+      box.append(h('p', { class: 'muted' }, 'שכבות שהוצאו מהרשימות. הן כבויות במודל. "החזר" מחזיר את השכבה לתחום שלה.'),
+        ...binned.map(({ l, g }) => h('div', { class: 'row lrow' }, h('span', {}, l.label, h('small', { class: 'muted' }, ` · ${g.label}`)),
+          h('button', { class: 'small', onclick: () => { P.unbin(l.id); this.refreshPanel('layers'); } }, 'החזר'))));
+    } else {
+      const g = groups.find(x => x.id === this.domain); const L = implLayers(g);
+      const all = groups.flatMap(implLayers);
+      box.append(h('div', { class: 'dhead' }, h('b', {}, g.label),
+        h('div', { class: 'btns' },
+          h('button', { class: 'small', onclick: () => setLayers(Object.fromEntries(L.map(l => [l.id, true])), 'group') }, '☑ סמן הכול'),
+          h('button', { class: 'small', onclick: () => setLayers(Object.fromEntries(L.map(l => [l.id, false])), 'group') }, '☐ נקה הכול'),
+          h('button', { class: 'small', title: 'רק התחום הזה דלוק, כל השאר כבויים', onclick: () => setLayers(Object.fromEntries(all.map(l => [l.id, L.includes(l)])), 'solo') }, '◎ רק התחום הזה'))));
+      // domain controls (no quantities / prices here – those are in "נתונים")
+      if (g.id === 'environment' && app.environment) box.append(app.environment.panel());
+      const pl = app.modules?.plumbing;
+      if (['plumbing', 'sewage', 'drainage'].includes(g.id)) box.append(h('div', { class: 'btns' },
+        pl?.toggle ? h('button', { class: pl.isOn?.() ? 'on' : '', title: 'כל שכבות הצנרת דלוקות, קרקע שקופה, בלי שלד וסביבה (לחיצה נוספת – חזרה)', onclick: () => pl.toggle() }, pl.isOn?.() ? '↩ חזרה לתצוגה רגילה' : '🔧 הצג את כל הצנרת') : '',
+        h('button', { class: s.showHidden ? 'on' : '', title: 'צנרת מתחת לרצפות ובתוך הקירות (בטון שקוף למחצה)', onclick: () => app.store.set({ showHidden: !s.showHidden }, { label: 'xray' }) }, s.showHidden ? '✓ צנרת מוסתרת' : 'צנרת מוסתרת')));
+      if (g.id === 'plumbing' && pl?.panel) box.append(pl.panel());
+      else if (g.id !== 'environment' && app.modules?.[g.id]?.panel && !['finishes'].includes(g.id)) box.append(app.modules[g.id].panel());
+      if (['plaster', 'tiling'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
+      for (const l of L) {
+        const on = s.layers[l.id] !== false; const lblOff = !!(s.labelsOff || {})[l.id]; const fresh = P?.isNew(l.id);
+        box.append(h('div', { class: 'row lrow' + (on ? ' on' : '') },
+          h('label', {}, h('input', { type: 'checkbox', checked: on, onchange: (e) => { P?.markSeen(l.id); setLayers({ [l.id]: e.target.checked }, 'layer'); } }), l.label,
+            fresh ? h('b', { class: 'newtag', title: 'שכבה שנוספה אחרי התצוגה השמורה – כבויה עד שתסמן' }, 'חדש') : ''),
+          h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
+            onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷'),
+          P ? h('details', { class: 'lmore' }, h('summary', { title: 'הוצאה מהרשימה / מהמודל' }, '⋯'),
+            h('div', { class: 'lmenu' },
+              h('button', { class: 'small', onclick: () => { P.bin(l.id); this.toast(`"${l.label}" הועברה ל"מוסתרות"`); this.refreshPanel('layers'); } }, 'העבר ל"מוסתרות"'),
+              h('button', { class: 'small x', onclick: async () => { if (await askConfirm(`להסיר את "${l.label}" מהמודל שלך? (הנתונים לא נמחקים – אפשר להחזיר ב"תצוגה ← הגדרות")`, { ok: 'הסר', danger: true })) { P.drop(l.id); this.refreshPanel('layers'); } } }, 'הסר מהמודל'))) : ''));
       }
-    };
-    q.addEventListener('input', filter); only.addEventListener('change', filter);
-    const allGroups = () => [...wrap.querySelectorAll('details.grp')];
-    wrap.append(h('div', { class: 'ltools' }, q,
-      h('label', { title: 'להציג רק שכבות דלוקות' }, only, 'רק הדלוקות'),
-      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = true; (this.grpOpen ||= {})[d.dataset.id] = true; P?.setOpen(d.dataset.id, true); }) }, 'פתח הכול'),
-      h('button', { class: 'small', onclick: () => allGroups().forEach(d => { d.open = false; (this.grpOpen ||= {})[d.dataset.id] = false; P?.setOpen(d.dataset.id, false); }) }, 'כווץ הכול')));
-    // ---- groups: header checkbox = all its layers (partly on = –) ----
-    for (const g of app.data.layers.groups) {
-      const L = implLayers(g), n = L.filter(l => s.layers[l.id] !== false).length;
-      const gcb = h('input', { type: 'checkbox', checked: L.length > 0 && n === L.length, disabled: !L.length, title: 'סמן / בטל את כל השכבות בקבוצה',
-        onclick: (e) => e.stopPropagation(),
-        onchange: (e) => setLayers(Object.fromEntries(L.map(l => [l.id, e.target.checked])), 'group') });
-      gcb.indeterminate = n > 0 && n < L.length;
-      const box = h('details', { class: 'grp', 'data-id': g.id, 'data-label': g.label },
-        h('summary', {}, gcb, h('i', { class: 'sw', style: `background:${colors[g.system] || '#888'}` }), g.label,
-          L.length ? h('small', { class: 'cnt' }, ` ${n}/${L.length}`) : soon(),
-          L.length ? h('button', { class: 'small solo', title: 'רק הקבוצה הזו', onclick: (e) => { e.preventDefault(); e.stopPropagation();
-            const all = app.data.layers.groups.flatMap(implLayers); setLayers(Object.fromEntries(all.map(l => [l.id, L.includes(l)])), 'solo'); } }, 'רק זו') : ''));
-      // open / collapsed: what was set in this session wins over the saved state (it loads a moment after opening)
-      this.grpOpen ||= {};
-      box.open = this.grpOpen[g.id] ?? (P ? P.isOpen(g.id, false) : g.implemented);
-      box.addEventListener('toggle', () => { if (!box.isConnected) return; this.grpOpen[g.id] = box.open; P?.setOpen(g.id, box.open); });
-      for (const l of g.layers) {
-        const impl = g.implemented && l.implemented !== false;
-        const on = s.layers[l.id] !== false;
-        const lblOff = !!(s.labelsOff || {})[l.id];
-        box.append(h('div', { class: 'row lrow' + (impl ? '' : ' na'), 'data-label': l.label, 'data-on': impl && on ? '1' : '0' },
-          h('label', {}, h('input', { type: 'checkbox', checked: impl && on, disabled: !impl,
-            onchange: (e) => setLayers({ [l.id]: e.target.checked }, 'layer') }), l.label, impl ? '' : soon()),
-          impl ? h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
-            onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷') : ''));
-      }
-      if (g.id === 'environment' && app.environment) box.querySelector('summary').after(app.environment.panel());
-      if (app.modules?.[g.id]?.panel) box.querySelector('summary').after(app.modules[g.id].panel());
-      wrap.append(box);
+      if (L.some(l => P?.isNew(l.id))) box.append(h('button', { class: 'small', onclick: () => { P.markSeen(L.map(l => l.id)); this.refreshPanel('layers'); } }, 'סמן כנקרא (בלי "חדש")'));
     }
-    wrap.append(h('div', { class: 'btns' },
-      h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, true])) }, { label: 'layers' }) }, 'הצג הכול'),
-      h('button', { onclick: () => app.store.set({ layers: Object.fromEntries(Object.keys(s.layers).map(k => [k, false])) }, { label: 'layers' }) }, 'הסתר הכול'),
-      h('button', { onclick: () => app.store.set({ layers: structuredClone(app.defaults.layers) }, { label: 'layers' }) }, 'ברירת מחדל'),
-      h('button', { onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')),
-      h('p', { class: 'muted' }, '🏷 = הסתרת התוויות וקווי הסימון של השכבה בלבד – הרכיבים נשארים. "בקרוב" = מערכות שעוד אין להן נתונים.'));
-    if (this.layerQ || this.layerOnlyOn) setTimeout(filter);
+    wrap.append(box);
+    // ---- all domains ----
+    wrap.append(h('div', { class: 'btns lfoot' },
+      h('button', { class: 'small', onclick: () => setLayers(Object.fromEntries(groups.flatMap(implLayers).map(l => [l.id, true]))) }, 'הצג הכול'),
+      h('button', { class: 'small', onclick: () => setLayers(Object.fromEntries(Object.keys(s.layers).map(k => [k, false]))) }, 'הסתר הכול'),
+      h('button', { class: 'small', onclick: () => { const d = structuredClone(app.defaults.layers); for (const k in d) if (hidden(k)) d[k] = false; app.store.set({ layers: d }, { label: 'layers' }); } }, 'ברירת מחדל'),
+      h('button', { class: 'small', title: 'הצגת התוויות של כל השכבות', onclick: () => app.store.set({ labelsOff: {} }, { label: 'labels' }) }, '🏷 כל התוויות')),
+      waiting.length ? h('p', { class: 'muted' }, 'בהכנה (עוד אין נתונים): ' + waiting.map(g => g.label).join(', ')) : '');
     return wrap;
   }
 
@@ -650,8 +672,11 @@ export class UI {
 
   panel_settings() {
     const { app } = this; const s = app.store.get();
-    const q = s.quality;
+    const q = s.quality; const P = app.prefs;
+    const dropped = P ? app.data.layers.groups.flatMap(g => g.layers.filter(l => P.isDropped(l.id))) : [];
     return h('div', {},
+      dropped.length ? h('div', { class: 'views' }, h('h4', {}, 'שכבות שהוסרו מהמודל שלך'),
+        ...dropped.map(l => h('div', { class: 'row lrow' }, h('span', {}, l.label), h('button', { class: 'small', onclick: () => { P.undrop(l.id); this.refreshPanel('settings'); } }, 'החזר למודל')))) : '',
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.ao, onchange: (e) => app.store.set({ quality: { ...q, ao: e.target.checked } }, { label: 'q' }) }), 'Ambient Occlusion'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.shadows, onchange: (e) => app.store.set({ quality: { ...q, shadows: e.target.checked } }, { label: 'q' }) }), 'צללים'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: q.labels, onchange: (e) => app.store.set({ quality: { ...q, labels: e.target.checked } }, { label: 'q' }) }), 'תוויות'),

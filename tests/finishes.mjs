@@ -36,7 +36,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   await page.waitForTimeout(1500);
   const info = await page.evaluate(() => {
     const a = window.__app, F = a.modules.finishes;
-    const all = a.data.layers.groups.find(g => g.id === 'finishes').layers.map(l => l.id);
+    const all = a.data.layers.groups.filter(g => ['plaster', 'waterproofingGroup', 'tiling'].includes(g.id)).flatMap(g => g.layers.map(l => l.id)).filter(id => id !== 'waterproofing');
     const before = a.registry.items.length;
     a.store.set({ layers: { ...a.store.get().layers, ...Object.fromEntries(all.map(l => [l, true])) }, stageIndex: a.data.tags.sequence.length - 1 });
     const items = a.registry.items.filter(i => i.meta.kind === 'plaster');

@@ -3,6 +3,10 @@
 //   last     – the viewer's last layers / labels / floors (/ step) – restored on open
 //   presets  – named layer views: save, apply, update, rename, delete; one may be marked as the start view
 //   open     – which layer groups are expanded
+//   seen     – layer ids that existed when the viewer last opened the model: a layer added later is OFF in their saved views and
+//              marked "חדש" until they touch it (Avihai 11.11: "every time something new is added it resets")
+//   binned   – layers moved out of their domain list into "מוסתרות" (off; can be put back)
+//   dropped  – layers removed from this viewer's model (never shown; the data and sources stay; restore in "תצוגה ← הגדרות")
 // Stored privately per viewer in the artifact db (data/users/<id>/prefs – nobody else, not even the owner, reads it);
 // outside the claude.ai viewer (or before it answers) in this browser's localStorage.
 const LS = 'house3d-5187-prefs-v1';
@@ -13,6 +17,7 @@ export class Prefs {
     this.app = app; this.where = 'local';
     this.p = this.readLocal() || { last: null, presets: [], start: null, open: {} };
     this.p.presets ||= []; this.p.open ||= {};
+    this.initLists(this.p);
     this.restore(this.p);
     this.lastSaved = JSON.stringify(this.snapshot(true));
     app.store.on(() => this.scheduleSave());
@@ -20,6 +25,27 @@ export class Prefs {
   }
   readLocal() { try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch { return null; } }
   writeLocal() { try { localStorage.setItem(LS, JSON.stringify(this.p)); } catch { /* private mode */ } }
+  allIds() { return this.app.data.layers.groups.flatMap(g => g.layers.map(l => l.id)); }
+  initLists(p) {
+    p.binned ||= []; p.dropped ||= [];
+    const all = this.allIds();
+    if (!p.seen) p.seen = all;                       // first time: nothing is "new"
+    this.fresh = new Set(all.filter(id => !p.seen.includes(id)));
+  }
+  isNew(id) { return this.fresh?.has(id); }
+  markSeen(ids) {
+    let ch = false;
+    for (const id of [].concat(ids)) { this.fresh.delete(id); if (!this.p.seen.includes(id)) { this.p.seen.push(id); ch = true; } }
+    if (ch) this.persist();
+  }
+  isBinned(id) { return this.p.binned.includes(id); }
+  isDropped(id) { return this.p.dropped.includes(id); }
+  hidden(id) { return this.isBinned(id) || this.isDropped(id); }
+  bin(id) { if (!this.isBinned(id)) this.p.binned.push(id); this.off(id); this.persist(); }
+  unbin(id) { this.p.binned = this.p.binned.filter(x => x !== id); this.persist(); }
+  drop(id) { this.p.binned = this.p.binned.filter(x => x !== id); if (!this.isDropped(id)) this.p.dropped.push(id); this.off(id); this.persist(); }
+  undrop(id) { this.p.dropped = this.p.dropped.filter(x => x !== id); this.persist(); }
+  off(id) { const L = this.app.store.get().layers; if (L[id] !== false) this.app.store.set({ layers: { ...L, [id]: false } }, { label: 'layer' }); }
   // the part of the state a view keeps
   snapshot(withStage) {
     const s = this.app.store.get(), o = {};
@@ -29,8 +55,11 @@ export class Prefs {
   apply(v, { record = true } = {}) {
     if (!v) return;
     const s = this.app.store.get(), patch = {};
-    // keep layers added after the view was saved at their current state
-    if (v.layers) patch.layers = { ...s.layers, ...v.layers };
+    // a layer added after the view was saved is OFF (marked "חדש" in the panel) – the view never "resets"; removed layers stay off
+    if (v.layers) {
+      patch.layers = { ...s.layers, ...v.layers };
+      for (const id of this.allIds()) if (!(id in v.layers) || this.hidden?.(id)) patch.layers[id] = false;
+    }
     if (v.labelsOff) patch.labelsOff = { ...v.labelsOff };
     if (v.floors) patch.floors = Object.fromEntries(Object.entries(s.floors).map(([k, f]) => [k, { ...f, ...(v.floors[k] || {}) }]));
     if (v.stageIndex != null && v.stageIndex < this.app.data.tags.sequence.length) patch.stageIndex = v.stageIndex;
@@ -47,6 +76,9 @@ export class Prefs {
     this.heal(p);
     const start = p.start && p.presets.find(x => x.id === p.start);
     this.apply(start ? start.view : p.last, { record: false });
+    // layers moved to "מוסתרות" / removed from the model stay off even with no saved view
+    const L = this.app.store.get().layers, off = [...(p.binned || []), ...(p.dropped || [])].filter(id => L[id] !== false);
+    if (off.length) this.app.store.set({ layers: { ...L, ...Object.fromEntries(off.map(id => [id, false])) } }, { record: false });
   }
   async connect() {
     const use = window.claude?.use; if (!use) return;
@@ -59,7 +91,9 @@ export class Prefs {
       if (snap.exists) {
         const d = snap.data();
         // groups opened / closed before the account answered keep this session's state
-        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) }, healed1: d.healed1 };
+        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) }, healed1: d.healed1,
+          seen: d.seen || this.p.seen, binned: d.binned || this.p.binned || [], dropped: d.dropped || this.p.dropped || [] };
+        this.initLists(this.p);
         this.restore(this.p); this.writeLocal(); this.persist();
       } else await this.ref.set({ ...this.p, updatedAt: Date.now() });   // first time: carry this browser's views over
       this.where = 'db'; this.lastSaved = JSON.stringify(this.snapshot(true));
@@ -83,9 +117,11 @@ export class Prefs {
   }
   // ---- named views ----
   list() { return this.p.presets; }
-  save(name, withStage) {
+  save(name, withStage, asStart = false) {
     const id = 'v' + Date.now().toString(36);
     this.p.presets.push({ id, name, view: this.snapshot(withStage), withStage: !!withStage, savedAt: Date.now() });
+    if (asStart) this.p.start = id;
+    this.current = id;
     this.persist(); return id;
   }
   update(id) { const x = this.p.presets.find(v => v.id === id); if (!x) return; x.view = this.snapshot(x.withStage); x.savedAt = Date.now(); this.persist(); }

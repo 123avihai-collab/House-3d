@@ -345,23 +345,13 @@ class Finishes {
     return T;
   }
 
-  // ---------------------------------------------------------------- panel (tab "טיח וריצוף")
-  panel(ui) {
-    const app = this.app, s = app.store.get(), T = this.totals();
-    const setLayers = (patch) => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label: 'layers' });
-    const allPl = Object.fromEntries(this.drawn.map(t => ['plaster_' + t.id, true]));
-    const anyOn = this.drawn.some(t => s.layers['plaster_' + t.id] !== false);
-    const on = (id) => s.layers[id] !== false, tog = (id) => setLayers({ [id]: !on(id) });
-    const wrap = h('div', { class: 'finishes' });
-    wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי על כל פני הקירות (בלוק ובטון, פנים וחוץ), על קורות ועמודים גלויים, על הגליפים ועל התקרות – באפור בהיר אחד: שלב הטיח, לא הגמר. בלי טיח על רצפות. ' + this.T.scratchNote + '. לחיצה על משטח במצב "מידות" – פרטים ושינוי סוג.'),
-      h('div', { class: 'btns' },
-        h('button', { class: anyOn ? 'on' : '', onclick: () => setLayers(anyOn ? Object.fromEntries(Object.keys(allPl).map(k => [k, false])) : allPl) }, anyOn ? 'הסתר טיח' : 'הצג טיח'),
-        h('button', { class: on('wetProofing') ? 'on' : '', onclick: () => tog('wetProofing') }, 'איטום חדרים רטובים'),
-        h('button', { class: on('roomLabels') ? 'on' : '', onclick: () => tog('roomLabels') }, 'שמות חדרים')),
-      h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'שכבות רצפה:'),
-        this.BU.layers.map(l => h('button', { class: 'small' + (on(l.id) ? ' on' : ''), onclick: () => tog(l.id) }, l.label.split(' (')[0].split(' –')[0]))),
-      h('div', { class: 'btns' }, h('span', { class: 'muted' }, 'חיפויי חוץ (קטגוריה נפרדת):'),
-        (this.CL?.kinds || []).map(k => h('button', { class: 'small' + (on(k.id) ? ' on' : ''), onclick: () => tog(k.id), title: this.CL.items.some(x => x.kind === k.id) ? '' : 'עדיין אין אזורים – לפי האדריכל' }, k.label))));
+  // ---------------------------------------------------------------- layer controls (layers panel: plaster / tiling domains)
+  // display only – no quantities or prices here (Avihai 11.11: those are data, tab "נתונים ← טיח, איטום וריצוף")
+  controls(groupId) {
+    const app = this.app;
+    const wrap = h('div', { class: 'finishes ctl' });
+    if (groupId === 'plaster') wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי באפור אחד – על כל פני הקירות (בלוק ובטון, פנים וחוץ), קורות ועמודים גלויים, גליפים ותקרות; בלי טיח על רצפות. ' + this.T.scratchNote + '. דריסה: לחיצה על משטח במצב "מידות".'));
+    if (groupId === 'tiling') wrap.append(h('p', { class: 'muted' }, 'מעל היציקה: סומסום → טיט / מדה → דבק → אריח (מקום שמור). העוביים זמניים – ' + (this.BU.status === 'provisional' ? 'open-issues #163' : '') + '.'));
     // interior view: one floor, horizontal cut above its floor, no ceilings above
     const fls = ['unit', 'ground', 'first', 'roof'];
     const lvl = { unit: -2.6, ground: 0, first: 3.85, roof: 6.9 };
@@ -374,6 +364,15 @@ class Finishes {
         const floors = Object.fromEntries(Object.entries(app.store.get().floors).map(([k, v]) => [k, { ...v, visible: true }]));
         app.store.set({ floors, section: { ...app.store.get().section, hOn: false } }, { label: 'interior' });
       } }, 'הכול')));
+    return wrap;
+  }
+
+  // ---------------------------------------------------------------- panel (tab "נתונים ← טיח, איטום וריצוף"): quantities, prices, rooms, Excel
+  panel(ui) {
+    const app = this.app, s = app.store.get(), T = this.totals();
+    const setLayers = (patch) => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label: 'layers' });
+    const wrap = h('div', { class: 'finishes' });
+    wrap.append(h('p', { class: 'muted' }, 'כמויות נגזרות מהגיאומטריה של המודל (קירות, פתחים, תקרות, קורות). הצגה / הסתרה של הטיח, האיטום והריצוף – בלשונית "שכבות".'));
     // legend + quantities + prices
     const priceIn = (id) => h('input', { type: 'number', min: 0, step: 1, class: 'price', placeholder: '₪', value: this.prices[id] ?? '', onchange: (e) => { this.setPrice(id, e.target.value); ui.refreshPanel('finishes'); } });
     const scaf = (ty) => Object.values(T.scaffold).reduce((a, o) => a + (o[ty] || 0), 0);
@@ -381,7 +380,7 @@ class Finishes {
       h('tr', {}, h('th', {}, ''), h('th', {}, 'סוג'), h('th', {}, 'נטו מ"ר'), h('th', {}, 'מזה בפיגום'), h('th', {}, 'מחיר ליח\''), h('th', {}, 'עלות')),
       this.types.map(t => {
         const lid = 'plaster_' + t.id, on = s.layers[lid] !== false;
-        return h('tr', {}, h('td', {}, t.drawn === false ? h('i', { class: 'swc off', title: 'לא מוצג כטיח' }) : h('label', { class: 'sw' }, h('input', { type: 'checkbox', checked: on, onchange: (e) => setLayers({ [lid]: e.target.checked }) }), h('i', { style: `background:${t.color}` }))),
+        return h('tr', {}, h('td', {}, t.drawn === false ? h('i', { class: 'swc off', title: 'לא מוצג כטיח' }) : h('i', { class: 'swc', style: `background:${t.color}`, title: on ? 'מוצג (לשונית שכבות)' : 'כבוי (לשונית שכבות)' })),
           h('td', { title: `${t.applies} · שכבות: ${t.layers.join(' + ') || '—'}` }, t.label), h('td', {}, f2(T.byType[t.id] || 0)), h('td', {}, f2(scaf(t.id))),
           h('td', {}, priceIn(t.id)), h('td', {}, T.cost.byType[t.id] != null ? f2(T.cost.byType[t.id]) : '—'));
       }),

@@ -36,7 +36,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   await page.waitForTimeout(1500);
   const info = await page.evaluate(() => {
     const a = window.__app, F = a.modules.finishes;
-    const all = a.data.layers.groups.find(g => g.id === 'finishes').layers.map(l => l.id);
+    const all = a.data.layers.groups.filter(g => ['plaster', 'waterproofingGroup', 'tiling'].includes(g.id)).flatMap(g => g.layers.map(l => l.id)).filter(id => id !== 'waterproofing');
     const before = a.registry.items.length;
     a.store.set({ layers: { ...a.store.get().layers, ...Object.fromEntries(all.map(l => [l, true])) }, stageIndex: a.data.tags.sequence.length - 1 });
     const items = a.registry.items.filter(i => i.meta.kind === 'plaster');
@@ -44,7 +44,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     const T = F.totals();
     return { before, after: a.registry.items.length, plasterItems: items.length, shown, byType: T.byType, extras: T.extras, tiling: T.tiling,
       waterproof: a.registry.items.filter(i => i.meta.kind === 'waterproofing').length, floorLayers: a.registry.items.filter(i => i.meta.kind === 'floorLayer').length, cladding: a.registry.items.filter(i => i.meta.kind === 'cladding').length,
-      offByDefault: a.data.layers.groups.filter(g => ['finishes', 'cladding'].includes(g.id)).flatMap(g => g.layers).every(l => l.visible === false),
+      offByDefault: a.data.layers.groups.filter(g => ['plaster', 'waterproofingGroup', 'tiling', 'cladding'].includes(g.id)).flatMap(g => g.layers).filter(l => l.id !== 'waterproofing').every(l => l.visible === false),
       lastGroup: a.data.layers.groups.at(-1).id, undrawnPlaster: items.filter(i => ['plaster_membrane', 'plaster_none', 'plaster_cladding'].includes(i.tags.layer)).length,
       labels: a.registry.items.filter(i => i.meta.kind === 'room').length };
   });

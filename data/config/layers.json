@@ -214,11 +214,6 @@
      "visible": true
     },
     {
-     "id": "waterproofing",
-     "label": "איטום חיצוני לקירות המרתף (זמני)",
-     "visible": true
-    },
-    {
      "id": "basementWalls",
      "label": "קירות מרתף",
      "visible": true
@@ -384,10 +379,10 @@
    ]
   },
   {
-   "id": "finishes",
-   "label": "טיח, איטום ושכבות רצפה (שלב 5א)",
    "system": "finishes",
    "implemented": true,
+   "id": "plaster",
+   "label": "טיח (שלב 5)",
    "layers": [
     {
      "id": "plaster_interior",
@@ -408,12 +403,33 @@
      "id": "plaster_skim",
      "label": "שפכטל (תקרת ממ\"ד)",
      "visible": false
-    },
+    }
+   ]
+  },
+  {
+   "system": "finishes",
+   "implemented": true,
+   "id": "waterproofingGroup",
+   "label": "איטום",
+   "layers": [
     {
      "id": "wetProofing",
      "label": "איטום חדרים רטובים – צמנטי גמיש (טורקיז, קו וגובה האיטום)",
      "visible": false
     },
+    {
+     "id": "waterproofing",
+     "label": "איטום חיצוני לקירות המרתף (זמני)",
+     "visible": true
+    }
+   ]
+  },
+  {
+   "system": "finishes",
+   "implemented": true,
+   "id": "tiling",
+   "label": "שכבות רצפה",
+   "layers": [
     {
      "id": "floorFill",
      "label": "רצפה: סומסום (מילוי מעל היציקה)",

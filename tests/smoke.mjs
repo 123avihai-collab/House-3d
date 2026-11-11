@@ -178,6 +178,30 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return Math.abs(feetRel - gs.topRel) < 0.06 || feetRel > gs.topRel ? 'ok' : `feet ${feetRel.toFixed(2)} vs GS1 ${gs.topRel}`;
     });
     if (info.walk !== 'ok') errors.push('walk on slab: ' + info.walk);
+    // panel (11.11): every tab has a main button; a saved view never "resets" when a layer is added later; the two
+    // waterproofing layers are separate; the left toolbar has no pipe / section button and 📝 = edit mode
+    info.panel = await page.evaluate(() => {
+      const a = window.__app, U = a.ui, P = a.prefs, bad = [];
+      for (const [id] of U.tabs) { U.openTab(id); if (!document.querySelector(`.mainbar button.on`) || U.tab !== id) bad.push('tab ' + id); }
+      if (U.sectionOf('sun').id !== 'view' || U.sectionOf('fixes').id !== 'review' || U.sectionOf('finishes').id !== 'data') bad.push('sections');
+      U.openTab('layers'); U.domain = 'structure'; U.refreshPanel('layers');
+      if (!document.querySelector('.layers .domains .dom.cur') || !document.querySelector('.layers .dhead')) bad.push('domains');
+      const L0 = { ...a.store.get().layers };
+      // saved view without one layer (= saved before it existed) -> applying it turns that layer off, the rest unchanged
+      const id = 'groundSlab'; const v = P.snapshot(false); delete v.layers[id]; a.store.set({ layers: { ...L0, [id]: true } });
+      P.apply(v, { record: false }); const L1 = a.store.get().layers;
+      if (L1[id] !== false) bad.push('new layer not off'); if (Object.keys(L0).some(k => k !== id && L0[k] !== L1[k])) bad.push('view changed other layers');
+      a.store.set({ layers: L0 }, { record: false });
+      a.store.set({ layers: { ...L0, waterproofing: true, wetProofing: false } });
+      const bw = a.registry.items.filter(i => i.tags.layer === 'waterproofing'); if (bw.length && !bw.some(i => i.object.visible) && a.registry.range(bw[0].tags)[0] <= a.store.get().stageIndex) bad.push('basement waterproofing off with wet');
+      a.store.set({ layers: L0 }, { record: false });
+      const tb = document.getElementById('toolbar');
+      if (tb.querySelector('.pl-tool') || document.querySelector('.pl-fab') || [...tb.querySelectorAll('button')].some(b => b.textContent.trim() === '✂')) bad.push('toolbar pipe / section');
+      tb.querySelector('[data-k="edit"]').click(); if (a.store.get().mode !== 'edit') bad.push('📝 not edit'); tb.querySelector('[data-k="edit"]').click();
+      if (a.store.get().mode === 'edit') bad.push('📝 not off');
+      return bad.length ? bad.join(' | ') : 'ok';
+    });
+    if (info.panel !== 'ok') errors.push('panel: ' + info.panel);
     // mamad (data/architecture/mamad.json): a real click on the window opens it – each steel leaf slides its full travel into
     // its niche inside the wall; the sliding door leaf moves its travel along the wall; a second click closes both
     info.mamad = await (async () => {

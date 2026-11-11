@@ -40,19 +40,11 @@ export function buildPanel(app, pl) {
   };
   const normalView = () => { if (!before) return; app.store.set(before, { label: 'אינסטלציה – תצוגה רגילה' }); before = null; sync(); };
   const toggle = () => (isOn() ? normalView() : pipeView());
-  const fab = document.createElement('button');
-  fab.className = 'pl-fab'; fab.addEventListener('click', toggle);
-  (document.getElementById('viewport') || document.body).append(fab);
-  const tbtn = document.createElement('button');
-  tbtn.className = 'pl-tool'; tbtn.innerHTML = '🔧<small>צנרת</small>'; tbtn.addEventListener('click', toggle);
-  const tb = document.getElementById('toolbar'); if (tb) tb.prepend(tbtn);
-  function sync() {
-    fab.textContent = isOn() ? '↩ חזרה לתצוגה רגילה' : '🔧 הצג את כל הצנרת';
-    tbtn.classList.toggle('on', isOn()); tbtn.title = isOn() ? 'צנרת: חזרה לתצוגה הרגילה' : 'צנרת: הצג את כל הצנרת (קרקע שקופה, בלי שלד וסביבה)';
-  }
+  // the pipe view is switched from the plumbing domain in the layers panel (Avihai 11.11: no pipe button in the left toolbar)
+  function sync() { app.ui?.refreshPanel?.('layers'); }
   sync();
   return {
-    pipeView, toggle,
+    pipeView, toggle, isOn,
     panel() {
       const s = st(); const floors = s.floors || {}; const sev = s.severity || {};
       const S = N.summary.findings;

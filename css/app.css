@@ -262,7 +262,7 @@ body.no-minimap #minimap, body.no-minimap #minimapClose, body.no-minimap #mapbar
 #measurebar button { font-size: 12.5px; padding: 4px 9px; }
 #measurebar .seg button { border-radius: 0; }
 #measurebar .i + .t { margin-inline-start: 4px; }
-body.measuring .pl-fab { display: none; }   /* the plumbing button sits where the measuring bar is */
+
 
 table.mtable { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 6px 0; direction: rtl; }
 table.mtable th { color: var(--muted); font-weight: 600; text-align: center; padding: 3px 2px; border-bottom: 1px solid var(--line); }
@@ -291,3 +291,35 @@ table.mtable td.acts { white-space: nowrap; }
 .plaster-edit { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .lbl.wp { background: #00838f; font-size: 10px; }
 .finishes i.swc.off { background: repeating-linear-gradient(45deg, #ddd 0 3px, #fff 3px 6px); }
+
+/* panel (11.11.2026): main buttons -> sub-topics -> list; layers: a button per domain, its list below */
+.mainbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px 8px 4px; }
+.mainbar button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; font-size: 12.5px; font-weight: 600; }
+.mainbar button .i { font-size: 16px; line-height: 1; }
+.subtabs { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 4px; padding: 4px 8px 8px; border-bottom: 1px solid var(--line); scrollbar-width: thin; }
+.subtabs button { white-space: nowrap; font-size: 12.5px; padding: 4px 10px; border-radius: 14px; }
+.layers .vbar { display: flex; gap: 4px; align-items: center; margin-bottom: 8px; position: relative; }
+.layers .vbar .vsel { flex: 1; min-width: 0; background: #2a3039; border: 1px solid var(--line); border-radius: 8px; padding: 5px; }
+.layers .vbar button { white-space: nowrap; padding: 5px 8px; font-size: 12.5px; }
+.vmore > summary, .lmore > summary { list-style: none; cursor: pointer; padding: 2px 8px; border: 1px solid var(--line); border-radius: 6px; user-select: none; }
+.vmore > summary::-webkit-details-marker, .lmore > summary::-webkit-details-marker { display: none; }
+.vmore[open] .vmenu, .lmore[open] .lmenu { position: absolute; inset-inline-end: 0; z-index: 20; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 200px; box-shadow: 0 6px 16px rgba(0,0,0,.4); }
+.lmore { position: relative; }
+.layers .domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 4px; margin-bottom: 8px; }
+.layers .dom { position: relative; display: flex; align-items: center; gap: 5px; padding: 6px 7px; font-size: 12.5px; text-align: start; min-width: 0; }
+.layers .dom .dl { flex: 1; min-width: 0; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.layers .dom small { color: var(--muted); font-size: 10.5px; }
+.layers .dom.cur { outline: 2px solid var(--accent); background: #343c47; }
+.layers .dom.none { opacity: .7; }
+.layers .dom.part .sw { box-shadow: inset 0 0 0 2px rgba(0,0,0,.45); }
+.layers .dom .newdot { position: absolute; top: 3px; inset-inline-start: 3px; width: 7px; height: 7px; border-radius: 50%; background: #ffd740; }
+.layers .dom.bin { border-style: dashed; }
+.layers .dbody { border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px 10px; }
+.layers .dhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 4px; }
+.layers .dhead .btns { margin: 0; gap: 4px; }
+.layers .lrow { border-bottom: 1px solid #ffffff0d; }
+.layers .lrow:not(.on) > label { color: var(--muted); }
+.layers .newtag { font-size: 10px; background: #ffd740; color: #111; border-radius: 8px; padding: 0 6px; margin-inline-start: 6px; }
+.layers .lfoot { margin-top: 10px; }
+.finishes.ctl { margin: 6px 0; }
+@media (max-width: 760px) { .mainbar button { padding: 8px 2px; } .layers .domains { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } }

@@ -578,14 +578,14 @@ for f in FACES:
         sh = any(lo <= (s0 + s1) / 2 <= hi for lo, hi in cuts)
         h = WP['showerHeight_m'] if sh else WP['wetRoomHeight_m']
         z1 = min(f['z1'], ff + h)
-        if z1 <= f['z0']: continue
+        # kept even when the face starts above the waterproofing (z1 <= z0, area 0): the heights can be raised from the panel
         doors = sum(max(0, min(o['s1'], s1) - max(o['s0'], s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01)
         pa = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; pb = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
         WPROOF.append(dict(kind='wall', floor=f['floor'], room=f['room'], owner=f['owner'], a=pa, b=pb, normal=f['normal'],
-                           s0=r3(s0), s1=r3(s1), z0=f['z0'], z1=r3(z1), height_m=h, shower=sh, area=r3((s1 - s0 - doors) * (z1 - f['z0'])),
+                           s0=r3(s0), s1=r3(s1), z0=f['z0'], z1=r3(z1), height_m=h, shower=sh, finish=r3(ff), faceTop=f['z1'], area=r3(max(0, (s1 - s0 - doors) * (z1 - f['z0']))),
                            openings=[dict(o, s0=r3(max(o['s0'], s0) - s0), s1=r3(min(o['s1'], s1) - s0)) for o in f['openings'] if o['z0'] <= f['z0'] + 0.01 and min(o['s1'], s1) > max(o['s0'], s0)],
                            label=f"איטום {round(h * 100):.0f} ס\"מ", rule=(f"אזור מקלחת – עד {h:.2f} מ' מפני הריצוף" if sh else f"{h:.2f} מ' מפני הריצוף"),
-                           status='provisional' if sh and f['owner'] not in room['showerFaces'] else 'rule'))
+                           status='provisional'))   # the heights are defaults (types.json waterproofing.status) – open-issues #156, #166
 
 # ---------------------------------------------------------------- ceilings: room split by the slabs above (lowest first)
 CEILS = []

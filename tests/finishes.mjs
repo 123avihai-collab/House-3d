@@ -44,7 +44,8 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     const T = F.totals();
     return { before, after: a.registry.items.length, plasterItems: items.length, shown, byType: T.byType, extras: T.extras, tiling: T.tiling,
       waterproof: a.registry.items.filter(i => i.meta.kind === 'waterproofing').length, floorLayers: a.registry.items.filter(i => i.meta.kind === 'floorLayer').length, cladding: a.registry.items.filter(i => i.meta.kind === 'cladding').length,
-      offByDefault: a.data.layers.groups.filter(g => ['plaster', 'waterproofingGroup', 'tiling', 'cladding'].includes(g.id)).flatMap(g => g.layers).filter(l => l.id !== 'waterproofing').every(l => l.visible === false),
+      offByDefault: a.data.layers.groups.filter(g => ['plaster', 'waterproofingGroup', 'tiling', 'cladding'].includes(g.id)).flatMap(g => g.layers).filter(l => !['waterproofing', 'wetProofing'].includes(l.id)).every(l => l.visible === false),
+      wetOnByDefault: a.data.layers.groups.find(g => g.id === 'waterproofingGroup').layers.find(l => l.id === 'wetProofing').visible === true,
       lastGroup: a.data.layers.groups.at(-1).id, undrawnPlaster: items.filter(i => ['plaster_membrane', 'plaster_none', 'plaster_cladding'].includes(i.tags.layer)).length,
       labels: a.registry.items.filter(i => i.meta.kind === 'room').length };
   });
@@ -70,6 +71,22 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   info.override = ov;
   if (Math.abs(ov.moved - ov.net) > 0.001 || Math.abs(ov.back) > 0.001 || !ov.info.includes('טיח')) { failed = true; console.error(name, 'override failed', ov); }
   if (!info.offByDefault || info.lastGroup !== 'cladding' || info.undrawnPlaster || info.floorLayers < 4) { failed = true; console.error(name, 'layers check failed', info); }
+  // waterproofing heights from the panel (defaults 0.20 / 1.5 – provisional): area follows, rebuilt, back to the default
+  const wp = await page.evaluate(async (dataWall) => {
+    const a = window.__app, F = a.modules.finishes;
+    const r = { def: { ...F.wpH }, items: a.registry.items.filter(i => i.meta.kind === 'waterproofing').length, wall0: +F.totals().extras.waterproofWalls.toFixed(3), data: dataWall };
+    await F.setWp({ wet: 0.3, shower: 2.0 });
+    r.wall1 = +F.totals().extras.waterproofWalls.toFixed(3); r.items1 = a.registry.items.filter(i => i.meta.kind === 'waterproofing').length;
+    r.top = Math.max(...F.wpWalls().filter(w => w.shower).map(w => +(w.z1 - w.finish).toFixed(3)));
+    a.ui.openTab('layers'); a.ui.domain = 'waterproofingGroup'; a.ui.refreshPanel('layers');
+    r.inputs = document.querySelectorAll('.wp-ctl input.wp-h').length;
+    await F.setWp({ wet: null, shower: null });
+    r.wall2 = +F.totals().extras.waterproofWalls.toFixed(3); r.back = { ...F.wpH };
+    return r;
+  }, +data.waterproofing.filter(w => w.kind === 'wall').reduce((s, w) => s + w.area, 0).toFixed(3));
+  info.wp = wp;
+  if (wp.def.wet !== 0.2 || wp.def.shower !== 1.5 || Math.abs(wp.wall0 - wp.data) > 0.01 || !(wp.wall1 > wp.wall0) || wp.items1 !== wp.items || Math.abs(wp.top - 2.0) > 0.001
+    || Math.abs(wp.wall2 - wp.wall0) > 0.001 || wp.back.shower !== 1.5 || wp.inputs !== 2 || !info.wetOnByDefault) { failed = true; console.error(name, 'waterproofing heights failed', wp); }
   // panel + export
   await page.evaluate(() => window.__app.ui.openTab('finishes'));
   await page.waitForTimeout(300);

@@ -33950,11 +33950,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.256,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -33979,11 +33981,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.017,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34008,11 +34012,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.758,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34037,11 +34043,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.064,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34066,6 +34074,8 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.043,
    "openings": [
     {
@@ -34082,7 +34092,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34107,11 +34117,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.816,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34136,11 +34148,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.035,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34165,11 +34179,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.346,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34194,6 +34210,8 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.21,
    "openings": [
     {
@@ -34210,7 +34228,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34235,11 +34253,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.699,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34264,11 +34284,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.331,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34293,11 +34315,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.163,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34319,13 +34343,15 @@
    "s0": 0.467,
    "s1": 1.403,
    "z0": -0.15,
-   "z1": 2.0,
-   "height_m": 2.0,
+   "z1": 1.5,
+   "height_m": 1.5,
    "shower": true,
-   "area": 2.013,
+   "finish": 0.0,
+   "faceTop": 3.45,
+   "area": 1.545,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -34348,13 +34374,15 @@
    "s0": 0.0,
    "s1": 0.915,
    "z0": -0.15,
-   "z1": 2.0,
-   "height_m": 2.0,
+   "z1": 1.5,
+   "height_m": 1.5,
    "shower": true,
-   "area": 1.968,
+   "finish": 0.0,
+   "faceTop": 3.45,
+   "area": 1.51,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -34380,11 +34408,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.38,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34409,6 +34439,8 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.591,
    "openings": [
     {
@@ -34425,7 +34457,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34450,11 +34482,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.554,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34479,11 +34513,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.159,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34508,11 +34544,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.105,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34537,6 +34575,8 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.556,
    "openings": [
     {
@@ -34553,7 +34593,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34578,11 +34618,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.714,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34607,11 +34649,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.993,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34636,11 +34680,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.763,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34665,6 +34711,8 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.083,
    "openings": [
     {
@@ -34681,7 +34729,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34706,11 +34754,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.035,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34735,11 +34785,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.395,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34761,13 +34813,15 @@
    "s0": 1.128,
    "s1": 2.038,
    "z0": -0.15,
-   "z1": 2.0,
-   "height_m": 2.0,
+   "z1": 1.5,
+   "height_m": 1.5,
    "shower": true,
-   "area": 1.957,
+   "finish": 0.0,
+   "faceTop": 3.45,
+   "area": 1.502,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -34790,13 +34844,15 @@
    "s0": 0.0,
    "s1": 1.76,
    "z0": -0.15,
-   "z1": 2.0,
-   "height_m": 2.0,
+   "z1": 1.5,
+   "height_m": 1.5,
    "shower": true,
-   "area": 3.785,
+   "finish": 0.0,
+   "faceTop": 3.45,
+   "area": 2.905,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -34822,11 +34878,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.147,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34851,11 +34909,13 @@
    "z1": 0.2,
    "height_m": 0.2,
    "shower": false,
+   "finish": 0.0,
+   "faceTop": 3.45,
    "area": 0.106,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34880,6 +34940,8 @@
    "z1": 4.05,
    "height_m": 0.2,
    "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
    "area": 0.399,
    "openings": [
     {
@@ -34896,7 +34958,7 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34921,11 +34983,13 @@
    "z1": 4.05,
    "height_m": 0.2,
    "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
    "area": 1.435,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34950,6 +35014,8 @@
    "z1": 4.05,
    "height_m": 0.2,
    "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
    "area": 0.398,
    "openings": [
     {
@@ -34966,7 +35032,38 @@
    ],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
+  },
+  {
+   "kind": "wall",
+   "floor": "first",
+   "room": "first@179592.25,576243.25",
+   "owner": "C1",
+   "a": [
+    179592.202,
+    576245.65
+   ],
+   "b": [
+    179592.153,
+    576245.529
+   ],
+   "normal": [
+    0.927,
+    -0.374
+   ],
+   "s0": 0.0,
+   "s1": 0.13,
+   "z0": 4.15,
+   "z1": 4.05,
+   "height_m": 0.2,
+   "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 0.0,
+   "openings": [],
+   "label": "איטום 20 ס\"מ",
+   "rule": "0.20 מ' מפני הריצוף",
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -34991,11 +35088,13 @@
    "z1": 4.05,
    "height_m": 0.2,
    "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
    "area": 0.34,
    "openings": [],
    "label": "איטום 20 ס\"מ",
    "rule": "0.20 מ' מפני הריצוף",
-   "status": "rule"
+   "status": "provisional"
   },
   {
    "kind": "wall",
@@ -35017,13 +35116,15 @@
    "s0": 0.971,
    "s1": 1.918,
    "z0": 3.7,
-   "z1": 5.85,
-   "height_m": 2.0,
+   "z1": 5.35,
+   "height_m": 1.5,
    "shower": true,
-   "area": 2.037,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 1.563,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -35046,13 +35147,15 @@
    "s0": 0.0,
    "s1": 0.8,
    "z0": 3.7,
-   "z1": 5.85,
-   "height_m": 2.0,
+   "z1": 5.35,
+   "height_m": 1.5,
    "shower": true,
-   "area": 1.72,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 1.32,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -35075,13 +35178,15 @@
    "s0": 0.8,
    "s1": 1.198,
    "z0": 3.7,
-   "z1": 5.85,
-   "height_m": 2.0,
+   "z1": 5.35,
+   "height_m": 1.5,
    "shower": true,
-   "area": 0.856,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 0.657,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
    "status": "provisional"
   },
   {
@@ -35104,13 +35209,46 @@
    "s0": 0.0,
    "s1": 0.442,
    "z0": 4.15,
-   "z1": 5.85,
-   "height_m": 2.0,
+   "z1": 5.35,
+   "height_m": 1.5,
    "shower": true,
-   "area": 0.752,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 0.531,
    "openings": [],
-   "label": "איטום 200 ס\"מ",
-   "rule": "אזור מקלחת – עד 2.00 מ' מפני הריצוף",
+   "label": "איטום 150 ס\"מ",
+   "rule": "אזור מקלחת – עד 1.50 מ' מפני הריצוף",
+   "status": "provisional"
+  },
+  {
+   "kind": "wall",
+   "floor": "first",
+   "room": "first@179592.25,576243.25",
+   "owner": "BK-F67",
+   "a": [
+    179590.78,
+    576242.136
+   ],
+   "b": [
+    179590.665,
+    576241.85
+   ],
+   "normal": [
+    0.927,
+    -0.374
+   ],
+   "s0": 0.442,
+   "s1": 0.75,
+   "z0": 4.15,
+   "z1": 4.05,
+   "height_m": 0.2,
+   "shower": false,
+   "finish": 3.85,
+   "faceTop": 6.65,
+   "area": 0.0,
+   "openings": [],
+   "label": "איטום 20 ס\"מ",
+   "rule": "0.20 מ' מפני הריצוף",
    "status": "provisional"
   },
   {

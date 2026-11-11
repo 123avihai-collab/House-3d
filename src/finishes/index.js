@@ -55,7 +55,9 @@ class Finishes {
     this.live = {};          // overrides made in the model (db / this browser): key -> type
     this.prices = {};        // type / extra id -> price per unit
     this.items = []; this.sel = new THREE.Group(); ctx.scene.add(this.sel);
-    try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); this.live = l.live || {}; this.prices = l.prices || {}; } catch {}
+    const W = T.waterproofing; this.wpDef = { wet: W.wetRoomHeight_m, shower: W.showerHeight_m };
+    this.wpH = { ...this.wpDef };   // waterproofing heights – defaults from types.json (provisional), changed from the layers panel
+    try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); this.live = l.live || {}; this.prices = l.prices || {}; if (l.wp) this.wpH = { ...this.wpH, ...l.wp }; } catch {}
     this.state = 'local';
     this.mats = {};
   }
@@ -166,7 +168,8 @@ class Finishes {
   buildWaterproofing() {
     const W = this.T.waterproofing, off = this.D.waterproofOffset_m, byFl = {};
     const lineMat = new THREE.LineBasicMaterial({ color: W.colorFloor });
-    for (const w of this.P.waterproofing) {
+    const all = this.wpAll(); this.wpItems = [];
+    for (const w of all) {
       const g = byFl[w.floor] ||= { wall: [], wmap: [], floor: [], fmap: [], lines: [], labels: [] };
       if (w.kind === 'floor') {
         const tris = this.ringTris(w.ringITM, w.holesITM, w.z + 0.002);
@@ -183,19 +186,22 @@ class Finishes {
     }
     for (const [fl, g] of Object.entries(byFl)) {
       const grp = new THREE.Group();
-      if (g.wall.length) { const m = this.mesh(g.wall, g.wmap, this.mat(W.colorWall, { transparent: true, opacity: 0.9 })); grp.add(m); }
-      if (g.floor.length) { const m = this.mesh(g.floor, g.fmap, this.mat(W.colorFloor)); grp.add(m); }
+      // a bold colour (data: types.json waterproofing) with a little glow, so it reads over the plaster / blocks
+      if (g.wall.length) { const m = this.mesh(g.wall, g.wmap, this.mat(W.colorWall, { emissive: W.colorWall, emissiveIntensity: this.D.waterproofGlow })); grp.add(m); }
+      if (g.floor.length) { const m = this.mesh(g.floor, g.fmap, this.mat(W.colorFloor, { emissive: W.colorFloor, emissiveIntensity: this.D.waterproofGlow })); grp.add(m); }
       if (g.lines.length) {
         const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(g.lines, 3));
         const ls = new THREE.LineSegments(lg, lineMat); ls.userData.keep = true; grp.add(ls);
       }
       for (const L of g.labels) { const d = h('div', { class: 'lbl wp' }, L.t); const o = new CSS2DObject(d); o.position.set(L.p[0], L.p[1] + 0.03, L.p[2]); grp.add(o); }
-      const a = this.P.waterproofing.filter(w => w.floor === fl);
-      this.add(grp, { floor: fl, step: 'wetProofing', layer: 'wetProofing' }, {
+      const a = all.filter(w => w.floor === fl);
+      const it = this.add(grp, { floor: fl, step: 'wetProofing', layer: 'wetProofing' }, {
         name: `איטום חדרים רטובים – ${FLOOR_HE[fl]}`, kind: 'waterproofing', id: 'WP-' + fl,
-        rows: [['חומר', W.label], ['קירות', `${f2(a.filter(w => w.kind === 'wall').reduce((s, w) => s + w.area, 0))} מ"ר – ${W.wetRoomHeight_m * 100} ס"מ מפני הריצוף, אזור המקלחת עד ${W.showerHeight_m} מ'`],
+        rows: [['חומר', W.label], ['קירות', `${f2(a.filter(w => w.kind === 'wall').reduce((s, w) => s + w.area, 0))} מ"ר – ${Math.round(this.wpH.wet * 100)} ס"מ מפני הריצוף, אזור המקלחת עד ${f2(this.wpH.shower)} מ'`],
+          ['גבהים', `זמני – ברירת מחדל ${Math.round(this.wpDef.wet * 100)} ס"מ / ${f2(this.wpDef.shower)} מ'; שינוי: שכבות ← איטום`],
           ['רצפות', `${f2(a.filter(w => w.kind === 'floor').reduce((s, w) => s + w.area, 0))} מ"ר – כל רצפת החדר`], ['כלל', W.note]],
-        source: 'data/finishes/plaster/surfaces.json → waterproofing', note: 'אזור המקלחת – ±0.9 מ\' לאורך הקיר מנקודת המקלחת בתוכנית האינסטלציה (זמני)' });
+        source: 'data/finishes/plaster/surfaces.json → waterproofing', status: 'provisional', note: 'גבהים זמניים (open-issues #166). אזור המקלחת – ±0.9 מ\' לאורך הקיר מנקודת המקלחת בתוכנית האינסטלציה (זמני, #156)' });
+      this.wpItems.push(it);
     }
   }
   // the floor build-up over the slab: fill / screed / adhesive / tile placeholder – one layer each (no plaster on floors)
@@ -292,17 +298,19 @@ class Finishes {
     this.app.ui.showInfo({ title: `טיח · ${CAT_HE[s.cat]} · ${f2(s.amount)} מ"ר`, rows: this.rowsOf(s), source: s.source, extra });
   }
   // ---------------------------------------------------------------- persistence (artifact db, else this browser)
-  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ live: this.live, prices: this.prices })); } catch {} }
+  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ live: this.live, prices: this.prices, wp: this.wpH })); } catch {} }
   async connect() {
     const use = window.claude?.use; const db = use ? await use('db').catch(() => null) : null;
     if (!db) return;
     this.col = db.collection('plaster'); this.state = 'online';
     this.col.onSnapshot((snap) => {
-      const live = {}; let prices = null;
-      for (const d of snap.docs) { const x = d.data(); if (x.kind === 'prices') prices = x.prices; else if (x.key && x.type) live[x.key] = x.type; }
+      const live = {}; let prices = null, wp = null;
+      for (const d of snap.docs) { const x = d.data(); if (x.kind === 'prices') prices = x.prices; else if (x.kind === 'wpHeights') wp = { wet: x.wet, shower: x.shower }; else if (x.key && x.type) live[x.key] = x.type; }
       const changed = JSON.stringify(live) !== JSON.stringify(this.live);
-      this.live = live; if (prices) this.prices = prices; this.saveLocal();
+      const wpChanged = wp && JSON.stringify(wp) !== JSON.stringify(this.wpH);
+      this.live = live; if (prices) this.prices = prices; if (wp) this.wpH = wp; this.saveLocal();
       if (changed) this.rebuildPlaster();
+      if (wpChanged) this.rebuildWaterproofing();
       this.app.ui.refreshPanel('finishes');
     }, () => { this.state = 'local'; });
   }
@@ -316,6 +324,30 @@ class Finishes {
     if (v === '' || v == null) delete this.prices[id]; else this.prices[id] = +v;
     this.saveLocal();
     if (this.col) { try { await this.col.doc('prices').set({ kind: 'prices', prices: this.prices, at: new Date().toISOString() }); } catch {} }
+  }
+
+  async setWp(patch) {   // waterproofing heights (m): { wet, shower } – null = back to the default
+    for (const [k, v] of Object.entries(patch)) this.wpH[k] = v == null || v === '' || !(+v >= 0) ? this.wpDef[k] : +(+v).toFixed(3);
+    this.saveLocal(); this.rebuildWaterproofing();
+    if (this.col) { try { await this.col.doc('wpHeights').set({ kind: 'wpHeights', ...this.wpH, defaults: this.wpDef, at: new Date().toISOString() }); } catch {} }
+    this.app?.ui.refreshPanel('finishes'); this.app?.ui.refreshPanel('layers');
+  }
+  // the waterproofing faces at the current heights: up to finish + height (shower zone / rest), never above the wall face
+  wpWalls() {
+    return this.P.waterproofing.filter(w => w.kind === 'wall').map(w => {
+      const H = w.shower ? this.wpH.shower : this.wpH.wet, z1 = +Math.min(w.faceTop ?? w.z1, (w.finish ?? (w.z1 - w.height_m)) + H).toFixed(3);
+      const doors = (w.openings || []).reduce((a, o) => a + Math.max(0, o.s1 - o.s0), 0);
+      return { ...w, z1, height_m: H, area: Math.max(0, (w.s1 - w.s0 - doors) * (z1 - w.z0)), label: `איטום ${Math.round(H * 100)} ס"מ`,
+        rule: w.shower ? `אזור מקלחת – עד ${H.toFixed(2)} מ' מפני הריצוף` : `${H.toFixed(2)} מ' מפני הריצוף` };
+    }).filter(w => w.z1 > w.z0 + 0.001);
+  }
+  wpAll() { return [...this.wpWalls(), ...this.P.waterproofing.filter(w => w.kind === 'floor')]; }
+  rebuildWaterproofing() {
+    if (!this.wpItems) return;   // never shown yet: built with the current heights when first switched on
+    this.ctx.registry.remove(this.wpItems); this.items = this.items.filter(i => !this.wpItems.includes(i));
+    this.buildWaterproofing();
+    this.app?.store && this.ctx.registry.apply(this.app.store.get());
+    this.app?.viewer.invalidate();
   }
 
   // ---------------------------------------------------------------- quantities
@@ -333,7 +365,7 @@ class Finishes {
     const rev = this.surf.filter(s => s.cat === 'reveal').reduce((a, r) => a + r.amount, 0), beam = this.surf.filter(s => s.cat === 'beam').reduce((a, r) => a + r.amount, 0);
     const mesh = this.P.walls.reduce((a, s) => a + (s.meshV_m || 0) + (s.meshH_m || 0), 0);
     const beads = this.P.walls.reduce((a, s) => a + (s.beads_m || 0), 0) + (this.P.reveals || []).reduce((a, r) => a + (r.beads || 0), 0);
-    const wpW = this.P.waterproofing.filter(w => w.kind === 'wall').reduce((a, w) => a + w.area, 0), wpF = this.P.waterproofing.filter(w => w.kind === 'floor').reduce((a, w) => a + w.area, 0);
+    const wpW = this.wpWalls().reduce((a, w) => a + w.area, 0), wpF = this.P.waterproofing.filter(w => w.kind === 'floor').reduce((a, w) => a + w.area, 0);
     T.extras = { reveals: rev, beams: beam, mesh, beads, waterproofing: wpW + wpF, waterproofWalls: wpW, waterproofFloors: wpF };
     T.floors = Object.fromEntries(this.BU.layers.map(l => [l.id, this.TL.rooms.reduce((a, r) => a + ((r.layers || []).some(x => x.id === l.id) ? r.area : 0), 0)]));
     T.tiling = { area: this.TL.rooms.filter(r => !['court', 'outdoor'].includes(r.roomType)).reduce((a, r) => a + r.area, 0), skirting: this.TL.rooms.reduce((a, r) => a + r.skirting_m, 0) };
@@ -352,6 +384,17 @@ class Finishes {
     const wrap = h('div', { class: 'finishes ctl' });
     if (groupId === 'plaster') wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי באפור אחד – על כל פני הקירות (בלוק ובטון, פנים וחוץ), קורות ועמודים גלויים, גליפים ותקרות; בלי טיח על רצפות. ' + this.T.scratchNote + '. דריסה: לחיצה על משטח במצב "מידות".'));
     if (groupId === 'tiling') wrap.append(h('p', { class: 'muted' }, 'מעל היציקה: סומסום → טיט / מדה → דבק → אריח (מקום שמור). העוביים זמניים – ' + (this.BU.status === 'provisional' ? 'open-issues #163' : '') + '.'));
+    if (groupId === 'waterproofingGroup') {   // the wet-room waterproofing heights (defaults – provisional)
+      const inp = (k, unit, step) => h('input', { type: 'number', min: 0, step, class: 'price wp-h', 'data-k': k,
+        value: unit === 'cm' ? Math.round(this.wpH[k] * 100) : this.wpH[k], onchange: (e) => this.setWp({ [k]: e.target.value === '' ? null : unit === 'cm' ? +e.target.value / 100 : +e.target.value }) });
+      const dflt = this.wpH.wet === this.wpDef.wet && this.wpH.shower === this.wpDef.shower;
+      wrap.append(h('div', { class: 'wp-ctl' }, h('b', {}, 'גובה האיטום בחדרים הרטובים'),
+        h('div', { class: 'row' }, h('span', {}, 'הגבהה על הקירות (ס"מ):'), inp('wet', 'cm', 1)),
+        h('div', { class: 'row' }, h('span', {}, "קירות המקלחת (מ'):"), inp('shower', 'm', 0.05)),
+        h('div', { class: 'btns' }, h('button', { class: 'small', disabled: dflt, onclick: () => this.setWp({ wet: null, shower: null }) }, `ברירת מחדל (${Math.round(this.wpDef.wet * 100)} ס"מ / ${f2(this.wpDef.shower)} מ')`)),
+        h('div', { class: 'warn' }, '⚠ ברירות מחדל זמניות – לא נסגרו סופית (open-issues #166). אזור המקלחת – ±0.9 מ\' סביב נקודת המקלחת (#156).'),
+        h('div', { class: 'muted' }, `רצפה: כל רצפת החדר. ${this.state === 'online' ? 'נשמר במסד הארטיפקט.' : 'נשמר בדפדפן הזה.'}`)));
+    }
     // interior view: one floor, horizontal cut above its floor, no ceilings above
     const fls = ['unit', 'ground', 'first', 'roof'];
     const lvl = { unit: -2.6, ground: 0, first: 3.85, roof: 6.9 };
@@ -439,7 +482,7 @@ class Finishes {
         s.length ?? s.width ?? '', s.z0 ?? s.z ?? s.bottom, s.z1 ?? s.top ?? '', s.gross ?? s.amount, s.openingsArea ?? 0, +s.amount.toFixed(3), s.scaffold ? 'כן' : '', s.scaffoldArea || 0, +((s.meshV_m || 0) + (s.meshH_m || 0)).toFixed(3), s.beads_m || 0])]);
     sheet('גליפים', [['פתח', 'סוג', 'קומה', 'רוחב', 'גובה', 'עומק', 'חלקים', 'שטח', 'זוויתנים'], ...(this.P.reveals || []).map(r => [r.opening, r.openingKind, FLOOR_HE[r.floor], r.width, r.height, r.depth, r.quads.map(q => q.part).join('+'), r.area, r.beads])]);
     sheet('קורות', [['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'שטח', 'סוג'], ...(this.P.beams || []).map(b => [b.beam, FLOOR_HE[b.floor], b.bottom, b.top, b.pergola ? 'כן' : '', b.area, tl(this.typeOf(b))])]);
-    sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.P.waterproofing.map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
+    sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.wpAll().map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
     sheet('רצפות', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', ...this.BU.layers.map(l => l.label + " (מ')"), 'סוג אריח'],
       ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), 'טרם הוחלט'])]);
     const name = 'plaster-tiling-5187.xlsx';

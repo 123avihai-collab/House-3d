@@ -322,7 +322,7 @@ export class UI {
         h('button', { class: s.showHidden ? 'on' : '', title: 'צנרת מתחת לרצפות ובתוך הקירות (בטון שקוף למחצה)', onclick: () => app.store.set({ showHidden: !s.showHidden }, { label: 'xray' }) }, s.showHidden ? '✓ צנרת מוסתרת' : 'צנרת מוסתרת')));
       if (g.id === 'plumbing' && pl?.panel) box.append(pl.panel());
       else if (g.id !== 'environment' && app.modules?.[g.id]?.panel && !['finishes'].includes(g.id)) box.append(app.modules[g.id].panel());
-      if (['plaster', 'tiling'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
+      if (['plaster', 'tiling', 'waterproofingGroup'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
       for (const l of L) {
         const on = s.layers[l.id] !== false; const lblOff = !!(s.labelsOff || {})[l.id]; const fresh = P?.isNew(l.id);
         box.append(h('div', { class: 'row lrow' + (on ? ' on' : '') },

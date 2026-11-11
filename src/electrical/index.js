@@ -136,7 +136,8 @@ export function buildElectrical(ctx) {
     add(g, { floor: 'ground', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, {
       name: P.name, kind: 'elPanel', id: P.id,
       rows: [['מעמד', st(P.status)], ['החלטה', P.decision], ['קיר', `${P.hostWall} · בלוקים ${Math.round(P.wallThickness_m * 100)} ס"מ · אורך ${P.wallClearLength_m.toFixed(2)} מ'`],
-        ['מידות (ר×ג×ע)', `${P.width_m} × ${P.height_m} × ${P.depth_m} מ'`], ['מפלס תחתית / ראש', `${fmtH(H0 + P.bottomRel)} / ${fmtH(H0 + P.topRel)}`], ['הערה', P.note]],
+        ['מידות (ר×ג×ע)', `${P.width_m} × ${P.height_m} × ${P.depth_m} מ'`], ['מפלס תחתית / ראש', `${fmtH(H0 + P.bottomRel)} / ${fmtH(H0 + P.topRel)}`], ['הערה', P.note],
+        ...(data.electricalUnits ? [['מוני משנה', data.electricalUnits.units.map(u => `${u.meter.id} (${u.name}) – ${u.feeder.protection}`).join(' · ') + ` · ${data.electricalUnits.subMeter.type}`]] : [])],
       source: P.source, note: 'הצעה בלבד – ממתין לאישור' });
     const gk = new THREE.Group(), km = std(D.cableColor, 0.5), q = lanes[0];
     for (let i = 0; i < q.length - 1; i++) { const s = cylBetween(q[i], q[i + 1], D.cableD_m / 2, km, 10); if (s) gk.add(s); }
@@ -146,5 +147,43 @@ export function buildElectrical(ctx) {
         ['משיכה', F.pulls.map(p => `${p.name}: ${p.length_m.toFixed(1)} מ', ${p.bends_deg}°`).join(' · ')]],
       source: F.source, note: 'הצעה בלבד – ממתין לאישור' });
   }
-  return { items, supply: S };
+  // ---- ח1ב: unit panels (one per basement unit), feeders from the main panel (cast in the ground slab), sub-meters in the main panel
+  const UN = data.electricalUnits;
+  if (UN) {
+    const stU = (s) => D.statusLabel[s] || s;
+    const ustep = Object.fromEntries(UN.steps.map(s => [s.step, s]));
+    const urow = (id) => ['שלב ביצוע', ustep[id] ? `${ustep[id].n}. ${ustep[id].title}` : id];
+    const addU = (grp, tags, meta) => { scene.add(grp); const it = registry.add(grp, tags, { ...meta, rows: [...(meta.rows || []), urow(tags.step)] }); it.meta.electrical = true; items.push(it); return it; };
+    for (const u of UN.units) {
+      const p = u.panel, f = u.feeder, r = f.conduitD_mm / 2000;
+      // panel
+      const g = new THREE.Group();
+      const box = new THREE.Mesh(new THREE.BoxGeometry(p.width_m, p.height_m, p.depth_m), tint(std(D.unitPanelColor, 0.45, 0.3))); box.castShadow = true;
+      box.position.copy(L([p.faceITM[0] + p.normalITM[0] * p.depth_m / 2, p.faceITM[1] + p.normalITM[1] * p.depth_m / 2, p.bottomAbs + p.height_m / 2]));
+      box.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(p.normalITM[0], 0, -p.normalITM[1]).normalize()); g.add(box);
+      label(g, box.position.clone().add(new THREE.Vector3(0, p.height_m / 2 + D.labelOffset_m, 0)), `${p.id} · ${u.name}`);
+      const rows = [['מעמד', stU(p.status)], ['החלטה', UN.decision], ['כניסה', `${u.door} – ${u.doorName} (${u.doorKind === 'door' ? 'דלת' : 'הזזה'}, אדן ${u.doorSill_rel >= -2.6 + 1e-3 ? (u.doorSill_rel + 2.6).toFixed(2) + ' מעל הרצפה' : 'ברצפה'})`],
+        ['מיקום', `${p.fromDoor_m.toFixed(2)} מ' ממרכז הפתח, על פני קיר המרתף`], ['מידות', `${p.width_m}×${p.height_m}×${p.depth_m} מ' · ${p.modules} מודולים`], ['תחתית / ראש', `${fmtH(p.bottomAbs)} / ${fmtH(p.topAbs)}`],
+        ['הזנה', `${f.protection} · ${f.cable} · ${f.conduit}`], ['מונה משנה', `${u.meter.id} – ${u.meter.type}, ${u.meter.where}`], ['הערה', p.note]];
+      if (u.warning) rows.push(['⚠ לבדיקה', u.warning]);
+      addU(g, { floor: 'unit', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: p.name, kind: 'elUnitPanel', id: p.id, rows, source: p.source, note: 'הצעה בלבד – ממתין לאישור' });
+      // feeder: the part cast in the slab (and the riser in the niche wall) vs the surface part in the unit
+      const pts = f.pts3d.map(L), cast = new THREE.Group(), surf = new THREE.Group();
+      const zs = UN.levels.slabSoffitAbs;
+      const mc = tint(std(D.unitConduitColor, 0.6)), ms = std(D.surfaceConduitColor, 0.5, 0.2);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const inSlab = f.pts3d[i][2] >= zs - 1e-3 && f.pts3d[i + 1][2] >= zs - 1e-3;
+        const seg = cylBetween(pts[i], pts[i + 1], r, inSlab ? mc : ms, D.radialSegments); if (seg) (inSlab ? cast : surf).add(seg);
+        if (i > 0) (inSlab ? cast : surf).add(sphere(pts[i], r, inSlab ? mc : ms, 10));
+      }
+      label(cast, pts[2].clone().lerp(pts[3], 0.5).add(new THREE.Vector3(0, D.labelOffset_m, 0)), `${f.id} · ø${f.conduitD_mm} ביציקה · ${f.slabLength_m.toFixed(1)} מ'`);
+      const frows = [['מעמד', stU(f.status)], ['מ → אל', `לוח ראשי (MDB) → ${p.id}`], ['הגנה / כבל', `${f.protection} · ${f.cable}`], ['צנרת', f.conduit],
+        ['ביציקה (רצפת הקרקע)', `${f.slabLength_m.toFixed(2)} מ' ב-${fmtH(UN.levels.conduitInSlabAbs)} – ${UN.slabRoute.note}`], ['גלוי ביחידה', `${f.soffitRun_m.toFixed(2)} מ' בתקרה + ירידה ללוח – ${UN.drop.how}`],
+        ['אורך כבל משוער', `${f.cableLength_m.toFixed(1)} מ'`]];
+      if (f.dropInMamadZone) frows.push(['⚠ ממ"ד', 'מעל הלוח רצפת הממ"ד (GS7): אין צנרת ביציקה שם. הצינור יוצא מהתקרה מחוץ לממ"ד ורץ גלוי בפינת התקרה-קיר עד הלוח (E17)']);
+      addU(cast, { floor: 'ground', system: 'electrical', stage: 'slab', layer: 'elSupply', step: 'groundSlab' }, { name: `${f.id} – צנרת ביציקה ל-${p.id}`, kind: 'elUnitFeeder', id: f.id, rows: frows, source: f.source, note: 'הצעה בלבד – ממתין לאישור' });
+      if (surf.children.length) addU(surf, { floor: 'unit', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: `${f.id} – צנרת גלויה ביחידה`, kind: 'elUnitSurface', id: f.id + '-S', rows: frows, source: f.source, note: 'הצעה בלבד – ממתין לאישור' });
+    }
+  }
+  return { items, supply: S, units: UN };
 }

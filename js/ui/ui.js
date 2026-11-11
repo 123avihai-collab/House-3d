@@ -640,7 +640,15 @@ export class UI {
       h('p', { class: 'muted' }, 'שלב אחר שלב – לחיצה מעבירה את המודל לשלב הבנייה:'),
       h('div', { class: 'list' }, S.steps.map(st => h('button', { class: 'li', title: st.text, onclick: () => goStep(st) }, `${st.n}. ${st.title}`))),
       h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => app.store.set({ systemFilter: null }, { label: 'all' }) }, 'הצג את כל המערכות'))) : null;
-    return h('div', {}, supply,
+    const UN = app.data.electricalUnits;
+    const units = UN ? h('div', {},
+      h('h4', {}, 'ח1ב – לוח לכל יחידת דיור (הצעה)'),
+      h('table', { class: 'kv' }, ...UN.units.map(u => tr(`${u.panel.id} · ${u.name}`, `ליד ${u.door} · ${u.feeder.protection} · ${u.feeder.length_m.toFixed(1)} מ'${u.warning ? ' · ⚠' : ''}`)),
+        tr('מוני משנה', `${UN.subMeter.count} × ${UN.subMeter.type} – ${UN.subMeter.where}`), tr('בדיקות', `${UN.summary.checks} · נכשלו ${UN.summary.failed}`)),
+      h('div', { class: 'list' }, UN.units.map(u => h('button', { class: 'li', onclick: () => {
+        const cur = app.store.get(); app.store.set({ stageIndex: app.registry.stepById('finishes'), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, plumbing: { ...(cur.plumbing || {}), xray: true }, showHidden: true }, { label: 'elUnit' });
+        const it = E?.items.find(i => i.meta.id === u.panel.id); if (it) app.tools.search.show(it); } }, `הצג את ${u.panel.id}`)))) : null;
+    return h('div', {}, supply, units,
       h('h4', {}, 'נקודות חשמל ', soon()),
       h('p', { class: 'muted' }, 'הצבת שקעים, מפסקים, נקודות תאורה ותקשורת לפי גבהים סטנדרטיים, עם כתב כמויות נקודות.'),
       h('div', { class: 'list' }, el.pointTypes.map(p => h('button', { class: 'li na', disabled: true }, p.label))),

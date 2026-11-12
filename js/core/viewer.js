@@ -98,6 +98,10 @@ export class Viewer {
     this.gtao = new GTAOPass(this.scene, this.camera, 512, 512);
     this.gtao.updateGtaoMaterial({ radius: ao.radius, distanceFallOff: ao.distanceFallOff, thickness: ao.thickness });
     this.gtao.blendIntensity = ao.blendIntensity;
+    // the AO depth / normal pass draws every mesh with one override material: front faces only by default, so a thin
+    // double-sided sheet (plaster, waterproofing) seen from its back was skipped and the blocks / beam edges behind it
+    // showed through as dark lines (12.11.2026). Both sides, as the meshes themselves are drawn.
+    this.gtao.normalMaterial.side = THREE.DoubleSide;
     this.gtao.enabled = ao.enabled && !mobile;
     this.composer.addPass(this.gtao);
     this.composer.addPass(new OutputPass());

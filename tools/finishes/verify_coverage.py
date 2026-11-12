@@ -116,4 +116,53 @@ L += [f'| **סה"כ** | **{len(G["PATCHES"])}** | **{sum(pk.values()):.2f}** |',
 if byk: L += ['## לא מכוסה לפי אלמנט', '', '| אלמנט | מ"ר |', '|---|---|'] + [f'| {k} | {v:.4f} |' for k, v in sorted(byk.items(), key=lambda x: -x[1])]
 open(os.path.join(ROOT, 'docs/verification/finishes-coverage.md'), 'w', encoding='utf-8').write('\n'.join(L) + '\n')
 print(f'coverage: {n_bad} uncovered samples ({a_bad:.4f} m2) · patches {len(G["PATCHES"])} ({sum(pk.values()):.2f} m2) · steps ≤2cm {len(small)}, >2cm {len(big)}')
+
+# ---- one plane per wall surface (12.11.2026, tools/finishes/flatten.py): the drawn plaster in front of the skeleton everywhere,
+# no slit between the pieces -> docs/verification/plaster-flatten.md
+import flatten as FLAT
+DF = G['J']('data/config/display.json')['finishes']; TOL = G['CFG'].get('flattenMax_m', 0.08)
+front, _ = FLAT.front_check(G, DF['offset_m'], DF.get('seamOverlap_m', 0), TOL, extra=G['FILLERS'])
+rest = FLAT.remaining_steps(G, DF['offset_m'], TOL)
+corners = FLAT.corner_check(G, DF['offset_m'], DF.get('seamOverlap_m', 0)); corners_bad = [c for c in corners if c['gap'] > DF['offset_m']]
+R_ = G['FLAT_RES']; rep = sorted(R_['report'], key=lambda x: -x['max_shift'])
+sh = [x.get('shift', 0) for x in G['FACES']] + [x.get('shift', 0) for b in G['BEAMSURF'] for x in b['sides']] + [p.get('shift', 0) for p in G['PATCHES'] if p['vertical']]
+def band(lo, hi): return sum(1 for v in sh if lo < v <= hi)
+FL = ['# טיח במישור אחד – בדיקה (12.11.2026)', '',
+      'נוצר ב-`python3 tools/finishes/verify_coverage.py` (רץ ב-`npm test` עם `--check`). הכלל: `tools/finishes/flatten.py`, הסף: `data/finishes/config.json → flattenMax_m` = '
+      f'{TOL * 100:.0f} ס"מ.', '',
+      '## התוצאה', '',
+      f'**נקודות שלד שבולטות מהטיח או נראות בסדק בין שני משטחים (רשת 2 ס"מ, כל הפנים האנכיים): {len(front)}.** (חייב 0.)', '',
+      f'**פינות חוץ שהטיח לא נסגר בהן (סדק מעל {DF["offset_m"] * 1000:.0f} מ"מ): {len(corners_bad)}.** (חייב 0. סדקים קטנים יותר: {len(corners) - len(corners_bad)}, עד {max([c["gap"] for c in corners] or [0]) * 1000:.0f} מ"מ.)', '',
+      '| מה | מספר |', '|---|---|',
+      f'| משטחי קיר (קבוצות פנים מקבילים וסמוכים) | {R_["clusters"]} |',
+      f'| משטחים שהוזזו למישור אחד | {R_["moved"]} |',
+      f'| פנים שהטיח שלהם הוקדם | {R_["shifted"]} |',
+      f'| פני מדרגה שנבלעו בטיח (בכמויות, לא מצוירים) | {R_["hidden"]} |',
+      f'| קודקודים של גליפים / ראשי קירות / אדנים שעברו עם הפנים | {R_["vertices"]} |',
+      f'| פינות חוץ שנסגרו | {R_["joins"]} |',
+      f'| סדקים קטנים לאורך משטח שגושרו (עד 5 ס"מ) | {R_["bridged"]} |',
+      f'| מילוי תצוגה (סדקי מ"מ שנשארו, לא בכמויות) | {len(G["FILLERS"])} |', '',
+      '## עובי הטיח שנוסף (פנים)', '', '| תוספת | פנים |', '|---|---|',
+      f'| עד 1 ס"מ | {band(0.0005, 0.01)} |', f'| 1–2 ס"מ | {band(0.01, 0.02)} |', f'| 2–4 ס"מ (רשת) | {band(0.02, 0.04)} |', f'| 4–8 ס"מ (טיח עבה + רשת, או יישור הבלוקים בביצוע) | {band(0.04, 0.081)} |', '',
+      '## משטחים עם תוספת מעל 2 ס"מ', '', '| # | קומה | מיקום (ITM) | מפלסים (יחסי) | אלמנטים | תוספת מרבית (ס"מ) |', '|---|---|---|---|---|---|']
+for i, x in enumerate([x for x in rep if x['max_shift'] > 0.02], 1):
+    FL.append(f"| {i} | {FLOOR_HE.get(x['floor'], '—') if x['floor'] else '—'} | E {x['at'][0]:.2f} / N {x['at'][1]:.2f} | {x['z0']:+.2f}…{x['z1']:+.2f} | {', '.join(m for m in x['members'] if m != '?')} | {x['max_shift'] * 100:.1f} |")
+big_rest = sorted([r for r in rest if r['step'] > 0.01], key=lambda r: -r['step'])
+FL += ['', '## מדרגות שנשארו (מעל 1 ס"מ)', '',
+       'מדרגה שנשארת = שני חלקים של אותו קיר שלא אוחדו: האיחוד היה מעבה את הטיח מעבר לסף (בדרך כלל קורה / שפת תקרה שבולטת ~8–10 ס"מ מקיר הבלוקים שמתחתיה – חגורה מתוכננת).', '',
+       '| # | מיקום (ITM) | מפלס | מדרגה (ס"מ) | משטח |', '|---|---|---|---|---|']
+seen_ = set()
+for r in big_rest:
+    k_ = (round(r['at'][0], 1), round(r['at'][1], 1), round(r['z'][0], 1))
+    if k_ in seen_: continue
+    seen_.add(k_)
+    FL.append(f"| {len(seen_)} | E {r['at'][0]:.2f} / N {r['at'][1]:.2f} | {r['z'][0]:+.2f}…{r['z'][1]:+.2f} | {r['step'] * 100:.1f} | {r['a'] or '—'} |")
+FL += ['', '## תצוגה', '',
+       '- הטיח מצויר כמשטח דק לפני השלד (`display.json → finishes.offset_m`). כל משטח מוקדם ב-`shift` למישור המשטח שלו ומוארך ב-`ext` לפינה; חפיפה של `seamOverlap_m` בכל קצה סוגרת את התפר בין משטחים שכנים.',
+       '- שכבת ה-AO (ambient occlusion) מציירת עכשיו את שני צדי המשטחים הדקים: קודם היא "ראתה" דרך הטיח את הבלוקים והקורות שמאחוריו, וזה נראה כקווים כהים על הקיר.',
+       '- הטיח מטיל צל: הוא סוגר בצל את הסדקים של מ"מ בין חלקי השלד.']
+open(os.path.join(ROOT, 'docs/verification/plaster-flatten.md'), 'w', encoding='utf-8').write('\n'.join(FL) + '\n')
+print(f'one plane: {len(front)} samples in front of / between the drawn sheets · {len(corners_bad)} open corners · {R_["moved"]} surfaces moved · {len(G["FILLERS"])} fillers · {len(big_rest)} steps >1cm left')
 if CHECK and n_bad: print('coverage FAILED'); sys.exit(1)
+if CHECK and front: print('one-plane check FAILED (skeleton in front of / between the plaster sheets)'); sys.exit(1)
+if CHECK and corners_bad: print('one-plane check FAILED (open outer corners)', corners_bad[:5]); sys.exit(1)

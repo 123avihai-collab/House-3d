@@ -979,6 +979,15 @@ PATCHES = SKIN.make_patches(SKIN_S, SKIN_RES, globals())
 PATCHES.sort(key=lambda p_: (p_['floor'], p_['owner'] or '', p_['z0'] if p_['vertical'] else p_['z'], (p_['a'] if p_['vertical'] else p_['ringITM'][0])[0]))
 keyed(PATCHES, lambda p_: f"{p_['floor']}|patch|{p_['owner'] or 'x'}|{p_['part']}")
 
+# ---------------------------------------------------------------- one plane per wall surface (12.11.2026): steps between neighbouring elements up to
+# flattenMax_m are taken up by the plaster thickness – the faces brought to the most proud one, the step faces hidden, corners closed (tools/finishes/flatten.py)
+import flatten as FLAT
+FLAT_RES = FLAT.flatten(globals(), CFG.get('flattenMax_m', 0.08), J('data/config/display.json')['finishes']['offset_m'])
+print('flatten:', {k: v for k, v in FLAT_RES.items() if k != 'report'})
+DISP_F = J('data/config/display.json')['finishes']
+FILLERS = FLAT.fillers(globals(), DISP_F['offset_m'], DISP_F.get('seamOverlap_m', 0), CFG.get('flattenMax_m', 0.08))
+print('fillers:', len(FILLERS), round(sum(f['length'] * (f['z1'] - f['z0']) for f in FILLERS), 3), 'm2 (display only)')
+
 # ---------------------------------------------------------------- floors: area per room, skirting, the floor build-up layers (no plaster on floors)
 BU = J('data/finishes/floors/buildup.json')
 TILES = []
@@ -1035,8 +1044,9 @@ dump('data/architecture/rooms.json', dict(_doc='חדרים – נגזרים מה
      **meta, cuts=CFG['cuts'], gaps=GAPS, rooms=ROOMS))
 dump('data/finishes/plaster/surfaces.json', dict(_doc='משטחי טיח – נגזרים (לא לערוך ידנית). type = הדריסה של אביחי (overrides.json) או defaultType לפי הכללים. '
      'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה), top (ראש קיר / מעקה), reveal (גליפים: צדי הפתח והמשקוף), beam (קורה גלויה: דפנות, תחתית, ראש). '
-     'patch (השלמה – פן חשוף של השלד שאף משטח אחר לא מכסה: אדן, שפת רצפה במדרגה, גומחה, קצה קיר, תחתית מבחוץ; vertical: a→b + z0..z1, אחרת ringITM ב-z, up = פונה למעלה). net = ברוטו פחות פתחים. meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
-     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, patches=PATCHES, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
+     'patch (השלמה – פן חשוף של השלד שאף משטח אחר לא מכסה: אדן, שפת רצפה במדרגה, גומחה, קצה קיר, תחתית מבחוץ; vertical: a→b + z0..z1, אחרת ringITM ב-z, up = פונה למעלה). net = ברוטו פחות פתחים. '
+     'מישור אחד (tools/finishes/flatten.py): shift = הטיח מוקדם למישור המשטח (עובי משתנה, מ\'), ext = הארכה בפינה [בקצה a, בקצה b], hidden = פן מדרגה בתוך הטיח המעובה (בכמויות, לא מצויר); fillers – מילוי תצוגה של סדקי מ"מ (לא בכמויות). meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
+     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, patches=PATCHES, fillers=FILLERS, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
 dump('data/finishes/tiling/surfaces.json', dict(_doc='רצפות – שטח לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פנלים (היקף פחות דלתות), ושכבות הרצפה: סומסום / טיט-מדה / דבק / אריח '
      '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES))
 dump('data/finishes/cladding/surfaces.json', dict(_doc='חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.',

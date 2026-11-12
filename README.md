@@ -19,7 +19,7 @@ python3 tools/environment/derive_details.py        # בינוי ופיתוח מ�
 python3 tools/environment/verify_environment.py    # טבלת אימות סביבה -> docs/verification/environment.md
 python3 tools/verify_stage2b.py # טבלת אימות שלב 2ב (קורות, רצפות, קירות מרתף)
 python3 tools/extract_mamad.py  # ממ"ד: חלון, דלת הזזה ושרוולים לפי תוכנית האדריכל + החזית המערבית -> data/architecture/mamad.json (אחרי extract_openings.py)
-python3 tools/finishes/verify_coverage.py   # טיח סבב 4: עור השלד ברשת 2 ס"מ – חייב 0 לא מכוסות (ב-npm test, --check); מדרגות מעל 2 ס"מ -> docs/verification/plaster-deviations.xlsx
+python3 tools/finishes/verify_coverage.py   # טיח סבב 4: עור השלד ברשת 2 ס"מ – חייב 0 לא מכוסות (ב-npm test, --check); מדרגות מעל 2 ס"מ -> docs/verification/plaster-deviations.xlsx; טיח במישור אחד (tools/finishes/flatten.py): 0 נקודות שלד לפני הטיח / בסדק, 0 פינות פתוחות -> docs/verification/plaster-flatten.md
 python3 tools/finishes/verify_waterproofing.py   # בדיקת איטום: חדרים רטובים, קירות המרתף -> docs/verification/waterproofing-check.md
 python3 tools/plumbing/extract_plan_background.py  # עורך הצנרת: רקע אדריכלי לכל קומה (מה-DXF של היועץ) -> data/plumbing/plan-background.json
 python3 tools/plumbing/seed_routes.py              # עורך הצנרת: זריעה חד-פעמית של data/plumbing/routes.json מההצעה (לא דורס עריכות)
@@ -139,7 +139,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | מתגי "רצפה" ו"תקרה" לכל קומה (לשונית "קומות") | ✅ | השכבות של כל תקרה – `data/config/tags.json` floors[].ceilingLayers. תקרת יחידת הדיור = רצפת הקרקע וקורות K-21. שבב "בלי תקרה" בסרגל העליון מחזיר את כולן |
 | סרגל שלבי בנייה + "רק שלד" / "הכול" | ✅ | בשלב "מצב קיים" המגרש מוצג לפי מדידת 2025. מ"גמרים" ואילך מוצגים פני הקרקע המתוכננים |
 | שכבות ותשתיות, הדלקה וכיבוי לפי סוג, צבע לכל מערכת | ✅ (מגרש, סביבה) · מערכות: בקרוב | `data/config/layers.json` |
-| טיח, איטום, שכבות רצפה (שלב 5א) | ✅ | טיח צמנטי באפור אחד על קירות, קורות, גליפים ותקרות; איטום חדרים רטובים; 4 שכבות רצפה; חיפויי חוץ (קטגוריה נפרדת, כבויה). לשונית "טיח וריצוף": מקרא, כמויות, מחירון, ייצוא xlsx. תיקונים 11.11: docs/finishes/plaster.md. פתוחים: open-issues #151–#165 |
+| טיח, איטום, שכבות רצפה (שלב 5א) | ✅ | טיח צמנטי באפור אחד על קירות, קורות, גליפים ותקרות; איטום חדרים רטובים; 4 שכבות רצפה; חיפויי חוץ (קטגוריה נפרדת, כבויה). לשונית "טיח וריצוף": מקרא, כמויות, מחירון, ייצוא xlsx. תיקונים 11.11: docs/finishes/plaster.md. **12.11: טיח במישור אחד** – מדרגות עד 8 ס"מ בין אלמנטים נבלעות בעובי הטיח, פינות נסגרות, AO לא "רואה" דרך הטיח ([בדיקה](docs/verification/plaster-flatten.md)). פתוחים: open-issues #151–#165, #172, #177 |
 | תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, אושר 10.11.2026): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ח1ב (לוח לכל יחידת דיור, הצעה): [docs/electrical/03-unit-panels.md](docs/electrical/03-unit-panels.md) – `python3 tools/electrical/propose_units.py && python3 tools/electrical/verify_units.py`. ממתין להחלטות E8–E18 |
 | מידות: לחיצה על רכיב → מידות, מקור, מרחקים לגבולות (ולקירות כשיהיו) | ✅ | |
 | מדידה חופשית: שתי נקודות → מרחק תלת-ממדי, מרחק אופקי, ΔH | ✅ | |

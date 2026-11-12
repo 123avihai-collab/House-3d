@@ -14,7 +14,7 @@ const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
 const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', unknown: 'לא מסווג' };
-const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)' };
+const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)', filler: 'מילוי תצוגה (סדק מ"מ, לא בכמויות)' };
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 'p' + (x >>> 0).toString(36); };
 const h = (tag, attrs = {}, ...kids) => {
@@ -51,6 +51,7 @@ class Finishes {
       ...(P.reveals || []).map(s => ({ ...s, cat: 'reveal', amount: s.area })),
       ...(P.beams || []).map(s => ({ ...s, cat: 'beam', amount: s.area })),
       ...(P.patches || []).map(s => ({ ...s, cat: 'patch', amount: s.area })),   // round 4: the exposed skin nothing else covers (tools/finishes/skin.py)
+      ...(P.fillers || []).map(s => ({ ...s, cat: 'filler', amount: 0 })),       // display only: mm slits between pieces (tools/finishes/flatten.py)
     ];
     this.byKey = Object.fromEntries(this.surf.map(s => [s.key, s]));
     this.live = {};          // overrides made in the model (db / this browser): key -> type
@@ -73,13 +74,18 @@ class Finishes {
   V(E, N, z) { const c = this.ctx.coords; return [E - c.E0, z, -(N - c.N0)]; }
 
   // ---------------------------------------------------------------- geometry builders (positions + triangle -> surface map)
+  // s.shift: the plaster brought forward to the plane of its wall surface (tools/finishes/flatten.py – one plane, varying
+  // thickness); s.ext: [at a, at b] – the face extended to meet the next one at an outer corner (no slit)
   wallTris(s, off, z0 = s.z0, z1 = s.z1, holes = s.openings) {
     const [ax, ay] = s.a, [bx, by] = s.b, L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L;
-    const [nx, ny] = s.normal;
+    const [nx, ny] = s.normal; off += s.shift || 0;
+    // + a hair of overlap at every edge (display.json seamOverlap_m): neighbouring sheets do not share vertices – without it
+    // the joint rasterises with pin-holes (a dotted dark line)
+    const ov = this.D.seamOverlap_m || 0, ea = Math.max(ov, s.ext?.[0] || 0), eb = Math.max(ov, s.ext?.[1] || 0);
     // grid of cells cut by the openings (robust where an opening reaches the face edge – doors)
-    const us = [0, L], vs = [z0, z1];
+    const us = [-ea, L + eb], vs = [z0 - ov, z1 + ov];
     const hs = (holes || []).filter(o => o.z1 > z0 && o.z0 < z1);
-    for (const o of hs) { us.push(Math.max(0, o.s0), Math.min(L, o.s1)); vs.push(Math.max(z0, o.z0), Math.min(z1, o.z1)); }
+    for (const o of hs) { us.push(Math.max(-ea, o.s0), Math.min(L + eb, o.s1)); vs.push(Math.max(z0 - ov, o.z0), Math.min(z1 + ov, o.z1)); }
     const U = [...new Set(us.map(v => +v.toFixed(4)))].sort((a, b) => a - b), Z = [...new Set(vs.map(v => +v.toFixed(4)))].sort((a, b) => a - b);
     const out = [];
     const pt = (u, v) => this.V(ax + ux * u + nx * off, ay + uy * u + ny * off, v);
@@ -106,21 +112,26 @@ class Finishes {
     const P = q.map(([E, N, z]) => this.V(E + (n ? n[0] * off : 0), N + (n ? n[1] * off : 0), z));
     return [P[0], P[1], P[2], P[0], P[2], P[3]];
   }
+  // the strip a head / sill / ledge gains up to the plane of a wall face brought forward (tools/finishes/flatten.py)
+  growTris(s, z) { return (s.grow || []).flatMap(r => this.ringTris(r, [], z)); }
   surfTris(s, off) {
-    if (s.cat === 'wall') return this.wallTris(s, off + (s.proud || 0));   // in front of a beam / curb that stands a little proud of the wall
+    if (s.hidden) return [];   // a step face inside the thickened plaster (one plane – tools/finishes/flatten.py): in the quantities, not drawn
+    if (s.cat === 'wall') return this.wallTris(s, off);
     if (s.cat === 'ceiling') return this.ringTris(s.ringITM, s.holesITM, s.z - off);
-    if (s.cat === 'top') return this.ringTris(s.ringITM, s.holesITM || [], s.z + off);
+    if (s.cat === 'top') return [...this.ringTris(s.ringITM, s.holesITM || [], s.z + off), ...this.growTris(s, s.z + off)];
     if (s.cat === 'reveal') return s.quads.flatMap(q => this.quadTris(q.q));
-    if (s.cat === 'patch') return s.vertical ? this.wallTris(s, off, s.z0, s.z1, []) : this.ringTris(s.ringITM, s.holesITM, s.up ? s.z + off : s.z - off);
-    if (s.cat === 'beam') return [...s.sides.flatMap(x => this.wallTris(x, off, x.z0, x.z1, [])),
-      ...s.flats.flatMap(x => this.ringTris(x.ringITM, [], x.part === 'soffit' ? x.z - off : x.z + off))];
+    if (s.cat === 'filler') return this.wallTris(s, off, s.z0, s.z1, []);
+    if (s.cat === 'patch') return s.vertical ? this.wallTris(s, off, s.z0, s.z1, []) : [...this.ringTris(s.ringITM, s.holesITM, s.up ? s.z + off : s.z - off), ...this.growTris(s, s.up ? s.z + off : s.z - off)];
+    if (s.cat === 'beam') return [...s.sides.filter(x => !x.hidden).flatMap(x => this.wallTris(x, off, x.z0, x.z1, [])),
+      ...s.flats.flatMap(x => { const z = x.part === 'soffit' ? x.z - off : x.z + off; return [...this.ringTris(x.ringITM, [], z), ...this.growTris(x, z)]; })];
     return [];
   }
   mesh(triPts, map, material) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(triPts.flat(), 3));
     g.computeVertexNormals();
-    const m = new THREE.Mesh(g, material); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
+    // casts too: the sheets close the mm slits between the skeleton pieces in the shadow map (else sun lines on a shaded facade)
+    const m = new THREE.Mesh(g, material); m.receiveShadow = true; m.castShadow = true; m.userData.keep = true; m.userData.faceMap = map;
     return m;
   }
 
@@ -181,7 +192,7 @@ class Finishes {
       const tris = this.wallTris(w, off, w.z0, w.z1, w.openings || []);
       for (let i = 0; i < tris.length; i += 3) { g.wall.push(tris[i], tris[i + 1], tris[i + 2]); g.wmap.push('wp:' + w.owner); }
       // the top edge of the waterproofing on the wall + its height
-      const o2 = off * 1.4, [nx, ny] = w.normal;
+      const o2 = off * 1.4 + (w.shift || 0), [nx, ny] = w.normal;
       const A = this.V(w.a[0] + nx * o2, w.a[1] + ny * o2, w.z1), B = this.V(w.b[0] + nx * o2, w.b[1] + ny * o2, w.z1);
       g.lines.push(...A, ...B);
       if (Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) > 0.35) g.labels.push({ p: A.map((v, i) => (v + B[i]) / 2), t: w.label });
@@ -287,7 +298,9 @@ class Finishes {
     else if (s.cat === 'beam') rows.push(['קורה', `${s.beam}${s.pergola ? ' (פרגולה)' : ''} · ${c.fmtRel(s.bottom)} עד ${c.fmtRel(s.top)}`], ['דפנות / תחתית / ראש', `${f2(s.sides.reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'soffit').reduce((a, x) => a + x.area, 0))} / ${f2(s.flats.filter(x => x.part === 'top').reduce((a, x) => a + x.area, 0))} מ"ר`], ['הכנה', this.T.scratchNote]);
     else if (s.cat === 'patch') rows.push(['חלק', ({ side: 'פן אנכי', sill: 'אדן', top: 'ראש / מדף', soffit: 'תחתית' })[s.part] || s.part], ['רכיב', s.owner || '—'], ['שטח', `${f2(s.amount)} מ"ר`],
       ['מפלס', s.vertical ? `${c.fmtRel(s.z0)} עד ${c.fmtRel(s.z1)}` : c.fmtRel(s.z)], ['למה', 'פן חשוף של השלד שאף משטח טיח אחר לא כיסה (בדיקת כיסוי 2 ס"מ – docs/verification/finishes-coverage.md)']);
+    else if (s.cat === 'filler') rows.push(['למה', s.typeReason], ['מפלס', `${c.fmtRel(s.z0)} עד ${c.fmtRel(s.z1)}`]);
     else rows.push(['שטח', `${f2(s.amount)} מ"ר`], ['מפלס', c.fmtRel(s.z)]);
+    if (s.shift > 0.0005) rows.push(['מישור אחד', `הטיח מוקדם ב-${f2(s.shift * 100)} ס"מ למישור הקיר (טיח עבה במקום המדרגה – ${s.shift > 0.02 ? 'עם רשת' : 'בלי רשת'}; השלד לא שונה)`]);
     rows.push(['פיגום', s.scaffold ? `דורש פיגום (מעל ${this.T.params.scaffoldAbove_m} מ') – ${f2(s.scaffoldArea || 0)} מ"ר מעל הגובה` : 'לא']);
     if (s.status === 'provisional') rows.push(['מעמד', 'זמני – ' + (s.zSource || '')]);
     rows.push(['מפתח', s.key]);

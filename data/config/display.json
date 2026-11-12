@@ -223,6 +223,7 @@
  "finishes": {
   "_doc": "תצוגת שכבות הגמר (src/finishes) – קבועי תצוגה בלבד, לא מידות בנייה.",
   "offset_m": 0.006,
+  "seamOverlap_m": 0.002,
   "waterproofOffset_m": 0.014, "waterproofGlow": 0.35,
   "tilingOffset_m": 0.004,
   "roughness": 0.92,

@@ -418,7 +418,7 @@ export class UI {
         'הסתר את הקורות של הקומה החתוכה'),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.fill !== false, onchange: (e) => app.store.set({ section: { ...sec, fill: e.target.checked } }, { label: 'section' }) }),
         'מילוי חתך – אלמנט חתוך נראה מלא, בצבע לפי סוג'),
-      h('div', { class: 'cut-legend', style: 'flex-wrap: wrap' }, (app.tools.section.C.caps || []).map(c => h('span', {}, h('i', { style: `background:${c.color}` }), h('small', {}, c.label)))),
+      h('div', { class: 'cut-legend', style: 'flex-wrap: wrap' }, app.tools.section.legend().map(c => h('span', {}, h('i', { style: c.style }), h('small', {}, c.label)))),
       (() => {
         // quick floor plans: cut 1.20 m above the slab of each floor (the floor is shown without its beams)
         // floor levels: tags.json floors[].level (unit -2.60 finish / ground ±0.00 / first +3.70 / roof +6.90)
@@ -773,7 +773,7 @@ export class UI {
       const f = (ST.floorAt(sec.hLevel) || ST.wallFloors().find(x => x.id === 'ground'))?.id;
       const fl = ST.wallFloors().find(x => x.id === f); if (fl) setCut(f, fl.top - fl.level);
     } }, '✂ גובה קיר');
-    const legend = h('span', { class: 'cut-legend' }, (ST.C.caps || []).map(c => h('span', { title: c.label }, h('i', { style: `background:${c.color}` }), h('small', {}, c.label))));
+    const legend = h('span', { class: 'cut-legend' }, ST.legend().map(c => h('span', { title: c.label }, h('i', { style: c.style }), h('small', {}, c.label))));
     // six fixed states (Avihai 13.11.2026): 10 / 40 / 120 cm, lintel band, dropped ceiling, full height
     const goPreset = (p) => {
       const f = this.cutFloorSel.value, lvl = ST.presetLevel(f, p); if (lvl == null) return;

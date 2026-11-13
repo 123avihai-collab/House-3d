@@ -1,0 +1,142 @@
+{
+ "_doc": "נוצר ע\"י tools/boq/export_model_quantities.mjs – כמויות שהמודל מחשב מהגיאומטריה (app.quantities). משמש לבקרה של כתב הכמויות.",
+ "quantities": {
+  "excavation": {
+   "earthworks": {
+    "strip": 99.65000000001409,
+    "level": 12.715434499049469,
+    "fillWalls": 267.55170979662034,
+    "fillSlabs": 4.289619708621672,
+    "cutFormation": 25.439507387775627,
+    "fillMaxDepth": 2.6000000000000227
+   },
+   "chamberPitVolume_m3": 0.1470265361879972,
+   "volume_m3": 592.4411949121204,
+   "pitVolume_m3": 585.8160996984593,
+   "trenchVolume_m3": 6.4780686774730825,
+   "trenchCount": 19,
+   "maxDepth_m": 3.1077508932902447,
+   "bottomArea_m2": 171.55032348632812,
+   "shoringLength_m": 38.962540551448484,
+   "shoringMaxHeight_m": 3.115577249437422,
+   "shoringArea_m2": 99.34424401475248
+  },
+  "piles": {
+   "count": 49,
+   "drill_m": 563,
+   "concrete_m3": 122.38074182059039,
+   "byType": {
+    "ø50 L=11": 34,
+    "ø60 L=13": 8,
+    "ø60 L=11": 3,
+    "ø50 L=13": 4
+   }
+  },
+  "foundations": {
+   "walls_m3": 39.428999999999995,
+   "slabs_m3": 27.23045,
+   "beams_m3": 13.154759173741622,
+   "beamsCount": 31,
+   "beamsMissing": []
+  },
+  "plumbing": {
+   "chambers": 7,
+   "pipes": 30,
+   "pipeLength_m": 91.99999999999999,
+   "sleeves": 28
+  },
+  "pool": {
+   "poolArea_m2": 31.008,
+   "tankArea_m2": 6.488
+  },
+  "groundFloor": {
+   "slab_m3": 89.0335,
+   "walls_m3": 28.230439999999994,
+   "columns_m3": 4.164999809116126,
+   "ceiling_m3": 34.2779,
+   "beams_m3": 11.26810397957051,
+   "beamsMissing": []
+  },
+  "firstFloor": {
+   "slab_m3": 0,
+   "walls_m3": 13.097050000000003,
+   "columns_m3": 1.8259999179840087,
+   "ceiling_m3": 32.118,
+   "beams_m3": 0,
+   "beamsMissing": []
+  },
+  "roof": {
+   "slab_m3": 0,
+   "walls_m3": 26.384549999999994,
+   "columns_m3": 0,
+   "ceiling_m3": 0,
+   "beams_m3": 12.654248115112036,
+   "beamsMissing": []
+  },
+  "stairs": {
+   "concrete_m3": 2.7338797664081604
+  },
+  "perimeter": {
+   "footings_m3": 13.2438,
+   "walls_m3": 39.972858352661135
+  },
+  "mamadFrames": {
+   "count": 2
+  },
+  "mamad": {
+   "count": 6
+  },
+  "starters": {
+   "elements": 66,
+   "bars": 1427
+  },
+  "proposals": {
+   "count": 3
+  },
+  "props": {
+   "groups": 9
+  },
+  "blocks": {
+   "full": 1387,
+   "cut": 1548,
+   "area_m2": 315.072,
+   "byThickness": {
+    "10": {
+     "full": 592,
+     "cut": 620,
+     "area_m2": 133.67
+    },
+    "15": {
+     "full": 0,
+     "cut": 15,
+     "area_m2": 1.087
+    },
+    "16": {
+     "full": 0,
+     "cut": 22,
+     "area_m2": 1.26
+    },
+    "20": {
+     "full": 0,
+     "cut": 18,
+     "area_m2": 1.263
+    },
+    "22": {
+     "full": 546,
+     "cut": 552,
+     "area_m2": 120.96600000000001
+    },
+    "30": {
+     "full": 249,
+     "cut": 321,
+     "area_m2": 56.82600000000001
+    }
+   },
+   "boxes": 12,
+   "mortar_l": 385.393,
+   "adhesive_l": 1068.0360000000003,
+   "lintels": 38,
+   "lintel_m": 44.76400000000001
+  }
+ }
+}

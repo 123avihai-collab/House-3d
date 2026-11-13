@@ -56,6 +56,7 @@
   "plaster": "data/finishes/plaster/surfaces.json",
   "plasterTypes": "data/finishes/plaster/types.json",
   "tiling": "data/finishes/tiling/surfaces.json",
+  "tilingExterior": "data/finishes/tiling/exterior.json",
   "electricalUnits": "data/electrical/units.json",
   "cladding": "data/finishes/cladding/surfaces.json",
   "tilingCatalog": "data/finishes/tiling/catalog.json",

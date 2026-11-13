@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { TilingWorkshop } from '../tiling/workshop.js';
+import { surfaceZ, gridPieces } from '../tiling/layout.js';
 import { PoolFinish } from '../tiling/pool.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
 // exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
 // exterior cladding (own category, off) and room names.
 // Data (derived from the model geometry – tools/finishes/derive_finishes.py): data/finishes/plaster/surfaces.json,
-// data/finishes/tiling/surfaces.json, data/architecture/rooms.json. Decisions: data/finishes/plaster/types.json
+// data/finishes/tiling/surfaces.json (+ exterior.json – exterior paving on a sloped finish surface, tools/finishes/derive_exterior.py),
+// data/architecture/rooms.json. Decisions: data/finishes/plaster/types.json
 // (types, colours, parameters, prices), overrides.json (Avihai's type per surface). Changes made in the model are kept in
 // the artifact database (collection "plaster", read by Claude with ArtifactData) – outside claude.ai in this browser.
 // Display constants: data/config/display.json → finishes. No dimension is written here.
@@ -54,6 +56,9 @@ class Finishes {
     this.types = T.types; this.typeBy = Object.fromEntries(T.types.map(t => [t.id, t]));
     this.drawn = T.types.filter(t => t.drawn !== false);   // plaster that is shown (no plaster on membrane / cladding / neighbour side)
     this.CL = ctx.cladding; this.BU = TL.buildUp;
+    // exterior paving (ריצוף חוץ): own build-up (slope fill → waterproofing → adhesive → outdoor tile), the finish on a sloped surface
+    this.EX = ctx.data.tilingExterior || null; this.EXL = this.EX?.buildUp.layers || [];
+    for (const r of this.EX?.rooms || []) r.zAt = surfaceZ(r.surface);
     this.rooms = Object.fromEntries(R.rooms.map(r => [r.key, r]));
     this.surf = [
       ...P.walls.map(s => ({ ...s, cat: 'wall', amount: s.net })),
@@ -108,7 +113,7 @@ class Finishes {
     }
     return out;
   }
-  ringTris(ring, holes, z) {
+  ringTris(ring, holes, z) {   // z: a level, or z(E, N) (a sloped exterior surface)
     const v2 = (r) => r.map(([x, y]) => new THREE.Vector2(x, y));
     const C = v2(ring), Hs = (holes || []).map(v2);
     if (THREE.ShapeUtils.isClockWise(C)) C.reverse();
@@ -116,8 +121,17 @@ class Finishes {
     const all = [...C, ...Hs.flat()];
     const tri = THREE.ShapeUtils.triangulateShape(C, Hs);
     const out = [];
-    for (const t of tri) for (const i of t) out.push(this.V(all[i].x, all[i].y, z));
+    for (const t of tri) for (const i of t) out.push(this.V(all[i].x, all[i].y, typeof z === 'function' ? z(all[i].x, all[i].y) : z));
     return out;
+  }
+  // a layer of a sloped (exterior) zone: cut into grid cells so its faces follow the surface
+  slopedTris(ring, holes, z) { return gridPieces(ring, holes, this.ctx.data.display.tiling?.exteriorGrid_m ?? 0.5).flatMap(([o, hs]) => this.ringTris(o, hs, z)); }
+  // the bottom / top of a floor layer: a level (inside), or the finish surface + offset / flat on the slab (exterior)
+  layerZ(r, l, end) {
+    if (!r.zAt) return l[end];
+    const dz = end === 'z0' ? l.dz0 : l.dz1;
+    if (dz == null) return r.slabTop;
+    return (E, N) => r.zAt(E, N) + dz;
   }
   quadTris(q, off = 0, n = null) {   // q: 4 corners [E, N, z]; optional offset along a plan normal
     const P = q.map(([E, N, z]) => this.V(E + (n ? n[0] * off : 0), N + (n ? n[1] * off : 0), z));
@@ -151,7 +165,7 @@ class Finishes {
     const plasterLayers = this.drawn.map(t => 'plaster_' + t.id);
     registry.defer([...plasterLayers], () => this.buildPlaster());
     registry.defer(['wetProofing'], () => this.buildWaterproofing());
-    registry.defer(this.BU.layers.map(l => l.id), () => this.buildFloors());
+    registry.defer([...this.BU.layers, ...this.EXL].map(l => l.id), () => this.buildFloors());
     if (this.pool) registry.defer(['poolTile', 'poolCoping'], () => this.pool.build3D());
     registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
@@ -351,17 +365,26 @@ class Finishes {
   // the floor build-up over the slab: fill / screed / adhesive / tile placeholder – one layer each (no plaster on floors)
   buildFloors() {
     const byLayer = {}; const n0 = this.items.length;
-    for (const r of this.TL.rooms) for (const l of r.layers || []) for (const p of r.parts) {
-      if (l.id === 'floorTile' && this.tiling?.has(r.room)) continue;   // tiles chosen in the workshop – drawn by src/tiling instead of the placeholder
-      const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set() };
-      const top = this.ringTris(p.ringITM, p.holesITM, l.z1), bot = this.ringTris(p.ringITM, p.holesITM, l.z0 + 0.0005);
-      const ring = p.ringITM, sides = [];
-      for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length];
-        sides.push(...this.quadTris([[a[0], a[1], l.z0], [b[0], b[1], l.z0], [b[0], b[1], l.z1], [a[0], a[1], l.z1]])); }
+    const step = this.ctx.data.display.tiling?.exteriorGrid_m ?? 0.5;
+    for (const r of [...this.TL.rooms, ...(this.EX?.rooms || [])]) for (const l of r.layers || []) for (const p of r.parts) {
+      if ((l.id === 'floorTile' || l.id === 'extTile') && this.tiling?.has(r.room)) continue;   // tiles chosen in the workshop – drawn by src/tiling instead of the placeholder
+      const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set(), outdoor: !!r.outdoor };
+      const z0 = this.layerZ(r, l, 'z0'), z1 = this.layerZ(r, l, 'z1');
+      const at = (z, E, N) => typeof z === 'function' ? z(E, N) : z;
+      const tris = (z) => r.zAt ? this.slopedTris(p.ringITM, p.holesITM, z) : this.ringTris(p.ringITM, p.holesITM, z);
+      const top = tris(z1), bot = tris(typeof z0 === 'function' ? (E, N) => z0(E, N) + 0.0005 : z0 + 0.0005);
+      const sides = [];
+      for (const ring of [p.ringITM, ...(p.holesITM || [])]) for (let i = 0; i < ring.length; i++) {
+        const a = ring[i], b = ring[(i + 1) % ring.length], n = r.zAt ? Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)) : 1;
+        for (let k = 0; k < n; k++) {   // exterior: the edge in short pieces so the sides follow the slope
+          const A = [a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n], B = [a[0] + (b[0] - a[0]) * (k + 1) / n, a[1] + (b[1] - a[1]) * (k + 1) / n];
+          sides.push(...this.quadTris([[A[0], A[1], at(z0, ...A)], [B[0], B[1], at(z0, ...B)], [B[0], B[1], at(z1, ...B)], [A[0], A[1], at(z1, ...A)]]));
+        }
+      }
       for (const t of [top, bot, sides]) for (let i = 0; i < t.length; i += 3) { g.pts.push(t[i], t[i + 1], t[i + 2]); g.map.push('floor:' + r.room); }
       g.rooms.add(r.room);
     }
-    const def = Object.fromEntries(this.BU.layers.map(l => [l.id, l]));
+    const def = Object.fromEntries([...this.BU.layers, ...this.EXL].map(l => [l.id, l]));
     for (const g of Object.values(byLayer)) {
       const d = def[g.l.id];
       // a textured layer (the sumsum + sand fill: small stones – data/materials/materials.json) gets UVs in metres:
@@ -379,12 +402,18 @@ class Finishes {
       }
       const grp = new THREE.Group(); grp.add(m);
       if (!d.color) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineBasicMaterial({ color: '#90a4ae' })); e.userData.keep = true; grp.add(e); }
-      const rs = this.TL.rooms.filter(r => g.rooms.has(r.room)), area = rs.reduce((a, r) => a + r.area, 0);
+      const rs = [...this.TL.rooms, ...(this.EX?.rooms || [])].filter(r => g.rooms.has(r.room)), area = rs.reduce((a, r) => a + r.area, 0);
+      const ls = rs.map(r => r.layers.find(x => x.id === g.l.id)), vol = rs.reduce((a, r, i) => a + r.area * ls[i].thickness_m, 0);
+      const thick = g.outdoor && d.thickness_m == null ? `${f2(Math.min(...ls.map(x => x.min_m)) * 100)}–${f2(Math.max(...ls.map(x => x.max_m)) * 100)} ס"מ, ממוצע ${f2(vol / area * 100)} (משתנה לאורך השיפוע – זמני)`
+        : `${f2(g.l.thickness_m * 100)} ס"מ (${d.status === 'placeholder' ? 'מקום שמור' : 'זמני'})`;
       this.add(grp, { floor: g.fl, step: 'tiling', layer: g.l.id }, {
-        name: `${d.label} – ${FLOOR_HE[g.fl]}`, kind: 'floorLayer', id: g.l.id + '-' + g.fl,
-        rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', `${f2(g.l.thickness_m * 100)} ס"מ (${d.status === 'placeholder' ? 'מקום שמור' : 'זמני'})`],
-          ['נפח', `${f2(area * g.l.thickness_m)} מ"ק`], ['סדר', 'יציקה → סומסום → טיט / מדה → דבק → אריח']],
-        source: 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json', note: this.BU._doc });
+        name: `${d.label} – ${g.outdoor ? 'חוץ' : FLOOR_HE[g.fl]}`, kind: 'floorLayer', id: g.l.id + '-' + g.fl,
+        rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
+          ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
+          ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200)'],
+            ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)`])] : [])],
+        source: g.outdoor ? 'data/finishes/floors/exterior-buildup.json; data/finishes/tiling/exterior.json (tools/finishes/derive_exterior.py)' : 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json',
+        note: g.outdoor ? this.EX.buildUp._doc : this.BU._doc });
     }
     this.tiling?.build3D();
     this.floorItems = this.items.slice(n0);

@@ -9,7 +9,8 @@ import { layoutZone, optimize, quantities, frameOf, area, clipRect } from './lay
 // (collection "tiling", read by Claude with ArtifactData) – outside claude.ai in this browser. No dimension is written here.
 
 const LS = 'house3d.tiling';
-const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג' };
+const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', ext: 'ריצוף חוץ (פיתוח)' };
+const grpOf = (z) => z.r.outdoor ? 'ext' : z.floor;   // exterior paving – its own group in the workshop
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const f0 = (v) => Math.round(v).toLocaleString('he-IL');
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 't' + (x >>> 0).toString(36); };
@@ -41,12 +42,14 @@ export class TilingWorkshop {
     this.patBy = Object.fromEntries(this.C.patterns.map(x => [x.id, x]));
     this.dirBy = Object.fromEntries(this.C.directions.map(x => [x.id, x]));
     const ex = new Set(this.C.excludeRoomTypes || []);
-    this.zones = F.TL.rooms.filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => ({
-      key: r.room, r, floor: r.floor, name: r.zoneName || F.rooms[r.room]?.name || r.roomName || 'ללא שם',
-      // the zone with its doorway strips as one polygon (door-strips.json zones) – a tile across the threshold is one tile
-      parts: (data.tilingDoorStrips?.zones?.[r.room] || r.parts).map(p => [p.ringITM, ...(p.holesITM || [])]),
-      tileLayer: r.layers.find(l => l.id === 'floorTile'),
-    }));
+    // zones: the room floors + the exterior paving zones (data/finishes/tiling/exterior.json – a sloped finish surface r.zAt)
+    this.zones = [...F.TL.rooms, ...(F.EX?.rooms || [])].filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => {
+      const tileLayer = r.layers.find(l => l.id === 'floorTile' || l.id === 'extTile');
+      return { key: r.room, r, floor: r.floor, name: (r.outdoor ? r.roomName : r.zoneName || F.rooms[r.room]?.name || r.roomName) || 'ללא שם',
+        // the zone with its doorway strips as one polygon (door-strips.json zones) – a tile across the threshold is one tile
+        parts: (data.tilingDoorStrips?.zones?.[r.room] || r.parts).map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer,
+        zTop: r.zAt ? (E, N) => r.zAt(E, N) + tileLayer.dz1 : () => tileLayer.z1 };   // top of the tile at (E, N)
+    });
     this.zoneBy = Object.fromEntries(this.zones.map(z => [z.key, z]));
     this.choice = { ...(data.tilingLayout?.rooms || {}) };
     try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); if (l.choice) this.choice = { ...this.choice, ...l.choice }; this.sel = l.sel; this.showCuts = l.showCuts ?? true; this.showGrid = !!l.showGrid; } catch { this.showCuts = true; }
@@ -75,7 +78,7 @@ export class TilingWorkshop {
   }
   async setChoice(key, patch, { rebuild = true } = {}) {
     if (patch === null) delete this.choice[key];
-    else this.choice[key] = { ...this.C.defaults, ...(this.choice[key] || {}), ...patch };
+    else this.choice[key] = { ...this.C.defaults, ...(this.zoneBy[key]?.r.outdoor ? this.C.outdoorDefaults : {}), ...(this.choice[key] || {}), ...patch };
     this.saveLocal();
     if (rebuild) { this.rebuild(); this.refresh(); }
     if (this.col) {
@@ -173,11 +176,10 @@ export class TilingWorkshop {
     for (const z of this.zones) {
       const c = this.choice[z.key]; if (!c) continue;
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
-      const z1 = z.tileLayer.z1;
       const pos = [], col = [], uv = [], map = [], txy = [], tj = [], gc = [];
       const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength, faces = fin.faceTexture ? (fin.faces || 1) : 0;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color(), gr = this.groutOf(c, fin), grc = new THREE.Color(gr.color);
-      const W = (u, v, zz) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, zz); };
+      const W = (u, v) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, z.zTop(E, N)); };   // on the (sloped) finish surface
       const partsLoc = z.parts.map(pt => pt.map(r => r.map(lay.frame.toLocal)));
       for (const p of lay.pieces) {
         const k = 1 + (rnd(p.i, p.j) - 0.5) * 2 * (fin.vary || 0);
@@ -196,7 +198,7 @@ export class TilingWorkshop {
           polys.push([o, hs]);
         }
         // top face: uv in metres (+ offset per tile; wood – grain along the tile length), tileXY = place inside the tile
-        const push = (u, v, zz) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
+        const push = (u, v) => { pos.push(...W(u, v)); col.push(tmp.r, tmp.g, tmp.b);
           const lu = u - p.x0, lv = v - p.y0; if (faces) uv.push((face + Math.min(1, Math.max(0, lu / L))) / faces, Math.min(1, Math.max(0, lv / Wd))); else uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
           txy.push(lu, lv, L, Wd); tj.push(jh); gc.push(grc.r, grc.g, grc.b); };
         for (const [o, hs] of polys) {
@@ -206,7 +208,7 @@ export class TilingWorkshop {
           if (THREE.ShapeUtils.isClockWise(C2)) C2.reverse();
           Hs.forEach(hh => { if (!THREE.ShapeUtils.isClockWise(hh)) hh.reverse(); });
           const all = [...C2, ...Hs.flat()];
-          for (const tr of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of tr) push(all[i].x, all[i].y, z1); map.push(z.key); }
+          for (const tr of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of tr) push(all[i].x, all[i].y); map.push(z.key); }
         }
       }
       const g = new THREE.BufferGeometry();
@@ -220,7 +222,7 @@ export class TilingWorkshop {
       const m = new THREE.Mesh(g, this.matOf(fin)); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
       const grp = new THREE.Group(); grp.add(m);
       const q = lay.q, sz = lay.size;
-      const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: 'floorTile' }, {
+      const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: z.r.outdoor ? 'extTile' : 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,
         rows: [['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
           ['שטח', `${f2(q.area_m2)} מ"ר`], ['אריחים', `${q.full} שלמים + ${q.cut} חתוכים${q.slivers ? ` (${q.slivers} צרים מ-5 ס"מ!)` : ''}`],
@@ -244,8 +246,8 @@ export class TilingWorkshop {
     if (!z || !on) return;
     const pts = [];
     for (const part of z.parts) for (const ring of part) for (let i = 0; i < ring.length; i++) {
-      const a = ring[i], b = ring[(i + 1) % ring.length], zz = z.tileLayer.z1 + 0.01;
-      pts.push(...this.F.V(a[0], a[1], zz), ...this.F.V(b[0], b[1], zz));
+      const a = ring[i], b = ring[(i + 1) % ring.length];
+      pts.push(...this.F.V(a[0], a[1], z.zTop(a[0], a[1]) + 0.01), ...this.F.V(b[0], b[1], z.zTop(b[0], b[1]) + 0.01));
     }
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
     const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: this.F.D.selectColor, depthTest: false }));
@@ -260,7 +262,7 @@ export class TilingWorkshop {
   enter() {
     const app = this.app; if (!app) return;
     const st = app.store.get();
-    app.store.set({ layers: { ...st.layers, floorTile: true, poolTile: true, poolCoping: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
+    app.store.set({ layers: { ...st.layers, floorTile: true, extTile: true, poolTile: true, poolCoping: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
     if (this.built) this.rebuild();   // cut pieces marked in this mode
     this.drawOutline();
     app.ui.openTab('tiling', !app.ui.isMobile());
@@ -271,9 +273,11 @@ export class TilingWorkshop {
     const app = this.app, z = this.zoneBy[key]; if (!app || !z) return;
     const st = app.store.get();
     const floors = Object.fromEntries(Object.entries(st.floors).map(([k, v]) => [k, { ...v, visible: k === z.floor }]));
-    const fin = z.tileLayer.z1;
-    app.store.set({ floors, layers: { ...st.layers, floorTile: true }, section: { ...st.section, hOn: true, hideBeams: true, hLevel: +(fin + this.F.D.interiorCutAbove_m).toFixed(2) } }, { label: 'tiling view' });
     const F = frameOf(z.parts[0], {}, null, null);
+    const fin = z.zTop(F.cx, F.cy);
+    // exterior: no horizontal cut (open to the sky) – the ground floor, the tile layer on
+    if (z.r.outdoor) app.store.set({ floors, layers: { ...st.layers, extTile: true }, section: { ...st.section, hOn: false } }, { label: 'tiling view' });
+    else app.store.set({ floors, layers: { ...st.layers, floorTile: true }, section: { ...st.section, hOn: true, hideBeams: true, hLevel: +(fin + this.F.D.interiorCutAbove_m).toFixed(2) } }, { label: 'tiling view' });
     const t = new THREE.Vector3(...this.F.V(F.cx, F.cy, fin));
     const R = Math.max(...F.size) * (this.D.viewDistance ?? 1.1) + 2;
     app.viewer.flyTo(t, t.clone().add(new THREE.Vector3(R * 0.25, R, R * 0.35)));
@@ -339,29 +343,31 @@ export class TilingWorkshop {
   panel(ui) {
     const app = this.app, st = app.store.get(), on = st.mode === 'tiling';
     const wrap = h('div', { class: 'finishes tiling' });
-    wrap.append(h('p', { class: 'muted' }, 'סדנת ריצוף: בוחרים לכל אזור אריח (מידה, גימור, דוגמה, כיוון, נקודת התחלה, פוגה), רואים את הפריסה בתוכנית ובמודל, ומקבלים כמויות להזמנה. גרירה על התוכנית מזיזה את הפריסה; "פריסה מושלמת" מחפשת את ההזזה עם הכי מעט חיתוכים צרים.'),
+    wrap.append(h('p', { class: 'muted' }, 'סדנת ריצוף (פנים + ריצוף חוץ): בוחרים לכל אזור אריח (מידה, גימור, דוגמה, כיוון, נקודת התחלה, פוגה), רואים את הפריסה בתוכנית ובמודל, ומקבלים כמויות להזמנה. גרירה על התוכנית מזיזה את הפריסה; "פריסה מושלמת" מחפשת את ההזזה עם הכי מעט חיתוכים צרים.'),
       h('div', { class: 'fix-conn ' + (this.state === 'online' ? 'ok' : 'warn') }, this.state === 'online' ? 'מחובר: הבחירות נשמרות במודל וקלוד קורא אותן.' : 'לא מחובר (מחוץ ל-claude.ai): הבחירות נשמרות בדפדפן הזה בלבד.'),
       h('div', { class: 'btns' },
         h('button', { class: on ? 'on primary' : 'primary', onclick: () => app.store.set({ mode: on ? 'view' : 'tiling' }, { label: 'mode' }) }, on ? '✓ מצב ריצוף פעיל (יציאה)' : '▦ כניסה למצב ריצוף'),
         h('button', { class: 'primary' + (this.showGrid ? ' on' : ''), 'data-act': 'grid', title: 'כל הפוגות במודל בצבע בולט – לראות את החלוקה בפועל (לחיצה נוספת – המראה האמיתי, בצבע הרובה)', onclick: () => this.setGrid(!this.showGrid) }, this.showGrid ? '✓ חלוקה מוצגת (חזרה למראה אמיתי)' : '▦ הצג חלוקה במודל'),
         h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: this.showCuts, onchange: (e) => { this.showCuts = e.target.checked; this.saveLocal(); this.rebuild(); } }), ' סימון חיתוכים צרים במודל')));
     // the build-up under the tile (layers): fill (sumsum + sand) → screed → adhesive → tile
-    const BU = this.F.BU;
-    wrap.append(h('h4', {}, 'שכבות הרצפה'), h('div', { class: 'btns layers-chips' }, BU.layers.map(l => {
+    const BU = this.F.BU, EX = this.F.EX;
+    const chips = (layers) => h('div', { class: 'btns layers-chips' }, layers.map(l => {
       const v = st.layers[l.id] !== false;
       return h('button', { class: 'small' + (v ? ' on' : ''), title: l.label, onclick: () => app.store.set({ layers: { ...app.store.get().layers, [l.id]: !v } }, { label: 'layers' }) },
         l.color ? h('i', { class: 'swc', style: `background:${l.color}` }) : h('i', { class: 'swc off' }), ' ', l.short || l.label);
-    })), h('div', { class: 'muted' }, 'עוביים: ' + BU.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 100) + ' ס"מ' : 'השארית'}`).join(' · ') + ' – זמני (open-issues #163).'));
+    }));
+    wrap.append(h('h4', {}, 'שכבות הרצפה'), chips(BU.layers), h('div', { class: 'muted' }, 'פנים – עוביים: ' + BU.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 100) + ' ס"מ' : 'השארית'}`).join(' · ') + ' – זמני (open-issues #163).'));
+    if (EX) wrap.append(chips(EX.buildUp.layers), h('div', { class: 'muted' }, 'חוץ – מעל רצפות הבטון החיצוניות: ' + EX.buildUp.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 1000) + ' מ"מ' : 'משתנה (בשיפוע)'}`).join(' → ') + '. פני הריצוף – לפי גבהי הפיתוח בהיתר (שיפוע 1.5% / 2%). ⚠ זמני – אין פרט ריצוף / איטום חוץ (open-issues #170, #200).'));
 
     // zones
     const byFl = {};
-    for (const z of this.zones) (byFl[z.floor] ||= []).push(z);
+    for (const z of this.zones) (byFl[grpOf(z)] ||= []).push(z);
     wrap.append(h('h4', {}, 'אזורים'), h('table', { class: 'qty zones' },
       h('tr', {}, h('th', {}, 'אזור'), h('th', {}, 'מ"ר'), h('th', {}, 'אריח'), h('th', {}, 'חיתוכים')),
       Object.entries(byFl).flatMap(([fl, zs]) => [h('tr', { class: 'grp' }, h('td', { colspan: 4 }, FLOOR_HE[fl])), ...zs.map(z => {
         const c = this.choice[z.key], L = c ? this.layout(z.key) : null;
         return h('tr', { class: 'zone-row' + (z.key === this.sel ? ' sel' : ''), 'data-room': z.key, onclick: () => this.select(z.key) },
-          h('td', {}, z.name), h('td', {}, f2(z.r.area)),
+          h('td', {}, z.name, z.r.outdoor && !z.r.check?.ok ? h('span', { class: 'bad', title: 'סתירה: פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)' }, ' ⛔') : null), h('td', {}, f2(z.r.area)),
           h('td', {}, c ? [h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` }), ' ', this.sizeOf(c).label] : h('span', { class: 'muted' }, 'לא נבחר')),
           h('td', {}, L ? (L.q.slivers ? h('span', { class: 'bad' }, `⚠ ${L.q.slivers} צרים`) : L.q.narrow ? h('span', { class: 'mid' }, `${L.q.narrow} מתחת לשליש`) : '✓') : ''));
       })])));
@@ -376,7 +382,8 @@ export class TilingWorkshop {
   zoneEditor(z) {
     const c = this.choice[z.key];
     const box = h('div', { class: 'zone-ed' });
-    box.append(h('h4', {}, `${z.name} – ${FLOOR_HE[z.floor]} (${f2(z.r.area)} מ"ר)`),
+    box.append(h('h4', {}, `${z.name} – ${FLOOR_HE[grpOf(z)]} (${f2(z.r.area)} מ"ר)`),
+      z.r.outdoor ? this.extInfo(z) : null,
       h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => this.showZone(z.key) }, '👁 הצג במודל (מבט מלמעלה)')));
     if (!c) {
       box.append(h('p', { class: 'muted' }, 'לא נבחר אריח לאזור הזה.'),
@@ -409,7 +416,7 @@ export class TilingWorkshop {
         setTimeout(() => { const r = this.optimizeZone(z.key); if (r) { this.setChoice(z.key, { du_cm: r.du_cm, dv_cm: r.dv_cm }); this.app.ui.toast(`פריסה מושלמת: הזזה ${r.du_cm} / ${r.dv_cm} ס"מ (ציון ${f2(r.before)} → ${f2(r.score)})`); } }, 30);
       } }, '⚡ פריסה מושלמת'),
       h('button', { class: 'small', onclick: () => this.setChoice(z.key, { du_cm: 0, dv_cm: 0 }) }, 'איפוס הזזה'),
-      h('button', { class: 'small', onclick: () => this.applyAll(c, (x) => x.floor === z.floor && x.key !== z.key) }, `העתק לכל ${FLOOR_HE[z.floor]}`),
+      h('button', { class: 'small', onclick: () => this.applyAll(c, (x) => grpOf(x) === grpOf(z) && x.key !== z.key) }, `העתק לכל ${FLOOR_HE[grpOf(z)]}`),
       h('button', { class: 'small', onclick: () => this.applyAll(c, (x) => x.r.roomType === z.r.roomType && x.key !== z.key) }, 'העתק לחדרים מאותו סוג'),
       h('button', { class: 'small x', onclick: () => this.setChoice(z.key, null) }, 'הסר ריצוף')));
     const lay = this.layout(z.key);
@@ -421,10 +428,27 @@ export class TilingWorkshop {
       [['שטח האזור', `${f2(q.area_m2)} מ"ר`], ['אריחים בפריסה', `${q.layTiles} (${q.full} שלמים + ${q.cut} חתוכים)`], ['אריחים לפנלים', `${q.skirtingTiles} (${f2(z.r.skirting_m)} מ"א, גובה ${Math.round(this.C.consumption.skirtingHeight_m * 100)} ס"מ)`],
         ['להזמנה', `${q.order} אריחים · ${q.boxes} קרטונים × ${q.perBox} · ${f2(q.order_m2)} מ"ר (רזרבה ${c.spare_pct}%)`],
         ['דבק', `${f0(q.adhesive_kg)} ק"ג · ${q.adhesiveBags} שקים × ${this.C.consumption.adhesiveBag_kg}`], ['רובה', `${f2(q.grout_kg)} ק"ג · ${q.groutBags} שקים × ${this.C.consumption.groutBag_kg}`],
-        ...z.r.layers.filter(l => l.id === 'floorFill' || l.id === 'floorScreed').map(l => [this.F.BU.layers.find(x => x.id === l.id)?.short || l.id, `${f2(z.r.area * l.thickness_m)} מ"ק (${f2(l.thickness_m * 100)} ס"מ, זמני)`])]
+        ...z.r.layers.filter(l => l.id === 'floorFill' || l.id === 'floorScreed').map(l => [this.F.BU.layers.find(x => x.id === l.id)?.short || l.id, `${f2(z.r.area * l.thickness_m)} מ"ק (${f2(l.thickness_m * 100)} ס"מ, זמני)`]),
+        ...(z.r.outdoor ? this.extRows(z) : [])]
         .map(([k, v]) => h('tr', {}, h('td', {}, k), h('td', {}, v)))),
       h('div', { class: 'muted' }, 'מקדמי צריכה (דבק, רובה, אריחים בקרטון, גובה פנל) – זמניים, לפי היצרן שייבחר (open-issues #178).'));
     return box;
+  }
+  // exterior zone: the finish surface (from the permit spots) and the build-up under the tile
+  extInfo(z) {
+    const r = z.r, S = r.surface, BU = this.F.EX.buildUp, H0 = this.F.ctx.coords.H0 ?? 0;
+    const lv = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} (${(v + H0).toFixed(2)})`;
+    return h('div', { class: 'ext-info' },
+      h('div', { class: 'muted' }, `פני בטון ${lv(r.slabTop)} (K-21, ${r.slab}) · פני ריצוף ${lv(r.finishMin)} עד ${lv(r.finishMax)} · שיפוע המישור ${f2(r.planeSlope_pct)}%`
+        + (r.planeFallAzimuth_deg != null ? ` לכיוון ${Math.round(r.planeFallAzimuth_deg)}°` : '') + ` · ${r.spots.length} נקודות גובה מההיתר${r.dropped.length ? ` (${r.dropped.length} הוצאו – גובה גינה בשולי האזור)` : ''}.`),
+      h('div', { class: 'muted' }, 'מתחת לאריח: ' + BU.layers.map(l => { const x = r.layers.find(y => y.id === l.id); return `${l.short} ${x.thickness_m == null || x.min_m != null ? `${f2(x.min_m * 100)}–${f2(x.max_m * 100)} ס"מ` : f2(x.thickness_m * 1000) + ' מ"מ'}`; }).join(' → ')),
+      r.check.ok ? null : h('div', { class: 'warn' }, `⛔ סתירה: בטון השיפועים יורד עד ${f2(r.check.fillMin_m * 100)} ס"מ (מינימום ${f2(r.check.minFill_m * 100)}) – פני הריצוף בהיתר נמוכים מפני הבטון ${lv(r.slabTop)} + השכבות. לבירור מול הקונסטרוקטור / האדריכל (open-issues #201).`),
+      h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
+  }
+  extRows(z) {
+    const r = z.r, L = (id) => r.layers.find(l => l.id === id), lab = (id) => this.F.EX.buildUp.layers.find(l => l.id === id)?.short || id;
+    return [[lab('extFill'), `${f2(r.fillVolume_m3)} מ"ק (${f2(L('extFill').min_m * 100)}–${f2(L('extFill').max_m * 100)} ס"מ, ממוצע ${f2(L('extFill').thickness_m * 100)}, זמני)`],
+      [lab('extProofing'), `${f2(r.area)} מ"ר (${f2(L('extProofing').thickness_m * 1000)} מ"מ, זמני)`]];
   }
   applyAll(c, pred) {
     const tgt = this.zones.filter(pred);
@@ -460,6 +484,8 @@ export class TilingWorkshop {
     const vol = {};
     for (const z of this.zones) for (const l of z.r.layers) if (l.thickness_m) vol[l.id] = (vol[l.id] || 0) + z.r.area * l.thickness_m;
     box.append(h('div', { class: 'muted' }, 'מתחת לריצוף (כל האזורים): ' + this.F.BU.layers.filter(l => ['floorFill', 'floorScreed'].includes(l.id)).map(l => `${l.short || l.label} ${f2(vol[l.id] || 0)} מ"ק`).join(' · ') + ' (עוביים זמניים)'));
+    const ex = this.zones.filter(z => z.r.outdoor);
+    if (ex.length) box.append(h('div', { class: 'muted' }, `ריצוף חוץ (${ex.length} אזורים, ${f2(ex.reduce((a, z) => a + z.r.area, 0))} מ"ר): בטון שיפועים ${f2(ex.reduce((a, z) => a + z.r.fillVolume_m3, 0))} מ"ק · איטום ${f2(ex.reduce((a, z) => a + z.r.area, 0))} מ"ר (זמני)`));
     box.append(h('div', { class: 'btns' }, h('button', { onclick: () => this.exportXlsx() }, '⬇ ייצוא ל-Excel (xlsx)')));
     return box;
   }
@@ -468,14 +494,19 @@ export class TilingWorkshop {
     const T = this.totals(), wb = X.utils.book_new();
     const sheet = (name, rows) => { const ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = rows[0].map((_, i) => ({ wch: i < 2 ? 26 : 13 })); X.utils.book_append_sheet(wb, ws, name); };
     sheet('אזורים', [['קומה', 'אזור', 'שטח מ"ר', 'אריח (ס"מ)', 'גימור', 'דוגמה', 'כיוון', 'התחלה', 'פוגה מ"מ', 'רובה', 'הזזה ס"מ', 'שלמים', 'חתוכים', 'צרים מ-5 ס"מ', 'מתחת לשליש', 'חיתוך מינימלי ס"מ', 'פחת חיתוך %', 'אריחים לפנלים', 'פנלים מ"א', 'רזרבה %', 'להזמנה (אריחים)', 'קרטונים', 'מ"ר להזמנה', 'דבק ק"ג', 'רובה ק"ג'],
-      ...T.zones.map(({ z, c, L, fin }) => [FLOOR_HE[z.floor], z.name, +L.q.area_m2.toFixed(2), L.size.label, fin.label, L.pat.label, L.dir.label, this.C.origins.find(o => o.id === c.origin)?.label, c.joint_mm, this.groutOf(c, fin).label, `${c.du_cm || 0} / ${c.dv_cm || 0}`,
+      ...T.zones.map(({ z, c, L, fin }) => [FLOOR_HE[grpOf(z)], z.name, +L.q.area_m2.toFixed(2), L.size.label, fin.label, L.pat.label, L.dir.label, this.C.origins.find(o => o.id === c.origin)?.label, c.joint_mm, this.groutOf(c, fin).label, `${c.du_cm || 0} / ${c.dv_cm || 0}`,
         L.q.full, L.q.cut, L.q.slivers, L.q.narrow, L.q.minCut_m != null ? +(L.q.minCut_m * 100).toFixed(1) : '', +L.q.waste_pct.toFixed(1), L.q.skirtingTiles, +(z.r.skirting_m || 0).toFixed(2), c.spare_pct, L.q.order, L.q.boxes, +L.q.order_m2.toFixed(2), +L.q.adhesive_kg.toFixed(1), +L.q.grout_kg.toFixed(2)]),
-      ...this.zones.filter(z => !this.choice[z.key]).map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), 'לא נבחר'])]);
+      ...this.zones.filter(z => !this.choice[z.key]).map(z => [FLOOR_HE[grpOf(z)], z.name, +z.r.area.toFixed(3), 'לא נבחר'])]);
     sheet('הזמנה', [['אריח', 'גימור', 'מ"ר', 'אריחים', 'קרטונים', 'באריזה', 'דבק ק"ג', 'רובה ק"ג', 'אזורים'], ...T.order.map(o => [o.size, o.finish, +o.area.toFixed(2), o.order, o.boxes, o.perBox, +o.adh.toFixed(1), +o.grout.toFixed(2), o.zones]),
       [], ['מקדמי צריכה – זמניים (data/finishes/tiling/catalog.json, open-issues #178)']]);
     sheet('שכבות רצפה', [['קומה', 'אזור', 'שטח מ"ר', ...this.F.BU.layers.map(l => `${l.short || l.label} (ס"מ)`), ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => `${l.short || l.label} מ"ק`)],
-      ...this.zones.map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), ...this.F.BU.layers.map(l => +((z.r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
+      ...this.zones.filter(z => !z.r.outdoor).map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), ...this.F.BU.layers.map(l => +((z.r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
         ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => +(z.r.area * (z.r.layers.find(x => x.id === l.id)?.thickness_m || 0)).toFixed(3))])]);
+    const EX = this.F.EX;
+    if (EX) sheet('שכבות חוץ', [['אזור', 'רצפה', 'שטח מ"ר', 'פני בטון', 'פני ריצוף מינ\'', 'פני ריצוף מקס\'', 'שיפוע %', ...EX.buildUp.layers.map(l => `${l.short} (ס"מ)`), 'בטון שיפועים מינ\' ס"מ', 'בטון שיפועים מקס\' ס"מ', 'בטון שיפועים מ"ק', 'איטום מ"ר', 'סתירה'],
+      ...EX.rooms.map(r => [r.roomName, r.slab, r.area, r.slabTop, r.finishMin, r.finishMax, r.planeSlope_pct, ...EX.buildUp.layers.map(l => +((r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
+        +(r.check.fillMin_m * 100).toFixed(1), +(r.check.fillMax_m * 100).toFixed(1), r.fillVolume_m3, r.area, r.check.ok ? '' : 'פני הריצוף נמוכים מהבטון + השכבות (#201)']),
+      [], ['זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200). פני הריצוף – גבהי הפיתוח בהיתר (data/finishes/tiling/exterior.json).']]);
     if (this.F.pool) { const P = this.F.pool, q = P.quantities(), c = P.c;
       sheet('בריכה', [['פריט', 'כמות', 'יחידה', 'פירוט'],
         ['רצפת הבריכה (נטו)', +q.floor.toFixed(2), 'מ"ר', `${q.tile.label} · ${P.surfColor('floor').label}`],

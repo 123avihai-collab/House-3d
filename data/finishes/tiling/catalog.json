@@ -160,6 +160,22 @@
    "grainAlongLength": true,
    "swatch": "#b08c62",
    "grout": "oak"
+  },
+  {
+   "id": "outdoorStone",
+   "label": "חוץ – דמוי אבן בז' (R11)",
+   "color": "#cbbfa9",
+   "vary": 0.07,
+   "roughness": 0.85,
+   "grout": "beige"
+  },
+  {
+   "id": "outdoorGrey",
+   "label": "חוץ – אפור בטון (R11)",
+   "color": "#a9a8a3",
+   "vary": 0.06,
+   "roughness": 0.85,
+   "grout": "grey"
   }
  ],
  "patterns": [
@@ -332,5 +348,14 @@
    "status": "product"
   }
  ],
- "_products": "מוצרים אמיתיים שאביחי בחר (מק\"ט ספק). בחירת מוצר באזור קובעת יחד מידה, עובי, אריחים בקרטון וגימור. מידות ואריזה – מהספק; המראה – זמני עד טקסטורה מתמונה."
+ "_products": "מוצרים אמיתיים שאביחי בחר (מק\"ט ספק). בחירת מוצר באזור קובעת יחד מידה, עובי, אריחים בקרטון וגימור. מידות ואריזה – מהספק; המראה – זמני עד טקסטורה מתמונה.",
+ "outdoorDefaults": {
+  "size": "60x60",
+  "finish": "outdoorStone",
+  "joint_mm": 3,
+  "pattern": "grid",
+  "direction": "along",
+  "origin": "center"
+ },
+ "_outdoorDefaults": "ריצוף חוץ (data/finishes/tiling/exterior.json): ברירת מחדל לאזור חוץ חדש – 60×60 נגד החלקה, פוגה 3 מ\"מ. זמני – אין במקורות סוג אריח לחוץ; בתוכנית 'קומה קרקע – פיתוח היקפי' כתוב רק 'ריצוף נוגד החלקה' (open-issues #202)."
 }

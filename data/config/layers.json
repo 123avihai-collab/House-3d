@@ -471,6 +471,26 @@
      "visible": false
     },
     {
+     "id": "extFill",
+     "label": "ריצוף חוץ: בטון שיפועים (משתנה)",
+     "visible": false
+    },
+    {
+     "id": "extProofing",
+     "label": "ריצוף חוץ: איטום צמנטי",
+     "visible": false
+    },
+    {
+     "id": "extAdhesive",
+     "label": "ריצוף חוץ: דבק",
+     "visible": false
+    },
+    {
+     "id": "extTile",
+     "label": "ריצוף חוץ: אריחים (סדנת ריצוף)",
+     "visible": false
+    },
+    {
      "id": "roomLabels",
      "label": "שמות חדרים",
      "visible": false

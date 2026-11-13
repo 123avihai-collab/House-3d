@@ -485,7 +485,7 @@ export class TilingWorkshop {
         ['דבק לבריכות', +q.adhesive_kg.toFixed(1), 'ק"ג', ''], ['רובה אפוקסי', +q.epoxy_kg.toFixed(2), 'ק"ג', ''],
         ['קופינג', +q.coping.len_m.toFixed(2), 'מ"א', `${q.coping.mat.label} · ${Math.round(q.coping.width_m * 100)}×${Math.round(c.coping.thick_m * 100)} ס"מ · ${q.coping.runs.map(r => `${r.k}×${(r.piece_m * 100).toFixed(1)}`).join(' / ')} ס"מ`],
         ['קופינג – יחידות להזמנה', q.coping.order, 'יח\'', `${q.coping.pieces} בפריסה`], ['דבק לקופינג', +q.coping.mortar_kg.toFixed(1), 'ק"ג', ''],
-        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #191)']]); }
+        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #194)']]); }
     const name = 'tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

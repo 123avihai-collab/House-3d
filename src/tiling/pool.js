@@ -213,7 +213,7 @@ export class PoolFinish {
     }
     const q = this.quantities(), prov = this.chosen() ? '' : ' (ברירת מחדל – טרם נבחר)';
     const meta = (name, rows) => ({ name, kind: 'poolTiles', id: 'POOL-' + name, pickable: true, status: 'provisional', rows,
-      source: 'src/tiling/pool.js – data/finishes/pool/catalog.json; משטחים: data/finishes/pool/surfaces.json ← data/structure/pool.json', note: 'מידות אריח, אריזה ומקדמי צריכה – זמניים (open-issues #191).',
+      source: 'src/tiling/pool.js – data/finishes/pool/catalog.json; משטחים: data/finishes/pool/surfaces.json ← data/structure/pool.json', note: 'מידות אריח, אריזה ומקדמי צריכה – זמניים (open-issues #194).',
       onClick: () => this.app?.ui.openTab('tiling') });
     const add = (g, col, name, rows) => {
       if (!g.pos.length) return;
@@ -258,7 +258,7 @@ export class PoolFinish {
     this.items.push(this.F.add(grp, { floor: 'unit', step: 'tiling', layer: 'poolCoping' }, { name: `קופינג – ${cm.label}${prov}`, kind: 'poolCoping', id: 'POOL-coping', pickable: true, status: 'provisional',
       rows: [['חומר', cm.label], ['חתך', `רוחב ${Math.round(q.coping.width_m * 100)} ס"מ (קיר ${Math.round(this.S.wallThickness_m * 100)} + בליטה ${Math.round(c.overhang_m * 100)}) · עובי ${Math.round(c.thick_m * 100)} ס"מ · ${this.C.coping.edges.find(e => e.id === c.edge)?.label}`],
         ['ראש', `${this.F.ctx.coords.fmtH(zt)} (= המשטח המרוצף)`], ['יחידות', `${q.coping.pieces} · ` + runs.map(r => `${r.k}×${Math.round(r.piece_m * 1000) / 10}`).join(' / ') + ' ס"מ'], ['אורך', `${f2(q.coping.len_m)} מ"א`]],
-      source: 'src/tiling/pool.js – data/finishes/pool/catalog.json; ראש 280.48 – חתכי הבריכה (sources/structure/pool-walls/)', note: 'ראש בטון קיר הבריכה מתחת לקופינג – לא כתוב (open-issues #191).',
+      source: 'src/tiling/pool.js – data/finishes/pool/catalog.json; ראש 280.48 – חתכי הבריכה (sources/structure/pool-walls/)', note: 'ראש בטון קיר הבריכה מתחת לקופינג – לא כתוב (open-issues #194).',
       onClick: () => this.app?.ui.openTab('tiling') }));
   }
   removeItems() { const reg = this.F.ctx.registry; if (!this.items.length) return; reg.remove(this.items); this.F.items = this.F.items.filter(i => !this.items.includes(i)); this.items = []; }
@@ -309,7 +309,7 @@ export class PoolFinish {
       ['קופינג', `${f2(q.coping.len_m)} מ"א · ${q.coping.pieces} יחידות (${q.coping.runs.map(r => `${r.k}×${Math.round(r.piece_m * 1000) / 10}`).join(' / ')} ס"מ) · להזמנה ${q.coping.order}`],
       ['חתך קופינג', `${Math.round(q.coping.width_m * 100)} × ${Math.round(c.coping.thick_m * 100)} ס"מ · ראש ${this.F.ctx.coords.fmtH(this.S.copingTop)}`],
       ['דבק לקופינג', `${f0(q.coping.mortar_kg)} ק"ג`]].filter(Boolean).map(([k, v]) => h('tr', {}, h('td', {}, k), h('td', {}, v)))),
-      h('div', { class: 'muted' }, `רצפה ${this.F.ctx.coords.fmtH(this.S.floor)}, ראש קופינג ${this.F.ctx.coords.fmtH(this.S.copingTop)} – מחתכי הבריכה. מידות אריח, אריזה, עובי וחתך קופינג ומקדמי צריכה – זמניים (open-issues #191).`));
+      h('div', { class: 'muted' }, `רצפה ${this.F.ctx.coords.fmtH(this.S.floor)}, ראש קופינג ${this.F.ctx.coords.fmtH(this.S.copingTop)} – מחתכי הבריכה. מידות אריח, אריזה, עובי וחתך קופינג ומקדמי צריכה – זמניים (open-issues #194).`));
     return box;
   }
   // camera: above the pool, looking down into it

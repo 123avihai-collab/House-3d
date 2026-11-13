@@ -774,7 +774,16 @@ export class UI {
       const fl = ST.wallFloors().find(x => x.id === f); if (fl) setCut(f, fl.top - fl.level);
     } }, '✂ גובה קיר');
     const legend = h('span', { class: 'cut-legend' }, (ST.C.caps || []).map(c => h('span', { title: c.label }, h('i', { style: `background:${c.color}` }), h('small', {}, c.label))));
-    this.cutRow = h('div', { class: 'stg-cut' }, this.cutFloorSel, this.cutRange, this.cutVal, legend);
+    // six fixed states (Avihai 13.11.2026): 10 / 40 / 120 cm, lintel band, dropped ceiling, full height
+    const goPreset = (p) => {
+      const f = this.cutFloorSel.value, lvl = ST.presetLevel(f, p); if (lvl == null) return;
+      app.store.set({ section: { ...app.store.get().section, hOn: true, hideBeams: true, wFloor: f, hLevel: +lvl.toFixed(3) } }, { label: 'wallCut' });
+    };
+    this.cutPresets = (W.presets || []).map(p => { const b = h('button', { class: 'small cut-pre', onclick: () => goPreset(p) }, p.label); b._p = p; return b; });
+    // the dropped-ceiling height of the cut floor – provisional, changed here (finishes module, state.dropCeiling)
+    this.dropInp = h('input', { type: 'number', step: 0.01, class: 'cut-drop', title: 'גובה הנמכת התקרה (זמני) – יחסית ל-±0.00', onchange: (e) => app.modules.finishes?.setDrop(this.cutFloorSel.value, +e.target.value) });
+    this.dropBox = h('label', { class: 'cut-dropbox', title: 'הנמכת תקרה – זמני, אין גובה בתוכניות' }, '⚠ הנמכה', this.dropInp);
+    this.cutRow = h('div', { class: 'stg-cut' }, this.cutFloorSel, h('span', { class: 'cut-pres' }, this.cutPresets), this.cutRange, this.cutVal, this.dropBox, legend);
     return this.cutRow;
   }
   syncCutRow() {
@@ -793,6 +802,11 @@ export class UI {
     this.cutRange.min = this.app.tools.section.C.wallCut.min_m; this.cutRange.max = top;
     this.cutRange.value = Math.min(top, hRel);
     const full = hRel >= top - 0.002;
+    for (const b of this.cutPresets) { const l = ST.presetLevel(fl.id, b._p); b.disabled = l == null; b.classList.toggle('on', l != null && Math.abs(l - sec.hLevel) < 0.002);
+      if (l != null) b.title = `${b._p.id === 'drop' ? 'הנמכת תקרה (זמני)' : b._p.id === 'lintel' ? 'אמצע רצועת המשקופים' : b._p.id === 'full' ? 'גובה מלא – תחתית התקרה' : b._p.label + ' ס"מ מעל הריצוף'} · ${Math.round((l - fl.level) * 100)} ס"מ מעל הריצוף (${app.coords.fmtRel(l)})`; }
+    const dh = app.modules.finishes?.dropHeight?.(fl.id);
+    this.dropBox.classList.toggle('hidden', dh == null);
+    if (dh != null && document.activeElement !== this.dropInp) this.dropInp.value = dh.toFixed(2);
     this.cutVal.textContent = full ? `מלא · ${top.toFixed(2)} מ'` : hRel < 0 || hRel > top ? app.coords.fmtRel(sec.hLevel) : `${Math.round(hRel * 100)} ס"מ מעל הריצוף`;
   }
   syncStageBar() {

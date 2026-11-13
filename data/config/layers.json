@@ -560,6 +560,19 @@
    ]
   },
   {
+   "system": "finishes",
+   "implemented": true,
+   "id": "ceilings",
+   "label": "תקרות מונמכות",
+   "layers": [
+    {
+     "id": "droppedCeiling",
+     "label": "הנמכת תקרה – גבס (זמני, ‎+3.10 בקרקע)",
+     "visible": true
+    }
+   ]
+  },
+  {
    "id": "hvac",
    "label": "מיזוג",
    "system": "hvac",

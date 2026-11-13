@@ -109,7 +109,11 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     info.clipPlanes = await page.evaluate(() => window.__app.viewer.renderer.clippingPlanes.length);
     // section fill: cut solids get a back-face cap twin coloured by kind; the stage bar's "גובה קיר" row follows the cut
     info.sectionFill = await page.evaluate(() => { const S = window.__app.tools.section; const row = document.querySelector('.stg-cut');
-      return { caps: S.caps.length, shown: S.caps.filter(c => c.visible).length, row: !!row && !row.classList.contains('hidden'), floors: S.wallFloors().length }; });
+      return { caps: S.helpers.length, shown: S.helpers.filter(c => c.visible).length, row: !!row && !row.classList.contains('hidden'), floors: S.wallFloors().length }; });
+    // the six cut states + the provisional dropped ceiling (editable)
+    info.cutPresets = await page.evaluate(() => { const a = window.__app, S = a.tools.section, W = a.data.display.sectionCut.wallCut;
+      return { n: W.presets.length, ground: W.presets.map(p => S.presetLevel('ground', p)).filter(v => v != null).length, drop: a.modules.finishes?.dropHeight('ground') }; });
+    if (info.cutPresets.ground !== info.cutPresets.n || info.cutPresets.drop == null) throw new Error('cut presets ' + JSON.stringify(info.cutPresets));
     if (!info.sectionFill.caps || info.sectionFill.shown !== info.sectionFill.caps || !info.sectionFill.row || !info.sectionFill.floors) throw new Error('section fill ' + JSON.stringify(info.sectionFill));
     await page.evaluate(() => { window.__app.store.undo(); window.__app.store.undo(); });
     info.afterUndo = await page.evaluate(() => ({ notes: window.__app.store.get().notes.length, clip: window.__app.viewer.renderer.clippingPlanes.length }));

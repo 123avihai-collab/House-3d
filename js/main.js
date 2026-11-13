@@ -88,6 +88,7 @@ async function main() {
     stageIndex: data.tags.sequence.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },
+    dropCeiling: {},   // dropped-ceiling heights changed in the model: { floor: rel. level } over data/finishes/dropped-ceiling.json
     notes: [], bookmarks: [], labelsOff: {},
     // proposals layer (js/tools/proposals.js): false = plan mode (as the plans, no red); proposalShow[id] = false hides one change in proposals mode
     proposals: false, proposalShow: {},

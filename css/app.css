@@ -88,6 +88,13 @@ body.cutrow { --stage-h: 104px; }
 .cut-sel { background: #2a3039; border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px; }
 .cut-val { white-space: nowrap; min-width: 9em; }
 .cut-btn.on { background: var(--accent); }
+.cut-pres { display: inline-flex; gap: 3px; }
+.cut-pre { padding: 2px 7px; min-width: 0; }
+.cut-pre.on { background: var(--accent); }
+.cut-pre:disabled { opacity: .35; }
+.cut-dropbox { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: #ffb74d; }
+.cut-dropbox.hidden { display: none; }
+.cut-drop { width: 4.6em; background: #2a3039; border: 1px solid #ff9800; border-radius: 6px; color: inherit; padding: 2px 4px; }
 .cut-legend { display: flex; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
 .cut-legend span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
 .cut-legend i { width: 12px; height: 12px; border-radius: 2px; border: 1px solid #0006; display: inline-block; }
@@ -178,8 +185,10 @@ ol.notes.rebar table.kv { font-size: 12px; margin: 2px 0; }
   #stagebar { padding: 6px 8px; }
   .stg-sel { max-width: 46vw; font-size: 12.5px; }
   .stg-nav { min-width: 40px; min-height: 34px; }
-  body.cutrow { --stage-h: 100px; }
-  .cut-legend small { display: none; }
+  body.cutrow { --stage-h: 172px; }
+  .cut-legend { display: none; }
+  .stg-cut { flex-wrap: wrap; row-gap: 3px; }
+  .stg-cut input[type=range] { flex-basis: 100%; order: 9; }
   .cut-val { min-width: 0; }
   details.grp .lrow input[type=checkbox], .floor input[type=checkbox] { width: 20px; height: 20px; }
   body.panel-wide, body.panel-closed { --panel-w: 0px; }

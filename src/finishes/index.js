@@ -145,6 +145,7 @@ class Finishes {
     registry.defer(this.BU.layers.map(l => l.id), () => this.buildFloors());
     registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
+    if (this.ctx.data.droppedCeiling) registry.defer(['droppedCeiling'], () => this.buildDropped());
   }
   add(obj, tags, meta) {
     this.ctx.scene.add(obj);
@@ -195,8 +196,13 @@ class Finishes {
   //  · an exposed beam follows its concrete beam (hidden with "הסתר את הקורות של הקומה החתוכה", the floors tab switches, steps)
   //  · a ceiling follows the "תקרה" switch of the floors tab (the slab layer whose underside is at that level)
   syncOverhead() {
-    if (!this.overhead?.length) return;
     const app = this.app; if (!app) return;
+    // the dropped ceiling sheet: hidden while its own floor is cut horizontally (its edge line stays – where the ceiling is)
+    if (this.dropItems?.length) {
+      const sec0 = app.store.get().section || {}, cf = sec0.hOn ? app.tools.section?.floorAt(sec0.hLevel)?.id : null;
+      for (const it of this.dropItems) it.object.traverse(o => { if (o.userData.dropSheet) o.visible = cf !== it.tags.floor; });
+    }
+    if (!this.overhead?.length) return;
     const st = app.store.get(), sec = st.section || {}, cut = sec.hOn ? sec.hLevel : Infinity, eps = 0.003;
     const reg = this.ctx.registry;
     if (!this._beamIdx) {   // concrete beams by name, with their height range (built once – beams are not deferred)
@@ -225,6 +231,66 @@ class Finishes {
       }
       c.visible = on;
     }
+  }
+  // ---------------------------------------------------------------- dropped ceiling (provisional – data/finishes/dropped-ceiling.json)
+  // the gypsum ceiling of a floor at its height (editable in the model: state.dropCeiling overrides the data value); the area =
+  // the floor's own ceilings (under the slab above it – not the double-height void) minus the excluded room types (mamad)
+  dropHeight(fl) {
+    const o = this.app?.store.get().dropCeiling?.[fl];
+    return o != null ? o : this.ctx.data.droppedCeiling.floors[fl]?.height_rel;
+  }
+  buildDropped() {
+    const DC = this.ctx.data.droppedCeiling, tags = this.ctx.data.tags.floors;
+    this.dropItems = [];
+    for (const [fl, cfg] of Object.entries(DC.floors)) {
+      const hh = this.dropHeight(fl); if (hh == null) continue;
+      const lv = tags.find(f => f.id === fl)?.level, above = tags.filter(f => f.level != null && f.level > lv).map(f => f.level).sort((a, b) => a - b)[0] ?? Infinity;
+      const ex = new Set(cfg.excludeRoomTypes || []);
+      const ceils = this.P.ceilings.filter(c => c.floor === fl && c.z < above && !ex.has(c.roomType));
+      if (!ceils.length) continue;
+      const pts = [], map = [], lines = [];
+      for (const c of ceils) {
+        const tris = this.ringTris(c.ringITM, c.holesITM, hh);
+        for (let i = 0; i < tris.length; i += 3) { pts.push(tris[i], tris[i + 1], tris[i + 2]); map.push(c.key); }
+        for (const r of [c.ringITM, ...(c.holesITM || [])]) r.forEach((q, i) => { const n = r[(i + 1) % r.length]; lines.push(...this.V(q[0], q[1], hh - 0.003), ...this.V(n[0], n[1], hh - 0.003)); });
+      }
+      const grp = new THREE.Group();
+      const sheet = this.mesh(pts, map, this.mat(this.D.droppedCeilingColor)); sheet.userData.dropSheet = true; grp.add(sheet);
+      const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
+      const ls = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: this.D.droppedCeilingEdge })); ls.userData.keep = true; grp.add(ls);
+      const area = ceils.reduce((a, c) => a + c.area, 0), c = this.ctx.coords;
+      const it = this.add(grp, { floor: fl, step: 'finishes', layer: 'droppedCeiling' }, {
+        name: `הנמכת תקרה – ${FLOOR_HE[fl]} (זמני)`, kind: 'droppedCeiling', id: 'DC-' + fl, status: 'provisional', pickable: true,
+        source: `data/finishes/dropped-ceiling.json – ${cfg.source}`,
+        rows: [['גובה תחתית ההנמכה', `${c.fmtRel(hh)} (${(hh + c.H0).toFixed(2)})`], ['מקום מעל ההנמכה', ceils.map(x => x.z).filter((v, i, a) => a.indexOf(v) === i).map(z => `${Math.round((z - hh) * 100)} ס"מ (תקרה ${c.fmtRel(z)})`).join(' · ')],
+          ['שטח', `${f2(area)} מ"ר`], ['סטטוס', '⚠ זמני – אין גובה הנמכה בתוכניות (open-issues)']],
+        onClick: () => this.showDropped(fl) });
+      this.dropItems.push(it);
+    }
+  }
+  showDropped(fl) {
+    const c = this.ctx.coords, hh = this.dropHeight(fl), base = this.ctx.data.droppedCeiling.floors[fl].height_rel;
+    const inp = h('input', { type: 'number', step: 0.01, value: hh.toFixed(2), style: 'width:6em' });
+    const extra = h('div', { class: 'plaster-edit' }, h('b', {}, 'גובה ההנמכה (יחסית ל-±0.00): '), inp,
+      h('button', { class: 'small', onclick: () => this.setDrop(fl, +inp.value) }, 'עדכן'),
+      hh !== base ? h('button', { class: 'small', onclick: () => this.setDrop(fl, null) }, `חזרה ל-${c.fmtRel(base)}`) : '',
+      h('div', { class: 'muted' }, 'נשמר בהגדרות התצוגה שלך (גם בקישור 🔗). ערך הבסיס – data/finishes/dropped-ceiling.json.'));
+    const it = this.dropItems?.find(x => x.meta.id === 'DC-' + fl);
+    this.app.ui.showInfo({ title: it?.meta.name || 'הנמכת תקרה', rows: it?.meta.rows || [], source: it?.meta.source, extra });
+  }
+  setDrop(fl, v) {
+    if (v != null && !Number.isFinite(v)) return;
+    const st = this.app.store.get(), cur = { ...(st.dropCeiling || {}) };
+    if (v == null) delete cur[fl]; else cur[fl] = +v.toFixed(3);
+    this.app.store.set({ dropCeiling: cur }, { label: 'dropCeiling' });
+  }
+  rebuildDropped() {
+    if (!this.dropItems) return;   // not shown yet: built with the current heights when first switched on
+    this.ctx.registry.remove(this.dropItems); this.items = this.items.filter(i => !this.dropItems.includes(i));
+    this.buildDropped();
+    this.ctx.registry.apply(this.app.store.get());
+    if (this.app.ui.app && document.querySelector('#info:not(.hidden)')) { const fl = this.dropItems[0]?.tags.floor; if (fl) this.showDropped(fl); }
+    this.app.viewer.invalidate();
   }
   rebuildPlaster() {
     if (!this.plasterItems) return;   // never shown yet: built with the current types when first switched on
@@ -590,5 +656,7 @@ class Finishes {
     if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); app.registry.onChange(() => this.syncOverhead()); }
+  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); app.registry.onChange(() => this.syncOverhead());
+    let last = JSON.stringify(app.store.get().dropCeiling || {});
+    app.store.on((st) => { const k = JSON.stringify(st.dropCeiling || {}); if (k !== last) { last = k; this.rebuildDropped(); } }); }
 }

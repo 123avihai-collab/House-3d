@@ -234,7 +234,9 @@
   "providedOpacity": 1,
   "roomLabelHeight_m": 1.4,
   "interiorCutAbove_m": 1.3,
-  "provisionalHatch": "#e53935"
+  "provisionalHatch": "#e53935",
+  "droppedCeilingColor": "#f3f1ec",
+  "droppedCeilingEdge": "#ff9800"
  },
  "tiling": {
   "_doc": "תצוגת סדנת הריצוף (src/tiling) – קבועי תצוגה בלבד.",
@@ -255,7 +257,7 @@
    {
     "id": "concrete",
     "label": "קיר / רצפה בטון",
-    "color": "#9fb0c2",
+    "color": "#7f8a96",
     "layers": [
      "basementWalls",
      "groundWalls",
@@ -316,7 +318,7 @@
    }
   ],
   "wallCut": {
-   "min_m": 0.2,
+   "min_m": 0.1,
    "step_m": 0.01,
    "wallLayers": [
     "basementWalls",
@@ -333,7 +335,37 @@
     "groundCeiling",
     "firstCeiling"
    ],
-   "_doc": "full height = the bottom of the floor's ceiling slab (tags.json floors[].ceilingLayers ∩ ceilingSlabLayers, lowest bottom in the model), or the top of its walls where there is no ceiling slab (roof)"
+   "_doc": "full height = the bottom of the floor's ceiling slab (tags.json floors[].ceilingLayers ∩ ceilingSlabLayers, lowest bottom in the model), or the top of its walls where there is no ceiling slab (roof)",
+   "presets": [
+    {
+     "id": "h10",
+     "label": "10",
+     "h_m": 0.1
+    },
+    {
+     "id": "h40",
+     "label": "40",
+     "h_m": 0.4
+    },
+    {
+     "id": "h120",
+     "label": "120",
+     "h_m": 1.2
+    },
+    {
+     "id": "lintel",
+     "label": "משקוף"
+    },
+    {
+     "id": "drop",
+     "label": "הנמכה"
+    },
+    {
+     "id": "full",
+     "label": "מלא"
+    }
+   ],
+   "_docPresets": "מצבי חתך קבועים בסרגל (אביחי 13.11.2026): h_m = גובה מעל הריצוף; lintel = אמצע רצועת המשקופים של הקומה (נמדד מהמודל, שכבת lintels); drop = גובה הנמכת התקרה (data/finishes/dropped-ceiling.json, זמני); full = תחתית התקרה"
   }
  }
 }

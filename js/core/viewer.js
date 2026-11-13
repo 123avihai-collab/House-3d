@@ -92,7 +92,11 @@ export class Viewer {
     });
 
     // post-processing
-    this.composer = new EffectComposer(r);
+    // a stencil buffer in the post-processing target: the section fill (js/tools/section.js) counts the cut solids in it
+    { const sz = r.getSize(new THREE.Vector2()), pr = r.getPixelRatio();
+      const rt = new THREE.WebGLRenderTarget(sz.x * pr, sz.y * pr, { type: THREE.HalfFloatType, stencilBuffer: true });
+      rt.texture.name = 'EffectComposer.rt1';
+      this.composer = new EffectComposer(r, rt); }
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     const ao = display.ao;
     this.gtao = new GTAOPass(this.scene, this.camera, 512, 512);
@@ -102,6 +106,9 @@ export class Viewer {
     // double-sided sheet (plaster, waterproofing) seen from its back was skipped and the blocks / beam edges behind it
     // showed through as dark lines (12.11.2026). Both sides, as the meshes themselves are drawn.
     this.gtao.normalMaterial.side = THREE.DoubleSide;
+    // the section-fill stencil helpers draw nothing themselves: kept out of the AO normal / depth pass
+    { const g = this.gtao, ov = g._overrideVisibility.bind(g);
+      g._overrideVisibility = () => { ov(); this.scene.traverse(o => { if (o.userData.sectionCap && o.visible) { o.visible = false; g._visibilityCache.push(o); } }); }; }
     this.gtao.enabled = ao.enabled && !mobile;
     this.composer.addPass(this.gtao);
     this.composer.addPass(new OutputPass());

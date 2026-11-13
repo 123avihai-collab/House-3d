@@ -95,7 +95,7 @@ export class Registry {
     // materials are shared between components of all floors (one concrete for every wall/slab): a floor's transparency
     // must not leak to the others, so a component gets its own copy of a material the first time it is made transparent
     it.object.traverse(o => {
-      if (!o.material) return;
+      if (!o.material || o.userData.sectionCap) return;   // section-fill stencil helpers (js/tools/section.js) keep their own state
       if (opacity < 0.999 && !o.userData.ownMat) {
         o.userData.sharedMat = o.material;
         o.material = Array.isArray(o.material) ? o.material.map(m => m.clone()) : o.material.clone();

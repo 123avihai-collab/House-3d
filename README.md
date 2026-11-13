@@ -72,6 +72,8 @@ src/finishes/index.js      שלב 5א: טיח לפי סוג (7 סוגים, צב�
     rebar.js               ברזל לכל אלמנט + ביקורת ברזל לפי שלב
     fixes.js               מצב עריכה – תיקונים לקלוד
     section.js             חתך אופקי ואנכי + מילוי חתך (אלמנט חתוך מלא, צבע לפי סוג: בטון / עמוד / קורה / בלוק / משקוף – display.json sectionCut) ו"✂ גובה קיר" בסרגל השלבים (20 ס"מ מעל הריצוף ← גובה מלא) · [אימות](docs/verification/section-fill.md)
+                           מילוי חתך = משטח אמיתי במישור החתך (stencil: ספירת פאות קדמיות/אחוריות לכל סוג) – מלא גם מבט מהצד · 6 מצבים: 10 / 40 / 120 / משקוף / הנמכה / מלא (display.json sectionCut.wallCut.presets)
+                           הנמכת תקרה (זמני): src/finishes (buildDropped) ← data/finishes/dropped-ceiling.json, גובה לשינוי במודל (state.dropCeiling) · בדיקת צנרת: python3 tools/finishes/check_dropped_ceiling.py → docs/verification/dropped-ceiling-pipes.md
     notes.js               הערות ורשימת תיקונים
     proposals.js           שכבת הצעות לשינוי: מצב תוכנית / הצעות, סטטוס לכל OC-n, כיבוי / נטרול הסימונים האדומים (registry.ocChanged)
     navigation.js          נקודות מבט, מבטים שמורים, הליכה בגובה עיניים (לחיצה על רכיבים עובדת גם בהליכה), מפה קטנה: תוכנית הבית לפי קומה (מסובבת לצירי הבית, אוטו / מרתף / קרקע / א' / גג, הגדלה) – לחיצה על חדר = הליכה משם; מצב מגרשים

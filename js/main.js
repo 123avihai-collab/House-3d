@@ -112,6 +112,7 @@ async function main() {
   app.compacted = tm('compact', () => compactRegistry(registry, viewer.scene));   // same picture, far fewer objects / draw calls (Avihai 08.11 – after every module built its parts)
   MaterialLibrary.onTexture = () => viewer.invalidate();
   registry.compactor = (fresh) => { compactRegistry(registry, viewer.scene, fresh); viewer.invalidate(); };   // layers built later (registry.defer) – compacted the same way
+  app.tools.section = new SectionTool(app);   // before the UI: the stage bar's "גובה קיר" row reads its floors / fill colours
   app.ui = new UI(app);
   app.nav = new Navigation(app);
   app.tools.inspect = new InspectTool(app);
@@ -122,7 +123,6 @@ async function main() {
   app.tools.search = new SearchTool(app);
   app.labels = new LabelManager(app);
   app.proposals = new Proposals(app);
-  app.tools.section = new SectionTool(app);
   const minimap = app.minimap = new Minimap(app, document.getElementById('minimap'));
   viewer.afterRender = () => { minimap.draw(); updateCompass(); };
 

@@ -110,7 +110,7 @@
    "color": "#e8e5df",
    "vary": 0.053,
    "roughness": 0.28,
-   "grout": "white"
+   "grout": "lightGrey"
   },
   {
    "id": "ivory",
@@ -126,7 +126,7 @@
    "color": "#c4c2bd",
    "vary": 0.045,
    "roughness": 0.5,
-   "grout": "lightGrey"
+   "grout": "grey"
   },
   {
    "id": "concrete",

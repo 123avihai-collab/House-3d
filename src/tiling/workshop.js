@@ -367,7 +367,7 @@ export class TilingWorkshop {
       Object.entries(byFl).flatMap(([fl, zs]) => [h('tr', { class: 'grp' }, h('td', { colspan: 4 }, FLOOR_HE[fl])), ...zs.map(z => {
         const c = this.choice[z.key], L = c ? this.layout(z.key) : null;
         return h('tr', { class: 'zone-row' + (z.key === this.sel ? ' sel' : ''), 'data-room': z.key, onclick: () => this.select(z.key) },
-          h('td', {}, z.name, z.r.outdoor && !z.r.check?.ok ? h('span', { class: 'bad', title: 'סתירה: פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)' }, ' ⛔') : null), h('td', {}, f2(z.r.area)),
+          h('td', {}, z.name, z.r.outdoor && z.r.change ? h('span', { class: 'bad', title: `${z.r.change} – מסומן לשינוי` }, ` 🔴 ${z.r.change}`) : null, z.r.outdoor && !z.r.check?.ok ? h('span', { class: 'bad', title: 'סתירה: פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)' }, ' ⛔') : null), h('td', {}, f2(z.r.area)),
           h('td', {}, c ? [h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` }), ' ', this.sizeOf(c).label] : h('span', { class: 'muted' }, 'לא נבחר')),
           h('td', {}, L ? (L.q.slivers ? h('span', { class: 'bad' }, `⚠ ${L.q.slivers} צרים`) : L.q.narrow ? h('span', { class: 'mid' }, `${L.q.narrow} מתחת לשליש`) : '✓') : ''));
       })])));
@@ -442,6 +442,7 @@ export class TilingWorkshop {
       h('div', { class: 'muted' }, `פני בטון ${lv(r.slabTop)} (K-21, ${r.slab}) · פני ריצוף ${lv(r.finishMin)} עד ${lv(r.finishMax)} · שיפוע המישור ${f2(r.planeSlope_pct)}%`
         + (r.planeFallAzimuth_deg != null ? ` לכיוון ${Math.round(r.planeFallAzimuth_deg)}°` : '') + ` · ${r.spots.length} נקודות גובה מההיתר${r.dropped.length ? ` (${r.dropped.length} הוצאו – גובה גינה בשולי האזור)` : ''}.`),
       h('div', { class: 'muted' }, 'מתחת לאריח: ' + BU.layers.map(l => { const x = r.layers.find(y => y.id === l.id); return `${l.short} ${x.thickness_m == null || x.min_m != null ? `${f2(x.min_m * 100)}–${f2(x.max_m * 100)} ס"מ` : f2(x.thickness_m * 1000) + ' מ"מ'}`; }).join(' → ')),
+      r.change ? h('div', { class: 'warn' }, `🔴 ${r.change} – מסומן לשינוי: ${r.changeReason}${r.raised?.length ? ` (גבהים שהוגבהו: ${r.raised.map(x => `${x.z.toFixed(2)}→${x.raisedTo.toFixed(2)}`).join(', ')})` : ''}`) : null,
       r.check.ok ? null : h('div', { class: 'warn' }, `⛔ סתירה: בטון השיפועים יורד עד ${f2(r.check.fillMin_m * 100)} ס"מ (מינימום ${f2(r.check.minFill_m * 100)}) – פני הריצוף בהיתר נמוכים מפני הבטון ${lv(r.slabTop)} + השכבות. לבירור מול הקונסטרוקטור / האדריכל (open-issues #201).`),
       h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
   }

@@ -238,7 +238,8 @@ class Finishes {
       // a textured layer (the sumsum + sand fill: small stones – data/materials/materials.json) gets UVs in metres:
       // top / bottom faces from plan, sides along the edge – so the layer is recognisable in a section / interior view
       const tex = d.material ? this.ctx.materials.get(d.material) : null; if (tex) tex.side = THREE.DoubleSide;
-      const mat = tex || (d.color ? this.mat(d.color) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false }));
+      // no polygon offset on the floor layers: stacked 0.5–4 cm apart, an offset made the lower layer (adhesive / screed) win over the tile from a distance
+      const mat = tex || (d.color ? this.mat(d.color, { polygonOffset: false }) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false, polygonOffset: false }));
       const m = this.mesh(g.pts, g.map, mat);
       if (tex) {
         const P = m.geometry.attributes.position.array, N = m.geometry.attributes.normal.array, uv = new Float32Array(P.length / 3 * 2);

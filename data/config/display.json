@@ -238,11 +238,10 @@
  },
  "tiling": {
   "_doc": "תצוגת סדנת הריצוף (src/tiling) – קבועי תצוגה בלבד.",
-  "groutColor": "#4f4c47",
   "narrowColor": "#ffa726",
   "sliverColor": "#e53935",
   "viewDistance": 1.1,
-  "jointMinPx": 1.8,
+  "jointMinPx": 1.0,
   "envMapIntensity": 0.9
  },
  "sectionCut": {

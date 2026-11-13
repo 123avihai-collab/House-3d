@@ -123,40 +123,44 @@ export class TilingWorkshop {
       m.map = ld('color.webp', true);
       if (fin.pbr) { m.normalMap = ld('normal.jpg', false); m.roughnessMap = ld('roughness.webp', false); m.normalScale.set(0.6, 0.6); }
     }
-    const grout = new THREE.Color(this.D.groutColor || '#8f8b84'), px = this.D.jointMinPx ?? 1.1;
+    const px = this.D.jointMinPx ?? 1.1;
     m.onBeforeCompile = (sh) => {
-      sh.uniforms.uGrout = { value: grout };
-      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 tileXY;\nattribute float tileJ;\nvarying vec4 vTile;\nvarying float vJ;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = tileXY; vJ = tileJ;');
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uGrout;\nvarying vec4 vTile;\nvarying float vJ;')
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 tileXY;\nattribute float tileJ;\nattribute vec3 groutC;\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = tileXY; vJ = tileJ; vGrout = groutC;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
         .replace('#include <color_fragment>', `#include <color_fragment>
-        if (vTile.z > 0.0) {
+        {
+          // derivatives outside any branch (undefined in non-uniform control flow); top faces only (sides: tileXY = 0)
+          float isTop = step(0.0001, vTile.z);
           vec2 q = vTile.xy;
-          float d = min(min(q.x, vTile.z - q.x), min(q.y, vTile.w - q.y));
-          float fw = max(fwidth(d), 1e-5);
-          float jw = max(vJ, fw * ${(px / 2).toFixed(2)});
-          float fade = smoothstep(6.0, 18.0, min(vTile.z, vTile.w) / fw);
-          float line = (1.0 - smoothstep(jw, jw + fw, d)) * fade * 0.85;
-          float bevel = 1.0 - 0.08 * fade * (1.0 - smoothstep(vJ, vJ + 0.004, d));
-          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, uGrout, line);
+          vec2 dd = min(q, vTile.zw - q);
+          vec2 fw = max(fwidth(q), vec2(1e-5));
+          vec2 jw = max(vec2(vJ), fw * ${(px / 2).toFixed(2)});
+          vec2 fade = smoothstep(vec2(2.0), vec2(6.0), vTile.zw / fw);
+          vec2 ln = (1.0 - smoothstep(jw, jw + fw, dd)) * fade;
+          float line = max(ln.x, ln.y) * isTop;
+          float d = min(dd.x, dd.y);
+          float bevel = 1.0 - 0.08 * isTop * min(fade.x, fade.y) * (1.0 - smoothstep(vJ, vJ + 0.004, d));
+          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, vGrout * 0.94, line);   // grout flush with the tile, a hair darker (the joint's shade)
         }`);
     };
     m.customProgramCacheKey = () => 'tileJoints';
     return (this.mats[k] = m);
   }
+  groutOf(c, fin) { return this.C.grouts.find(x => x.id === c?.grout) || this.C.grouts.find(x => x.id === fin?.grout) || this.C.grouts[0]; }
+  groutMat(gr) { return (this.gmats ||= {})[gr.id] ||= new THREE.MeshStandardMaterial({ color: new THREE.Color(gr.color).multiplyScalar(0.8), roughness: 0.95, metalness: 0, side: THREE.DoubleSide }); }
   build3D() {
     this.built = true;
     const F = this.F, V = (E, N, z) => F.V(E, N, z);
-    const grout = F.mat(this.D.groutColor || '#8f8b84');
     const cutCol = { 1: new THREE.Color(this.D.narrowColor || '#ffa726'), 2: new THREE.Color(this.D.sliverColor || '#e53935') };
     const mark = this.showCuts && this.app?.store.get().mode === 'tiling';
     for (const z of this.zones) {
       const c = this.choice[z.key]; if (!c) continue;
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
       const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z0 + 0.0008;   // grout / joint bottom: on the adhesive (a full tile thickness under the face – no depth fight at a distance)
-      const pos = [], col = [], uv = [], map = [], txy = [], tj = [];
+      const pos = [], col = [], uv = [], map = [], txy = [], tj = [], gc = [];
       const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength;
-      const base = new THREE.Color(fin.color), tmp = new THREE.Color();
+      const base = new THREE.Color(fin.color), tmp = new THREE.Color(), gr = this.groutOf(c, fin), grc = new THREE.Color(gr.color);
       const W = (u, v, zz) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, zz); };
       for (const p of lay.pieces) {
         const k = 1 + (rnd(p.i, p.j) - 0.5) * 2 * (fin.vary || 0);
@@ -172,7 +176,7 @@ export class TilingWorkshop {
         // top face: uv in metres (+ offset per tile; wood – grain along the tile length), tileXY = place inside the tile
         const push = (u, v, zz, top = true) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
           const lu = u - p.x0, lv = v - p.y0; uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
-          if (top) txy.push(lu, lv, L, Wd); else txy.push(0, 0, 0, 0); tj.push(jh); };
+          if (top) txy.push(lu, lv, L, Wd); else txy.push(0, 0, 0, 0); tj.push(jh); gc.push(grc.r, grc.g, grc.b); };
         for (const t of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of t) push(all[i].x, all[i].y, z1); map.push(z.key); }
         // tile edges down to the joint (seen up close / in a section)
         for (let i = 0; i < C2.length; i++) {
@@ -188,18 +192,20 @@ export class TilingWorkshop {
       g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
       g.setAttribute('tileXY', new THREE.Float32BufferAttribute(txy, 4));
       g.setAttribute('tileJ', new THREE.Float32BufferAttribute(tj, 1));
+      g.setAttribute('groutC', new THREE.Float32BufferAttribute(gc, 3));
       g.computeVertexNormals();
       const m = new THREE.Mesh(g, this.matOf(fin)); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
       // the grout under the joints (the zone polygon, a hair below the tile face)
       const gp = [], gm = [];
       for (const part of z.parts) { const t = F.ringTris(part[0], part.slice(1), zt); gp.push(...t); }
       const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(gp.flat(), 3)); gg.computeVertexNormals();
-      const gmsh = new THREE.Mesh(gg, grout); gmsh.receiveShadow = true; gmsh.userData.keep = true;
+      // own material, no polygon offset (the shared plaster material pulls itself forward – at a grazing view it covered the tiles)
+      const gmsh = new THREE.Mesh(gg, this.groutMat(gr)); gmsh.receiveShadow = true; gmsh.userData.keep = true;
       const grp = new THREE.Group(); grp.add(gmsh, m);
       const q = lay.q, sz = lay.size;
       const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,
-        rows: [['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה', `${c.joint_mm} מ"מ`],
+        rows: [['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
           ['שטח', `${f2(q.area_m2)} מ"ר`], ['אריחים', `${q.full} שלמים + ${q.cut} חתוכים${q.slivers ? ` (${q.slivers} צרים מ-5 ס"מ!)` : ''}`],
           ['להזמנה', `${q.order} אריחים = ${q.boxes} קרטונים (${f2(q.order_m2)} מ"ר, כולל ${c.spare_pct}% רזרבה ופנלים)`]],
         source: 'src/tiling (סדנת ריצוף) – data/finishes/tiling/catalog.json; אזור: data/finishes/tiling/surfaces.json', note: 'מקדמי צריכה – זמניים (open-issues #178)',
@@ -266,7 +272,7 @@ export class TilingWorkshop {
     const svg = s('svg', { viewBox: `${u0 - m} ${-v1 - m} ${W} ${H}`, class: 'tile-plan', preserveAspectRatio: 'xMidYMid meet' });
     const P = (pts) => pts.map(([u, v]) => `${u.toFixed(4)},${(-v).toFixed(4)}`).join(' ');
     const gz = s('g');
-    for (const p of loc) { let d = ''; for (const r of p) d += 'M' + P(r).replace(/ /g, 'L') + 'Z'; gz.append(s('path', { d, fill: this.D.groutColor || '#8f8b84', 'fill-rule': 'evenodd', stroke: 'none' })); }
+    for (const p of loc) { let d = ''; for (const r of p) d += 'M' + P(r).replace(/ /g, 'L') + 'Z'; gz.append(s('path', { d, fill: c ? this.groutOf(c, this.finBy[c.finish]).color : '#8f8b84', 'fill-rule': 'evenodd', stroke: 'none' })); }
     svg.append(gz);
     const gp = s('g'); svg.append(gp);
     const fin = c ? this.finBy[c.finish] : null;
@@ -371,6 +377,7 @@ export class TilingWorkshop {
       row('כיוון:', sel('direction', this.C.directions.map(x => [x.id, x.label]))),
       row('נקודת התחלה:', sel('origin', this.C.origins.map(x => [x.id, x.label]))),
       row('פוגה (מ"מ):', sel('joint_mm', this.C.joints_mm.map(v => [v, String(v)]), (v) => +v)),
+      row('צבע רובה:', sel('grout', [['', `לפי הגימור (${this.groutOf({}, this.finBy[c.finish]).label})`], ...this.C.grouts.map(x => [x.id, x.label])]), h('i', { class: 'swc', style: `background:${this.groutOf(c, this.finBy[c.finish]).color}` })),
       row('הזזה (ס"מ) לאורך / לרוחב:', num('du_cm', 0.5), num('dv_cm', 0.5)),
       row('רזרבה (%):', num('spare_pct', 1, 0, 30))].filter(Boolean));
     box.append(h('div', { class: 'btns' },
@@ -437,8 +444,8 @@ export class TilingWorkshop {
     let X; try { X = await this.F.loadXlsx(); } catch { this.app.ui.toast('טעינת ספריית האקסל נכשלה'); return; }
     const T = this.totals(), wb = X.utils.book_new();
     const sheet = (name, rows) => { const ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = rows[0].map((_, i) => ({ wch: i < 2 ? 26 : 13 })); X.utils.book_append_sheet(wb, ws, name); };
-    sheet('אזורים', [['קומה', 'אזור', 'שטח מ"ר', 'אריח (ס"מ)', 'גימור', 'דוגמה', 'כיוון', 'התחלה', 'פוגה מ"מ', 'הזזה ס"מ', 'שלמים', 'חתוכים', 'צרים מ-5 ס"מ', 'מתחת לשליש', 'חיתוך מינימלי ס"מ', 'פחת חיתוך %', 'אריחים לפנלים', 'פנלים מ"א', 'רזרבה %', 'להזמנה (אריחים)', 'קרטונים', 'מ"ר להזמנה', 'דבק ק"ג', 'רובה ק"ג'],
-      ...T.zones.map(({ z, c, L, fin }) => [FLOOR_HE[z.floor], z.name, +L.q.area_m2.toFixed(2), L.size.label, fin.label, L.pat.label, L.dir.label, this.C.origins.find(o => o.id === c.origin)?.label, c.joint_mm, `${c.du_cm || 0} / ${c.dv_cm || 0}`,
+    sheet('אזורים', [['קומה', 'אזור', 'שטח מ"ר', 'אריח (ס"מ)', 'גימור', 'דוגמה', 'כיוון', 'התחלה', 'פוגה מ"מ', 'רובה', 'הזזה ס"מ', 'שלמים', 'חתוכים', 'צרים מ-5 ס"מ', 'מתחת לשליש', 'חיתוך מינימלי ס"מ', 'פחת חיתוך %', 'אריחים לפנלים', 'פנלים מ"א', 'רזרבה %', 'להזמנה (אריחים)', 'קרטונים', 'מ"ר להזמנה', 'דבק ק"ג', 'רובה ק"ג'],
+      ...T.zones.map(({ z, c, L, fin }) => [FLOOR_HE[z.floor], z.name, +L.q.area_m2.toFixed(2), L.size.label, fin.label, L.pat.label, L.dir.label, this.C.origins.find(o => o.id === c.origin)?.label, c.joint_mm, this.groutOf(c, fin).label, `${c.du_cm || 0} / ${c.dv_cm || 0}`,
         L.q.full, L.q.cut, L.q.slivers, L.q.narrow, L.q.minCut_m != null ? +(L.q.minCut_m * 100).toFixed(1) : '', +L.q.waste_pct.toFixed(1), L.q.skirtingTiles, +(z.r.skirting_m || 0).toFixed(2), c.spare_pct, L.q.order, L.q.boxes, +L.q.order_m2.toFixed(2), +L.q.adhesive_kg.toFixed(1), +L.q.grout_kg.toFixed(2)]),
       ...this.zones.filter(z => !this.choice[z.key]).map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), 'לא נבחר'])]);
     sheet('הזמנה', [['אריח', 'גימור', 'מ"ר', 'אריחים', 'קרטונים', 'באריזה', 'דבק ק"ג', 'רובה ק"ג', 'אזורים'], ...T.order.map(o => [o.size, o.finish, +o.area.toFixed(2), o.order, o.boxes, o.perBox, +o.adh.toFixed(1), +o.grout.toFixed(2), o.zones]),

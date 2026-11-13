@@ -109,21 +109,24 @@
    "label": "לבן דמוי שיש",
    "color": "#e8e5df",
    "vary": 0.053,
-   "roughness": 0.28
+   "roughness": 0.28,
+   "grout": "white"
   },
   {
    "id": "ivory",
    "label": "שמנת",
    "color": "#ddd3c2",
    "vary": 0.045,
-   "roughness": 0.45
+   "roughness": 0.45,
+   "grout": "beige"
   },
   {
    "id": "lightGrey",
    "label": "אפור בהיר",
    "color": "#c4c2bd",
    "vary": 0.045,
-   "roughness": 0.5
+   "roughness": 0.5,
+   "grout": "lightGrey"
   },
   {
    "id": "concrete",
@@ -134,14 +137,16 @@
    "texture": "assets/textures/concrete_floor_01",
    "texSize_m": 1.2,
    "pbr": true,
-   "swatch": "#a19f99"
+   "swatch": "#a19f99",
+   "grout": "grey"
   },
   {
    "id": "anthracite",
    "label": "אנתרציט",
    "color": "#55575a",
    "vary": 0.045,
-   "roughness": 0.55
+   "roughness": 0.55,
+   "grout": "anthracite"
   },
   {
    "id": "oak",
@@ -153,7 +158,8 @@
    "texSize_m": 1.83,
    "pbr": true,
    "grainAlongLength": true,
-   "swatch": "#b08c62"
+   "swatch": "#b08c62",
+   "grout": "oak"
   }
  ],
  "patterns": [
@@ -220,7 +226,8 @@
   "joint_mm": 2,
   "du_cm": 0,
   "dv_cm": 0,
-  "spare_pct": 5
+  "spare_pct": 5,
+  "grout": ""
  },
  "_defaults": "ערכי פתיחה כשבוחרים אריח לאזור – אביחי משנה בסדנה.",
  "cuts": {
@@ -257,5 +264,38 @@
   "outdoor"
  ],
  "_excludeRoomTypes": "חצרות אנגליות / גג – לא בסדנה (ריצוף חוץ – בהמשך).",
- "_finishes": "גימור = מראה בלבד. דמוי עץ – טקסטורת oak_veneer_01, דמוי בטון – concrete_floor_01 (Poly Haven, CC0); השאר – צבע אחיד עם גיוון קל בין אריחים. הפוגות מצוירות בשיידר (נראות מכל מרחק)."
+ "_finishes": "גימור = מראה בלבד. דמוי עץ – טקסטורת oak_veneer_01, דמוי בטון – concrete_floor_01 (Poly Haven, CC0); השאר – צבע אחיד עם גיוון קל בין אריחים. הפוגות מצוירות בשיידר (נראות מכל מרחק).",
+ "grouts": [
+  {
+   "id": "white",
+   "label": "לבן",
+   "color": "#ebe8e2"
+  },
+  {
+   "id": "lightGrey",
+   "label": "אפור בהיר",
+   "color": "#c9c6bf"
+  },
+  {
+   "id": "grey",
+   "label": "אפור",
+   "color": "#9b9891"
+  },
+  {
+   "id": "beige",
+   "label": "בז'",
+   "color": "#d2c2a6"
+  },
+  {
+   "id": "oak",
+   "label": "חום עץ",
+   "color": "#9c7a55"
+  },
+  {
+   "id": "anthracite",
+   "label": "אנתרציט",
+   "color": "#4d4d4d"
+  }
+ ],
+ "_grouts": "צבע הרובה לכל אזור (ברירת מחדל – לפי הגימור). מראה בלבד; הכמות (ק\"ג) – consumption."
 }

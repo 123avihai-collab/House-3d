@@ -259,7 +259,7 @@ export class TilingWorkshop {
   enter() {
     const app = this.app; if (!app) return;
     const st = app.store.get();
-    app.store.set({ layers: { ...st.layers, floorTile: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
+    app.store.set({ layers: { ...st.layers, floorTile: true, poolTile: true, poolCoping: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
     if (this.built) this.rebuild();   // cut pieces marked in this mode
     this.drawOutline();
     app.ui.openTab('tiling', !app.ui.isMobile());

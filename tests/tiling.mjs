@@ -95,6 +95,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };
     try { localStorage.removeItem('house3d.poolTiling'); } catch {}
     await P.set(null);
+    a.store.set({ layers: { ...a.store.get().layers, poolTile: true, poolCoping: true } }, { label: 'layers' });
     const kinds = () => a.registry.items.filter(i => ['poolTiles', 'poolCoping'].includes(i.meta.kind));
     const r = { items0: kinds().length, visible0: kinds().filter(i => i.object.visible).length, panel: !!document.querySelector('#panel .pool-ed') };
     const S = P.S, q = P.quantities();

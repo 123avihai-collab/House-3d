@@ -2,73 +2,334 @@
  "_doc": "הנחות לכתב הכמויות (tools/boq/build_boq.py → docs/quantities/boq-skeleton.xlsx, גיליון 'הנחות ופחת'). כל ערך עם מקור וסטטוס: source = מהתוכניות / החלטת אביחי; provisional = הערכה מקצועית / נוהג מקובל, לאישור מול הקבלן / המהנדס. הערכים מועתקים לאקסל כתאי קלט (אמבר) – שינוי באקסל מעדכן את כל הנוסחאות.",
  "waste": {
   "_doc": "פחת לפי חומר (אחוז מהכמות נטו).",
-  "concreteCast": {"label": "בטון מובא – רצפות, קירות, תקרות, קורות", "pct": 3, "status": "provisional", "source": "נוהג מקובל: 2–4% (שאריות במשאבה, שפיכה, סטיות טפסנות)"},
-  "concretePiles": {"label": "בטון כלונסאות (צריכת־יתר בקידוח)", "pct": 12, "status": "provisional", "source": "נוהג מקובל בקידוח יבש: 10–15% מעל הנפח התיאורטי (התרחבות קידוח). K-400: סטייה בקוטר מעל 5% מחייבת דיווח למהנדס"},
-  "concreteLean": {"label": "בטון רזה", "pct": 8, "status": "provisional", "source": "נוהג מקובל: יציקה על קרקע לא מפולסת 5–10%"},
-  "rebar": {"label": "ברזל – חיתוך וכיפוף", "pct": 4, "status": "provisional", "source": "נוהג מקובל: 3–5% (חפיות מעבר למפורט נכללות בחישוב עצמו)"},
-  "mesh": {"label": "רשתות – חפיות", "pct": 12, "status": "provisional", "source": "נוהג מקובל: חפיית רשת 1 משבצת + שוליים ≈ 10–15%"},
-  "plywood": {"label": "לוחות טפסנות (דיקט / סנדוויץ')", "pct": 10, "status": "provisional", "source": "נוהג מקובל: חיתוכים ושבר 8–12%"},
-  "timber": {"label": "עץ טפסנות (קורות 5×10)", "pct": 10, "status": "provisional", "source": "נוהג מקובל"},
-  "voidFormers": {"label": "ארגזי הפרדה (פוליביד)", "pct": 5, "status": "provisional", "source": "נוהג מקובל: חיתוך בשוליים"},
-  "blocks": {"label": "בלוקי איטונג", "pct": 10, "status": "source", "source": "data/config/blocks.json waste_pct (החלטת אביחי 09.11.2026)"},
-  "adhesive": {"label": "דבק בלוקים / טיט", "pct": 10, "status": "source", "source": "docs/quantities/blocks-bonding.md (פחת 10%)"},
-  "membrane": {"label": "יריעות איטום ביטומניות", "pct": 15, "status": "provisional", "source": "נוהג מקובל: חפיות 10 ס\"מ + חיתוכים ופינות 12–18%"},
-  "geotextile": {"label": "בד גיאוטכני", "pct": 10, "status": "provisional", "source": "נוהג מקובל"},
-  "gravel": {"label": "חצץ / מצע", "pct": 5, "status": "provisional", "source": "נוהג מקובל"},
-  "drainPipe": {"label": "צינור ניקוז", "pct": 5, "status": "provisional", "source": "נוהג מקובל"}
+  "concreteCast": {
+   "label": "בטון מובא – רצפות, קירות, תקרות, קורות",
+   "pct": 3,
+   "status": "provisional",
+   "source": "נוהג מקובל: 2–4% (שאריות במשאבה, שפיכה, סטיות טפסנות)"
+  },
+  "concretePiles": {
+   "label": "בטון כלונסאות (צריכת־יתר בקידוח)",
+   "pct": 12,
+   "status": "provisional",
+   "source": "נוהג מקובל בקידוח יבש: 10–15% מעל הנפח התיאורטי (התרחבות קידוח). K-400: סטייה בקוטר מעל 5% מחייבת דיווח למהנדס"
+  },
+  "concreteLean": {
+   "label": "בטון רזה",
+   "pct": 8,
+   "status": "provisional",
+   "source": "נוהג מקובל: יציקה על קרקע לא מפולסת 5–10%"
+  },
+  "rebar": {
+   "label": "ברזל – חיתוך וכיפוף",
+   "pct": 4,
+   "status": "provisional",
+   "source": "נוהג מקובל: 3–5% (חפיות מעבר למפורט נכללות בחישוב עצמו)"
+  },
+  "mesh": {
+   "label": "רשתות – חפיות",
+   "pct": 12,
+   "status": "provisional",
+   "source": "נוהג מקובל: חפיית רשת 1 משבצת + שוליים ≈ 10–15%"
+  },
+  "plywood": {
+   "label": "לוחות טפסנות (דיקט / סנדוויץ')",
+   "pct": 10,
+   "status": "provisional",
+   "source": "נוהג מקובל: חיתוכים ושבר 8–12%"
+  },
+  "timber": {
+   "label": "עץ טפסנות (קורות 5×10)",
+   "pct": 10,
+   "status": "provisional",
+   "source": "נוהג מקובל"
+  },
+  "voidFormers": {
+   "label": "ארגזי הפרדה (פוליביד)",
+   "pct": 5,
+   "status": "provisional",
+   "source": "נוהג מקובל: חיתוך בשוליים"
+  },
+  "blocks": {
+   "label": "בלוקי איטונג",
+   "pct": 10,
+   "status": "source",
+   "source": "data/config/blocks.json waste_pct (החלטת אביחי 09.11.2026)"
+  },
+  "adhesive": {
+   "label": "דבק בלוקים / טיט",
+   "pct": 10,
+   "status": "source",
+   "source": "docs/quantities/blocks-bonding.md (פחת 10%)"
+  },
+  "membrane": {
+   "label": "יריעות איטום ביטומניות",
+   "pct": 15,
+   "status": "provisional",
+   "source": "נוהג מקובל: חפיות 10 ס\"מ + חיתוכים ופינות 12–18%"
+  },
+  "geotextile": {
+   "label": "בד גיאוטכני",
+   "pct": 10,
+   "status": "provisional",
+   "source": "נוהג מקובל"
+  },
+  "gravel": {
+   "label": "חצץ / מצע",
+   "pct": 5,
+   "status": "provisional",
+   "source": "נוהג מקובל"
+  },
+  "drainPipe": {
+   "label": "צינור ניקוז",
+   "pct": 5,
+   "status": "provisional",
+   "source": "נוהג מקובל"
+  }
  },
  "earthworks": {
-  "bulking": {"label": "מקדם תפיחה – עפר חפור (נפח רופף / נפח בטבע)", "value": 1.25, "status": "provisional", "source": "נוהג מקובל לחול חרסיתי / לס: 1.20–1.30"},
-  "compaction": {"label": "מקדם הידוק מצע ג' (נפח רופף מובא / נפח מהודק)", "value": 1.25, "status": "provisional", "source": "נוהג מקובל: 1.20–1.30 להידוק 96% MOD.AASHTO (דוח הקרקע §10.8)"},
-  "truck_m3": {"label": "נפח משאית פינוי (רופף)", "value": 12, "status": "provisional", "source": "משאית פול-טריילר / סמי ≈ 12–16 מ\"ק"},
-  "reuseFill_pct": {"label": "עפר חפור שמשמש למילוי חוזר", "value": 0, "status": "provisional", "source": "דוח הקרקע §10.8: מילוי ב'חומר נברר' (מצע ג') – לא חול נקי; העפר המקומי לא אושר למילוי – הנחה 0% עד בדיקת התאמה"}
+  "bulking": {
+   "label": "מקדם תפיחה – עפר חפור (נפח רופף / נפח בטבע)",
+   "value": 1.25,
+   "status": "provisional",
+   "source": "נוהג מקובל לחול חרסיתי / לס: 1.20–1.30"
+  },
+  "compaction": {
+   "label": "מקדם הידוק מצע ג' (נפח רופף מובא / נפח מהודק)",
+   "value": 1.25,
+   "status": "provisional",
+   "source": "נוהג מקובל: 1.20–1.30 להידוק 96% MOD.AASHTO (דוח הקרקע §10.8)"
+  },
+  "truck_m3": {
+   "label": "נפח משאית פינוי (רופף)",
+   "value": 12,
+   "status": "provisional",
+   "source": "משאית פול-טריילר / סמי ≈ 12–16 מ\"ק"
+  },
+  "reuseFill_pct": {
+   "label": "עפר חפור שמשמש למילוי חוזר",
+   "value": 0,
+   "status": "provisional",
+   "source": "דוח הקרקע §10.8: מילוי ב'חומר נברר' (מצע ג') – לא חול נקי; העפר המקומי לא אושר למילוי – הנחה 0% עד בדיקת התאמה"
+  }
  },
  "formwork": {
   "_doc": "טפסנות: שטח מגע × מספר שימושים. כמויות החומר = שטח מגע / מספר שימושים × (1 + פחת). מקדמי עץ ותמיכות – הערכה לטפסנות מסורתית (לוח + קורות עץ + תמיכות פלדה טלסקופיות).",
-  "sheet_m2": {"label": "שטח לוח טפסנות 1.22×2.44", "value": 2.9768, "status": "source", "source": "מידת לוח סטנדרטית 122×244 ס\"מ"},
+  "sheet_m2": {
+   "label": "שטח לוח טפסנות 1.22×2.44",
+   "value": 2.9768,
+   "status": "source",
+   "source": "מידת לוח סטנדרטית 122×244 ס\"מ"
+  },
   "reuse": {
-   "walls": {"label": "שימושים – לוחות קירות ועמודים", "value": 4, "status": "provisional", "source": "נוהג מקובל לדיקט 18 מ\"מ: 3–5 שימושים"},
-   "slabs": {"label": "שימושים – לוחות תקרות", "value": 4, "status": "provisional", "source": "נוהג מקובל: 3–5 שימושים"},
-   "beams": {"label": "שימושים – לוחות קורות", "value": 3, "status": "provisional", "source": "נוהג מקובל: חיתוכים רבים – 2–4 שימושים"},
-   "timber": {"label": "שימושים – קורות עץ", "value": 6, "status": "provisional", "source": "נוהג מקובל: 5–8 שימושים"}
+   "walls": {
+    "label": "שימושים – לוחות קירות ועמודים",
+    "value": 4,
+    "status": "provisional",
+    "source": "נוהג מקובל לדיקט 18 מ\"מ: 3–5 שימושים"
+   },
+   "slabs": {
+    "label": "שימושים – לוחות תקרות",
+    "value": 4,
+    "status": "provisional",
+    "source": "נוהג מקובל: 3–5 שימושים"
+   },
+   "beams": {
+    "label": "שימושים – לוחות קורות",
+    "value": 3,
+    "status": "provisional",
+    "source": "נוהג מקובל: חיתוכים רבים – 2–4 שימושים"
+   },
+   "timber": {
+    "label": "שימושים – קורות עץ",
+    "value": 6,
+    "status": "provisional",
+    "source": "נוהג מקובל: 5–8 שימושים"
+   }
   },
   "timber_m_per_m2": {
-   "walls": {"label": "עץ 5×10 – מ' אורך למ\"ר מגע, קירות", "value": 3.5, "status": "provisional", "source": "הערכה: עומדים כל 30 ס\"מ + 2 מסגרות אופקיות"},
-   "slabs": {"label": "עץ 5×10 – מ' אורך למ\"ר מגע, תקרות", "value": 3.0, "status": "provisional", "source": "הערכה: קורות משנה כל 40 ס\"מ + קורות ראשיות כל 1.2 מ'"},
-   "beams": {"label": "עץ 5×10 – מ' אורך למ\"ר מגע, קורות", "value": 4.0, "status": "provisional", "source": "הערכה: לחיים + תחתית + חיזוקים"},
-   "columns": {"label": "עץ 5×10 – מ' אורך למ\"ר מגע, עמודים", "value": 4.0, "status": "provisional", "source": "הערכה: עומדים + חבקים"}
+   "walls": {
+    "label": "עץ 5×10 – מ' אורך למ\"ר מגע, קירות",
+    "value": 3.5,
+    "status": "provisional",
+    "source": "הערכה: עומדים כל 30 ס\"מ + 2 מסגרות אופקיות"
+   },
+   "slabs": {
+    "label": "עץ 5×10 – מ' אורך למ\"ר מגע, תקרות",
+    "value": 3.0,
+    "status": "provisional",
+    "source": "הערכה: קורות משנה כל 40 ס\"מ + קורות ראשיות כל 1.2 מ'"
+   },
+   "beams": {
+    "label": "עץ 5×10 – מ' אורך למ\"ר מגע, קורות",
+    "value": 4.0,
+    "status": "provisional",
+    "source": "הערכה: לחיים + תחתית + חיזוקים"
+   },
+   "columns": {
+    "label": "עץ 5×10 – מ' אורך למ\"ר מגע, עמודים",
+    "value": 4.0,
+    "status": "provisional",
+    "source": "הערכה: עומדים + חבקים"
+   }
   },
-  "propsPer_m2": {"label": "תמיכות טלסקופיות למ\"ר תקרה", "value": 0.7, "status": "provisional", "source": "רשת 1.2×1.2 מ' (data/config/display.json props.spacing_m) ≈ 0.69 למ\"ר"},
-  "propsPer_m_beam": {"label": "תמיכות למ' קורה תלויה", "value": 1.0, "status": "provisional", "source": "הערכה: תמיכה כל 1.0 מ' מתחת לקורה"},
-  "propDays": {"label": "ימי השכרה לתמיכה (ליציקה)", "value": 28, "status": "provisional", "source": "K-43 הערה 12: פירוק טפסות רק באישור המהנדס; נוהג 21–28 ימים. תמיכות הגג נשארות עד חומת הגג (הערת אביחי 2.6)"},
-  "oil_l_per_m2": {"label": "שמן תבניות – ליטר למ\"ר מגע לשימוש", "value": 0.12, "status": "provisional", "source": "נוהג מקובל: 0.1–0.15 ל'/מ\"ר"},
-  "tiesPer_m2": {"label": "מוטות קשירה (טייסים) למ\"ר קיר (צד אחד)", "value": 1.0, "status": "provisional", "source": "הערכה: רשת 1.0×1.0 מ' לקיר עד 3.5 מ'"},
-  "nails_kg_per_m2": {"label": "מסמרים וחוטי קשירה – ק\"ג למ\"ר מגע", "value": 0.08, "status": "provisional", "source": "הערכה"}
+  "propsPer_m2": {
+   "label": "תמיכות טלסקופיות למ\"ר תקרה",
+   "value": 0.7,
+   "status": "provisional",
+   "source": "רשת 1.2×1.2 מ' (data/config/display.json props.spacing_m) ≈ 0.69 למ\"ר"
+  },
+  "propsPer_m_beam": {
+   "label": "תמיכות למ' קורה תלויה",
+   "value": 1.0,
+   "status": "provisional",
+   "source": "הערכה: תמיכה כל 1.0 מ' מתחת לקורה"
+  },
+  "propDays": {
+   "label": "ימי השכרה לתמיכה (ליציקה)",
+   "value": 28,
+   "status": "provisional",
+   "source": "K-43 הערה 12: פירוק טפסות רק באישור המהנדס; נוהג 21–28 ימים. תמיכות הגג נשארות עד חומת הגג (הערת אביחי 2.6)"
+  },
+  "oil_l_per_m2": {
+   "label": "שמן תבניות – ליטר למ\"ר מגע לשימוש",
+   "value": 0.12,
+   "status": "provisional",
+   "source": "נוהג מקובל: 0.1–0.15 ל'/מ\"ר"
+  },
+  "tiesPer_m2": {
+   "label": "מוטות קשירה (טייסים) למ\"ר קיר (צד אחד)",
+   "value": 1.0,
+   "status": "provisional",
+   "source": "הערכה: רשת 1.0×1.0 מ' לקיר עד 3.5 מ'"
+  },
+  "nails_kg_per_m2": {
+   "label": "מסמרים וחוטי קשירה – ק\"ג למ\"ר מגע",
+   "value": 0.08,
+   "status": "provisional",
+   "source": "הערכה"
+  }
  },
  "rebar": {
   "_doc": "ברזל: משקל מוט = d²/162 ק\"ג/מ' (d במ\"מ). כיסוי וחפיות מהתוכניות.",
-  "cover_m": {"label": "כיסוי בטון", "value": 0.025, "status": "source", "source": "הערות הגיליונות K-23/33/43: 'עובי כיסוי הבטון יהיה 2.5 ס\"מ'"},
-  "lap_d": {"label": "חפייה (כפולות קוטר)", "value": 45, "status": "source", "source": "K-23/33/43 'פרט להוצאת קוצים לעמודים': חפייה 45ø"},
-  "pileAnchor_m": {"label": "אורך קוצי כלונס מעל הראש (לתוך הקורה)", "value": 0.6, "status": "provisional", "source": "K-400 פרט כלונס: המוטות נכנסים לקורת היסוד – אורך לא כתוב; הנחה 0.60 מ'"},
-  "spiralDense_m": {"label": "חישוק לוליני – קטע עליון בפסיעה צפופה", "value": 2.0, "status": "provisional", "source": "K-400 חתך A-A: 'חישוק לוליני ø8@10(20)' – אורך הקטע הצפוף לא כתוב; הנחה 2.0 מ' עליונים"},
-  "wireKgPerTon": {"label": "חוט קשירה – ק\"ג לטון ברזל", "value": 8, "status": "provisional", "source": "נוהג מקובל: 6–10 ק\"ג/טון"},
-  "spacersPer_m2": {"label": "ספייסרים (שומרי מרחק) למ\"ר משטח", "value": 4, "status": "provisional", "source": "נוהג מקובל: 3–5 למ\"ר"},
+  "cover_m": {
+   "label": "כיסוי בטון",
+   "value": 0.025,
+   "status": "source",
+   "source": "הערות הגיליונות K-23/33/43: 'עובי כיסוי הבטון יהיה 2.5 ס\"מ'"
+  },
+  "lap_d": {
+   "label": "חפייה (כפולות קוטר)",
+   "value": 45,
+   "status": "source",
+   "source": "K-23/33/43 'פרט להוצאת קוצים לעמודים': חפייה 45ø"
+  },
+  "pileAnchor_m": {
+   "label": "אורך קוצי כלונס מעל הראש (לתוך הקורה)",
+   "value": 0.6,
+   "status": "provisional",
+   "source": "K-400 פרט כלונס: המוטות נכנסים לקורת היסוד – אורך לא כתוב; הנחה 0.60 מ'"
+  },
+  "spiralDense_m": {
+   "label": "חישוק לוליני – קטע עליון בפסיעה צפופה",
+   "value": 2.0,
+   "status": "provisional",
+   "source": "K-400 חתך A-A: 'חישוק לוליני ø8@10(20)' – אורך הקטע הצפוף לא כתוב; הנחה 2.0 מ' עליונים"
+  },
+  "wireKgPerTon": {
+   "label": "חוט קשירה – ק\"ג לטון ברזל",
+   "value": 8,
+   "status": "provisional",
+   "source": "נוהג מקובל: 6–10 ק\"ג/טון"
+  },
+  "spacersPer_m2": {
+   "label": "ספייסרים (שומרי מרחק) למ\"ר משטח",
+   "value": 4,
+   "status": "provisional",
+   "source": "נוהג מקובל: 3–5 למ\"ר"
+  },
   "ratio": {
    "_doc": "ק\"ג ברזל למ\"ק בטון – רק לאלמנטים שאין להם פריסת ברזל במקורות (מסומן provisional בשורה).",
-   "wall": {"label": "קירות בטון ללא פריסה", "value": 90, "status": "provisional", "source": "הערכה: 2 רשתות ø8–10@15 + קוצים ≈ 80–100 ק\"ג/מ\"ק"},
-   "column": {"label": "עמודים – חישוקים (מעבר למוטות הכתובים)", "value": 25, "status": "provisional", "source": "הערכה: חישוקים ø8@20 – אין פרט בגיליונות"},
-   "stairs": {"label": "מדרגות", "value": 100, "status": "provisional", "source": "הערכה – אין תוכנית קונסטרוקציה למדרגות"},
-   "perimeterWall": {"label": "חומות היקף", "value": 70, "status": "provisional", "source": "הערכה: K-400 חתך חומה – זיון לא מפורט בטבלה שחולצה"},
-   "perimeterFooting": {"label": "יסודות חומות", "value": 60, "status": "provisional", "source": "הערכה"},
-   "pool": {"label": "בריכה (קירות ורצפה)", "value": 110, "status": "provisional", "source": "הערכה – אין פריסת ברזל לבריכה במקורות"},
-   "pillar": {"label": "פילר מערכות", "value": 70, "status": "provisional", "source": "הערכה"}
+   "wall": {
+    "label": "קירות בטון ללא פריסה",
+    "value": 90,
+    "status": "provisional",
+    "source": "הערכה: 2 רשתות ø8–10@15 + קוצים ≈ 80–100 ק\"ג/מ\"ק"
+   },
+   "column": {
+    "label": "עמודים – חישוקים (מעבר למוטות הכתובים)",
+    "value": 25,
+    "status": "provisional",
+    "source": "הערכה: חישוקים ø8@20 – אין פרט בגיליונות"
+   },
+   "stairs": {
+    "label": "מדרגות",
+    "value": 100,
+    "status": "provisional",
+    "source": "הערכה – אין תוכנית קונסטרוקציה למדרגות"
+   },
+   "perimeterWall": {
+    "label": "חומות היקף",
+    "value": 70,
+    "status": "provisional",
+    "source": "הערכה: K-400 חתך חומה – זיון לא מפורט בטבלה שחולצה"
+   },
+   "perimeterFooting": {
+    "label": "יסודות חומות",
+    "value": 60,
+    "status": "provisional",
+    "source": "הערכה"
+   },
+   "pool": {
+    "label": "בריכה (קירות ורצפה)",
+    "value": 110,
+    "status": "provisional",
+    "source": "הערכה – אין פריסת ברזל לבריכה במקורות"
+   },
+   "pillar": {
+    "label": "פילר מערכות",
+    "value": 70,
+    "status": "provisional",
+    "source": "הערכה"
+   }
   }
  },
  "concrete": {
-  "grade": {"label": "סוג בטון", "value": "ב-30, דרגת חשיפה 3", "status": "source", "source": "K-11/K-21/K-31/K-41 הערה 9: 'סוג בטון ב-30 דרגת חשיפה 3'; K-400: 'בטון ב-30'"},
-  "pumpMin_m3": {"label": "יציקה – כמות מינימלית לחיוב משאבה", "value": 0, "status": "provisional", "source": "חיוב משאבה לפי יציקה (מחירון)"}
+  "grade": {
+   "label": "סוג בטון",
+   "value": "ב-30, דרגת חשיפה 3",
+   "status": "source",
+   "source": "K-11/K-21/K-31/K-41 הערה 9: 'סוג בטון ב-30 דרגת חשיפה 3'; K-400: 'בטון ב-30'"
+  },
+  "pumpMin_m3": {
+   "label": "יציקה – כמות מינימלית לחיוב משאבה",
+   "value": 0,
+   "status": "provisional",
+   "source": "חיוב משאבה לפי יציקה (מחירון)"
+  }
  },
  "membrane": {
-  "layers": {"label": "שכבות יריעה ביטומנית בקירות המרתף", "value": 2, "status": "provisional", "source": "data/structure/excavation.json earthworks.waterproofing.layers (זמני – אין פרט איטום)"}
+  "layers": {
+   "label": "שכבות יריעה ביטומנית בקירות המרתף",
+   "value": 2,
+   "status": "provisional",
+   "source": "data/structure/excavation.json earthworks.waterproofing.layers (זמני – אין פרט איטום)"
+  }
+ },
+ "contractors": {
+  "_doc": "שיוך פרקים לקבלנים (גיליון 'סיכום' – סיכום לפי קבלן). כל פרק שלא מופיע כאן = קבלן השלד.",
+  "default": {
+   "label": "קבלן שלד",
+   "status": "source",
+   "source": "החלטת אביחי 13.11.2026"
+  },
+  "waterproofing": {
+   "label": "קבלן איטום",
+   "chapters": [
+    "05.1"
+   ],
+   "status": "source",
+   "source": "החלטת אביחי 13.11.2026: 'איטום צריך להוציא מפה כי זה קבלן אחר'"
+  }
  }
 }

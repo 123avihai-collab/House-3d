@@ -516,11 +516,11 @@ def build_earth(B):
 def build_wp(B, E):
     ws = B.ws['wp']; F = J('data/structure/framing.json'); exc = J('data/structure/excavation.json'); per = J('data/structure/perimeter.json')
     S = Sheet(ws, note_col=14, widths={'A': 2, 'B': 5, 'C': 46, 'D': 18, 'E': 30, 'F': 11, 'G': 8, 'H': 8, 'I': 11, 'J': 12, 'K': 14, 'L': 8, 'M': 40, 'N': 40})
-    S.title(1, 'פרק 05 – איטום קירות המרתף וניקוז | זמני עד פרט יועץ איטום',
+    S.title(1, 'פרק 05 – איטום קירות המרתף (קבלן איטום) וניקוז (קבלן שלד) | זמני עד פרט יועץ איטום',
             'אין פרט איטום במקורות (דוח הקרקע §11; K-11/K-21: "מריחת איטום – ראה פרט יועץ איטום"). המבנה כאן = המבנה הזמני במודל: פריימר + 2 יריעות ביטומניות + לוח הגנה. '
             'ניקוז: "כדור" חצץ ø30 בבד גיאוטכני 250 גר\' + צינור 4" כל 2.5 מ\' (K-400 חתך קיר).')
     r = 3
-    S.section(r, 'סעיפי איטום וניקוז'); r += 1
+    S.section(r, 'איטום קירות המרתף – קבלן איטום (קבלן נפרד)'); r += 1
     S.header(r, ["מס'", 'סעיף', 'שלב ביצוע', 'חישוב', 'כמות נטו', "יח'", 'פחת', 'כמות להזמנה', '₪ ליח\'', 'עלות (₪)', 'סטטוס', 'מקור'])
     r += 1; r0 = r
     wp = F['waterproofing']
@@ -530,16 +530,22 @@ def build_wp(B, E):
               f"={B.PR('membrane_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
     S.row(r, [3, 'לוח הגנה (פוליסטירן / לוח ביטומני) לפני המילוי החוזר', B.steps['waterproofing'], 'שטח', wp['area_m2'], 'מ"ר', f"={B.P('waste.geotextile')}", f"=F{r}*(1+H{r})",
               f"={B.PR('protection_board_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
+    S.row(r, [None, 'סה"כ איטום – קבלן איטום', None, None, None, None, None, None, None, f"=SUM(K{r0}:K{r-1})"], [None] * 9 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
+    B.sum['05.1 איטום קירות המרתף (זמני – אין פרט איטום)'] = (f"{q('wp')}!K{r}", 'פריימר + 2 יריעות + לוח הגנה')
+    r += 2
+    S.section(r, 'ניקוז בגב החומות – קבלן השלד'); r += 1
+    S.header(r, ["מס'", 'סעיף', 'שלב ביצוע', 'חישוב', 'כמות נטו', "יח'", 'פחת', 'כמות להזמנה', '₪ ליח\'', 'עלות (₪)', 'סטטוס', 'מקור'])
+    r += 1; r0 = r
     Lp = sum(w['length_m'] for w in per['walls'])
-    S.row(r, [4, '"כדור" חצץ שטוף ø30 בגב החומות', B.steps['perimeterWalls'], 'π/4·0.3² × אורך החומות', f"=PI()/4*0.3^2*{Lp:.3f}", 'מ"ק', f"={B.P('waste.gravel')}", f"=F{r}*(1+H{r})",
+    S.row(r, [1, '"כדור" חצץ שטוף ø30 בגב החומות', B.steps['perimeterWalls'], 'π/4·0.3² × אורך החומות', f"=PI()/4*0.3^2*{Lp:.3f}", 'מ"ק', f"={B.P('waste.gravel')}", f"=F{r}*(1+H{r})",
               f"={B.PR('gravel_m3')}", f"=I{r}*J{r}", 'זמני', exc['earthworks']['wallDrain']['source']], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,),
           note=f"אורך החומות {Lp:.2f} מ' (data/structure/perimeter.json) – לבדוק איזה קיר מתאר החתך ב-K-400 (קיר מרתף / חומה)"); r += 1
-    S.row(r, [5, 'בד גיאוטכני 250 גר\'/מ"ר עוטף את החצץ', B.steps['perimeterWalls'], 'π·0.3 × 1.15 (חפייה) × אורך', f"=PI()*0.3*1.15*{Lp:.3f}", 'מ"ר', f"={B.P('waste.geotextile')}", f"=F{r}*(1+H{r})",
+    S.row(r, [2, 'בד גיאוטכני 250 גר\'/מ"ר עוטף את החצץ', B.steps['perimeterWalls'], 'π·0.3 × 1.15 (חפייה) × אורך', f"=PI()*0.3*1.15*{Lp:.3f}", 'מ"ר', f"={B.P('waste.geotextile')}", f"=F{r}*(1+H{r})",
               f"={B.PR('geotextile_m2')}", f"=I{r}*J{r}", 'זמני', exc['earthworks']['wallDrain']['source']], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
-    S.row(r, [6, 'צינורות ניקוז 4" דרך החומה, כל 2.5 מ\' (אורך 0.4 מ\' ליח\')', B.steps['perimeterWalls'], 'ROUNDUP(אורך / 2.5) × 0.4', f"=ROUNDUP({Lp:.3f}/2.5,0)*0.4", "מ'", f"={B.P('waste.drainPipe')}", f"=F{r}*(1+H{r})",
+    S.row(r, [3, 'צינורות ניקוז 4" דרך החומה, כל 2.5 מ\' (אורך 0.4 מ\' ליח\')', B.steps['perimeterWalls'], 'ROUNDUP(אורך / 2.5) × 0.4', f"=ROUNDUP({Lp:.3f}/2.5,0)*0.4", "מ'", f"={B.P('waste.drainPipe')}", f"=F{r}*(1+H{r})",
               f"={B.PR('drain_pipe_m')}", f"=I{r}*J{r}", 'זמני', exc['earthworks']['wallDrain']['source']], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
-    S.row(r, [None, 'סה"כ איטום וניקוז', None, None, None, None, None, None, None, f"=SUM(K{r0}:K{r-1})"], [None] * 9 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
-    B.sum['05 איטום קירות המרתף וניקוז (זמני)'] = (f"{q('wp')}!K{r}", 'אין פרט איטום – זמני')
+    S.row(r, [None, 'סה"כ ניקוז – קבלן שלד', None, None, None, None, None, None, None, f"=SUM(K{r0}:K{r-1})"], [None] * 9 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
+    B.sum['05.2 ניקוז בגב החומות (חצץ, בד גיאוטכני, צינורות)'] = (f"{q('wp')}!K{r}", 'K-400 חתך קיר')
     S.finish(r)
 
 
@@ -726,17 +732,31 @@ def build_summary(B):
     ws = B.ws['sum']
     S = Sheet(ws, note_col=5, widths={'A': 2, 'B': 52, 'C': 18, 'D': 12, 'E': 46}, no_merge=True)
     S.title(1, 'כתב כמויות שלד | מגרש 5187, שכונת רקפות, באר שבע',
-            'סבב 1: עבודות עפר, כלונסאות, בטון, טפסנות, ברזל, איטום וניקוז, בנייה בבלוקים (עד שלב 4א כולל משקופים וארגזי תריס, כולל שלד הבריכה). '
+            'סבב 1: עבודות עפר, כלונסאות, בטון, טפסנות, ברזל, ניקוז, בנייה בבלוקים – קבלן השלד; איטום – קבלן נפרד (עד שלב 4א כולל משקופים וארגזי תריס, כולל שלד הבריכה). '
             'כמויות מהמודל (נוסחאות חיות), מחירים מוערכים ללא מע"מ – ראה "מחירון". נוצר ע"י tools/boq/build_boq.py.')
     r = 3
-    S.section(r, '1 · עלויות לפי פרק'); r += 1
-    S.header(r, ['פרק', 'עלות (₪)', '% מהסה"כ'], h=15); r += 1
-    r0 = r; nSum = len(B.sum)
-    tot = r0 + nSum
-    for i, (k, (ref, note)) in enumerate(B.sum.items()):
-        S.row(r, [k, f"={ref}", f"=IF($C${tot}=0,0,C{r}/$C${tot})"], [None, NIS, PCT1], fill=BAND_FILL if i % 2 else None, note=note or None)
-        r += 1
-    S.row(r, ['סה"כ שלד (ללא מע"מ, ללא רווח קבלן ותקורות)', f"=SUM(C{r0}:C{r-1})", f"=IF($C${tot}=0,0,C{r}/$C${tot})"], [None, NIS, PCT1], bold=True, hero=True, fill=HERO_FILL, top=True)
+    C = J('data/quantities/boq-params.json')['contractors']
+    other = {ch: v['label'] for k, v in C.items() if not k.startswith('_') and k != 'default' for ch in v.get('chapters', [])}
+    groups = OrderedDict()
+    for k, v in B.sum.items():
+        groups.setdefault(other.get(k.split(' ')[0], C['default']['label']), []).append((k, v))
+    S.section(r, '1 · עלויות לפי קבלן ופרק'); r += 1
+    S.header(r, ['פרק', 'עלות (₪)', '% מהפרויקט'], h=15); r += 1
+    nRows = sum(len(v) + 2 for v in groups.values())
+    grand = r + nRows
+    subs = []
+    for g, items in groups.items():
+        items = sorted(items, key=lambda kv: [int(x) for x in kv[0].split(' ')[0].split('.')])
+        S.row(r, [g], [None], bold=True, fill=NOW_FILL); r += 1
+        r0 = r
+        for i, (k, (ref, note)) in enumerate(items):
+            S.row(r, [k, f"={ref}", f"=IF($C${grand}=0,0,C{r}/$C${grand})"], [None, NIS, PCT1], fill=BAND_FILL if i % 2 else None, note=note or None)
+            r += 1
+        S.row(r, [f'סה"כ {g}', f"=SUM(C{r0}:C{r-1})", f"=IF($C${grand}=0,0,C{r}/$C${grand})"], [None, NIS, PCT1], bold=True, fill=TOTAL_FILL, top=True)
+        subs.append(f"C{r}"); r += 1
+    S.row(r, ['סה"כ פרויקט – כל הקבלנים (ללא מע"מ, ללא רווח ותקורות)', '=' + '+'.join(subs), f"=IF($C${grand}=0,0,C{r}/$C${grand})"], [None, NIS, PCT1], bold=True, hero=True, fill=HERO_FILL, top=True)
+    r += 1
+    S.note(r, 'שיוך פרקים לקבלנים: data/quantities/boq-params.json (contractors) – איטום = קבלן נפרד (החלטת אביחי 13.11.2026). הכמויות של כל הקבלנים נשארות בקובץ.')
     r += 2
     S.section(r, '2 · כמויות עיקריות'); r += 1
     S.header(r, ['פריט', 'כמות', "יח'"], h=15); r += 1

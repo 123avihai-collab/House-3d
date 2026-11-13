@@ -297,5 +297,37 @@
    "color": "#4d4d4d"
   }
  ],
- "_grouts": "צבע הרובה לכל אזור (ברירת מחדל – לפי הגימור). מראה בלבד; הכמות (ק\"ג) – consumption."
+ "_grouts": "צבע הרובה לכל אזור (ברירת מחדל – לפי הגימור). מראה בלבד; הכמות (ק\"ג) – consumption.",
+ "products": [
+  {
+   "id": "AT12625",
+   "label": "Atlas Concorde · Boost Icor · Dust 120×120 (AT12625)",
+   "brand": "ATLAS CONCORDE",
+   "series": "BOOST ICOR",
+   "color_name": "DUST",
+   "sku": "AT12625",
+   "supplier": "נגב קרמיקה",
+   "url": "https://www.negev-group.co.il/boost_icor-2025",
+   "w_m": 1.2,
+   "l_m": 1.2,
+   "thick_m": 0.009,
+   "box_m2": 2.88,
+   "perBox": 2,
+   "surface": "מט",
+   "slip": "R10",
+   "shadeVariation": "V3",
+   "material": "גרניט פורצלן",
+   "look": {
+    "color": "#cbc3b5",
+    "vary": 0.08,
+    "roughness": 0.75,
+    "grout": "lightGrey",
+    "status": "provisional",
+    "_look": "גוון לפי תמונת פני האריח שאביחי שלח בצ'אט (13.11.2026) – הערכה חזותית; טקסטורה מהתמונה – כשהקובץ יגיע (open-issues #180). V3 = גיוון גבוה בין אריחים."
+   },
+   "source": "דף המוצר באתר נגב (boost_icor-2025), פרטים שאביחי העתיק 13.11.2026: 120/120 ס\"מ, עובי 9 מ\"מ, מט R10, V3, 2.88 מ\"ר בחבילה (= 2 אריחים); מפרט AT12625.pdf – טרם התקבל",
+   "status": "product"
+  }
+ ],
+ "_products": "מוצרים אמיתיים שאביחי בחר (מק\"ט ספק). בחירת מוצר באזור קובעת יחד מידה, עובי, אריחים בקרטון וגימור. מידות ואריזה – מהספק; המראה – זמני עד טקסטורה מתמונה."
 }

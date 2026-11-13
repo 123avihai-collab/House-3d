@@ -61,6 +61,16 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     const k = W.zones.find(z => z.r.area > 50).key;
     await W.setChoice(k, { size: '60x120', pattern: 'half' });
     r.big = { area: +W.layout(k).stats.zoneArea_m2.toFixed(3), tiles: W.layout(k).q.layTiles };
+    // a real product (catalog.products): size, thickness, tiles per box and finish together
+    const P = W.products[0];
+    if (P) {
+      const k2 = W.zones.find(z => z.key !== k).key;
+      await W.setChoice(k2, { product: P.id, size: P.id, finish: P.id });
+      const L = W.layout(k2);
+      r.product = { size: L.size.label, l: L.size.l_m, w: L.size.w_m, t: L.size.thick_m, perBox: L.q.perBox, boxM2: +(L.q.perBox * L.size.l_m * L.size.w_m).toFixed(3), want: P.box_m2, fin: !!W.finBy[P.id] };
+      if (L.size.l_m !== P.l_m || L.size.w_m !== P.w_m || L.size.thick_m !== P.thick_m || Math.abs(r.product.boxM2 - P.box_m2) > 1e-6 || !r.product.fin) r.productFail = true;
+      await W.setChoice(k2, { size: '60x60', finish: 'lightGrey', product: '' });
+    }
     W.select(k);
     return r;
   });
@@ -73,6 +83,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   }
   if (info.tab !== 'tiling' || !info.tileOn || info.tileItems !== info.zones || info.visibleTiles !== info.zones || info.placeholder1 >= info.placeholder0 && info.placeholder0 > 0 && info.zones > 0 && info.placeholder1 !== 0 || !info.plan || info.panelRows !== info.zones)
     fail(name, 'workshop check failed', { ...info, out: undefined });
+  if (info.productFail) fail(name, 'product does not match the catalog', info.product);
   // export
   const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);
   await page.evaluate(() => window.__app.modules.finishes.tiling.exportXlsx());
@@ -89,7 +100,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, xlsx }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, xlsx }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

@@ -31,6 +31,11 @@ export class TilingWorkshop {
   constructor(F) {
     this.F = F; const data = F.ctx.data;
     this.C = data.tilingCatalog; this.D = data.display.tiling || {};
+    // real products (catalog.products – supplier SKU): each adds its own size (dimensions / box) and finish (look) under the SKU id
+    this.products = this.C.products || []; this.prodBy = Object.fromEntries(this.products.map(p => [p.id, p]));
+    this.C = { ...this.C,
+      sizes: [...this.C.sizes, ...this.products.map(p => ({ id: p.id, label: `${Math.round(p.w_m * 100)}×${Math.round(p.l_m * 100)} · ${Math.round(p.thick_m * 1000)} מ"מ (${p.sku})`, w_m: p.w_m, l_m: p.l_m, thick_m: p.thick_m, perBox: p.perBox, product: p.id, status: 'product' }))],
+      finishes: [...this.C.finishes, ...this.products.map(p => ({ id: p.id, label: `${p.series} ${p.color_name} (${p.sku})`, product: p.id, ...p.look }))] };
     this.sizeBy = Object.fromEntries(this.C.sizes.map(x => [x.id, x]));
     this.finBy = Object.fromEntries(this.C.finishes.map(x => [x.id, x]));
     this.patBy = Object.fromEntries(this.C.patterns.map(x => [x.id, x]));
@@ -365,11 +370,14 @@ export class TilingWorkshop {
         this.plan(z.key));
       return box;
     }
-    const set = (k, cast = (v) => v) => (e) => this.setChoice(z.key, { [k]: cast(e.target.value) });
+    const set = (k, cast = (v) => v) => (e) => this.setChoice(z.key, { [k]: cast(e.target.value), ...((k === 'size' || k === 'finish') && c.product ? { product: '' } : {}) });
     const sel = (k, opts, cast) => h('select', { 'data-k': k, onchange: set(k, cast) }, opts.map(([v, l]) => h('option', { value: v, selected: String(c[k]) === String(v) }, l)));
     const num = (k, step, min, max) => h('input', { type: 'number', class: 'price', 'data-k': k, step, min, max, value: c[k] ?? '', onchange: set(k, (v) => v === '' ? 0 : +v) });
     const row = (label, ...el) => h('div', { class: 'row' }, h('span', {}, label), ...el);
     box.append(...[
+      row('מוצר:', h('select', { 'data-k': 'product', onchange: (e) => { const p = e.target.value; this.setChoice(z.key, p ? { product: p, size: p, finish: p } : { product: '' }); } },
+        [['', '— כללי (מידה + גימור) —'], ...this.products.map(p => [p.id, p.label])].map(([v, l]) => h('option', { value: v, selected: (c.product || '') === v }, l)))),
+      this.prodBy[c.product] ? h('div', { class: 'muted' }, (p => `${p.brand} · ${p.material} · ${p.surface} ${p.slip} · ${p.shadeVariation} · ${Math.round(p.thick_m * 1000)} מ"מ · ${p.box_m2} מ"ר בקרטון (${p.perBox} אריחים) · ${p.supplier}`)(this.prodBy[c.product])) : null,
       row('מידה (ס"מ):', sel('size', [...this.C.sizes.map(x => [x.id, x.label]), ['custom', 'מידה אחרת…']])),
       c.size === 'custom' ? row('רוחב × אורך (ס"מ), באריזה:', num('w_cm', 1, 5, 300), ' × ', num('l_cm', 1, 5, 300), ' · ', num('perBox', 1, 1, 100)) : null,
       row('גימור:', sel('finish', this.C.finishes.map(x => [x.id, x.label])), h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` })),

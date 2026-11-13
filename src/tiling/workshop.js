@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { layoutZone, optimize, optimizeMulti, quantities, frameOf, area, clipRect } from './layout.js';
+import { cutList } from './coping.js';
 
 // Tiling workshop ("סדנת ריצוף", mode "ריצוף"): a tile per zone (room floor) – size, finish, pattern, direction, origin,
 // joint, fine shift – laid out over the zone polygon (src/tiling/layout.js), drawn in 3D on the tile layer of the floor
@@ -552,7 +553,14 @@ export class TilingWorkshop {
         ['דבק לבריכות', +q.adhesive_kg.toFixed(1), 'ק"ג', ''], ['רובה אפוקסי', +q.epoxy_kg.toFixed(2), 'ק"ג', ''],
         ['קופינג', +q.coping.len_m.toFixed(2), 'מ"א', `${q.coping.mat.label} · ${Math.round(q.coping.width_m * 100)}×${Math.round(c.coping.thick_m * 100)} ס"מ · ${q.coping.runs.map(r => `${r.k}×${(r.piece_m * 100).toFixed(1)}`).join(' / ')} ס"מ`],
         ['קופינג – יחידות להזמנה', q.coping.order, 'יח\'', `${q.coping.pieces} בפריסה`], ['דבק לקופינג', +q.coping.mortar_kg.toFixed(1), 'ק"ג', ''],
-        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #194)']]); }
+        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #194)']]);
+      const L = q.coping.lay, TY = { full: 'שלמה', cut: 'חתוכה', miterStart: 'מיטר בתחילת הצלע', miterEnd: 'מיטר בסוף הצלע', miter2: 'מיטר משני הצדדים' };
+      sheet('קופינג – פריסה', [['צלע', 'יחידה', 'סוג', 'אורך חוץ ס"מ', 'אורך צד מים ס"מ', 'רוחב ס"מ', 'עובי ס"מ', 'מתחילת הצלע (חוץ) ס"מ', 'חיתוכים', 'תפר התפשטות אחריה'],
+        ...L.runs.flatMap(r => r.pieces.map((p, i) => [r.side + 1, i + 1, TY[p.type], +(p.outer_m * 100).toFixed(1), +(p.inner_m * 100).toFixed(1), +(L.W * 100).toFixed(1), +(c.coping.thick_m * 100).toFixed(1), +((p.s0 - r.S0) * 100).toFixed(1), p.cuts.join(' + '), r.joints[i]?.movement ? 'כן' : ''])),
+        [], ['אורך חוץ = הצלע הפונה לתעלת הגלישה; צד מים = השפה מעל הבריכה. פוגה ' + c.coping.joint_mm + ' מ"מ. כללי פריסה מקובלים – זמני (open-issues #194).']]);
+      sheet('קופינג – חיתוכים', [['סוג', 'אורך חוץ ס"מ', 'צד מים ס"מ', 'רוחב ס"מ', 'חיתוכים', 'כמות', 'מיקום (צלע.יחידה)'],
+        ...cutList(L).map(x => [TY[x.type], +(x.outer_m * 100).toFixed(1), +(x.inner_m * 100).toFixed(1), +(L.W * 100).toFixed(1), x.cuts.join(' + '), x.qty, x.where.join(' ')]),
+        [], ['יחידות מלאי', L.stock.units, `${(c.coping.length_m * 100).toFixed(0)}×${(c.coping.stockW_m * 100).toFixed(0)} ס"מ`], ['להזמנה (רזרבה)', q.coping.order], ['תפרי התפשטות', q.coping.movement, `${q.coping.sealant_m.toFixed(2)} מ"א מילוי גמיש`]]); }
     const name = 'tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

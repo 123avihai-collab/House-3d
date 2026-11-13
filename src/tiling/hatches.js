@@ -80,7 +80,7 @@ export class Hatches {
       });
       L.lid = lg; L.objs.add(lg);
       const grp = new THREE.Group(); grp.add(fg, lg);
-      const it = F.ctx.registry.add(grp, { floor: 'ground', system: 'finishes', stage: 'tiling', layer: 'poolHatches' }, {
+      const it = F.ctx.registry.add(grp, { floor: 'ground', system: 'finishes', stage: 'finishes', step: 'tiling', layer: 'poolHatches' }, {
         name: `${h.label} – מכסה מרוצף נפתח (זמני)`, kind: 'hatch', id: 'hatch-' + id, pickable: true, status: 'provisional',
         rows: [['מוצר', P.label], ['פתח נקי', `${Math.round(h.clear_m[0] * 100)} × ${Math.round(h.clear_m[1] * 100)} ס"מ (נמדד בתוכנית האדריכל, 1:100)`],
           ['מסגרת / מגש', `${P.frameMaterial} · עומק ${Math.round(P.frameDepth_m * 1000)} מ"מ · פס נראה ${Math.round(P.frameTop_m * 1000)} מ"מ`],

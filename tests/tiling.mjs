@@ -81,6 +81,16 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
     }
     r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile').length;
+    // shared joint grid (catalog.gridGroups.ext): all the outdoor zones + balconies in one grid – one start point in plan
+    // (continuous joints), a change in one member applies to all, the joint optimisation never makes the group worse
+    const gk = W.zones.filter(z => z.r.outdoor || z.r.roomType === 'balcony').map(z => z.key);
+    for (const k of gk) await W.setChoice(k, { grid: 'ext' }, { rebuild: false });
+    await W.setChoice(gk[0], { size: '60x120', direction: 'across' }, { rebuild: false });
+    const st = () => new Set(gk.map(k => { const L = W.layout(k); return L.frame.toWorld(L.start).map(v => v.toFixed(4)).join(','); }));
+    const sc = () => gk.reduce((s2, k) => s2 + W.layout(k).stats.score, 0);
+    const s0 = sc(), o = W.optimizeZone(gk[0]); await W.setChoice(gk[0], { du_cm: o.du_cm, dv_cm: o.dv_cm }, { rebuild: false });
+    r.grid2 = { members: gk.length, starts: st().size, same: gk.every(k => W.choice[k].size === '60x120' && W.choice[k].du_cm === o.du_cm), better: sc() <= s0 + 1e-9 };
+    for (const k of gk) await W.setChoice(k, { grid: '' }, { rebuild: false });
     r.ext.changeMarks = a.registry.items.filter(i => i.meta.kind === 'changeMark').length; r.ext.changeWant = EXR.filter(x => x.change).length;
     for (const x of EXR) if (x.surface.minZ != null && x.check.fillMin_m < x.check.minFill_m - 1e-6) r.ext.bad.push([x.room, 'below K-21 minimum']);
     W.select(k);
@@ -102,7 +112,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     fail(name, 'workshop check failed', { ...info, out: undefined });
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
-  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant) fail(name, 'exterior paving check failed', info.ext);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8) fail(name, 'exterior paving check failed', info.ext);
   // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
   const pool = await page.evaluate(async () => {
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };
@@ -143,7 +153,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { layoutZone, optimize, quantities, frameOf, area, clipRect } from './layout.js';
+import { layoutZone, optimize, optimizeMulti, quantities, frameOf, area, clipRect } from './layout.js';
 
 // Tiling workshop ("סדנת ריצוף", mode "ריצוף"): a tile per zone (room floor) – size, finish, pattern, direction, origin,
 // joint, fine shift – laid out over the zone polygon (src/tiling/layout.js), drawn in 3D on the tile layer of the floor
@@ -10,6 +10,9 @@ import { layoutZone, optimize, quantities, frameOf, area, clipRect } from './lay
 
 const LS = 'house3d.tiling';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', ext: 'ריצוף חוץ (פיתוח)' };
+// a shared joint grid (catalog.gridGroups – e.g. the exterior paving + the balconies): every member is laid in one frame with
+// one start, so the joints run on from zone to zone; these choice keys are the group's – a change in one member applies to all
+const GRID_KEYS = ['size', 'finish', 'product', 'pattern', 'direction', 'origin', 'joint_mm', 'du_cm', 'dv_cm', 'grout', 'w_cm', 'l_cm', 'perBox'];
 const grpOf = (z) => z.r.outdoor ? 'ext' : z.floor;   // exterior paving – its own group in the workshop
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const f0 = (v) => Math.round(v).toLocaleString('he-IL');
@@ -25,6 +28,7 @@ const h = (tag, attrs = {}, ...kids) => {
   for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
   return e;
 };
+const pick = (o, ks) => Object.fromEntries(ks.filter(k => o?.[k] !== undefined).map(k => [k, o[k]]));
 const SVGNS = 'http://www.w3.org/2000/svg';
 const s = (tag, attrs = {}) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
 
@@ -77,14 +81,33 @@ export class TilingWorkshop {
     }, () => { this.state = 'local'; });
   }
   async setChoice(key, patch, { rebuild = true } = {}) {
+    const keys = [key];
     if (patch === null) delete this.choice[key];
-    else this.choice[key] = { ...this.C.defaults, ...(this.zoneBy[key]?.r.outdoor ? this.C.outdoorDefaults : {}), ...(this.choice[key] || {}), ...patch };
+    else {
+      // joining a grid: take the group's tile / offsets from a member already in it
+      const g0 = patch.grid && patch.grid !== this.choice[key]?.grid ? this.gridMembers(patch.grid).find(m => m.key !== key) : null;
+      this.choice[key] = { ...this.C.defaults, ...(this.zoneBy[key]?.r.outdoor ? this.C.outdoorDefaults : {}), ...(this.choice[key] || {}), ...(g0 ? pick(this.choice[g0.key], GRID_KEYS) : {}), ...patch };
+      const gid = this.choice[key].grid;
+      if (gid && (patch.grid !== undefined || Object.keys(patch).some(k => GRID_KEYS.includes(k)))) {
+        const sub = pick(this.choice[key], GRID_KEYS);
+        for (const m of this.gridMembers(gid)) if (m.key !== key) { this.choice[m.key] = { ...this.choice[m.key], ...sub }; keys.push(m.key); }
+      }
+      if ('grid' in patch) this.cache.clear();
+    }
     this.saveLocal();
     if (rebuild) { this.rebuild(); this.refresh(); }
-    if (this.col) {
-      const doc = patch === null ? { kind: 'zone', room: key, cleared: true } : { kind: 'zone', room: key, name: this.zoneBy[key].name, floor: this.zoneBy[key].floor, choice: this.choice[key] };
-      try { await this.col.doc(hash(key)).set({ ...doc, at: new Date().toISOString() }); } catch { this.app?.ui.toast('השמירה במסד נכשלה – נשמר בדפדפן'); }
+    if (this.col) for (const k of keys) {
+      const doc = !this.choice[k] ? { kind: 'zone', room: k, cleared: true } : { kind: 'zone', room: k, name: this.zoneBy[k].name, floor: this.zoneBy[k].floor, choice: this.choice[k] };
+      try { await this.col.doc(hash(k)).set({ ...doc, at: new Date().toISOString() }); } catch { this.app?.ui.toast('השמירה במסד נכשלה – נשמר בדפדפן'); }
     }
+  }
+  gridMembers(gid) { return this.zones.filter(z => this.choice[z.key]?.grid === gid); }
+  // the frame of a grid group: the master zone's largest part (catalog.gridGroups[gid].master, else the first member)
+  gridFrame(gid, c) {
+    const G = this.C.gridGroups?.[gid] || {}, ms = this.gridMembers(gid);
+    const m = ms.find(z => z.key === G.master) || ms[0]; if (!m) return null;
+    const pat = this.patBy[c.pattern] || this.C.patterns[0], dir = this.dirBy[c.direction] || this.C.directions[0];
+    return frameOf(this.bigPart(m), {}, pat, dir);
   }
 
   // ---------------------------------------------------------------- layout of a zone (memo)
@@ -101,7 +124,7 @@ export class TilingWorkshop {
     const tile = { l_m: size.l_m, w_m: size.w_m };
     // one frame for all the parts of a zone (the zone's largest part sets the direction and the centre)
     const big = this.bigPart(z);
-    const F = frameOf(big, c, pat, dir);
+    const F = (c.grid && this.gridFrame(c.grid, c)) || frameOf(big, c, pat, dir);   // a shared grid: the group's frame
     const parts = z.parts.map(p => layoutZone(p, tile, c, pat, dir, this.C.cuts, F));
     const lay = { frame: F, pieces: parts.flatMap(p => p.pieces), tile: parts[0].tile, start: parts[0].start, size, pat, dir,
       stats: parts.reduce((a, p) => { for (const k of ['pieces', 'full', 'cut', 'slivers', 'narrow', 'tileArea_m2', 'zoneArea_m2', 'score']) a[k] = (a[k] || 0) + p.stats[k];
@@ -114,6 +137,11 @@ export class TilingWorkshop {
   optimizeZone(key) {
     const z = this.zoneBy[key], c = this.choice[key]; if (!c) return null;
     const size = this.sizeOf(c), pat = this.patBy[c.pattern], dir = this.dirBy[c.direction];
+    if (c.grid) {   // the whole shared grid at once: the joints stay continuous, the cuts are the best over all its zones
+      const F = this.gridFrame(c.grid, c);
+      const locs = this.gridMembers(c.grid).flatMap(m => m.parts.map(p => p.map(r => r.map(F.toLocal))));
+      return optimizeMulti(locs, F, { l_m: size.l_m, w_m: size.w_m }, { ...c, du_cm: 0, dv_cm: 0 }, pat, this.C.cuts);
+    }
     const big = this.bigPart(z);
     const r = optimize(big, { l_m: size.l_m, w_m: size.w_m }, { ...c, du_cm: 0, dv_cm: 0 }, pat, dir, this.C.cuts);
     return r;
@@ -410,11 +438,17 @@ export class TilingWorkshop {
       row('צבע רובה:', sel('grout', [['', `לפי הגימור (${this.groutOf({}, this.finBy[c.finish]).label})`], ...this.C.grouts.map(x => [x.id, x.label])]), h('i', { class: 'swc', style: `background:${this.groutOf(c, this.finBy[c.finish]).color}` })),
       row('הזזה (ס"מ) לאורך / לרוחב:', num('du_cm', 0.5), num('dv_cm', 0.5)),
       row('רזרבה (%):', num('spare_pct', 1, 0, 30))].filter(Boolean));
+    const GG = this.C.gridGroups || {};
+    if (c.grid) { const ms = this.gridMembers(c.grid);
+      box.append(h('div', { class: 'muted grid-link' }, `🔗 רשת פוגות משותפת "${GG[c.grid]?.label || c.grid}": ${ms.length} אזורים (${ms.map(m => m.name).join(' · ')}). שינוי אריח / כיוון / הזזה כאן חל על כולם, וקווי הפוגה ממשיכים מאזור לאזור.`),
+        h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => this.setChoice(z.key, { grid: '' }) }, 'ניתוק מהרשת המשותפת'))); }
+    else for (const [gid, G] of Object.entries(GG)) if ((G.roomTypes || []).includes(z.r.roomType) || (G.outdoor && z.r.outdoor))
+      box.append(h('div', { class: 'btns' }, h('button', { class: 'small', onclick: () => this.setChoice(z.key, { grid: gid }) }, `🔗 הצטרפות לרשת "${G.label}" (פוגות רציפות)`)));
     box.append(h('div', { class: 'btns' },
       h('button', { class: 'primary', 'data-act': 'optimize', onclick: () => {
         this.app.ui.toast('מחפש את הפריסה הטובה…');
         setTimeout(() => { const r = this.optimizeZone(z.key); if (r) { this.setChoice(z.key, { du_cm: r.du_cm, dv_cm: r.dv_cm }); this.app.ui.toast(`פריסה מושלמת: הזזה ${r.du_cm} / ${r.dv_cm} ס"מ (ציון ${f2(r.before)} → ${f2(r.score)})`); } }, 30);
-      } }, '⚡ פריסה מושלמת'),
+      } }, c.grid ? '⚡ פריסה מושלמת לכל הרשת' : '⚡ פריסה מושלמת'),
       h('button', { class: 'small', onclick: () => this.setChoice(z.key, { du_cm: 0, dv_cm: 0 }) }, 'איפוס הזזה'),
       h('button', { class: 'small', onclick: () => this.applyAll(c, (x) => grpOf(x) === grpOf(z) && x.key !== z.key) }, `העתק לכל ${FLOOR_HE[grpOf(z)]}`),
       h('button', { class: 'small', onclick: () => this.applyAll(c, (x) => x.r.roomType === z.r.roomType && x.key !== z.key) }, 'העתק לחדרים מאותו סוג'),

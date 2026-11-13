@@ -155,6 +155,21 @@ export function optimize(rings, tile, opt, pattern, direction, cuts) {
   return { du_cm: best.du, dv_cm: best.dv, score: best.s, before: base };
 }
 
+// "פריסה מושלמת" for a shared joint grid: several zones (each part as rings in the one frame F) laid with the same start –
+// the joints run on from zone to zone; the offset searched is the one with the fewest slivers / narrow cuts over them all
+export function optimizeMulti(locs, F, tile, opt, pattern, cuts) {
+  const j = (opt.joint_mm ?? 2) / 1000, mu = tile.l_m + j, mv = tile.w_m + j;
+  const run = (du, dv) => locs.reduce((a, loc) => a + layoutLocal(loc, F, tile, { ...opt, du_cm: du, dv_cm: dv }, pattern, cuts).stats.score, 0);
+  const n = 24;
+  let best = { du: 0, dv: 0, s: run(0, 0) }; const base = best.s;
+  const sym = (du, dv) => Math.min(Math.abs(du), mu * 100 - Math.abs(du)) + Math.min(Math.abs(dv), mv * 100 - Math.abs(dv));
+  const consider = (du, dv) => { const s = run(du, dv); if (s < best.s - 1e-9 || (Math.abs(s - best.s) < 1e-9 && sym(du, dv) < sym(best.du, best.dv))) best = { du, dv, s }; };
+  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) consider(+(a / n * mu * 100 - (a / n > 0.5 ? mu * 100 : 0)).toFixed(1), +(b / n * mv * 100 - (b / n > 0.5 ? mv * 100 : 0)).toFixed(1));
+  const st = mu * 100 / n, sv = mv * 100 / n, c = { ...best };
+  for (let a = -4; a <= 4; a++) for (let b = -4; b <= 4; b++) consider(+(c.du + a * st / 4).toFixed(1), +(c.dv + b * sv / 4).toFixed(1));
+  return { du_cm: best.du, dv_cm: best.dv, score: best.s, before: base };
+}
+
 // quantities of one laid-out zone (catalog consumption rates – provisional)
 export function quantities(lay, size, opt, cons, skirting_m) {
   const { L, W, j } = lay.tile, st = lay.stats;

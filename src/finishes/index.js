@@ -39,9 +39,10 @@ export function buildFinishes(ctx) {
   // doorway strips (floor in the wall thickness under the doors – tools/finishes/door_strips.py): each joins its zone as
   // one more part, so the floor build-up and the tiles continue through the door (Avihai 13.11.2026)
   for (const s of data.tilingDoorStrips?.strips || []) {
-    const r = TL.rooms.find(x => x.room === s.room); if (!r || r.parts.some(p => p.doorStrip === s.id)) continue;
+    const r = [...TL.rooms, ...(data.tilingExterior?.rooms || [])].find(x => x.room === s.room); if (!r || r.parts.some(p => p.doorStrip === s.id)) continue;   // an outside door – the exterior zone (Avihai 13.11)
     r.parts.push({ ringITM: s.ringITM, holesITM: [], doorStrip: s.id });
     r.doorStrips_m2 = +((r.doorStrips_m2 || 0) + s.area_m2).toFixed(3); r.area = +(r.area + s.area_m2).toFixed(3);
+    if (r.outdoor) r.fillVolume_m3 = +(r.fillVolume_m3 + s.area_m2 * r.layers.find(l => l.id === 'extFill').thickness_m).toFixed(3);
   }
   const F = new Finishes(ctx, P, T, TL, R, D);
   if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up

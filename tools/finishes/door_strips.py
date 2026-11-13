@@ -28,6 +28,12 @@ r3 = lambda v: round(v, 3)
 
 rooms = [r for r in TL['rooms'] if r.get('layers') and r['area'] > 0.05 and r.get('parts') and r['roomType'] not in EXCL]
 polys = {r['room']: unary_union([Polygon(p['ringITM'], p.get('holesITM') or []).buffer(0) for p in r['parts']]) for r in rooms}
+# exterior paving zones (data/finishes/tiling/exterior.json – the yards / terrace / parking of the ground floor):
+# Avihai 13.11.2026 – "the door area belongs to the outside": a threshold that touches an exterior zone (or a balcony) joins it
+EXT = json.load(open(os.path.join(ROOT, 'data/finishes/tiling/exterior.json'), encoding='utf-8'))
+for r in EXT['rooms']:
+    rooms.append(r); polys[r['room']] = unary_union([Polygon(p['ringITM'], p.get('holesITM') or []).buffer(0) for p in r['parts']])
+OUTSIDE = lambda r: r.get('outdoor') or r['roomType'] == 'balcony'
 by_floor = {}
 for r in rooms: by_floor.setdefault(r['floor'], []).append(r)
 
@@ -36,7 +42,7 @@ for rv in P['reveals']:
     if rv.get('openingKind') not in ('door', 'sliding', 'vitrine'): continue
     fl = rv['floor']; rs = by_floor.get(fl, [])
     if not rs: continue
-    slab = min(r['slabTop'] for r in rs)
+    slab = min(r['slabTop'] for r in rs if not r.get('outdoor'))
     pts = []
     for q in rv['quads']:
         if q['part'] != 'jamb': continue
@@ -54,15 +60,16 @@ for rv in P['reveals']:
     if not near: continue
     # owner: the corridor (a shared floor zone – tilingZones.names in data/finishes/config.json) if it touches the strip, else the largest
     # adjacent zone; a balcony (outside, another level) never takes the threshold of a vitrine – it stays with the room inside
-    inside = [r for r in near if r['roomType'] != 'balcony'] or near
-    shared = [r for r in inside if r.get('zoneName') and r['roomType'] != 'balcony']
-    own = max(shared or inside, key=lambda r: r['area'])
+    out_ = [r for r in near if OUTSIDE(r)]
+    inside = [r for r in near if not OUTSIDE(r)] or near
+    shared = [r for r in inside if r.get('zoneName')]
+    own = max(out_, key=lambda r: r['area']) if out_ else max(shared or inside, key=lambda r: r['area'])
     for g in getattr(strip, 'geoms', [strip]):
         ring = [[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]]
         out.append(dict(id=rv['opening'] + ('' if len(out) == 0 or out[-1]['id'].split('#')[0] != rv['opening'] else '#2'), opening=rv['opening'],
                         kind=rv['openingKind'], floor=fl, room=own['room'], roomName=own.get('roomName'), neighbours=[r['room'] for r in near],
                         area_m2=r3(g.area), depth_m=rv.get('depth'), ringITM=ring, status='derived',
-                        source=f"data/finishes/plaster/surfaces.json reveal {rv['key']} (jamb quads – {rv['source']}); minus the room floors of {fl}; owner = the corridor if adjacent, else the largest adjacent zone inside"))
+                        source=f"data/finishes/plaster/surfaces.json reveal {rv['key']} (jamb quads – {rv['source']}); minus the room floors of {fl}; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"))
 
 # the zone floor with its strips as one polygon (the workshop lays the tiles over it – a tile across the threshold is one tile)
 merged = {}
@@ -72,7 +79,7 @@ for key in sorted({s['room'] for s in out}):
                    for g in getattr(u, 'geoms', [u]) if g.area >= MIN_AREA]
 
 doc = {
-    '_doc': 'רצועות הרצפה בעובי הקיר מתחת לדלתות / ויטרינות – לא היו בשום אזור ריצוף. כל רצועה מצטרפת לאזור הגדול הצמוד (אביחי 13.11.2026: "המסדרון שייך לחלל המרכזי, לא לחדרים"). נגזר: tools/finishes/door_strips.py.',
+    '_doc': 'רצועות הרצפה בעובי הקיר מתחת לדלתות / ויטרינות – לא היו בשום אזור ריצוף. רצועה של פתח החוצה מצטרפת לאזור החוץ / המרפסת (אביחי 13.11.2026: "אזור הדלתות שייך לבחוץ"); אחרת – לאזור הגדול הצמוד ("המסדרון שייך לחלל המרכזי, לא לחדרים"). נגזר: tools/finishes/door_strips.py.',
     'source': 'tools/finishes/door_strips.py ← data/finishes/plaster/surfaces.json (גליפי הדלתות) + data/finishes/tiling/surfaces.json',
     'status': 'derived',
     'strips': out,

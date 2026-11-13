@@ -1,5 +1,5 @@
 {
- "_doc": "רצועות הרצפה בעובי הקיר מתחת לדלתות / ויטרינות – לא היו בשום אזור ריצוף. כל רצועה מצטרפת לאזור הגדול הצמוד (אביחי 13.11.2026: \"המסדרון שייך לחלל המרכזי, לא לחדרים\"). נגזר: tools/finishes/door_strips.py.",
+ "_doc": "רצועות הרצפה בעובי הקיר מתחת לדלתות / ויטרינות – לא היו בשום אזור ריצוף. רצועה של פתח החוצה מצטרפת לאזור החוץ / המרפסת (אביחי 13.11.2026: \"אזור הדלתות שייך לבחוץ\"); אחרת – לאזור הגדול הצמוד (\"המסדרון שייך לחלל המרכזי, לא לחדרים\"). נגזר: tools/finishes/door_strips.py.",
  "source": "tools/finishes/door_strips.py ← data/finishes/plaster/surfaces.json (גליפי הדלתות) + data/finishes/tiling/surfaces.json",
  "status": "derived",
  "strips": [
@@ -38,7 +38,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal unit|rev|U06#1 (jamb quads – sources/structure/k-11.dxf HATCH IfcWall; sources/structure/K-400-תכנית יסודות.pdf; sources/structure/k-21.dxf Floor Tags); minus the room floors of unit; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal unit|rev|U06#1 (jamb quads – sources/structure/k-11.dxf HATCH IfcWall; sources/structure/K-400-תכנית יסודות.pdf; sources/structure/k-21.dxf Floor Tags); minus the room floors of unit; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G04",
@@ -72,7 +72,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G07",
@@ -106,25 +106,22 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G01",
    "opening": "G01",
    "kind": "door",
    "floor": "ground",
-   "room": "ground@179599.75,576240.00",
-   "roomName": "אוכל / אורחים / חלל עולה / מטבח / סלון",
+   "room": "ext:GS8",
+   "roomName": "כניסה מקורה",
    "neighbours": [
-    "ground@179599.75,576240.00"
+    "ground@179599.75,576240.00",
+    "ext:GS8"
    ],
-   "area_m2": 0.298,
+   "area_m2": 0.296,
    "depth_m": 0.22,
    "ringITM": [
-    [
-     179598.369,
-     576235.288
-    ],
     [
      179598.451,
      576235.493
@@ -138,33 +135,38 @@
      576234.987
     ],
     [
-     179599.623,
-     576234.782
+     179599.624,
+     576234.783
+    ],
+    [
+     179598.37,
+     576235.29
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G01#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G01#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G16",
    "opening": "G16",
    "kind": "vitrine",
    "floor": "ground",
-   "room": "ground@179599.75,576240.00",
-   "roomName": "אוכל / אורחים / חלל עולה / מטבח / סלון",
+   "room": "ext:GS2",
+   "roomName": "מרפסת / משטח מרוצף",
    "neighbours": [
-    "ground@179599.75,576240.00"
+    "ground@179599.75,576240.00",
+    "ext:GS2"
    ],
-   "area_m2": 1.767,
+   "area_m2": 1.5,
    "depth_m": 0.3,
    "ringITM": [
     [
-     179601.568,
-     576244.592
+     179601.548,
+     576244.542
     ],
     [
-     179606.204,
-     576242.72
+     179606.184,
+     576242.671
     ],
     [
      179606.073,
@@ -176,7 +178,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G16#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G16#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G02",
@@ -218,7 +220,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G02#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G02#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G21",
@@ -260,7 +262,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G21#1 (jamb quads – sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G21#1 (jamb quads – sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G03",
@@ -302,7 +304,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G06",
@@ -336,7 +338,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G05",
@@ -374,17 +376,18 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G18",
    "opening": "G18",
    "kind": "vitrine",
    "floor": "ground",
-   "room": "ground@179596.50,576247.50",
-   "roomName": "יחידת הורים",
+   "room": "ext:GS2",
+   "roomName": "מרפסת / משטח מרוצף",
    "neighbours": [
-    "ground@179596.50,576247.50"
+    "ground@179596.50,576247.50",
+    "ext:GS2"
    ],
    "area_m2": 0.689,
    "depth_m": 0.3,
@@ -407,7 +410,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G18#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G18#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "G08",
@@ -440,7 +443,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F07",
@@ -482,7 +485,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F08",
@@ -516,15 +519,15 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F03",
    "opening": "F03",
    "kind": "vitrine",
    "floor": "first",
-   "room": "first@179596.50,576244.25",
-   "roomName": "חדר",
+   "room": "first@balcony-1",
+   "roomName": "מרפסת צפונית – קומה א'",
    "neighbours": [
     "first@179596.50,576244.25",
     "first@balcony-1"
@@ -550,7 +553,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F05",
@@ -584,15 +587,15 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F04",
    "opening": "F04",
    "kind": "vitrine",
    "floor": "first",
-   "room": "first@179595.25,576241.00",
-   "roomName": "חדר",
+   "room": "first@balcony-2",
+   "roomName": "מרפסת דרום-מערבית – קומה א'",
    "neighbours": [
     "first@179595.25,576241.00",
     "first@balcony-2"
@@ -622,7 +625,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   },
   {
    "id": "F06",
@@ -656,33 +659,335 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the exterior zone / balcony if adjacent (Avihai 13.11: the door area belongs outside), else the corridor, else the largest adjacent zone"
   }
  ],
  "zones": {
-  "first@179595.25,576241.00": [
+  "ext:GS2": [
    {
     "ringITM": [
      [
-      179592.491,
-      576240.122
+      179596.763,
+      576250.054
      ],
      [
-      179592.176,
-      576240.249
+      179593.567,
+      576251.345
      ],
      [
-      179591.677,
-      576239.016
+      179593.363,
+      576251.427
      ],
      [
-      179589.823,
-      576239.765
+      179592.75,
+      576251.675
      ],
      [
-      179590.627,
-      576241.757
+      179590.843,
+      576252.445
      ],
+     [
+      179591.127,
+      576253.194
+     ],
+     [
+      179591.304,
+      576253.66
+     ],
+     [
+      179599.662,
+      576250.286
+     ],
+     [
+      179600.826,
+      576253.169
+     ],
+     [
+      179602.475,
+      576252.148
+     ],
+     [
+      179606.72,
+      576250.434
+     ],
+     [
+      179602.475,
+      576252.147
+     ],
+     [
+      179600.948,
+      576248.365
+     ],
+     [
+      179600.756,
+      576247.891
+     ],
+     [
+      179606.142,
+      576245.717
+     ],
+     [
+      179605.418,
+      576243.925
+     ],
+     [
+      179608.05,
+      576242.862
+     ],
+     [
+      179608.052,
+      576242.856
+     ],
+     [
+      179608.238,
+      576242.782
+     ],
+     [
+      179608.963,
+      576244.578
+     ],
+     [
+      179609.193,
+      576244.485
+     ],
+     [
+      179608.94,
+      576243.858
+     ],
+     [
+      179609.73,
+      576243.54
+     ],
+     [
+      179611.604,
+      576248.181
+     ],
+     [
+      179609.73,
+      576243.539
+     ],
+     [
+      179609.602,
+      576241.16
+     ],
+     [
+      179609.604,
+      576241.16
+     ],
+     [
+      179612.09,
+      576249.254
+     ],
+     [
+      179609.595,
+      576241.131
+     ],
+     [
+      179607.158,
+      576242.114
+     ],
+     [
+      179607.214,
+      576242.255
+     ],
+     [
+      179606.184,
+      576242.671
+     ],
+     [
+      179606.073,
+      576242.392
+     ],
+     [
+      179601.436,
+      576244.264
+     ],
+     [
+      179601.548,
+      576244.542
+     ],
+     [
+      179601.484,
+      576244.568
+     ],
+     [
+      179600.304,
+      576245.044
+     ],
+     [
+      179600.185,
+      576245.092
+     ],
+     [
+      179597.932,
+      576246.002
+     ],
+     [
+      179599.063,
+      576248.802
+     ],
+     [
+      179599.108,
+      576248.784
+     ],
+     [
+      179599.22,
+      576249.062
+     ],
+     [
+      179599.175,
+      576249.081
+     ],
+     [
+      179598.99,
+      576249.156
+     ],
+     [
+      179598.943,
+      576249.174
+     ],
+     [
+      179598.941,
+      576249.175
+     ],
+     [
+      179598.895,
+      576249.193
+     ],
+     [
+      179598.783,
+      576248.915
+     ],
+     [
+      179596.651,
+      576249.775
+     ]
+    ],
+    "holesITM": []
+   }
+  ],
+  "ext:GS8": [
+   {
+    "ringITM": [
+     [
+      179595.599,
+      576235.135
+     ],
+     [
+      179595.687,
+      576235.1
+     ],
+     [
+      179595.784,
+      576235.061
+     ],
+     [
+      179595.91,
+      576235.01
+     ],
+     [
+      179596.116,
+      576234.926
+     ],
+     [
+      179596.004,
+      576234.648
+     ],
+     [
+      179597.163,
+      576234.18
+     ],
+     [
+      179597.188,
+      576234.241
+     ],
+     [
+      179597.276,
+      576234.458
+     ],
+     [
+      179597.489,
+      576234.372
+     ],
+     [
+      179597.931,
+      576235.466
+     ],
+     [
+      179597.949,
+      576235.459
+     ],
+     [
+      179598.116,
+      576235.392
+     ],
+     [
+      179598.136,
+      576235.384
+     ],
+     [
+      179598.37,
+      576235.29
+     ],
+     [
+      179598.451,
+      576235.493
+     ],
+     [
+      179599.404,
+      576235.109
+     ],
+     [
+      179599.705,
+      576234.987
+     ],
+     [
+      179599.624,
+      576234.783
+     ],
+     [
+      179599.934,
+      576234.658
+     ],
+     [
+      179599.092,
+      576232.571
+     ],
+     [
+      179595.197,
+      576234.144
+     ],
+     [
+      179595.353,
+      576234.53
+     ],
+     [
+      179593.7,
+      576235.197
+     ],
+     [
+      179595.539,
+      576234.455
+     ],
+     [
+      179595.672,
+      576234.783
+     ],
+     [
+      179595.486,
+      576234.857
+     ],
+     [
+      179595.539,
+      576234.988
+     ]
+    ],
+    "holesITM": []
+   }
+  ],
+  "first@179595.25,576241.00": [
+   {
+    "ringITM": [
      [
       179591.563,
       576241.379
@@ -716,20 +1021,20 @@
       576238.444
      ],
      [
-      179594.068,
-      576239.486
+      179592.176,
+      576240.249
      ],
      [
-      179593.955,
-      576239.207
+      179591.677,
+      576239.016
      ],
      [
-      179593.34,
-      576239.455
+      179589.823,
+      576239.765
      ],
      [
-      179592.379,
-      576239.843
+      179590.627,
+      576241.757
      ]
     ],
     "holesITM": []
@@ -757,22 +1062,6 @@
      [
       179594.959,
       576246.879
-     ],
-     [
-      179595.174,
-      576246.792
-     ],
-     [
-      179595.286,
-      576247.07
-     ],
-     [
-      179596.862,
-      576246.433
-     ],
-     [
-      179596.751,
-      576246.155
      ],
      [
       179599.341,
@@ -889,6 +1178,132 @@
     "holesITM": []
    }
   ],
+  "first@balcony-1": [
+   {
+    "ringITM": [
+     [
+      179596.862,
+      576246.433
+     ],
+     [
+      179596.751,
+      576246.155
+     ],
+     [
+      179595.174,
+      576246.792
+     ],
+     [
+      179595.286,
+      576247.07
+     ],
+     [
+      179592.923,
+      576248.024
+     ],
+     [
+      179592.132,
+      576246.073
+     ],
+     [
+      179592.338,
+      576245.99
+     ],
+     [
+      179592.296,
+      576245.885
+     ],
+     [
+      179591.494,
+      576246.209
+     ],
+     [
+      179592.524,
+      576248.762
+     ],
+     [
+      179591.912,
+      576249.01
+     ],
+     [
+      179592.872,
+      576251.388
+     ],
+     [
+      179601.747,
+      576247.805
+     ],
+     [
+      179600.586,
+      576244.929
+     ]
+    ],
+    "holesITM": []
+   }
+  ],
+  "first@balcony-2": [
+   {
+    "ringITM": [
+     [
+      179589.537,
+      576239.644
+     ],
+     [
+      179591.799,
+      576238.73
+     ],
+     [
+      179592.267,
+      576239.888
+     ],
+     [
+      179592.379,
+      576239.843
+     ],
+     [
+      179592.491,
+      576240.122
+     ],
+     [
+      179594.068,
+      576239.486
+     ],
+     [
+      179593.955,
+      576239.207
+     ],
+     [
+      179596.779,
+      576238.068
+     ],
+     [
+      179595.824,
+      576235.693
+     ],
+     [
+      179594.914,
+      576236.061
+     ],
+     [
+      179594.689,
+      576235.503
+     ],
+     [
+      179588.401,
+      576238.041
+     ],
+     [
+      179590.247,
+      576242.611
+     ],
+     [
+      179590.666,
+      576242.442
+     ]
+    ],
+    "holesITM": []
+   }
+  ],
   "ground@179590.75,576241.00": [
    {
     "ringITM": [
@@ -968,24 +1383,8 @@
       576250.158
      ],
      [
-      179596.651,
-      576249.775
-     ],
-     [
-      179596.763,
-      576250.054
-     ],
-     [
-      179598.895,
-      576249.192
-     ],
-     [
-      179598.783,
-      576248.915
-     ],
-     [
       179598.774,
-      576248.919
+      576248.918
      ],
      [
       179597.705,
@@ -1191,22 +1590,6 @@
       576245.761
      ],
      [
-      179601.436,
-      576244.264
-     ],
-     [
-      179601.568,
-      576244.592
-     ],
-     [
-      179606.204,
-      576242.72
-     ],
-     [
-      179606.073,
-      576242.392
-     ],
-     [
       179606.824,
       576242.089
      ],
@@ -1237,22 +1620,6 @@
      [
       179600.37,
       576234.719
-     ],
-     [
-      179599.705,
-      576234.987
-     ],
-     [
-      179599.623,
-      576234.782
-     ],
-     [
-      179598.369,
-      576235.288
-     ],
-     [
-      179598.451,
-      576235.493
      ],
      [
       179598.031,

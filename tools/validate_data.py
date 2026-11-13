@@ -129,6 +129,11 @@ if 'tilingCatalog' in D:
         for f_, grp in (('size', 'sizes'), ('finish', 'finishes'), ('pattern', 'patterns'), ('direction', 'directions'), ('origin', 'origins')):
             if v.get(f_) not in ids[grp] and not (f_ == 'size' and v.get(f_) == 'custom'): errors.append(f'tiling layout {k}: unknown {f_} {v.get(f_)}')
     if 'tilingLayout' in D and 'source' not in D['tilingLayout']: errors.append('tiling layout without source')
+    DS = D.get('tilingDoorStrips')
+    if DS:
+        keys = {r['room'] for r in D['tiling']['rooms']}
+        for s_ in DS['strips']:
+            if 'source' not in s_ or s_['room'] not in keys or len(s_['ringITM']) < 3 or not s_['area_m2'] > 0: errors.append(f'door strip {s_.get("id")} bad')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

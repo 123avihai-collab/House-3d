@@ -107,6 +107,10 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     info.notes = await page.evaluate(() => window.__app.store.get().notes.length);
     await page.evaluate(() => { const a = window.__app; a.store.set({ section: { ...a.store.get().section, hOn: true, hLevel: 0.2 } }); });
     info.clipPlanes = await page.evaluate(() => window.__app.viewer.renderer.clippingPlanes.length);
+    // section fill: cut solids get a back-face cap twin coloured by kind; the stage bar's "גובה קיר" row follows the cut
+    info.sectionFill = await page.evaluate(() => { const S = window.__app.tools.section; const row = document.querySelector('.stg-cut');
+      return { caps: S.caps.length, shown: S.caps.filter(c => c.visible).length, row: !!row && !row.classList.contains('hidden'), floors: S.wallFloors().length }; });
+    if (!info.sectionFill.caps || info.sectionFill.shown !== info.sectionFill.caps || !info.sectionFill.row || !info.sectionFill.floors) throw new Error('section fill ' + JSON.stringify(info.sectionFill));
     await page.evaluate(() => { window.__app.store.undo(); window.__app.store.undo(); });
     info.afterUndo = await page.evaluate(() => ({ notes: window.__app.store.get().notes.length, clip: window.__app.viewer.renderer.clippingPlanes.length }));
     await page.evaluate(() => window.__app.store.redo());

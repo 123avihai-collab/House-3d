@@ -416,6 +416,9 @@ export class UI {
         h('input', { type: 'range', min: -6, max: 12, step: 0.05, value: sec.hLevel, oninput: (e) => set({ hLevel: +e.target.value }, 'secH') })),
       h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.hideBeams !== false, onchange: (e) => app.store.set({ section: { ...sec, hideBeams: e.target.checked } }, { label: 'section' }) }),
         'הסתר את הקורות של הקומה החתוכה'),
+      h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: sec.fill !== false, onchange: (e) => app.store.set({ section: { ...sec, fill: e.target.checked } }, { label: 'section' }) }),
+        'מילוי חתך – אלמנט חתוך נראה מלא, בצבע לפי סוג'),
+      h('div', { class: 'cut-legend', style: 'flex-wrap: wrap' }, (app.tools.section.C.caps || []).map(c => h('span', {}, h('i', { style: `background:${c.color}` }), h('small', {}, c.label)))),
       (() => {
         // quick floor plans: cut 1.20 m above the slab of each floor (the floor is shown without its beams)
         // floor levels: tags.json floors[].level (unit -2.60 finish / ground ±0.00 / first +3.70 / roof +6.90)
@@ -744,8 +747,53 @@ export class UI {
       h('div', { class: 'btns' },
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: app.registry.stepById('skeletonEnd'), systemFilter: app.data.tags.skeletonSystems }, { label: 'skeleton' }) }, 'רק שלד'),
         h('button', { class: 'small', onclick: () => app.store.set({ stageIndex: st.length - 1, systemFilter: null }, { label: 'all' }) }, 'הכול'))),
-      h('div', { class: 'stg-track' }, this.stageRange, ticks));
+      h('div', { class: 'stg-track' }, this.stageRange, ticks),
+      this.buildCutRow());
+    bar.querySelector('.stg-head .btns').prepend(this.cutBtn);
     this.syncStageBar();
+  }
+  // "גובה קיר" (Avihai 13.11.2026): horizontal cut of one floor, from sectionCut.wallCut.min_m above the floor finish up to the
+  // full height of its walls – the walls are shown solid from above (section fill, js/tools/section.js), coloured by kind
+  buildCutRow() {
+    const { app } = this; const ST = app.tools.section; const W = ST.C.wallCut || {};
+    const setCut = (f, hRel) => {
+      const fl = ST.wallFloors().find(x => x.id === f); if (!fl) return;
+      const top = fl.top - fl.level;
+      const hh = Math.max(W.min_m, Math.min(top, hRel));
+      // at full height the plane sits 1 mm under the wall tops: the ceiling slab above is cut away, the walls show their fill
+      const lvl = hh >= top ? fl.top - 0.001 : fl.level + hh;
+      app.store.setCoalesced('wallCut', { section: { ...app.store.get().section, hOn: true, hideBeams: true, wFloor: f, hLevel: +lvl.toFixed(3) } });
+    };
+    this.cutFloorSel = h('select', { class: 'cut-sel', title: 'הקומה החתוכה', onchange: (e) => setCut(e.target.value, +this.cutRange.value) });
+    this.cutRange = h('input', { type: 'range', step: W.step_m, oninput: (e) => setCut(this.cutFloorSel.value, +e.target.value) });
+    this.cutVal = h('b', { class: 'cut-val' });
+    this.cutBtn = h('button', { class: 'small cut-btn', title: 'חתך אופקי של קומה – קירות מלאים מלמעלה, גובה הקיר מ-20 ס"מ מעל הריצוף ועד הגובה המלא', onclick: () => {
+      const sec = app.store.get().section;
+      if (sec.hOn) { app.store.set({ section: { ...sec, hOn: false } }, { label: 'wallCut' }); return; }
+      const f = (ST.floorAt(sec.hLevel) || ST.wallFloors().find(x => x.id === 'ground'))?.id;
+      const fl = ST.wallFloors().find(x => x.id === f); if (fl) setCut(f, fl.top - fl.level);
+    } }, '✂ גובה קיר');
+    const legend = h('span', { class: 'cut-legend' }, (ST.C.caps || []).map(c => h('span', { title: c.label }, h('i', { style: `background:${c.color}` }), h('small', {}, c.label))));
+    this.cutRow = h('div', { class: 'stg-cut' }, this.cutFloorSel, this.cutRange, this.cutVal, legend);
+    return this.cutRow;
+  }
+  syncCutRow() {
+    const { app } = this; const ST = app.tools.section; const sec = app.store.get().section;
+    const on = !!sec.hOn;
+    this.cutBtn.classList.toggle('on', on);
+    this.cutRow.classList.toggle('hidden', !on);
+    if (document.body.classList.contains('cutrow') !== on) { document.body.classList.toggle('cutrow', on); app.viewer.resize(); }
+    if (!on) return;
+    const fls = ST.wallFloors();
+    const fl = fls.find(x => x.id === sec.wFloor && sec.hLevel >= x.level - 1e-6 && sec.hLevel <= x.top + 1e-6) || ST.floorAt(sec.hLevel);
+    if (!fl) return;
+    if (this.cutFloorSel.options.length !== fls.length) this.cutFloorSel.replaceChildren(...fls.map(f => h('option', { value: f.id }, f.label)));
+    this.cutFloorSel.value = fl.id;
+    const top = +(fl.top - fl.level).toFixed(3); const hRel = sec.hLevel - fl.level;
+    this.cutRange.min = this.app.tools.section.C.wallCut.min_m; this.cutRange.max = top;
+    this.cutRange.value = Math.min(top, hRel);
+    const full = hRel >= top - 0.002;
+    this.cutVal.textContent = full ? `מלא · ${top.toFixed(2)} מ'` : hRel < 0 || hRel > top ? app.coords.fmtRel(sec.hLevel) : `${Math.round(hRel * 100)} ס"מ מעל הריצוף`;
   }
   syncStageBar() {
     const s = this.app.store.get(); const st = this.app.data.tags.sequence;
@@ -753,6 +801,7 @@ export class UI {
     this.stageSel.value = s.stageIndex;
     this.stageSel.title = (st[s.stageIndex]?.hint || '') + (s.systemFilter ? ' · רק שלד' : '');
     this.stageSel.classList.toggle('skel', !!s.systemFilter);
+    this.syncCutRow();
     // the hint of the step on every change (slider, buttons, list, viewpoints, search)
     if (this._lastStage !== undefined && this._lastStage !== s.stageIndex) {
       this.hint(`${s.stageIndex + 1}. ${st[s.stageIndex].label}: ${st[s.stageIndex].hint || ''}`);

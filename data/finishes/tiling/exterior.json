@@ -75,7 +75,15 @@
     "slopeTop": true,
     "slopeBottom": true
    }
-  ]
+  ],
+  "zones": {
+   "GS3": {
+    "clampToSlab": true,
+    "change": "OC-16",
+    "reason": "החלטת אביחי 13.11.2026: עד תשובת הקונסטרוקטור – לפי K-21 (‎−0.47 אופקי). נקודות הגובה בהיתר שנמוכות מפני הבטון + השכבות + בטון שיפועים מינימלי (280.08) מוגבהות לשם: מדרגה בשער מעל הרחוב, שיפוע קטן מ-2%. האזור מסומן לשינוי (OC-16)."
+   }
+  },
+  "_zones": "דריסות לאזור: clampToSlab – פני הריצוף לא יורדים מתחת לפני הבטון + השכבות + minFill (מצב K-21); change – מזהה הערה ברשימת השינויים (מסומן באדום במודל)"
  },
  "rooms": [
   {
@@ -509,6 +517,9 @@
    "tileType": null,
    "status": "provisional",
    "slabStatus": "approx",
+   "change": null,
+   "changeReason": null,
+   "raised": [],
    "check": {
     "minFill_m": 0.03,
     "ok": true,
@@ -527,10 +538,10 @@
    "area": 46.073,
    "void_m2": 0.0,
    "slabTop": -0.47,
-   "finishRel": -0.429,
-   "finishMin": -0.536,
-   "finishMax": -0.334,
-   "buildUp_m": 0.041,
+   "finishRel": -0.396,
+   "finishMin": -0.42,
+   "finishMax": -0.339,
+   "buildUp_m": 0.074,
    "skirting_m": 0,
    "wallTiling": null,
    "parts": [
@@ -684,53 +695,54 @@
     "type": "planeIdw",
     "E": 179602.118,
     "N": 576232.856,
-    "z": -0.4,
-    "gE": -0.006685,
-    "gN": 0.022566,
+    "z": -0.383,
+    "gE": -0.00323,
+    "gN": 0.008143,
     "power": 2,
     "res": [
      [
       179601.623,
       576228.835,
-      -0.0126
+      -0.0055
      ],
      [
       179602.784,
       576234.988,
-      -0.0237
+      -0.0119
      ],
      [
       179599.906,
       576232.874,
-      -0.0552
+      -0.044
      ],
      [
       179605.501,
       576234.871,
-      0.0171
+      0.0179
      ],
      [
       179597.148,
       576231.775,
-      0.0512
+      0.0361
      ],
      [
       179605.744,
       576233.793,
-      0.0231
+      0.0074
      ]
-    ]
+    ],
+    "minZ": -0.42
    },
-   "planeSlope_pct": 2.35,
-   "planeFallAzimuth_deg": 163.5,
+   "planeSlope_pct": 0.88,
+   "planeFallAzimuth_deg": 158.4,
    "spots": [
     {
      "handle": "18083",
      "E": 179601.623,
      "N": 576228.835,
-     "z": 280.0,
-     "plane": 280.013,
-     "d": 0.013,
+     "z": 280.08,
+     "plane": 280.086,
+     "d": 0.006,
      "inside": true
     },
     {
@@ -738,17 +750,17 @@
      "E": 179602.784,
      "N": 576234.988,
      "z": 280.12,
-     "plane": 280.144,
-     "d": 0.024,
+     "plane": 280.132,
+     "d": 0.012,
      "inside": true
     },
     {
      "handle": "1808C",
      "E": 179599.906,
      "N": 576232.874,
-     "z": 280.06,
-     "plane": 280.115,
-     "d": 0.055,
+     "z": 280.08,
+     "plane": 280.124,
+     "d": 0.044,
      "inside": true
     },
     {
@@ -756,8 +768,8 @@
      "E": 179605.501,
      "N": 576234.871,
      "z": 280.14,
-     "plane": 280.123,
-     "d": -0.017,
+     "plane": 280.122,
+     "d": -0.018,
      "inside": true
     },
     {
@@ -765,8 +777,8 @@
      "E": 179597.148,
      "N": 576231.775,
      "z": 280.16,
-     "plane": 280.109,
-     "d": -0.051,
+     "plane": 280.124,
+     "d": -0.036,
      "inside": true
     },
     {
@@ -774,8 +786,8 @@
      "E": 179605.744,
      "N": 576233.793,
      "z": 280.12,
-     "plane": 280.097,
-     "d": -0.023,
+     "plane": 280.113,
+     "d": -0.007,
      "inside": true
     }
    ],
@@ -786,18 +798,18 @@
      "dz0": null,
      "dz1": -0.02,
      "z0": -0.47,
-     "z1": -0.449,
-     "thickness_m": 0.021,
-     "min_m": -0.086,
-     "max_m": 0.116,
+     "z1": -0.416,
+     "thickness_m": 0.054,
+     "min_m": 0.03,
+     "max_m": 0.111,
      "status": "provisional"
     },
     {
      "id": "extProofing",
      "dz0": -0.02,
      "dz1": -0.017,
-     "z0": -0.449,
-     "z1": -0.446,
+     "z0": -0.416,
+     "z1": -0.413,
      "thickness_m": 0.003,
      "status": "provisional"
     },
@@ -805,8 +817,8 @@
      "id": "extAdhesive",
      "dz0": -0.017,
      "dz1": -0.01,
-     "z0": -0.446,
-     "z1": -0.439,
+     "z0": -0.413,
+     "z1": -0.406,
      "thickness_m": 0.007,
      "status": "provisional"
     },
@@ -814,21 +826,35 @@
      "id": "extTile",
      "dz0": -0.01,
      "dz1": -0.0,
-     "z0": -0.439,
-     "z1": -0.429,
+     "z0": -0.406,
+     "z1": -0.396,
      "thickness_m": 0.01,
      "status": "placeholder"
     }
    ],
-   "fillVolume_m3": 0.985,
+   "fillVolume_m3": 2.474,
    "tileType": null,
-   "status": "conflict",
+   "status": "change",
    "slabStatus": "source",
+   "change": "OC-16",
+   "changeReason": "החלטת אביחי 13.11.2026: עד תשובת הקונסטרוקטור – לפי K-21 (‎−0.47 אופקי). נקודות הגובה בהיתר שנמוכות מפני הבטון + השכבות + בטון שיפועים מינימלי (280.08) מוגבהות לשם: מדרגה בשער מעל הרחוב, שיפוע קטן מ-2%. האזור מסומן לשינוי (OC-16).",
+   "raised": [
+    {
+     "handle": "18083",
+     "z": 280.0,
+     "raisedTo": 280.08
+    },
+    {
+     "handle": "1808C",
+     "z": 280.06,
+     "raisedTo": 280.08
+    }
+   ],
    "check": {
     "minFill_m": 0.03,
-    "ok": false,
-    "fillMin_m": -0.086,
-    "fillMax_m": 0.116
+    "ok": true,
+    "fillMin_m": 0.03,
+    "fillMax_m": 0.111
    },
    "source": "פני ריצוף: data/site/development-heights.json (sources/permit/permit-sheet1-gramushka.dwg, ישויות 18083, 18086, 1808C, 18106, 18128, 1815D); פני בטון ופוליגון: data/structure/floor-ground.json GS3 (sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת)); שכבות: data/finishes/floors/exterior-buildup.json"
   },
@@ -1158,6 +1184,9 @@
    "tileType": null,
    "status": "provisional",
    "slabStatus": "source",
+   "change": null,
+   "changeReason": null,
+   "raised": [],
    "check": {
     "minFill_m": 0.03,
     "ok": true,
@@ -1419,6 +1448,9 @@
    "tileType": null,
    "status": "provisional",
    "slabStatus": "source",
+   "change": null,
+   "changeReason": null,
+   "raised": [],
    "check": {
     "minFill_m": 0.03,
     "ok": true,
@@ -1562,6 +1594,9 @@
    "tileType": null,
    "status": "provisional",
    "slabStatus": "approx",
+   "change": null,
+   "changeReason": null,
+   "raised": [],
    "check": {
     "minFill_m": 0.03,
     "ok": true,
@@ -1771,6 +1806,9 @@
    "tileType": null,
    "status": "provisional",
    "slabStatus": "source",
+   "change": null,
+   "changeReason": null,
+   "raised": [],
    "check": {
     "minFill_m": 0.03,
     "ok": true,

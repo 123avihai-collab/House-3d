@@ -80,8 +80,16 @@ def main():
             d = P.distance(Point(sp['E'], sp['N']))
             if d <= FIT['spotMaxDist_m'] or sp['handle'] in inc: near.append((sp['E'], sp['N'], sp['z'] - H0, sp['handle'], d == 0 or sp['handle'] in inc))
         if not near: raise SystemExit(f"{sl['id']}: no development height in the zone")
-        S, pz, f, used, dropped = surface(near)
         top = sl['topRel']
+        ZO = BU.get('zones', {}).get(sl['id'], {})
+        floorZ = top + STACK + BU['minFill_m'] if ZO.get('clampToSlab') else None
+        raised = []
+        if floorZ is not None:   # K-21 state (OC-16): a permit level below the slab + layers + minimum fill is raised to it
+            for k_, p_ in enumerate(near):
+                if p_[2] < floorZ: raised.append(dict(handle=p_[3], z=r3(p_[2] + H0), raisedTo=r3(floorZ + H0))); near[k_] = (p_[0], p_[1], floorZ, p_[3], p_[4])
+        S, pz, f0, used, dropped = surface(near)
+        f = f0 if floorZ is None else (lambda E, N: max(f0(E, N), floorZ))
+        if floorZ is not None: S['minZ'] = r3(floorZ)
         # sample the surface on a grid inside the slab: finish range, fill thickness range, mean, volume, steepest fall
         g = FIT['sampleGrid_m']; x0, y0, x1, y1 = P.bounds
         samp = []
@@ -114,7 +122,8 @@ def main():
                  surface=S, planeSlope_pct=round(slope, 2), planeFallAzimuth_deg=None if fall is None else round(fall, 1),
                  spots=[sp(p) for p in used], dropped=[sp(p) for p in dropped],
                  layers=layers, fillVolume_m3=r3(P.area * fmean), tileType=None,
-                 status='conflict' if bad else 'provisional', slabStatus=sl['status'],
+                 status='conflict' if bad else 'change' if ZO.get('change') else 'provisional', slabStatus=sl['status'],
+                 change=ZO.get('change'), changeReason=ZO.get('reason'), raised=raised,
                  check=dict(minFill_m=BU['minFill_m'], ok=not bad, fillMin_m=r3(min(fill)), fillMax_m=r3(max(fill))),
                  source=f"פני ריצוף: data/site/development-heights.json (sources/permit/permit-sheet1-gramushka.dwg, ישויות {', '.join(p[3] for p in used)}); פני בטון ופוליגון: data/structure/floor-ground.json {sl['id']} ({sl['source'].split(';')[0]}); שכבות: data/finishes/floors/exterior-buildup.json")
         zones.append(z)

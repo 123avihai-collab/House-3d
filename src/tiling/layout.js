@@ -182,6 +182,8 @@ export function surfaceZ(S) {
   if (!S) return null;
   const res = S.res || [], k = S.power ?? 2;
   const pz = (E, N) => S.z + S.gE * (E - S.E) + S.gN * (N - S.N);
+  // minZ: the finish does not go below the slab + layers + minimum fill (a zone kept to K-21 – owner change OC-16)
+  if (S.minZ != null) { const f = surfaceZ({ ...S, minZ: null }); return (E, N) => Math.max(f(E, N), S.minZ); }
   return (E, N) => {
     let sw = 0, sr = 0;
     for (const [e, n, r] of res) {

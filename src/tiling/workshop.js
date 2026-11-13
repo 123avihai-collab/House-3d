@@ -48,13 +48,15 @@ export class TilingWorkshop {
     }));
     this.zoneBy = Object.fromEntries(this.zones.map(z => [z.key, z]));
     this.choice = { ...(data.tilingLayout?.rooms || {}) };
-    try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); if (l.choice) this.choice = { ...this.choice, ...l.choice }; this.sel = l.sel; this.showCuts = l.showCuts ?? true; } catch { this.showCuts = true; }
+    try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); if (l.choice) this.choice = { ...this.choice, ...l.choice }; this.sel = l.sel; this.showCuts = l.showCuts ?? true; this.showGrid = !!l.showGrid; } catch { this.showCuts = true; }
+    // "הצג חלוקה": every joint in one strong colour, wide enough to read at any distance (one shared uniform – no rebuild)
+    this.gridU = { value: this.showGrid ? 1 : 0 }; this.gridColU = { value: new THREE.Color(this.D.gridColor || '#d32f2f') };
     for (const k of Object.keys(this.choice)) if (!this.zoneBy[k] || !this.choice[k]) delete this.choice[k];
     if (!this.zoneBy[this.sel]) this.sel = this.zones[0]?.key;
     this.state = 'local'; this.cache = new Map(); this.items = []; this.mats = {};
     this.outline = new THREE.Group(); this.outline.visible = false; F.ctx.scene.add(this.outline);
   }
-  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ choice: this.choice, sel: this.sel, showCuts: this.showCuts })); } catch {} }
+  saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ choice: this.choice, sel: this.sel, showCuts: this.showCuts, showGrid: this.showGrid })); } catch {} }
   has(key) { return !!this.choice[key]; }
 
   // ---------------------------------------------------------------- persistence (artifact db, else this browser)
@@ -133,9 +135,10 @@ export class TilingWorkshop {
     }
     const px = this.D.jointMinPx ?? 1.1;
     m.onBeforeCompile = (sh) => {
+      sh.uniforms.uGrid = this.gridU; sh.uniforms.uGridCol = this.gridColU;
       sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 tileXY;\nattribute float tileJ;\nattribute vec3 groutC;\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = tileXY; vJ = tileJ; vGrout = groutC;');
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uGrid;\nuniform vec3 uGridCol;\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
         .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
         reflectedLight.directDiffuse *= ${(this.D.interiorSun ?? 1).toFixed(3)}; reflectedLight.directSpecular *= ${(this.D.interiorSun ?? 1).toFixed(3)};
         { vec3 irr = reflectedLight.indirectDiffuse / max(diffuseColor.rgb, vec3(1e-3));   // interior: neutral light from the ceiling / walls, not the blue sky
@@ -147,13 +150,13 @@ export class TilingWorkshop {
           vec2 q = vTile.xy;
           vec2 dd = min(q, vTile.zw - q) + vec2(vJ);   // distance from the joint centre line (tiles drawn up to it)
           vec2 fw = max(fwidth(q), vec2(1e-5));
-          vec2 jw = max(vec2(vJ), fw * ${(px / 2).toFixed(2)});
-          vec2 fade = smoothstep(vec2(2.0), vec2(6.0), vTile.zw / fw);
+          vec2 jw = max(vec2(vJ), fw * mix(${(px / 2).toFixed(2)}, ${((this.D.gridPx ?? 2.2) / 2).toFixed(2)}, uGrid));
+          vec2 fade = mix(smoothstep(vec2(2.0), vec2(6.0), vTile.zw / fw), vec2(1.0), uGrid);
           vec2 ln = (1.0 - smoothstep(jw - 0.5 * fw, jw + 0.5 * fw, dd)) * fade;   // anti-aliased edge one pixel wide
           float line = max(ln.x, ln.y) * isTop;
           float d = min(dd.x, dd.y);
           float bevel = 1.0 - 0.07 * isTop * min(fade.x, fade.y) * (1.0 - smoothstep(vJ, vJ + 0.003, d));   // the rectified edge – a hair of shade
-          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, vGrout, line);   // grout flush with the tile, a hair darker (the joint's shade)
+          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, mix(vGrout, uGridCol, uGrid), line);   // grout flush with the tile, a hair darker (the joint's shade)
         }`);
     };
     m.customProgramCacheKey = () => 'tileJoints';
@@ -248,6 +251,7 @@ export class TilingWorkshop {
     l.renderOrder = 10; this.outline.add(l);
     this.app.viewer.invalidate();
   }
+  setGrid(on) { this.showGrid = !!on; this.gridU.value = on ? 1 : 0; this.saveLocal(); this.refresh(); }
   select(key) { this.sel = key; this.saveLocal(); this.drawOutline(); this.refresh(); }
   refresh() { this.app?.ui.refreshPanel('tiling'); this.app?.ui.refreshPanel('finishes'); this.app?.viewer.invalidate(); }
 
@@ -338,6 +342,7 @@ export class TilingWorkshop {
       h('div', { class: 'fix-conn ' + (this.state === 'online' ? 'ok' : 'warn') }, this.state === 'online' ? 'מחובר: הבחירות נשמרות במודל וקלוד קורא אותן.' : 'לא מחובר (מחוץ ל-claude.ai): הבחירות נשמרות בדפדפן הזה בלבד.'),
       h('div', { class: 'btns' },
         h('button', { class: on ? 'on primary' : 'primary', onclick: () => app.store.set({ mode: on ? 'view' : 'tiling' }, { label: 'mode' }) }, on ? '✓ מצב ריצוף פעיל (יציאה)' : '▦ כניסה למצב ריצוף'),
+        h('button', { class: 'primary' + (this.showGrid ? ' on' : ''), 'data-act': 'grid', title: 'כל הפוגות במודל בצבע בולט – לראות את החלוקה בפועל (לחיצה נוספת – המראה האמיתי, בצבע הרובה)', onclick: () => this.setGrid(!this.showGrid) }, this.showGrid ? '✓ חלוקה מוצגת (חזרה למראה אמיתי)' : '▦ הצג חלוקה במודל'),
         h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: this.showCuts, onchange: (e) => { this.showCuts = e.target.checked; this.saveLocal(); this.rebuild(); } }), ' סימון חיתוכים צרים במודל')));
     // the build-up under the tile (layers): fill (sumsum + sand) → screed → adhesive → tile
     const BU = this.F.BU;

@@ -72,6 +72,11 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       await W.setChoice(k2, { size: '60x60', finish: 'lightGrey', product: '' });
     }
     W.select(k);
+    // "הצג חלוקה": the button in the panel, one shared uniform (no rebuild), back off
+    const items0 = a.registry.items.filter(i => i.meta.kind === 'tiles').length;
+    document.querySelector('#panel .tiling [data-act="grid"]')?.click();
+    r.grid = { on: W.gridU.value, items: a.registry.items.filter(i => i.meta.kind === 'tiles').length === items0, label: document.querySelector('#panel .tiling [data-act="grid"]')?.textContent || '' };
+    W.setGrid(false); r.grid.off = W.gridU.value;
     return r;
   });
   for (const z of info.out) {
@@ -83,6 +88,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   }
   if (info.tab !== 'tiling' || !info.tileOn || info.tileItems !== info.zones || info.visibleTiles !== info.zones || info.placeholder1 >= info.placeholder0 && info.placeholder0 > 0 && info.zones > 0 && info.placeholder1 !== 0 || !info.plan || info.panelRows !== info.zones)
     fail(name, 'workshop check failed', { ...info, out: undefined });
+  if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
   // export
   const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);

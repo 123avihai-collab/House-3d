@@ -18,7 +18,7 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'tools', 'cache', 'artifact')
 DIRS = ['css', 'js', 'src', 'data', 'assets', 'vendor']
-PAGES = ['editor.html']   # extra pages next to index.html (the 2D pipe editor)
+PAGES = ['editor.html', 'plans.html']   # extra pages next to index.html (the 2D pipe editor)
 SERVED = {'.css', '.js', '.mjs', '.json', '.jpg', '.jpeg', '.png', '.webp', '.svg', '.txt'}
 AS_BASE64 = {'.hdr'}
 

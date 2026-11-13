@@ -27,12 +27,15 @@ python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבל
 node tools/plumbing/editor_findings.mjs            # עורך הצנרת: ממצאי הבדיקות בהצעה -> docs/verification/editor-stage-3-findings.md
 ```
 
+**תוכניות קונסטרוקציה חיות:** `plans.html` – תוכנית K-400 (יסודות וכלונסאות) על הגיליון המקורי: לחיצה על כלונס / קורה / קיר / יסוד פותחת כרטיס עם הסבר פשוט, סקיצת מבט צד וחתך, מידות ומפלסים, השורה מטבלת הכלונסאות ופירוט ברזל (כמות, קוטר, אורך, ק"ג – אותו חישוב של כתב הכמויות). שכבות, צביעה לפי קוטר / מפלס / עומס / אורך, חיפוש, מדידה, קישור ישיר (`#pile-7`). נתונים: `python3 tools/plans/build_k400.py` → `data/plans/k400.json`. אימות: [docs/verification/plans-k400.md](docs/verification/plans-k400.md). שאר הגיליונות (K-11…K-41) – בשלב הבא.
+
 **עורך צנרת דו-ממדי:** `editor.html` – מבט על לפי קומה, רקע אדריכלי, שלד, שכבות הצעה ויועץ. מקור האמת לתוואי: `data/plumbing/routes.json`. פירוט ושלבים: [docs/plumbing/editor.md](docs/plumbing/editor.md).
 
 ## מבנה
 
 ```
 index.html                 מעטפת הדף + importmap
+plans.html                 תוכניות קונסטרוקציה חיות (js/plans/, css/plans.css, data/plans/, tools/plans/)
 editor.html                עורך צנרת דו-ממדי (js/editor/, css/editor.css) – docs/plumbing/editor.md
 css/app.css                עיצוב (RTL, מותאם לטלפון)
 js/

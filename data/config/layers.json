@@ -80,7 +80,7 @@
     {
      "id": "contours",
      "label": "קווי גובה מתוכננים (רחוב)",
-     "visible": true
+     "visible": false
     },
     {
      "id": "pavedEntries",

@@ -72,8 +72,14 @@ export class Prefs {
     const ids = (this.app.data.layers.groups.find(g => g.id === 'structure')?.layers || []).map(l => l.id);
     if (p.last?.layers && ids.length && ids.every(id => p.last.layers[id] === false)) p.last = null;
   }
+  // one-time cleanup (review 13.11.2026): the street contour lines crossed the neighbouring lots – off once in the last view
+  heal2(p) {
+    if (p.healed2) return;
+    p.healed2 = true;
+    if (p.last?.layers && p.last.layers.contours !== false) p.last.layers.contours = false;
+  }
   restore(p) {
-    this.heal(p);
+    this.heal(p); this.heal2(p);
     const start = p.start && p.presets.find(x => x.id === p.start);
     this.apply(start ? start.view : p.last, { record: false });
     // layers moved to "מוסתרות" / removed from the model stay off even with no saved view
@@ -91,7 +97,7 @@ export class Prefs {
       if (snap.exists) {
         const d = snap.data();
         // groups opened / closed before the account answered keep this session's state
-        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) }, healed1: d.healed1,
+        this.p = { last: d.last || null, presets: d.presets || [], start: d.start || null, open: { ...(d.open || {}), ...(this.sessionOpen || {}) }, healed1: d.healed1, healed2: d.healed2,
           seen: d.seen || this.p.seen, binned: d.binned || this.p.binned || [], dropped: d.dropped || this.p.dropped || [] };
         this.initLists(this.p);
         this.restore(this.p); this.writeLocal(); this.persist();

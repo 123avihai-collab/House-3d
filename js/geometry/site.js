@@ -115,6 +115,8 @@ export function buildSite(ctx) {
     ring0.rotation.x = Math.PI / 2; ring0.position.copy(p); g4.add(ring0);
     g4.add(label(`±0.00 = ${z0.z.toFixed(2)}`, 'h h-zero', p.clone().add(new THREE.Vector3(0, 0.55, 0)), z0.source));
   }
+  // each dot is shown with its label only (js/core/labels.js) – no unlabelled yellow dots over the finished lot
+  g4.children.forEach((o, i) => { const l = g4.children[i + 1]; if (o.geometry === dot && l?.isCSS2DObject) l.userData.marker = o; });
   registry.add(g4, site('plannedHeights'), { name: 'גבהים מתוכננים (מפה למשתכן + פיתוח בהיתר)', kind: 'labels', source: 'data/site/planned-heights.json; data/site/development-heights.json' });
   scene.add(g4);
 

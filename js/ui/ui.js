@@ -27,12 +27,14 @@ export class UI {
     this.buildStageBar();
     app.store.on(() => { this.refreshPanel(); this.syncStageBar(); this.syncTop(); this.syncWalkSpeed(); });
     this.syncTop();
+    if (matchMedia('(pointer: coarse)').matches) this.status('גע ברכיב כדי לראות מידות · ☰ שכבות ותצוגה');
   }
 
   // ---------------- top bar ----------------
   buildTop() {
     const { app } = this; const top = this.$('topbar');
-    const modes = h('div', { class: 'seg', id: 'modes' }, app.data.tools.modes.map(m =>
+    // only working modes are buttons (review 13.11.2026: "ריהוט" / "קופינג" were dead buttons that pushed the bar over)
+    const modes = h('div', { class: 'seg', id: 'modes' }, app.data.tools.modes.filter(m => m.implemented).map(m =>
       h('button', { 'data-mode': m.id, class: m.implemented ? '' : 'na', title: m.implemented ? m.label : `${m.label} – בקרוב`,
         onclick: () => m.implemented ? app.store.set({ mode: m.id }, { label: 'mode' }) : this.toast(`מצב "${m.label}" – בקרוב`) }, m.label)));
     const ws = h('select', { class: 'ws', title: 'סדנאות', onchange: (e) => { const w = app.data.tools.workshops.find(x => x.id === e.target.value);
@@ -56,11 +58,11 @@ export class UI {
         h('b', {}, it.meta.id || ''), ' ', it.meta.name || '', h('small', {}, app.tools.search.describe(it)))) : [h('div', { class: 'muted' }, q ? 'לא נמצא אלמנט בשם הזה' : '')]));
       results.classList.toggle('hidden', !q);
     };
-    const sInput = h('input', { type: 'search', class: 'search', placeholder: '🔍 חיפוש: B7, GW19, C9…', title: 'חיפוש אלמנט לפי שם / מזהה – מסמן אותו במודל',
+    const sInput = h('input', { type: 'search', class: 'search', placeholder: '🔍 חיפוש: B7, C9…', title: 'חיפוש אלמנט לפי שם / מזהה – מסמן אותו במודל',
       oninput: (e) => runSearch(e.target.value, false), onkeydown: (e) => { if (e.key === 'Enter') runSearch(e.target.value, true); if (e.key === 'Escape') { e.target.value = ''; results.classList.add('hidden'); app.tools.search.highlight(null); } } });
     this.searchInput = sInput;
     top.append(
-      h('div', { class: 'brand' }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
+      h('div', { class: 'brand', title: `${app.data.manifest.project.name}\n${app.data.manifest.project.stageLabel}` }, h('b', {}, app.data.manifest.project.name), h('small', {}, app.data.manifest.project.stageLabel)),
       modes, modeSel, h('div', { class: 'search-wrap' }, sInput, results), ws,
       // proposals layer (js/tools/proposals.js): plan mode / proposals mode – the red markings of changes waiting for the architect
       (this.ocBadge = h('button', { class: 'oc-badge', title: 'שכבת הצעות לשינוי: מצב תוכנית (לפי תוכנית האדריכל, בלי אדום) / מצב הצעות (השינויים הממתינים – באדום). הרשימה: בקרה ← הערות', onclick: () => {
@@ -140,18 +142,26 @@ export class UI {
       if (!on) this.openTab('fixes', !this.isMobile());
     } }, '📝'), tb.querySelector('[data-tool="walk"]'));
     app.store.on((st) => document.querySelector('#toolbar [data-k="edit"]')?.classList.toggle('on', st.mode === 'edit'));
-    tb.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
-    tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
+    // view buttons: in a group that folds behind ⋯ on a phone (review 13.11.2026 – nine 40 px buttons filled the screen height)
+    const more = h('div', { class: 'tb-more' });
+    tb.append(h('button', { 'data-k': 'more', title: 'עוד כלי תצוגה: מבט כללי, מבט על, תוכנית, מפה, תוויות', onclick: () => {
+      const on = !document.body.classList.contains('tb-open'); document.body.classList.toggle('tb-open', on);
+      tb.querySelector('[data-k="more"]').classList.toggle('on', on);
+    } }, '⋯'), more);
+    more.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
+    more.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
     // plan view (Avihai 13.11.2026): straight down, no perspective – walls are lines, for furniture planning
-    tb.append(h('button', { 'data-k': 'plan', title: 'מבט תוכנית: ישר מלמעלה בזווית 90°, בלי פרספקטיבה, הקירות לאורך המסך (לחיצה נוספת – יציאה)', onclick: () => app.nav.planView() }, '▣'));
+    more.append(h('button', { 'data-k': 'plan', title: 'מבט תוכנית: ישר מלמעלה בזווית 90°, בלי פרספקטיבה, הקירות לאורך המסך (לחיצה נוספת – יציאה)', onclick: () => app.nav.planView() }, '▣'));
     const setMap = (on) => { const q = app.store.get().quality; app.store.set({ quality: { ...q, minimap: on } }, { label: 'minimap' }); };
-    tb.append(h('button', { 'data-k': 'minimap', title: 'מפה קטנה: הצגה / הסתרה', onclick: () => setMap(app.store.get().quality.minimap === false) }, '🗺'));
+    more.append(h('button', { 'data-k': 'minimap', title: 'מפה קטנה: הצגה / הסתרה', onclick: () => setMap(app.store.get().quality.minimap === false) }, '🗺'));
     // labels: of the current step -> all -> none
-    tb.append(h('button', { 'data-k': 'labels', title: 'תוויות: של השלב הנוכחי / כל התוויות / בלי', onclick: () => {
+    more.append(h('button', { 'data-k': 'labels', title: 'תוויות: של השלב הנוכחי / כל התוויות / בלי', onclick: () => {
       const q = app.store.get().quality; const mode = !q.labels ? 'step' : (q.labelMode || 'step') === 'step' ? 'all' : 'off';
       app.store.set({ quality: { ...q, labels: mode !== 'off', labelMode: mode === 'off' ? (q.labelMode || 'step') : mode } }, { label: 'labels' });
       this.toast({ step: 'תוויות: רק של השלב הנוכחי (+ האלמנט שנבחר)', all: 'תוויות: הכול', off: 'בלי תוויות' }[mode]);
     } }, '🏷'));
+    // a view button chosen on a phone folds the group again
+    more.addEventListener('click', () => { if (this.isMobile?.()) { document.body.classList.remove('tb-open'); tb.querySelector('[data-k="more"]').classList.remove('on'); } });
     document.getElementById('minimapClose')?.addEventListener('click', () => setMap(false));
     this.buildMeasureBar();
   }
@@ -308,7 +318,7 @@ export class UI {
     wrap.append(h('div', { class: 'domains' }, groups.map(g => {
       const L = implLayers(g), n = L.filter(l => s.layers[l.id] !== false).length, fresh = L.some(l => P?.isNew(l.id));
       return h('button', { class: 'dom' + (g.id === this.domain ? ' cur' : '') + (n === 0 ? ' none' : n < L.length ? ' part' : ' all'), title: g.label, onclick: () => pick(g.id) },
-        h('i', { class: 'sw', style: `background:${colors[g.system] || '#888'}` }), h('span', { class: 'dl' }, g.label.replace(/\s*\(שלב \d+\)/, '')), h('small', {}, `${n}/${L.length}`), fresh ? h('b', { class: 'newdot', title: 'יש שכבה חדשה' }) : '');
+        h('i', { class: 'sw', style: `background:${colors[g.system] || '#888'}` }), h('span', { class: 'dl' }, g.short || g.label.replace(/\s*\(שלב \d+\)/, '').replace(/\s*[–(].*$/, '')), h('small', {}, `${n}/${L.length}`), fresh ? h('b', { class: 'newdot', title: 'יש שכבה חדשה' }) : '');
     }), binned.length ? h('button', { class: 'dom bin' + (this.domain === '__bin' ? ' cur' : ''), onclick: () => pick('__bin') }, h('span', { class: 'dl' }, 'מוסתרות'), h('small', {}, `${binned.length}`)) : ''));
     // ---- the chosen domain: its layers ----
     const box = h('div', { class: 'dbody' });
@@ -858,7 +868,12 @@ export class UI {
     el.classList.remove('hidden');
   }
   showInfoFor(item) { this.app.tools.inspect?.showFor(item); }
-  hint(text) { const el = this.$('hint'); el.textContent = text; el.classList.toggle('hidden', !text); }
+  // the hint fades by itself (display.json ui.hintFade_ms) – a new hint (a step, a measured point) shows it again
+  hint(text) {
+    const el = this.$('hint'); el.textContent = text; el.classList.toggle('hidden', !text);
+    clearTimeout(this._hintFade); const ms = this.app.display.ui?.hintFade_ms ?? 7000;
+    if (text && ms > 0) this._hintFade = setTimeout(() => el.classList.add('hidden'), ms);
+  }
   // copy to the clipboard; where the browser does not allow it (http, old phones) the text is shown for a manual copy
   copy(text, ok = 'הועתק') {
     const manual = () => {

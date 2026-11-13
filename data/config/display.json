@@ -26,7 +26,19 @@
    "frontStreetProfile"
   ],
   "_doc": "js/core/labels.js: labels of the current step only (mode \"step\"), within maxDistance_m of the camera; alwaysLayers always",
-  "pointMarkerRadius_m": 0.12
+  "pointMarkerRadius_m": 0.12,
+  "occlusion": {
+   "_doc": "js/core/labels.js: a label behind opaque built elements is hidden (tested idle_ms after the camera rests; margin_m before the label point is ignored)",
+   "enabled": true,
+   "idle_ms": 180,
+   "margin_m": 0.3,
+   "systems": [
+    "structure",
+    "walls",
+    "finishes"
+   ],
+   "skipLayers": []
+  }
  },
  "neighbors": {
   "envelopeColor": "#d7ccc8",
@@ -431,5 +443,9 @@
   "openMs": 1400,
   "barrelFrac": 0.6,
   "_doc": "מכסי ריצוף מעל חדר המכונות (src/tiling/hatches.js) – מראה בלבד"
+ },
+ "ui": {
+  "hintFade_ms": 7000,
+  "_doc": "js/ui/ui.js: interface timings"
  }
 }

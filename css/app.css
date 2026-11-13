@@ -380,3 +380,55 @@ table.mtable td.acts { white-space: nowrap; }
 .tiling label.chk { font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; }
 .tiling input[type=number] { background: #2a3039; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 5px; width: 64px; }
 .tiling svg.tile-plan { background: #20252c; }
+
+/* ---------- review 13.11.2026: tidy bars, phone layout ---------- */
+#topbar .brand { flex: 0 1 auto; max-width: 30vw; }
+#topbar .brand small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#topbar #modes { flex-shrink: 0; }
+#topbar .search-wrap { flex: 0 1 260px; min-width: 120px; }
+#topbar .search-wrap input.search { width: 100%; }
+/* status line: Hebrew hint right-to-left, coordinates left-to-right – each by its own first letter */
+#status { direction: rtl; unicode-bidi: plaintext; text-align: start; }
+/* toolbar: view buttons in a group – inline on a computer, folded behind ⋯ on a phone */
+#toolbar .tb-more { display: contents; }
+#toolbar [data-k="more"] { display: none; }
+#hint { pointer-events: none; transition: opacity .3s; }
+@media (max-width: 760px) {
+  #toolbar { top: 8px; left: 8px; gap: 5px; }
+  #toolbar button { width: 40px; height: 40px; font-size: 17px; }
+  #toolbar [data-k="more"] { display: block; font-size: 20px; font-weight: 700; }
+  #toolbar .tb-more { display: none; flex-direction: column; gap: 5px; }
+  body.tb-open #toolbar .tb-more { display: flex; }
+  #hint { top: 8px; left: 56px; right: 62px; transform: none; max-width: none; font-size: 12.5px; padding: 5px 10px; border-radius: 14px; }
+  #compass { top: 8px; right: 8px; width: 40px; height: 40px; }
+  /* minimap: its floor buttons in one row above it (they wrapped to three rows over the model) */
+  #mapbar { width: auto; max-width: calc(100vw - 70px); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #mapbar button { flex-shrink: 0; }
+  /* stage bar: one row of controls + the slider (the slider was under the status line) */
+  :root { --stage-h: 78px; --status-h: 18px; }
+  #status { font-size: 11px; }
+  .stg-head { flex-wrap: nowrap; gap: 4px; }
+  .stg-head .stg-sel { flex: 1 1 auto; max-width: none; }
+  .stg-head .btns { flex-wrap: nowrap; gap: 3px; margin: 0; }
+  .stg-head .btns button { padding: 4px 6px; font-size: 12px; white-space: nowrap; }
+  .stg-track { padding-bottom: 6px; }
+  #stagebar input[type=range] { height: 22px; }
+}
+@media (hover: none) and (pointer: coarse) {
+  /* touch: bigger hit areas in the panel */
+  .layers .lrow input[type=checkbox] { width: 20px; height: 20px; }
+  .layers .dom { min-height: 40px; }
+  .tagbtn { min-width: 34px; min-height: 30px; }
+  .lmore > summary, .vmore > summary { padding: 5px 10px; }
+}
+@media (max-width: 760px) {
+  /* the ✕ of the minimap stays free, right of its floor buttons */
+  #mapbar { right: 40px; max-width: calc(100vw - 100px); }
+  /* layers on a phone: three compact domain tiles per row, so the list starts higher */
+  .layers .domains { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+  .layers .dom { padding: 5px 5px; font-size: 12px; gap: 4px; min-height: 36px; }
+  .layers .dom small { font-size: 10px; }
+  .mainbar { padding: 6px 6px 3px; gap: 3px; }
+  .mainbar button { padding: 5px 2px; font-size: 12px; }
+  .panel-head { padding: 4px 6px 0; }
+}

@@ -174,3 +174,35 @@ export function quantities(lay, size, opt, cons, skirting_m) {
     adhesive_kg: A * adh, adhesiveBags: Math.ceil(A * adh / cons.adhesiveBag_kg), grout_kg: A * grout, groutBags: Math.ceil(A * grout / cons.groutBag_kg),
   };
 }
+
+// exterior paving: the finish surface of a zone (data/finishes/tiling/exterior.json → surface, tools/finishes/derive_exterior.py):
+// best-fit plane + inverse-distance correction of the residuals at the permit spots – passes exactly through every spot.
+// Returns z(E, N) (relative to ±0.00); null surface → null.
+export function surfaceZ(S) {
+  if (!S) return null;
+  const res = S.res || [], k = S.power ?? 2;
+  const pz = (E, N) => S.z + S.gE * (E - S.E) + S.gN * (N - S.N);
+  return (E, N) => {
+    let sw = 0, sr = 0;
+    for (const [e, n, r] of res) {
+      const d2 = (E - e) ** 2 + (N - n) ** 2;
+      if (d2 < 1e-12) return pz(E, N) + r;
+      const w = d2 ** (-k / 2); sw += w; sr += w * r;
+    }
+    return pz(E, N) + (sw ? sr / sw : 0);
+  };
+}
+
+// a polygon (+ holes) cut into grid cells (step m, ITM) – so a curved / sloped surface can be drawn through it
+export function gridPieces(ring, holes, step) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of ring) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  const out = [];
+  for (let x = x0; x < x1 - EPS; x += step) for (let y = y0; y < y1 - EPS; y += step) {
+    const o = clipRect(ring, x, y, Math.min(x + step, x1), Math.min(y + step, y1));
+    if (o.length < 3 || Math.abs(area(o)) < 1e-8) continue;
+    const hs = (holes || []).map(h => clipRect(h, x, y, Math.min(x + step, x1), Math.min(y + step, y1))).filter(h => h.length >= 3 && Math.abs(area(h)) > 1e-8);
+    out.push([o, hs]);
+  }
+  return out;
+}

@@ -471,6 +471,7 @@ export class TilingWorkshop {
   }
   // exterior zone: the finish surface (from the permit spots) and the build-up under the tile
   extInfo(z) {
+    if (z.r.stairLanding) return h('div', { class: 'muted' }, `משטח הכניסה ליחידה בתחתית מדרגות החוץ ${z.r.stairLanding}: פני ריצוף ${z.r.finishRel.toFixed(2)} על רצפת המרתף ${z.r.slab} (${z.r.slabTop.toFixed(2)}). שכבות כמו בפנים: ` + z.r.layers.map(l => `${this.F.BU.layers.find(x => x.id === l.id)?.short || l.id} ${f2(l.thickness_m * 100)} ס"מ`).join(' → ') + ' – זמני (open-issues #209).');
     if (z.r.hatch) return h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. לחיצה על המכסה במודל – פתיחה / סגירה. מסגרת ובוכנות – זמני (open-issues #208).`);
     const r = z.r, S = r.surface, BU = this.F.EX.buildUp, H0 = this.F.ctx.coords.H0 ?? 0;
     const lv = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} (${(v + H0).toFixed(2)})`;
@@ -483,7 +484,7 @@ export class TilingWorkshop {
       h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
   }
   extRows(z) {
-    if (z.r.hatch) return [];
+    if (z.r.hatch || z.r.stairLanding) return [];
     const r = z.r, L = (id) => r.layers.find(l => l.id === id), lab = (id) => this.F.EX.buildUp.layers.find(l => l.id === id)?.short || id;
     return [[lab('extFill'), `${f2(r.fillVolume_m3)} מ"ק (${f2(L('extFill').min_m * 100)}–${f2(L('extFill').max_m * 100)} ס"מ, ממוצע ${f2(L('extFill').thickness_m * 100)}, זמני)`],
       [lab('extProofing'), `${f2(r.area)} מ"ר (${f2(L('extProofing').thickness_m * 1000)} מ"מ, זמני)`]];

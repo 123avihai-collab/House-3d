@@ -44,7 +44,7 @@ export function buildFinishes(ctx) {
     const r = [...TL.rooms, ...(data.tilingExterior?.rooms || [])].find(x => x.room === s.room); if (!r || r.parts.some(p => p.doorStrip === s.id)) continue;   // an outside door – the exterior zone (Avihai 13.11)
     r.parts.push({ ringITM: s.ringITM, holesITM: [], doorStrip: s.id });
     r.doorStrips_m2 = +((r.doorStrips_m2 || 0) + s.area_m2).toFixed(3); r.area = +(r.area + s.area_m2).toFixed(3);
-    if (r.outdoor) r.fillVolume_m3 = +(r.fillVolume_m3 + s.area_m2 * r.layers.find(l => l.id === 'extFill').thickness_m).toFixed(3);
+    if (r.outdoor) r.fillVolume_m3 = +(r.fillVolume_m3 + s.area_m2 * (r.layers.find(l => l.id === 'extFill' || l.id === 'floorFill')?.thickness_m || 0)).toFixed(3);
   }
   const F = new Finishes(ctx, P, T, TL, R, D);
   if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up
@@ -422,6 +422,27 @@ class Finishes {
             ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)`])] : [])],
         source: g.outdoor ? 'data/finishes/floors/exterior-buildup.json; data/finishes/tiling/exterior.json (tools/finishes/derive_exterior.py)' : 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json',
         note: g.outdoor ? this.EX.buildUp._doc : this.BU._doc });
+    }
+    // the tiled outdoor stairs (exterior.json stairs – ST3): a tile + adhesive piece on every tread and riser, in the colour of
+    // the exterior paving's shared grid (catalog.gridGroups.ext master) – the cut pieces of the tile, joints at their edges
+    for (const S of this.EX?.stairs || []) {
+      const W = this.tiling, mc = W?.choice[W?.C.gridGroups?.ext?.master] || W?.C.outdoorDefaults || {}, fin = W?.finBy[mc.finish] || { color: '#a9a8a3', label: 'חוץ' };
+      const pts = [], map = [];
+      for (const p of S.pieces) { const r = p.ringITM; for (const t of [...this.ringTris(r, [], p.z1), ...this.ringTris(r, [], p.z0)]) { pts.push(t); }
+        for (let i = 0; i < 4; i++) { const a = r[i], b = r[(i + 1) % 4]; for (const t of this.quadTris([[a[0], a[1], p.z0], [b[0], b[1], p.z0], [b[0], b[1], p.z1], [a[0], a[1], p.z1]])) pts.push(t); } }
+      for (let i = 0; i < pts.length; i += 3) map.push('stair:' + S.id);
+      const m = this.mesh(pts, map, new THREE.MeshStandardMaterial({ color: fin.color, roughness: fin.roughness ?? 0.85, metalness: 0 }));
+      const grp = new THREE.Group(); grp.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineBasicMaterial({ color: W?.groutOf(mc, fin)?.color || '#9b9891' })); e.userData.keep = true; grp.add(e);
+      const sz = W?.sizeOf(mc) || { l_m: 1.2, w_m: 0.6, perBox: 2, label: '60×120' };
+      const strips = (h_) => Math.max(1, Math.floor((sz.w_m + 1e-9) / h_)) * Math.max(1, Math.floor((sz.l_m + 1e-9) / S.pieces[0].width_m));
+      const tr = S.pieces.filter(p => p.kind === 'tread'), rs = S.pieces.filter(p => p.kind === 'riser');
+      const tiles = Math.ceil(tr.length / strips(Math.max(...tr.map(p => p.depth_m)))) + Math.ceil(rs.length / strips(Math.max(...rs.map(p => p.height_m))));
+      this.add(grp, { floor: S.floor, step: 'tiling', layer: 'extTile' }, { name: `ריצוף מדרגות ${S.id} – מדרכים ורומים`, kind: 'stairTiles', id: 'stairTiles-' + S.id, status: 'provisional',
+        rows: [['אריח', `${sz.label} · ${fin.label} (כמו רשת ריצוף החוץ)`], ['מדרכים', `${S.treads} · ${f2(S.treadArea_m2)} מ"ר`], ['רומים', `${S.risers} · ${f2(S.riserArea_m2)} מ"ר`],
+          ['שכבות', `דבק ${Math.round(S.adhesive_m * 1000)} מ"מ + אריח ${Math.round(S.tile_m * 1000)} מ"מ – זמני`], ['אריחים', `${tiles} (חיתוך רצועות מאריח ${sz.label}, בלי רזרבה)`],
+          ['מפלסים', 'הגמר לפי המקור (‎−2.62 ← 280.31); הבטון זז פנימה בעובי האריח + הדבק'], ['מצב', '⚠ זמני – פרט מדרגה (אף / פנל צד) לא במקורות (open-issues #209)']],
+        source: S.source, note: 'הרום העליון = קצה הגרם מול רצפת השביל: האריח שלו בצד המדרגות.' });
     }
     // an exterior zone marked for change (owner-changes.json – e.g. OC-16, the parking kept to K-21): red outline + tag
     for (const r of (this.EX?.rooms || []).filter(x => x.change)) {

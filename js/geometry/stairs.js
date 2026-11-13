@@ -26,8 +26,10 @@ export function buildStairs(ctx) {
   };
   const centroid = (ring) => ring.reduce((a, p) => [a[0] + p[0] / ring.length, a[1] + p[1] / ring.length], [0, 0]);
   // a straight flight: side profile (s along the climb, z level) extruded to the right of the climb by the flight width
+  // a tiled flight (ST3 – data/finishes/tiling/exterior.json stairs): the concrete sits inside the finish by tile + adhesive
+  const concreteOf = (f) => (data.tilingExterior?.stairs || []).find(x => x.flight === f.id)?.concreteProfile || f.profile;
   const flightMesh = (f, mat) => {
-    const sh = new THREE.Shape(f.profile.map(([s, z]) => new THREE.Vector2(s, z)));
+    const sh = new THREE.Shape(concreteOf(f).map(([s, z]) => new THREE.Vector2(s, z)));
     const g = new THREE.ExtrudeGeometry(sh, { depth: f.width_m, bevelEnabled: false });
     const [x0, z0] = coords.xz(...f.originITM);
     const dir = (v) => { const [a, b] = coords.xz(f.originITM[0] + v[0], f.originITM[1] + v[1]); return new THREE.Vector3(a - x0, 0, b - z0).normalize(); };
@@ -96,7 +98,7 @@ export function buildStairs(ctx) {
     const T = data.plasterTypes?.types || [];
     for (const sp of st.sidePlaster) {
       const f = st.flights.find(x => x.id === sp.flight); const ty = T.find(t => t.id === sp.type) || {};
-      const g = new THREE.ShapeGeometry(new THREE.Shape(f.profile.map(([a, z]) => new THREE.Vector2(a, z))));
+      const g = new THREE.ShapeGeometry(new THREE.Shape(concreteOf(f).map(([a, z]) => new THREE.Vector2(a, z))));
       const [x0, z0] = coords.xz(...f.originITM);
       const dir = (v) => { const [a, b] = coords.xz(f.originITM[0] + v[0], f.originITM[1] + v[1]); return new THREE.Vector3(a - x0, 0, b - z0).normalize(); };
       const run = dir(f.runDirITM), right = dir(f.rightDirITM);

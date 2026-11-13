@@ -172,9 +172,58 @@ def main():
                           layers=[dict(tl)], fillVolume_m3=0.0, tileType=None, status='provisional', slabStatus='provisional',
                           check=dict(minFill_m=BU['minFill_m'], ok=True, fillMin_m=0.0, fillMax_m=0.0),
                           source=f"מכסה מרוצף {h['id']} – data/finishes/exterior/hatches.json ({h['source']}); פני הריצוף – כמו האזור {host['room']}"))
+    # the stairs down to the unit (ST3): tiles on the treads and the risers; the landing at their foot (open until now)
+    stairs = []
+    STJ = J('data/structure/stairs.json'); FR = J('data/structure/framing.json'); IBU = J('data/finishes/floors/buildup.json')
+    for sid, SC in BU.get('stairs', {}).items():
+        st = next(x for x in STJ['stairs'] if x['id'] == sid); t = SC['tile_m'] + SC['adhesive_m']
+        for f in st['flights']:
+            pr = f['profile']; top = pr[:-2]   # the stepped outline (the last two points = the soffit)
+            # the concrete inside the finish: treads down, risers back by t; the top riser is the flight's end against the path slab –
+            # it stays, its tile goes on the stair side (the finish face 1 tile + adhesive toward the stair)
+            conc = [[r3(top[0][0] + t), top[0][1]]] + [[r3(x + t), r3(z - t)] for x, z in top[1:-2]] + [[top[-2][0], r3(top[-2][1] - t)], [top[-1][0], r3(top[-1][1] - t)]] + [list(q) for q in pr[-2:]]
+            o, rd, rr, W = f['originITM'], f['runDirITM'], f['rightDirITM'], f['width_m']
+            at = lambda s_, w_: [r3(o[0] + rd[0] * s_ + rr[0] * w_), r3(o[1] + rd[1] * s_ + rr[1] * w_)]
+            rect = lambda s0, s1: [at(s0, 0), at(s1, 0), at(s1, W), at(s0, W)]
+            # risers: vertical segments of the outline; treads: horizontal ones
+            rs = [(top[i][0], top[i][1], top[i + 1][1]) for i in range(len(top) - 1) if abs(top[i][0] - top[i + 1][0]) < 1e-6]
+            ts = [(top[i][0], top[i + 1][0], top[i][1]) for i in range(len(top) - 1) if abs(top[i][1] - top[i + 1][1]) < 1e-6]
+            pieces = []
+            for k, (s0, s1, z) in enumerate(ts):
+                end = s1 + t if k < len(ts) - 1 else s1 - t   # under the next riser tile; the last – up to the top riser's tile
+                pieces.append(dict(kind='tread', ringITM=rect(s0, end), z0=r3(z - t), z1=r3(z), depth_m=r3(end - s0), width_m=W))
+            for k, (s0, za, zb) in enumerate(rs):
+                last = k == len(rs) - 1
+                a0, a1, zt = (s0 - t, s0, zb) if last else (s0, s0 + t, zb - t)
+                pieces.append(dict(kind='riser', ringITM=rect(a0, a1), z0=r3(za), z1=r3(zt), height_m=r3(zt - za), width_m=W))
+            stairs.append(dict(id=sid, flight=f['id'], floor=st['floor'], tile_m=SC['tile_m'], adhesive_m=SC['adhesive_m'], finishProfile=pr, concreteProfile=conc, pieces=pieces,
+                               treads=len(ts), risers=len(rs), treadArea_m2=r3(sum(p_['depth_m'] * W for p_ in pieces if p_['kind'] == 'tread')),
+                               riserArea_m2=r3(sum(p_['height_m'] * W for p_ in pieces if p_['kind'] == 'riser')), status='provisional',
+                               source=f"data/structure/stairs.json {sid} ({st['source']}); עוביים – data/finishes/floors/exterior-buildup.json (זמני)"))
+        L = SC.get('landing')
+        if L:
+            from shapely.ops import unary_union
+            pit = Polygon(next(z_['footprintITM'] for z_ in GF['openZones'] if z_['zone'] == 'basementStairs'))
+            fl = unary_union([Polygon([[f['originITM'][0] + f['runDirITM'][0] * s_ + f['rightDirITM'][0] * w_, f['originITM'][1] + f['runDirITM'][1] * s_ + f['rightDirITM'][1] * w_]
+                                       for s_, w_ in ((0, 0), (f['profile'][-3][0], 0), (f['profile'][-3][0], f['width_m']), (0, f['width_m']))]) for f in st['flights']])
+            land = pit.difference(fl).buffer(-0.002, join_style=2).buffer(0.002, join_style=2)
+            land = max(getattr(land, 'geoms', [land]), key=lambda g: g.area)
+            bs = next(s_ for s_ in FR['slabs'] if s_.get('id') == 'BS1'); slab = bs['top']
+            fin = STJ['levels']['outBottom']['rel']
+            fixed = sum(l['thickness_m'] for l in IBU['layers'] if l['thickness_m'] is not None)
+            lay, zc = [], slab
+            for l in IBU['layers']:
+                th = l['thickness_m'] if l['thickness_m'] is not None else fin - slab - fixed
+                lay.append(dict(id=l['id'], z0=r3(zc), z1=r3(zc + th), thickness_m=r3(th), status=l['status'])); zc += th
+            zones.append(dict(room='ext:' + sid + 'L', floor=L['floor'], outdoor=True, stairLanding=sid, roomName=L['label'], roomType='paving', slab='BS1',
+                              area=r3(land.area), void_m2=0.0, slabTop=slab, finishRel=fin, finishMin=fin, finishMax=fin, buildUp_m=r3(fin - slab), skirting_m=0, wallTiling=None,
+                              parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(land.exterior.coords)[:-1]], holesITM=[])], surface=None, planeSlope_pct=0, planeFallAzimuth_deg=None,
+                              spots=[], dropped=[], layers=lay, fillVolume_m3=r3(land.area * lay[0]['thickness_m']), tileType=None, status='provisional', slabStatus=bs.get('status', 'source'),
+                              check=dict(minFill_m=BU['minFill_m'], ok=lay[0]['thickness_m'] >= 0, fillMin_m=lay[0]['thickness_m'], fillMax_m=lay[0]['thickness_m']),
+                              source=f"{L['_doc']} שכבות – data/finishes/floors/buildup.json"))
     out = dict(_doc='ריצוף חוץ – אזור לכל רצפת בטון חיצונית בקומת הקרקע: פני ריצוף במישור בשיפוע (מגבהי הפיתוח), שכבות: בטון שיפועים (משתנה) → איטום → דבק → אריח. נוצר ע"י tools/finishes/derive_exterior.py – לא לערוך ידנית.',
                source='data/structure/floor-ground.json; data/site/development-heights.json; data/finishes/floors/exterior-buildup.json',
-               status='provisional', buildUp=BU, rooms=zones)
+               status='provisional', buildUp=BU, rooms=zones, stairs=stairs)
     json.dump(out, open(os.path.join(ROOT, 'data/finishes/tiling/exterior.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('slab  area   concrete  finish(min..max)  plane%  fill min..max  spots/dropped')
     for c in checks: print(f'{c[0]:5} {c[1]:6.2f} {c[2]:+.3f}  {c[3]:+.3f}..{c[4]:+.3f}  {c[5]:5.2f}  {c[6]:.3f}..{c[7]:.3f}  {c[8]}/{c[9]}')

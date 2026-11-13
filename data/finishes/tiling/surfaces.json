@@ -14,7 +14,8 @@
     "_thickness": "השארית: העובי הכולל פחות שאר השכבות",
     "color": "#d9cfc1",
     "status": "provisional",
-    "short": "מילוי סומסום וחול"
+    "short": "מילוי סומסום וחול",
+    "material": "floorFillSumsum"
    },
    {
     "id": "floorScreed",

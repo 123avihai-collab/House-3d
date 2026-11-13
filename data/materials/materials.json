@@ -148,6 +148,14 @@
       "metalness": 0.35,
       "envMapIntensity": 1,
       "_note": "כנפי הפלדה של חלון / דלת הממ\"ד – צבע להמחשה (מסמך העיצוב חסר)"
+    },
+    "floorFillSumsum": {
+      "texture": "assets/textures/gravel_stones",
+      "size_m": 1.2,
+      "tint": "#ffffff",
+      "roughness": 1.0,
+      "envMapIntensity": 0.7,
+      "_doc": "שכבת מילוי סומסום וחול מתחת לריצוף – טקסטורת אבנים קטנות (Poly Haven gravel_stones, CC0; מפת הצבע הובהרה לגוון בז' כדי שיהיה שונה מהבטון) כדי לזהות את השכבה; קנה מידה 1.2 מ' – תצוגה, לא מידת אבן"
     }
   }
 }

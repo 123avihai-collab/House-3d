@@ -158,3 +158,10 @@ python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 | `חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf` (= "חזית מערבית") | ממ"ד: תגיות ‎+1.10 / ‎+2.10 של החלון, מתאר המשקוף, מרכז שני שרוולי 4" – `tools/extract_mamad.py`. קנ"מ אומת בין שתי התגיות (28.44 מול 28.346 pt/m, ‎0.3%) |
 | שאר הקבצים | טרם עובדו |
 
+## מוצרים (`sources/products/<SKU>/`)
+
+תמונות מוצר ודף המוצר כפי שנמשך מאתר הספק (`tools/finishes/fetch_product.py`). מהן נגזר `assets/textures/<sku>/faces.webp`, ובקטלוג: `data/finishes/tiling/catalog.json` → `products`.
+
+| מק"ט | מוצר | מקור | נגזר |
+|---|---|---|---|
+| AT12625 | Atlas Concorde Boost Icor Dust 120×120, 9 מ"מ, מט R10, V3, 2.88 מ"ר בקרטון | https://www.negev-group.co.il/boost_icor-2025 (13.11.2026) | `assets/textures/at12625/faces.webp` (תמונות 2–4, תמונה 1 = הדמיית חדר) |

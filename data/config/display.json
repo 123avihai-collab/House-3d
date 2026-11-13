@@ -242,7 +242,12 @@
   "sliverColor": "#e53935",
   "viewDistance": 1.1,
   "jointMinPx": 1.0,
-  "envMapIntensity": 0.9
+  "envMapIntensity": 0.9,
+  "interiorSun": 0.6,
+  "neutralAmbient": 1,
+  "ambientScale": 0.7,
+  "_neutralAmbient": "אור מפוזר על האריחים: 1 = ניטרלי (כמו אור שחוזר מתקרה וקירות לבנים) במקום השמיים הכחולים של ה-HDRI, שמשטיפים את הגוון החם. ambientScale – עוצמתו. כוונון מול תמונת AT12625 (docs/verification/tiling.md).",
+  "_interiorSun": "שמש ישירה על האריחים – חלק (0–1). במבט מלמעלה, כשהתקרה מוסתרת, השמש פוגעת ישר ברצפה, ובגוונים בהירים הצבע נשרף ללבן (ACES). רצפה פנימית מוארת בפועל בעיקר באור מפוזר, לכן מחלישים רק את הישיר. 1 = בלי שינוי."
  },
  "sectionCut": {
   "_doc": "js/tools/section.js: section fill (cap) – the inside of every element cut by a section plane is painted in one flat colour by its kind, so a cut wall reads as solid from above (Avihai 13.11.2026). wallCut = the 'גובה קיר' slider in the stage bar: cut height above the floor finish level (tags.json floors[].level), from min_m up to the top of the floor's walls / columns (measured from the model).",

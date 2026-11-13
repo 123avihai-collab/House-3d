@@ -122,7 +122,10 @@ export class TilingWorkshop {
     if (this.mats[k]) return this.mats[k];
     const m = new THREE.MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: fin.roughness ?? 0.5, metalness: 0, side: THREE.DoubleSide,
       envMapIntensity: this.D.envMapIntensity ?? 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
-    if (fin.texture) {
+    if (fin.faceTexture) {   // a real product: an atlas of whole tile faces (one face per tile – catalog look.faces)
+      const tx = new THREE.TextureLoader().load(fin.faceTexture, () => this.F.ctx.viewer?.invalidate());
+      tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 8; m.map = tx;
+    } else if (fin.texture) {
       const ld = (f, srgb) => { const tx = new THREE.TextureLoader().load(`${fin.texture}/${f}`, () => this.F.ctx.viewer?.invalidate());
         tx.wrapS = tx.wrapT = THREE.RepeatWrapping; if (srgb) tx.colorSpace = THREE.SRGBColorSpace; tx.repeat.set(1 / fin.texSize_m, 1 / fin.texSize_m); return tx; };
       m.map = ld('color.webp', true);
@@ -133,6 +136,10 @@ export class TilingWorkshop {
       sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 tileXY;\nattribute float tileJ;\nattribute vec3 groutC;\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = tileXY; vJ = tileJ; vGrout = groutC;');
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vTile;\nvarying float vJ;\nvarying vec3 vGrout;')
+        .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+        reflectedLight.directDiffuse *= ${(this.D.interiorSun ?? 1).toFixed(3)}; reflectedLight.directSpecular *= ${(this.D.interiorSun ?? 1).toFixed(3)};
+        { vec3 irr = reflectedLight.indirectDiffuse / max(diffuseColor.rgb, vec3(1e-3));   // interior: neutral light from the ceiling / walls, not the blue sky
+          reflectedLight.indirectDiffuse = mix(reflectedLight.indirectDiffuse, vec3(dot(irr, vec3(0.2126, 0.7152, 0.0722))) * diffuseColor.rgb, ${(this.D.neutralAmbient ?? 0).toFixed(3)}) * ${(this.D.ambientScale ?? 1).toFixed(3)}; }`)
         .replace('#include <color_fragment>', `#include <color_fragment>
         {
           // derivatives outside any branch (undefined in non-uniform control flow); top faces only (sides: tileXY = 0)
@@ -164,7 +171,7 @@ export class TilingWorkshop {
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
       const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z0 + 0.0008;   // grout / joint bottom: on the adhesive (a full tile thickness under the face – no depth fight at a distance)
       const pos = [], col = [], uv = [], map = [], txy = [], tj = [], gc = [];
-      const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength;
+      const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength, faces = fin.faceTexture ? (fin.faces || 1) : 0;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color(), gr = this.groutOf(c, fin), grc = new THREE.Color(gr.color);
       const W = (u, v, zz) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, zz); };
       for (const p of lay.pieces) {
@@ -172,6 +179,7 @@ export class TilingWorkshop {
         tmp.copy(base).multiplyScalar(k);
         if (mark && p.sev) tmp.lerp(cutCol[p.sev], 0.65);
         const ou = rnd(p.j, p.i) * 7, ov = rnd(p.i + 11, p.j) * 7;   // texture offset per tile (no repeated pattern)
+        const face = Math.min(faces - 1, Math.floor(rnd(p.i * 7 + 3, p.j * 5 + 1) * faces));   // product face of this tile
         const pts = p.poly.filter((q, i, a) => { const n = a[(i + 1) % a.length]; return Math.hypot(n[0] - q[0], n[1] - q[1]) > 1e-6; });
         if (pts.length < 3) continue;
         const C2 = pts.map(([u, v]) => new THREE.Vector2(u, v)), Hs = (p.holes || []).map(hh => hh.map(([u, v]) => new THREE.Vector2(u, v)));
@@ -180,7 +188,7 @@ export class TilingWorkshop {
         const all = [...C2, ...Hs.flat()];
         // top face: uv in metres (+ offset per tile; wood – grain along the tile length), tileXY = place inside the tile
         const push = (u, v, zz, top = true) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
-          const lu = u - p.x0, lv = v - p.y0; uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
+          const lu = u - p.x0, lv = v - p.y0; if (faces) uv.push((face + Math.min(1, Math.max(0, lu / L))) / faces, Math.min(1, Math.max(0, lv / Wd))); else uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
           if (top) txy.push(lu, lv, L, Wd); else txy.push(0, 0, 0, 0); tj.push(jh); gc.push(grc.r, grc.g, grc.b); };
         for (const t of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of t) push(all[i].x, all[i].y, z1); map.push(z.key); }
         // tile edges down to the joint (seen up close / in a section)

@@ -60,6 +60,10 @@ export class SectionTool {
     }
     this.app.viewer.renderer.clippingPlanes = planes;
     this.capsOn = planes.length > 0 && sec.fill !== false;
+    // black plan: every fill in one colour (display.json sectionCut.mono)
+    const M = this.C.mono;
+    for (const k of this.kinds) k.cap.color.set(sec.mono && M ? M.color : k.color);
+    if (this._dash) this._dash.color.set(sec.mono && M ? M.beamsAboveColor : this.C.beamsAbove.color);
     if (this.capsOn) this.addCaps();
     for (const c of this.helpers) c.visible = this.capsOn;
     // cap planes a hair inside the kept side of their plane (exactly on it they would be clipped by it)
@@ -116,7 +120,7 @@ export class SectionTool {
     }
     if (!pts.length) return;
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    const ls = new THREE.LineSegments(g, this._dash ||= new THREE.LineDashedMaterial({ color: B.color, dashSize: B.dash_m, gapSize: B.gap_m, depthTest: true }));
+    const ls = new THREE.LineSegments(g, this._dash ||= new THREE.LineDashedMaterial({ color: sec.mono && this.C.mono ? this.C.mono.beamsAboveColor : B.color, dashSize: B.dash_m, gapSize: B.gap_m, depthTest: true }));
     ls.computeLineDistances(); ls.raycast = () => {}; ls.renderOrder = 5;
     this.beamLines.add(ls);
   }

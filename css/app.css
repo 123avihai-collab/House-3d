@@ -91,6 +91,10 @@ body.cutrow { --stage-h: 104px; }
 .cut-pres { display: inline-flex; gap: 3px; }
 .cut-pre { padding: 2px 7px; min-width: 0; }
 .cut-pre.on { background: var(--accent); }
+.cut-mono.on { background: #111; color: #fff; border-color: #fff; }
+.stg-cut.mono .cut-legend { opacity: .35; }
+#walkspeed .wfov-sep { padding: 0 4px 0 8px; opacity: .8; }
+#walkspeed .wfov-val { padding: 0 6px; opacity: .8; align-self: center; }
 .cut-pre:disabled { opacity: .35; }
 .cut-dropbox { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; color: #ffb74d; }
 .cut-dropbox.hidden { display: none; }

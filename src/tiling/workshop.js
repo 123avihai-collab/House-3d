@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { layoutZone, optimize, quantities, frameOf, area } from './layout.js';
+import { layoutZone, optimize, quantities, frameOf, area, clipRect } from './layout.js';
 
 // Tiling workshop ("סדנת ריצוף", mode "ריצוף"): a tile per zone (room floor) – size, finish, pattern, direction, origin,
 // joint, fine shift – laid out over the zone polygon (src/tiling/layout.js), drawn in 3D on the tile layer of the floor
@@ -145,15 +145,15 @@ export class TilingWorkshop {
           // derivatives outside any branch (undefined in non-uniform control flow); top faces only (sides: tileXY = 0)
           float isTop = step(0.0001, vTile.z);
           vec2 q = vTile.xy;
-          vec2 dd = min(q, vTile.zw - q);
+          vec2 dd = min(q, vTile.zw - q) + vec2(vJ);   // distance from the joint centre line (tiles drawn up to it)
           vec2 fw = max(fwidth(q), vec2(1e-5));
           vec2 jw = max(vec2(vJ), fw * ${(px / 2).toFixed(2)});
           vec2 fade = smoothstep(vec2(2.0), vec2(6.0), vTile.zw / fw);
-          vec2 ln = (1.0 - smoothstep(jw, jw + fw, dd)) * fade;
+          vec2 ln = (1.0 - smoothstep(jw - 0.5 * fw, jw + 0.5 * fw, dd)) * fade;   // anti-aliased edge one pixel wide
           float line = max(ln.x, ln.y) * isTop;
           float d = min(dd.x, dd.y);
-          float bevel = 1.0 - 0.08 * isTop * min(fade.x, fade.y) * (1.0 - smoothstep(vJ, vJ + 0.004, d));
-          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, vGrout * 0.94, line);   // grout flush with the tile, a hair darker (the joint's shade)
+          float bevel = 1.0 - 0.07 * isTop * min(fade.x, fade.y) * (1.0 - smoothstep(vJ, vJ + 0.003, d));   // the rectified edge – a hair of shade
+          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, vGrout, line);   // grout flush with the tile, a hair darker (the joint's shade)
         }`);
     };
     m.customProgramCacheKey = () => 'tileJoints';
@@ -169,34 +169,40 @@ export class TilingWorkshop {
     for (const z of this.zones) {
       const c = this.choice[z.key]; if (!c) continue;
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
-      const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z0 + 0.0008;   // grout / joint bottom: on the adhesive (a full tile thickness under the face – no depth fight at a distance)
+      const z1 = z.tileLayer.z1;
       const pos = [], col = [], uv = [], map = [], txy = [], tj = [], gc = [];
       const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength, faces = fin.faceTexture ? (fin.faces || 1) : 0;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color(), gr = this.groutOf(c, fin), grc = new THREE.Color(gr.color);
       const W = (u, v, zz) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, zz); };
+      const partsLoc = z.parts.map(pt => pt.map(r => r.map(lay.frame.toLocal)));
       for (const p of lay.pieces) {
         const k = 1 + (rnd(p.i, p.j) - 0.5) * 2 * (fin.vary || 0);
         tmp.copy(base).multiplyScalar(k);
         if (mark && p.sev) tmp.lerp(cutCol[p.sev], 0.65);
         const ou = rnd(p.j, p.i) * 7, ov = rnd(p.i + 11, p.j) * 7;   // texture offset per tile (no repeated pattern)
         const face = Math.min(faces - 1, Math.floor(rnd(p.i * 7 + 3, p.j * 5 + 1) * faces));   // product face of this tile
-        const pts = p.poly.filter((q, i, a) => { const n = a[(i + 1) % a.length]; return Math.hypot(n[0] - q[0], n[1] - q[1]) > 1e-6; });
-        if (pts.length < 3) continue;
-        const C2 = pts.map(([u, v]) => new THREE.Vector2(u, v)), Hs = (p.holes || []).map(hh => hh.map(([u, v]) => new THREE.Vector2(u, v)));
-        if (THREE.ShapeUtils.isClockWise(C2)) C2.reverse();
-        Hs.forEach(hh => { if (!THREE.ShapeUtils.isClockWise(hh)) hh.reverse(); });
-        const all = [...C2, ...Hs.flat()];
+        // drawn shape = the tile grown by half a joint on every side, clipped by the zone: neighbouring tiles meet at the
+        // joint centre line – no real 2 mm gap (thinner than a pixel, it let the layer below show through as dots); the
+        // joint itself is painted in the grout colour by the shader. Counts / areas stay on p.poly (the real tile).
+        const polys = [];
+        for (const pl of partsLoc) {
+          const o = clipRect(pl[0], p.x0 - jh, p.y0 - jh, p.x0 + L + jh, p.y0 + Wd + jh);
+          if (o.length < 3 || Math.abs(area(o)) < 1e-7) continue;
+          const hs = pl.slice(1).map(hh => clipRect(hh, p.x0 - jh, p.y0 - jh, p.x0 + L + jh, p.y0 + Wd + jh)).filter(hh => hh.length >= 3 && Math.abs(area(hh)) > 1e-7);
+          polys.push([o, hs]);
+        }
         // top face: uv in metres (+ offset per tile; wood – grain along the tile length), tileXY = place inside the tile
-        const push = (u, v, zz, top = true) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
+        const push = (u, v, zz) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
           const lu = u - p.x0, lv = v - p.y0; if (faces) uv.push((face + Math.min(1, Math.max(0, lu / L))) / faces, Math.min(1, Math.max(0, lv / Wd))); else uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
-          if (top) txy.push(lu, lv, L, Wd); else txy.push(0, 0, 0, 0); tj.push(jh); gc.push(grc.r, grc.g, grc.b); };
-        for (const t of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of t) push(all[i].x, all[i].y, z1); map.push(z.key); }
-        // tile edges down to the joint (seen up close / in a section)
-        for (let i = 0; i < C2.length; i++) {
-          const a = C2[i], b = C2[(i + 1) % C2.length];
-          push(a.x, a.y, zt, false); push(b.x, b.y, zt, false); push(b.x, b.y, z1, false);
-          push(a.x, a.y, zt, false); push(b.x, b.y, z1, false); push(a.x, a.y, z1, false);
-          map.push(z.key, z.key);
+          txy.push(lu, lv, L, Wd); tj.push(jh); gc.push(grc.r, grc.g, grc.b); };
+        for (const [o, hs] of polys) {
+          const pts = o.filter((q, i, a) => { const n = a[(i + 1) % a.length]; return Math.hypot(n[0] - q[0], n[1] - q[1]) > 1e-6; });
+          if (pts.length < 3) continue;
+          const C2 = pts.map(([u, v]) => new THREE.Vector2(u, v)), Hs = hs.map(hh => hh.map(([u, v]) => new THREE.Vector2(u, v)));
+          if (THREE.ShapeUtils.isClockWise(C2)) C2.reverse();
+          Hs.forEach(hh => { if (!THREE.ShapeUtils.isClockWise(hh)) hh.reverse(); });
+          const all = [...C2, ...Hs.flat()];
+          for (const tr of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of tr) push(all[i].x, all[i].y, z1); map.push(z.key); }
         }
       }
       const g = new THREE.BufferGeometry();
@@ -208,13 +214,7 @@ export class TilingWorkshop {
       g.setAttribute('groutC', new THREE.Float32BufferAttribute(gc, 3));
       g.computeVertexNormals();
       const m = new THREE.Mesh(g, this.matOf(fin)); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
-      // the grout under the joints (the zone polygon, a hair below the tile face)
-      const gp = [], gm = [];
-      for (const part of z.parts) { const t = F.ringTris(part[0], part.slice(1), zt); gp.push(...t); }
-      const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(gp.flat(), 3)); gg.computeVertexNormals();
-      // own material, no polygon offset (the shared plaster material pulls itself forward – at a grazing view it covered the tiles)
-      const gmsh = new THREE.Mesh(gg, this.groutMat(gr)); gmsh.receiveShadow = true; gmsh.userData.keep = true;
-      const grp = new THREE.Group(); grp.add(gmsh, m);
+      const grp = new THREE.Group(); grp.add(m);
       const q = lay.q, sz = lay.size;
       const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,

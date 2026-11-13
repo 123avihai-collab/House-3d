@@ -23136,11 +23136,11 @@
     0.294
    ],
    "length": 7.473,
-   "z0": -0.435,
+   "z0": -0.42,
    "z1": 2.03,
-   "gross": 18.424,
+   "gross": 18.309,
    "openingsArea": 0.0,
-   "net": 18.424,
+   "net": 18.309,
    "openings": [],
    "floorSlab": "GS3",
    "ceilingSlab": null,
@@ -23154,7 +23154,7 @@
    "meshH_m": 0,
    "defaultType": "exterior",
    "typeReason": "חומה – צד המגרש: טיח צמנטי (שליכט בהמשך – חיפויי חוץ)",
-   "zSource": "פני הריצוף שלפני הקיר 280.06",
+   "zSource": "פני הריצוף שלפני הקיר 280.08",
    "status": "source",
    "key": "site|PW5|out|W#1",
    "type": "exterior",
@@ -38324,75 +38324,7 @@
    "bottom": -0.31,
    "top": -0.15,
    "pergola": false,
-   "sides": [
-    {
-     "a": [
-      179607.619,
-      576243.253
-     ],
-     "b": [
-      179607.538,
-      576243.053
-     ],
-     "normal": [
-      0.927,
-      -0.375
-     ],
-     "z0": -0.31,
-     "z1": -0.15,
-     "area": 0.035,
-     "room": null,
-     "ext": [
-      0.006,
-      0.0
-     ],
-     "shift": 0.023
-    },
-    {
-     "a": [
-      179607.26,
-      576243.165
-     ],
-     "b": [
-      179607.341,
-      576243.365
-     ],
-     "normal": [
-      -0.927,
-      0.375
-     ],
-     "z0": -0.31,
-     "z1": -0.15,
-     "area": 0.035,
-     "room": null,
-     "ext": [
-      0.0,
-      0.006
-     ]
-    },
-    {
-     "a": [
-      179607.341,
-      576243.365
-     ],
-     "b": [
-      179607.619,
-      576243.253
-     ],
-     "normal": [
-      0.375,
-      0.927
-     ],
-     "z0": -0.31,
-     "z1": -0.15,
-     "area": 0.048,
-     "room": null,
-     "ext": [
-      0.006,
-      0.029
-     ]
-    }
-   ],
+   "sides": [],
    "flats": [
     {
      "part": "top",
@@ -38416,31 +38348,11 @@
       ]
      ],
      "area": 0.06,
-     "room": null,
-     "grow": [
-      [
-       [
-        179607.619,
-        576243.253
-       ],
-       [
-        179607.544,
-        576243.066
-       ],
-       [
-        179607.5654,
-        576243.0574
-       ],
-       [
-        179607.6404,
-        576243.2444
-       ]
-      ]
-     ]
+     "room": null
     }
    ],
-   "area": 0.178,
-   "net": 0.178,
+   "area": 0.06,
+   "net": 0.06,
    "scaffold": false,
    "scaffoldArea": 0,
    "defaultType": "exterior",
@@ -72286,10 +72198,10 @@
     0.294
    ],
    "z0": -0.47,
-   "z1": -0.453,
+   "z1": -0.435,
    "length": 0.519,
-   "area": 0.009089,
-   "net": 0.009089,
+   "area": 0.018178,
+   "net": 0.018178,
    "owner": "PW5",
    "ownerKind": "perimeter",
    "floor": "site",
@@ -82044,13 +81956,13 @@
    "floor": "unit",
    "room": null,
    "roomType": "outdoor",
-   "defaultType": "exterior",
-   "typeReason": "השלמה – פן חשוף מבחוץ",
+   "defaultType": "none",
+   "typeReason": "השלמה – רום מדרגה בחוץ (שפת רצפה מעל הריצוף): בלי טיח – חיפוי המדרגה עם הריצוף (ק69, ק72)",
    "scaffold": false,
    "scaffoldArea": 0,
    "source": "sources/structure/k-21.dxf IfcSlab + קווי קירות/עמודים (פאה משורטטת); Floor Tag O.K=-0.15 D=25; אזור: sources/architecture/קומה קרקע- פיתוח היקפי - מבט על קנמ 1-10.pdf (זיהוי בלבד); sources/structure/k-21.dxf (קווים, מפלסים)",
    "key": "unit|patch|GS1|side#1",
-   "type": "exterior",
+   "type": "none",
    "overridden": false
   },
   {
@@ -100754,8 +100666,8 @@
     -0.9559,
     0.2937
    ],
-   "z0": -0.452,
-   "z1": -0.435,
+   "z0": -0.435,
+   "z1": -0.418,
    "length": 0.519,
    "area": 0,
    "net": 0,
@@ -104641,7 +104553,7 @@
  ],
  "totals": {
   "unit|exterior": {
-   "net": 79.022,
+   "net": 78.899,
    "scaffold": 0.0
   },
   "unit|interior": {
@@ -104685,7 +104597,7 @@
    "scaffold": 5.378
   },
   "site|exterior": {
-   "net": 203.996,
+   "net": 203.89,
    "scaffold": 5.378
   },
   "site|cladding": {
@@ -104697,7 +104609,7 @@
    "scaffold": 0.0
   },
   "unit|none": {
-   "net": 1.333,
+   "net": 1.339,
    "scaffold": 0.0
   }
  },

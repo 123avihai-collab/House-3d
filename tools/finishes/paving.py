@@ -27,8 +27,11 @@ class Paving:
         for g in self.polys: shapely.prepare(g)
 
     @staticmethod
-    def _z(S, X, Y):
-        """planeIdw surface (derive_exterior.surface) at the points"""
+    def _z(S, X, Y, flat=None):
+        """planeIdw surface (derive_exterior.surface) at the points; no surface – a flat zone (the stair landing) at `flat`;
+        minZ – the zone kept to K-21 (the parking, OC-16): the finish not below it"""
+        if S is None: return np.full(len(X), flat, dtype=float)
+        if S.get('minZ') is not None: return np.maximum(Paving._z({**S, 'minZ': None}, X, Y), S['minZ'])
         pz = S['z'] + S['gE'] * (X - S['E']) + S['gN'] * (Y - S['N'])
         if not S.get('res'): return pz
         R = np.array(S['res'], dtype=float)
@@ -43,7 +46,7 @@ class Paving:
         out = np.full(len(X), np.nan)
         for z, g in zip(self.zones, self.polys):
             m = shapely.contains_xy(g, X, Y) & np.isnan(out)
-            if m.any(): out[m] = self._z(z['surface'], X[m], Y[m])
+            if m.any(): out[m] = self._z(z['surface'], X[m], Y[m], z.get('finishRel'))
         return out
 
     def zone(self, x, y):

@@ -183,74 +183,149 @@ function applyLayers() {
   for (const t of state.L.labels.querySelectorAll('[data-for]')) t.style.display = state.layers[t.dataset.for] === false ? 'none' : '';
 }
 
-/* ---------- view (pan / zoom on the viewBox) ---------- */
-function setView(v) {
-  state.view = v;
-  const svg = $('#pl-svg'); const r = svg.getBoundingClientRect();
-  const h = v.w * (r.height / Math.max(r.width, 1));
-  svg.setAttribute('viewBox', `${v.x} ${v.y} ${v.w} ${h}`);
-  // scale bar: a round metre count ≈ 110 px
-  const ptPerPx = v.w / Math.max(r.width, 1); const m = 110 * ptPerPx / G.ptPerM;
+/* ---------- view (pan / zoom on the viewBox) ----------
+   One view {x, y, w} in sheet pt; applied once per animation frame. Pinch keeps the sheet point that was under
+   the fingers' midpoint at the start under the current midpoint (zoom + pan together, no drift). */
+let rect = null, rafId = 0, pendingView = null, anim = null;
+function measure() { rect = $('#pl-svg').getBoundingClientRect(); }
+function clampW(w) { return Math.min(Math.max(w, state.wMin), state.wMax); }
+function applyView() {
+  rafId = 0; const v = pendingView; if (!v) return; pendingView = null;
+  const h = v.w * (rect.height / Math.max(rect.width, 1));
+  $('#pl-svg').setAttribute('viewBox', `${v.x.toFixed(2)} ${v.y.toFixed(2)} ${v.w.toFixed(2)} ${h.toFixed(2)}`);
+  const ptPerPx = v.w / Math.max(rect.width, 1); const m = 110 * ptPerPx / G.ptPerM;   // scale bar ≈ 110 px
   const nice = [0.5, 1, 2, 5, 10, 20].find((x) => x >= m * 0.6) || 20;
   const sb = $('#pl-scale'); sb.style.width = (nice * G.ptPerM / ptPerPx) + 'px'; sb.textContent = nice + " מ'";
 }
-function fit() {
-  const b = state.L.piles.getBBox(); const pad = 140;
-  const svg = $('#pl-svg').getBoundingClientRect();
-  const w = Math.max(b.width + 2 * pad, (b.height + 2 * pad) * svg.width / Math.max(svg.height, 1));
-  const h = w * svg.height / Math.max(svg.width, 1);
-  setView({ x: b.x + b.width / 2 - w / 2, y: b.y + b.height / 2 - h / 2, w });
+function setView(v, now) {
+  state.view = v; pendingView = v;
+  if (now) { if (rafId) cancelAnimationFrame(rafId); applyView(); } else if (!rafId) rafId = requestAnimationFrame(applyView);
 }
-function zoomAt(px, py, k) {
-  const svg = $('#pl-svg'); const r = svg.getBoundingClientRect(); const v = state.view;
-  const sx = v.x + (px - r.left) / r.width * v.w, sy = v.y + (py - r.top) / r.width * v.w;
-  const base = state.L.piles.getBBox().width + 280;
-  const w = Math.min(Math.max(v.w / k, base / state.D.maxZoom), base / state.D.minZoom);
-  setView({ x: sx - (px - r.left) / r.width * w, y: sy - (py - r.top) / r.width * w, w });
+const toWorld = (px, py, v = state.view) => [v.x + (px - rect.left) / rect.width * v.w, v.y + (py - rect.top) / rect.width * v.w];
+function viewKeeping(wx, wy, px, py, w) {   // view of width w that puts sheet point (wx, wy) under screen point (px, py)
+  return { x: wx - (px - rect.left) / rect.width * w, y: wy - (py - rect.top) / rect.width * w, w };
 }
-function svgPoint(ev) {
-  const r = $('#pl-svg').getBoundingClientRect(), v = state.view;
-  return [v.x + (ev.clientX - r.left) / r.width * v.w, v.y + (ev.clientY - r.top) / r.width * v.w];
+function stopAnim() { if (anim) { cancelAnimationFrame(anim); anim = null; } }
+function animateTo(target, ms = 260) {
+  stopAnim();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setView(target); return; }
+  const from = { ...state.view }, t0 = performance.now();
+  const step = (t) => {
+    const u = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - u, 3);
+    // interpolate the zoom geometrically so the motion looks even
+    const w = from.w * Math.pow(target.w / from.w, e);
+    const k = (from.w === target.w) ? e : (w - from.w) / (target.w - from.w);
+    setView({ x: from.x + (target.x - from.x) * k, y: from.y + (target.y - from.y) * k, w }, true);
+    anim = u < 1 ? requestAnimationFrame(step) : null;
+  };
+  anim = requestAnimationFrame(step);
 }
+function fit(animated) {
+  measure();
+  const b = state.fitBox; const pad = 140;
+  const w = Math.max(b.width + 2 * pad, (b.height + 2 * pad) * rect.width / Math.max(rect.height, 1));
+  const h = w * rect.height / Math.max(rect.width, 1);
+  const v = { x: b.x + b.width / 2 - w / 2, y: b.y + b.height / 2 - h / 2, w };
+  if (animated === true) animateTo(v); else setView(v, true);
+}
+function zoomAt(px, py, k, animated) {
+  const [wx, wy] = toWorld(px, py); const v = viewKeeping(wx, wy, px, py, clampW(state.view.w / k));
+  if (animated) animateTo(v); else setView(v);
+}
+function svgPoint(ev) { measure(); return toWorld(ev.clientX, ev.clientY); }
 function centerOn(x, y) {
-  const v = state.view, r = $('#pl-svg').getBoundingClientRect(); const h = v.w * r.height / r.width;
-  setView({ x: x - v.w / 2, y: y - h / 2, w: v.w });
+  measure(); const v = state.view; const h = v.w * rect.height / rect.width;
+  animateTo({ x: x - v.w / 2, y: y - h / 2, w: v.w });
 }
 
 /* ---------- UI ---------- */
 function bindUi() {
-  const svg = $('#pl-svg'); const ptrs = new Map(); let drag = null, moved = false, pinch = null;
-  svg.addEventListener('wheel', (e) => { e.preventDefault(); zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+  const svg = $('#pl-svg'); const ptrs = new Map();
+  let drag = null, moved = false, pinch = null, lastTap = 0, vel = [0, 0], lastMove = null, fling = 0;
+  measure();
+  const b = state.L.piles.getBBox(); state.fitBox = b;
+  const base = b.width + 280; state.wMin = base / state.D.maxZoom; state.wMax = base / state.D.minZoom;
+  new ResizeObserver(() => { measure(); if (state.view) setView(state.view, true); }).observe(svg);
+
+  // wheel / trackpad: accumulate per frame; ctrl+wheel = trackpad pinch (small deltas)
+  let wheelAcc = 0, wheelAt = null, wheelRaf = 0;
+  svg.addEventListener('wheel', (e) => {
+    e.preventDefault(); stopAnim(); cancelAnimationFrame(fling);
+    const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? rect.height : 1;
+    wheelAcc += e.deltaY * unit * (e.ctrlKey ? 4 : 1); wheelAt = [e.clientX, e.clientY];
+    if (!wheelRaf) wheelRaf = requestAnimationFrame(() => {
+      wheelRaf = 0; const k = Math.exp(-Math.max(-300, Math.min(300, wheelAcc)) * 0.0022); wheelAcc = 0;
+      zoomAt(wheelAt[0], wheelAt[1], k);
+    });
+  }, { passive: false });
+
+  const startPinch = () => {
+    const [a, c] = [...ptrs.values()]; const mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2;
+    pinch = { d: Math.max(Math.hypot(a[0] - c[0], a[1] - c[1]), 1), w: state.view.w, world: toWorld(mx, my) };
+  };
   svg.addEventListener('pointerdown', (e) => {
-    ptrs.set(e.pointerId, [e.clientX, e.clientY]); svg.setPointerCapture(e.pointerId); moved = false;
-    if (ptrs.size === 1) drag = { x: e.clientX, y: e.clientY, v: { ...state.view }, target: e.target };
-    if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), w: state.view.w }; drag = null; }
+    stopAnim(); cancelAnimationFrame(fling); measure(); if (e.pointerType !== 'mouse') $('#pl-tip').hidden = true;
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]); try { svg.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+    if (ptrs.size === 1) { moved = false; drag = { x: e.clientX, y: e.clientY, v: { ...state.view }, target: e.target }; vel = [0, 0]; lastMove = [e.clientX, e.clientY, performance.now()]; }
+    if (ptrs.size === 2) { startPinch(); drag = null; moved = true; }
   });
   svg.addEventListener('pointermove', (e) => {
-    if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
-    if (pinch && ptrs.size === 2) {
-      const [a, b] = [...ptrs.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (d / pinch.d) * (pinch.w / state.view.w)); moved = true; return;
+    if (!ptrs.has(e.pointerId)) { if (e.pointerType === 'mouse') hover(e); return; }
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pinch && ptrs.size >= 2) {
+      const [a, c] = [...ptrs.values()]; const d = Math.max(Math.hypot(a[0] - c[0], a[1] - c[1]), 1);
+      const mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2;
+      setView(viewKeeping(pinch.world[0], pinch.world[1], mx, my, clampW(pinch.w * pinch.d / d)));
+      return;
     }
     if (drag) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (Math.hypot(dx, dy) > 4) { moved = true; svg.classList.add('drag'); }
-      if (moved) { const r = svg.getBoundingClientRect(); const k = drag.v.w / r.width; setView({ x: drag.v.x - dx * k, y: drag.v.y - dy * k, w: drag.v.w }); }
-      return;
+      if (!moved && Math.hypot(dx, dy) > 6) { moved = true; svg.classList.add('drag'); }
+      if (moved) {
+        const k = drag.v.w / rect.width; setView({ x: drag.v.x - dx * k, y: drag.v.y - dy * k, w: drag.v.w });
+        const t = performance.now(), dt = Math.max(t - lastMove[2], 1);
+        vel = [0.8 * vel[0] + 0.2 * (e.clientX - lastMove[0]) / dt, 0.8 * vel[1] + 0.2 * (e.clientY - lastMove[1]) / dt];
+        lastMove = [e.clientX, e.clientY, t];
+      }
     }
-    hover(e);
   });
   const up = (e) => {
+    if (!ptrs.has(e.pointerId)) return;
     ptrs.delete(e.pointerId); svg.classList.remove('drag');
-    if (ptrs.size < 2) pinch = null;
-    if (drag && !moved) click(e, drag.target);
-    drag = null;
+    if (ptrs.size === 1) {          // pinch → one finger left: continue as a pan from here, no jump
+      pinch = null; const [p] = [...ptrs.values()];
+      drag = { x: p[0], y: p[1], v: { ...state.view }, target: null }; lastMove = [p[0], p[1], performance.now()]; vel = [0, 0];
+      return;
+    }
+    if (ptrs.size === 0) {
+      pinch = null;
+      if (drag && !moved) {
+        const now = performance.now();
+        if (e.pointerType === 'touch' && now - lastTap < 300 && !state.measure) { zoomAt(e.clientX, e.clientY, 2, true); lastTap = 0; }
+        else { lastTap = now; click(e, drag.target); }
+      } else if (drag && moved && performance.now() - lastMove[2] < 80 && Math.hypot(...vel) > 0.25
+        && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        let [vx, vy] = vel; let t0 = performance.now();      // inertia (px per ms, decaying)
+        const glide = (t) => {
+          const dt = t - t0; t0 = t; const k = state.view.w / rect.width;
+          setView({ x: state.view.x - vx * dt * k, y: state.view.y - vy * dt * k, w: state.view.w }, true);
+          const f = Math.pow(0.94, dt / 16); vx *= f; vy *= f;
+          fling = Math.hypot(vx, vy) > 0.02 ? requestAnimationFrame(glide) : 0;
+        };
+        fling = requestAnimationFrame(glide);
+      }
+      drag = null;
+    }
   };
-  svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', (e) => { ptrs.delete(e.pointerId); drag = null; pinch = null; });
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', (e) => { ptrs.delete(e.pointerId); if (!ptrs.size) { drag = null; pinch = null; } });
+  // Safari: stop the page-level pinch gesture from zooming the whole page
+  for (const ev of ['gesturestart', 'gesturechange']) svg.addEventListener(ev, (e) => e.preventDefault());
+  $('#pl-zin').addEventListener('click', () => { measure(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.8, true); });
+  $('#pl-zout').addEventListener('click', () => { measure(); zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1 / 1.8, true); });
   svg.addEventListener('pointerleave', () => { $('#pl-tip').hidden = true; });
   svg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset?.key) select(e.target.dataset.key); });
-  window.addEventListener('resize', () => state.view && setView(state.view));
-  $('#pl-fit').addEventListener('click', fit);
+  $('#pl-fit').addEventListener('click', () => fit(true));
   $('#pl-layers-btn').addEventListener('click', () => {
     const p = $('#pl-layers'); p.hidden = !p.hidden; $('#pl-layers-btn').classList.toggle('on', !p.hidden); $('#pl-layers-btn').setAttribute('aria-expanded', String(!p.hidden));
   });
@@ -266,7 +341,9 @@ function bindUi() {
   window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
     if (e.key === 'Escape') { if (state.measure) toggleMeasure(); else select(null); }
-    if (e.key === 'f' || e.key === 'F') fit();
+    if (e.key === 'f' || e.key === 'F') fit(true);
+    if (e.key === '+' || e.key === '=') $('#pl-zin').click();
+    if (e.key === '-') $('#pl-zout').click();
     if (e.key === 'm' || e.key === 'M') toggleMeasure();
   });
   window.addEventListener('hashchange', fromHash);

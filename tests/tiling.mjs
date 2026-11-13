@@ -101,6 +101,30 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
   if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones) fail(name, 'exterior paving check failed', info.ext);
+  // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
+  const pool = await page.evaluate(async () => {
+    const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };
+    try { localStorage.removeItem('house3d.poolTiling'); } catch {}
+    await P.set(null);
+    a.store.set({ layers: { ...a.store.get().layers, poolTile: true, poolCoping: true } }, { label: 'layers' });
+    const kinds = () => a.registry.items.filter(i => ['poolTiles', 'poolCoping'].includes(i.meta.kind));
+    const r = { items0: kinds().length, visible0: kinds().filter(i => i.object.visible).length, panel: !!document.querySelector('#panel .pool-ed') };
+    const S = P.S, q = P.quantities();
+    r.q = { floor: q.floor, walls: q.walls, steps: q.steps, total: q.total, wallH: q.wallH };
+    r.wallExpect = S.areas.perimeterInner_m * (S.copingTop - P.c.coping.thick_m - S.floor) - S.areas.wallCoveredByBlocks_m2;
+    // coping: the runs cover the perimeter of the wall tops (long sides over the corners)
+    const cp = P.copingPieces(), wt = S.wallThickness_m, oh = P.c.coping.overhang_m;
+    r.copLen = cp.runs.reduce((s, x) => s + x.len, 0);
+    r.copExpect = S.innerSides_m.reduce((s, L) => s + (L > Math.max(...S.innerSides_m) - 0.01 ? L + 2 * wt : L - 2 * oh), 0);
+    r.pieces = cp.pieces.length; r.maxPiece = Math.max(...cp.runs.map(x => x.piece_m));
+    await P.set({ tile: 'porc3060', color: 'white', coping: { material: 'basalt', length_m: 1.0, edge: 'square' } });
+    r.items1 = kinds().length; r.pieces1 = P.copingPieces().pieces.length; r.tile1 = P.c.tile;
+    await P.set(null);
+    return r;
+  });
+  if (pool.missing || pool.items0 !== 5 || pool.visible0 !== 5 || !pool.panel || pool.items1 !== 5 || pool.tile1 !== 'porc3060' || pool.pieces1 >= pool.pieces
+    || Math.abs(pool.q.walls - pool.wallExpect) > 1e-6 || Math.abs(pool.q.total - pool.q.floor - pool.q.walls - pool.q.steps) > 1e-6 || Math.abs(pool.copLen - pool.copExpect) > 2e-3 || pool.maxPiece > 0.6 + 1e-9)
+    fail(name, 'pool tiling check failed', pool);
   // export
   const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);
   await page.evaluate(() => window.__app.modules.finishes.tiling.exportXlsx());
@@ -117,7 +141,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, xlsx }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

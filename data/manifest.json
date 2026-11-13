@@ -61,6 +61,9 @@
   "cladding": "data/finishes/cladding/surfaces.json",
   "tilingCatalog": "data/finishes/tiling/catalog.json",
   "tilingLayout": "data/finishes/tiling/layout.json",
+  "poolSurfaces": "data/finishes/pool/surfaces.json",
+  "poolCatalog": "data/finishes/pool/catalog.json",
+  "poolLayout": "data/finishes/pool/layout.json",
   "droppedCeiling": "data/finishes/dropped-ceiling.json",
   "tilingDoorStrips": "data/finishes/tiling/door-strips.json"
  },

@@ -52,13 +52,17 @@ for rv in P['reveals']:
     strip = unary_union(parts)
     near = [r for r in rs if polys[r['room']].distance(strip) <= TOUCH]
     if not near: continue
-    own = max(near, key=lambda r: r['area'])
+    # owner: the corridor (a shared floor zone – tilingZones.names in data/finishes/config.json) if it touches the strip, else the largest
+    # adjacent zone; a balcony (outside, another level) never takes the threshold of a vitrine – it stays with the room inside
+    inside = [r for r in near if r['roomType'] != 'balcony'] or near
+    shared = [r for r in inside if r.get('zoneName') and r['roomType'] != 'balcony']
+    own = max(shared or inside, key=lambda r: r['area'])
     for g in getattr(strip, 'geoms', [strip]):
         ring = [[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]]
         out.append(dict(id=rv['opening'] + ('' if len(out) == 0 or out[-1]['id'].split('#')[0] != rv['opening'] else '#2'), opening=rv['opening'],
                         kind=rv['openingKind'], floor=fl, room=own['room'], roomName=own.get('roomName'), neighbours=[r['room'] for r in near],
                         area_m2=r3(g.area), depth_m=rv.get('depth'), ringITM=ring, status='derived',
-                        source=f"data/finishes/plaster/surfaces.json reveal {rv['key']} (jamb quads – {rv['source']}); minus the room floors of {fl}; owner = largest adjacent zone"))
+                        source=f"data/finishes/plaster/surfaces.json reveal {rv['key']} (jamb quads – {rv['source']}); minus the room floors of {fl}; owner = the corridor if adjacent, else the largest adjacent zone inside"))
 
 # the zone floor with its strips as one polygon (the workshop lays the tiles over it – a tile across the threshold is one tile)
 merged = {}

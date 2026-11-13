@@ -38,7 +38,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal unit|rev|U06#1 (jamb quads – sources/structure/k-11.dxf HATCH IfcWall; sources/structure/K-400-תכנית יסודות.pdf; sources/structure/k-21.dxf Floor Tags); minus the room floors of unit; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal unit|rev|U06#1 (jamb quads – sources/structure/k-11.dxf HATCH IfcWall; sources/structure/K-400-תכנית יסודות.pdf; sources/structure/k-21.dxf Floor Tags); minus the room floors of unit; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G04",
@@ -72,7 +72,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G07",
@@ -106,7 +106,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G01",
@@ -143,7 +143,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G01#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G01#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G16",
@@ -176,7 +176,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G16#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G16#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G02",
@@ -218,7 +218,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G02#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G02#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G21",
@@ -260,7 +260,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G21#1 (jamb quads – sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G21#1 (jamb quads – sources/structure/k-21.dxf HATCH IfcWall; מפלסים: sources/structure/k-21.dxf/sources/structure/k-31.dxf Floor Tags); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G03",
@@ -302,7 +302,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G06",
@@ -336,7 +336,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G05",
@@ -374,7 +374,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G18",
@@ -407,7 +407,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G18#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G18#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "G08",
@@ -440,16 +440,17 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal ground|rev|G08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit pituah: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of ground; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F07",
    "opening": "F07",
    "kind": "door",
    "floor": "first",
-   "room": "first@179596.50,576244.25",
-   "roomName": "חדר",
+   "room": "first@179601.75,576240.25",
+   "roomName": "חלל עולה / מדרגות קלות / פ תקן מדרגות",
    "neighbours": [
+    "first@179601.75,576240.25",
     "first@179596.50,576244.25"
    ],
    "area_m2": 0.085,
@@ -472,21 +473,26 @@
      576242.698
     ],
     [
-     179598.153,
+     179598.342,
+     576242.368
+    ],
+    [
+     179598.152,
      576241.899
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F07#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F08",
    "opening": "F08",
    "kind": "door",
    "floor": "first",
-   "room": "first@179595.25,576241.00",
-   "roomName": "חדר",
+   "room": "first@179601.75,576240.25",
+   "roomName": "חלל עולה / מדרגות קלות / פ תקן מדרגות",
    "neighbours": [
+    "first@179601.75,576240.25",
     "first@179595.25,576241.00"
    ],
    "area_m2": 0.086,
@@ -501,16 +507,16 @@
      576241.613
     ],
     [
-     179598.022,
+     179598.021,
      576241.575
     ],
     [
-     179597.7,
+     179597.699,
      576240.777
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F08#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F03",
@@ -520,18 +526,19 @@
    "room": "first@179596.50,576244.25",
    "roomName": "חדר",
    "neighbours": [
-    "first@179596.50,576244.25"
+    "first@179596.50,576244.25",
+    "first@balcony-1"
    ],
-   "area_m2": 0.598,
+   "area_m2": 0.51,
    "depth_m": 0.3,
    "ringITM": [
     [
-     179595.305,
-     576247.118
+     179595.286,
+     576247.07
     ],
     [
-     179596.882,
-     576246.482
+     179596.863,
+     576246.434
     ],
     [
      179596.751,
@@ -543,7 +550,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F03#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F05",
@@ -577,7 +584,7 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F05#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F04",
@@ -587,7 +594,8 @@
    "room": "first@179595.25,576241.00",
    "roomName": "חדר",
    "neighbours": [
-    "first@179595.25,576241.00"
+    "first@179595.25,576241.00",
+    "first@balcony-2"
    ],
    "area_m2": 0.511,
    "depth_m": 0.3,
@@ -607,10 +615,14 @@
     [
      179593.955,
      576239.207
+    ],
+    [
+     179593.34,
+     576239.455
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F04#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   },
   {
    "id": "F06",
@@ -644,13 +656,17 @@
     ]
    ],
    "status": "derived",
-   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = largest adjacent zone"
+   "source": "data/finishes/plaster/surfaces.json reveal first|rev|F06#1 (jamb quads – sources/plumbing/אינסטלציה חתכים הכל.dxf (תוכנית Revit alef: A-WALL-PATT / I-WALL) פחות הבטון במודל; מפלסים: הבטון שמתחת / מעל); minus the room floors of first; owner = the corridor if adjacent, else the largest adjacent zone inside"
   }
  ],
  "zones": {
   "first@179595.25,576241.00": [
    {
     "ringITM": [
+     [
+      179592.491,
+      576240.122
+     ],
      [
       179592.176,
       576240.249
@@ -696,22 +712,6 @@
       576241.734
      ],
      [
-      179597.929,
-      576241.613
-     ],
-     [
-      179598.022,
-      576241.575
-     ],
-     [
-      179597.7,
-      576240.777
-     ],
-     [
-      179597.607,
-      576240.816
-     ],
-     [
       179596.649,
       576238.444
      ],
@@ -724,12 +724,12 @@
       576239.207
      ],
      [
-      179592.379,
-      576239.843
+      179593.34,
+      576239.455
      ],
      [
-      179592.491,
-      576240.122
+      179592.379,
+      576239.843
      ]
     ],
     "holesITM": []
@@ -738,26 +738,6 @@
   "first@179596.50,576244.25": [
    {
     "ringITM": [
-     [
-      179593.916,
-      576245.065
-     ],
-     [
-      179593.878,
-      576244.973
-     ],
-     [
-      179593.081,
-      576245.295
-     ],
-     [
-      179593.118,
-      576245.388
-     ],
-     [
-      179592.239,
-      576245.743
-     ],
      [
       179593.012,
       576247.665
@@ -783,12 +763,12 @@
       576246.792
      ],
      [
-      179595.305,
-      576247.118
+      179595.286,
+      576247.07
      ],
      [
-      179596.882,
-      576246.482
+      179596.863,
+      576246.434
      ],
      [
       179596.751,
@@ -797,22 +777,6 @@
      [
       179599.341,
       576245.11
-     ],
-     [
-      179598.382,
-      576242.736
-     ],
-     [
-      179598.474,
-      576242.698
-     ],
-     [
-      179598.153,
-      576241.899
-     ],
-     [
-      179598.06,
-      576241.938
      ],
      [
       179598.015,
@@ -825,6 +789,101 @@
      [
       179594.184,
       576244.957
+     ],
+     [
+      179593.916,
+      576245.065
+     ],
+     [
+      179593.878,
+      576244.973
+     ],
+     [
+      179593.081,
+      576245.295
+     ],
+     [
+      179593.118,
+      576245.388
+     ],
+     [
+      179592.239,
+      576245.743
+     ]
+    ],
+    "holesITM": []
+   }
+  ],
+  "first@179601.75,576240.25": [
+   {
+    "ringITM": [
+     [
+      179596.742,
+      576238.406
+     ],
+     [
+      179597.699,
+      576240.777
+     ],
+     [
+      179597.607,
+      576240.816
+     ],
+     [
+      179597.929,
+      576241.613
+     ],
+     [
+      179598.021,
+      576241.575
+     ],
+     [
+      179598.152,
+      576241.899
+     ],
+     [
+      179598.06,
+      576241.938
+     ],
+     [
+      179598.093,
+      576242.019
+     ],
+     [
+      179598.384,
+      576242.735
+     ],
+     [
+      179598.475,
+      576242.698
+     ],
+     [
+      179599.433,
+      576245.072
+     ],
+     [
+      179600.628,
+      576244.59
+     ],
+     [
+      179597.786,
+      576237.552
+     ],
+     [
+      179596.93,
+      576237.898
+     ],
+     [
+      179596.92,
+      576237.873
+     ],
+     [
+      179596.917,
+      576237.874
+     ],
+     [
+      179597.077,
+      576238.271
      ]
     ],
     "holesITM": []

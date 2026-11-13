@@ -108,8 +108,9 @@ export class Hatches {
   toggle(id) {
     const L = this.lids[id]; if (!L) return;
     const to = L.t > 0.5 ? 0 : 1, from = L.t, t0 = performance.now(), ms = this.D.openMs ?? 1400;
-    const step = (now) => { const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    const step = (now) => { if (L.t === to) return; const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
       L.t = from + (to - from) * e; this.pose(id); this.F.app?.viewer.invalidate(); if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
+    clearTimeout(L.done); L.done = setTimeout(() => { L.t = to; this.pose(id); this.F.app?.viewer.invalidate(); }, ms + 30);   // the end pose even when frames are throttled
   }
 }

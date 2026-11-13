@@ -257,7 +257,7 @@ export class TilingWorkshop {
           ['שטח', `${f2(q.area_m2)} מ"ר`], ['אריחים', `${q.full} שלמים + ${q.cut} חתוכים${q.slivers ? ` (${q.slivers} צרים מ-5 ס"מ!)` : ''}`],
           ['להזמנה', `${q.order} אריחים = ${q.boxes} קרטונים (${f2(q.order_m2)} מ"ר, כולל ${c.spare_pct}% רזרבה ופנלים)`]],
         source: 'src/tiling (סדנת ריצוף) – data/finishes/tiling/catalog.json; אזור: data/finishes/tiling/surfaces.json', note: 'מקדמי צריכה – זמניים (open-issues #178)',
-        onClick: () => { this.select(z.key); this.app?.ui.openTab('tiling'); } });
+        onClick: () => { if (z.r.hatch && this.F.hatches) { this.F.hatches.toggle(z.r.hatch); return; } this.select(z.key); this.app?.ui.openTab('tiling'); } });   // a lid's tiles: open / close it
       this.items.push(it);
       if (z.r.hatch) this.F.hatches?.attach(z.r.hatch, grp);   // a hatch lid: the tiles open with it (src/tiling/hatches.js)
     }
@@ -389,6 +389,7 @@ export class TilingWorkshop {
     wrap.append(h('h4', {}, 'שכבות הרצפה'), chips(BU.layers), h('div', { class: 'muted' }, 'פנים – עוביים: ' + BU.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 100) + ' ס"מ' : 'השארית'}`).join(' · ') + ' – זמני (open-issues #163).'));
     if (EX) wrap.append(chips(EX.buildUp.layers), h('div', { class: 'muted' }, 'חוץ – מעל רצפות הבטון החיצוניות: ' + EX.buildUp.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 1000) + ' מ"מ' : 'משתנה (בשיפוע)'}`).join(' → ') + '. פני הריצוף – לפי גבהי הפיתוח בהיתר (שיפוע 1.5% / 2%). ⚠ זמני – אין פרט ריצוף / איטום חוץ (open-issues #170, #200).'));
 
+    if (this.F.hatches) wrap.append(h('h4', {}, 'מכסי חדר המכונות (בריכה)'), h('div', { class: 'muted' }, `פתיחה ל-${this.F.hatches.P.openAngle_deg}° בבוכנות – בכפתור כאן או בלחיצה על המכסה במודל.`), this.hatchButtons());
     // zones
     const byFl = {};
     for (const z of this.zones) (byFl[grpOf(z)] ||= []).push(z);
@@ -473,7 +474,7 @@ export class TilingWorkshop {
   // exterior zone: the finish surface (from the permit spots) and the build-up under the tile
   extInfo(z) {
     if (z.r.stairLanding) return h('div', { class: 'muted' }, `משטח הכניסה ליחידה בתחתית מדרגות החוץ ${z.r.stairLanding}: פני ריצוף ${z.r.finishRel.toFixed(2)} על רצפת המרתף ${z.r.slab} (${z.r.slabTop.toFixed(2)}). שכבות כמו בפנים: ` + z.r.layers.map(l => `${this.F.BU.layers.find(x => x.id === l.id)?.short || l.id} ${f2(l.thickness_m * 100)} ס"מ`).join(' → ') + ' – זמני (open-issues #215).');
-    if (z.r.hatch) return h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. לחיצה על המכסה במודל – פתיחה / סגירה. מסגרת ובוכנות – זמני (open-issues #216).`);
+    if (z.r.hatch) return h('div', {}, h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. מסגרת ובוכנות – זמני (open-issues #216).`), this.hatchButtons([z.r.hatch]));
     const r = z.r, S = r.surface, BU = this.F.EX.buildUp, H0 = this.F.ctx.coords.H0 ?? 0;
     const lv = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} (${(v + H0).toFixed(2)})`;
     return h('div', { class: 'ext-info' },
@@ -483,6 +484,16 @@ export class TilingWorkshop {
       r.change ? h('div', { class: 'warn' }, `🔴 ${r.change} – מסומן לשינוי: ${r.changeReason}${r.raised?.length ? ` (גבהים שהוגבהו: ${r.raised.map(x => `${x.z.toFixed(2)}→${x.raisedTo.toFixed(2)}`).join(', ')})` : ''}`) : null,
       r.check.ok ? null : h('div', { class: 'warn' }, `⛔ סתירה: בטון השיפועים יורד עד ${f2(r.check.fillMin_m * 100)} ס"מ (מינימום ${f2(r.check.minFill_m * 100)}) – פני הריצוף בהיתר נמוכים מפני הבטון ${lv(r.slabTop)} + השכבות. לבירור מול הקונסטרוקטור / האדריכל (open-issues #201).`),
       h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
+  }
+  // open / close buttons for the machine-room hatches (src/tiling/hatches.js) – also a tap on the lid in the model
+  hatchButtons(ids) {
+    const HZ = this.F.hatches; if (!HZ) return null;
+    ids = ids || Object.keys(HZ.lids);
+    const btn = (id) => { const L = HZ.lids[id], open = L.t > 0.5;
+      return h('button', { class: 'small' + (open ? ' on' : ''), 'data-act': 'hatch-' + id, onclick: () => { this.app?.store.set({ layers: { ...this.app.store.get().layers, poolHatches: true, extTile: true } }, { label: 'layers' }); HZ.toggle(id); setTimeout(() => this.refresh(), (HZ.D.openMs ?? 1400) + 50); } },
+        `${open ? '⬇ סגירת' : '⬆ פתיחת'} ${L.h.label}`); };
+    const all = (to) => h('button', { class: 'small', onclick: () => { this.app?.store.set({ layers: { ...this.app.store.get().layers, poolHatches: true, extTile: true } }, { label: 'layers' }); for (const id of ids) if ((HZ.lids[id].t > 0.5) !== to) HZ.toggle(id); setTimeout(() => this.refresh(), (HZ.D.openMs ?? 1400) + 50); } }, to ? '⬆ לפתוח את כולם' : '⬇ לסגור את כולם');
+    return h('div', { class: 'btns' }, ...ids.map(btn), ids.length > 1 ? all(true) : null, ids.length > 1 ? all(false) : null);
   }
   extRows(z) {
     if (z.r.hatch || z.r.stairLanding) return [];

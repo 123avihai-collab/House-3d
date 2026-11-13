@@ -81,7 +81,10 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       const ids = Object.keys(HZ.lids), L = HZ.lids[ids[0]]; L.t = 1; HZ.pose(ids[0]);
       const ang = 2 * Math.acos(Math.min(1, Math.abs(L.lid.quaternion.w))) * 180 / Math.PI;
       r.hatch = { n: ids.length, items: a.registry.items.filter(i => i.meta.kind === 'hatch').length, ang: +ang.toFixed(2), want: HZ.P.openAngle_deg, attached: L.objs.size };
-      L.t = 0; HZ.pose(ids[0]); r.hatch.closed = +(2 * Math.acos(Math.min(1, Math.abs(L.lid.quaternion.w))) * 180 / Math.PI).toFixed(3); }
+      L.t = 0; HZ.pose(ids[0]); r.hatch.closed = +(2 * Math.acos(Math.min(1, Math.abs(L.lid.quaternion.w))) * 180 / Math.PI).toFixed(3);
+      // the panel buttons (a tap in the model on the lid's tiles does the same): open – the animation – closed again
+      W.refresh(); const b = document.querySelector('#panel .tiling [data-act="hatch-' + ids[0] + '"]'); r.hatch.button = !!b;
+      if (b) { b.click(); await new Promise(res => setTimeout(res, (HZ.D.openMs ?? 1400) + 300)); r.hatch.byButton = +L.t.toFixed(3); HZ.toggle(ids[0]); await new Promise(res => setTimeout(res, (HZ.D.openMs ?? 1400) + 300)); r.hatch.closedAgain = +L.t.toFixed(3); } }
     for (const z of W.zones.filter(z => z.r.outdoor && !z.r.hatch && !z.r.stairLanding)) {
       for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); const rs = (z.r.raisedSpots || []).find(x => x.handle === sp.handle);
         // a spot inside a raised piece (concrete too high for the permit level – listed in raisedSpots): the finish = the raised level
@@ -125,7 +128,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     fail(name, 'workshop check failed', { ...info, out: undefined });
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
-  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.stairs?.length || info.stairs.some(s => !s.item || s.n !== s.want || Math.abs(s.top - s.srcTop) > 1e-6) || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001) fail(name, 'exterior paving check failed', info.ext);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.stairs?.length || info.stairs.some(s => !s.item || s.n !== s.want || Math.abs(s.top - s.srcTop) > 1e-6) || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001 || !info.hatch.button || info.hatch.byButton !== 1 || info.hatch.closedAgain !== 0) fail(name, 'exterior paving check failed', info.ext);
   // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
   const pool = await page.evaluate(async () => {
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };

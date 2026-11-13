@@ -137,8 +137,12 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     r.wallExpect = S.areas.perimeterInner_m * (S.copingTop - P.c.coping.thick_m - S.floor) - S.areas.wallCoveredByBlocks_m2;
     // coping: the runs cover the perimeter of the wall tops (long sides over the corners)
     const cp = P.copingPieces(), wt = S.wallThickness_m, oh = P.c.coping.overhang_m;
+    // mitre corners (default): each side's outer edge = inner side + 2 × wall (− the corner joints); centre-line length of the coping
     r.copLen = cp.runs.reduce((s, x) => s + x.len, 0);
-    r.copExpect = S.innerSides_m.reduce((s, L) => s + (L > Math.max(...S.innerSides_m) - 0.01 ? L + 2 * wt : L - 2 * oh), 0);
+    r.copExpect = S.innerSides_m.reduce((s, L) => s + L + 2 * wt - P.c.coping.joint_mm / 1000 * Math.SQRT2, 0);
+    r.centre = P.quantities().coping.len_m; r.centreExpect = S.innerSides_m.reduce((s, L) => s + L, 0) + 4 * (wt - oh);
+    r.planSvg = !!document.querySelector('#panel .coping-plan polygon') && document.querySelectorAll('#panel .coping-strip').length === 4;
+    r.cutRows = document.querySelectorAll('#panel .coping-ed table')[1]?.querySelectorAll('tr').length || 0;
     r.pieces = cp.pieces.length; r.maxPiece = Math.max(...cp.runs.map(x => x.piece_m));
     await P.set({ tile: 'porc3060', color: 'white', coping: { material: 'basalt', length_m: 1.0, edge: 'square' } });
     r.items1 = kinds().length; r.pieces1 = P.copingPieces().pieces.length; r.tile1 = P.c.tile;
@@ -146,7 +150,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     return r;
   });
   if (pool.missing || pool.items0 !== 5 || pool.visible0 !== 5 || !pool.panel || pool.items1 !== 5 || pool.tile1 !== 'porc3060' || pool.pieces1 >= pool.pieces
-    || Math.abs(pool.q.walls - pool.wallExpect) > 1e-6 || Math.abs(pool.q.total - pool.q.floor - pool.q.walls - pool.q.steps) > 1e-6 || Math.abs(pool.copLen - pool.copExpect) > 2e-3 || pool.maxPiece > 0.6 + 1e-9)
+    || Math.abs(pool.q.walls - pool.wallExpect) > 1e-6 || Math.abs(pool.q.total - pool.q.floor - pool.q.walls - pool.q.steps) > 1e-6 || Math.abs(pool.copLen - pool.copExpect) > 2e-3 || pool.maxPiece > 0.6 + 1e-9 || Math.abs(pool.centre - pool.centreExpect) > 0.02 || !pool.planSvg || pool.cutRows < 3)
     fail(name, 'pool tiling check failed', pool);
   // export
   const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);

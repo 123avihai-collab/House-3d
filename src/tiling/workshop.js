@@ -42,7 +42,7 @@ export class TilingWorkshop {
     this.dirBy = Object.fromEntries(this.C.directions.map(x => [x.id, x]));
     const ex = new Set(this.C.excludeRoomTypes || []);
     this.zones = F.TL.rooms.filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => ({
-      key: r.room, r, floor: r.floor, name: F.rooms[r.room]?.name || r.roomName || 'ללא שם',
+      key: r.room, r, floor: r.floor, name: r.zoneName || F.rooms[r.room]?.name || r.roomName || 'ללא שם',
       parts: r.parts.map(p => [p.ringITM, ...(p.holesITM || [])]),
       tileLayer: r.layers.find(l => l.id === 'floorTile'),
     }));

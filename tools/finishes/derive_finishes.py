@@ -1088,6 +1088,9 @@ for room in ROOMS:
         cov = sorted(((s['poly'].intersection(room['poly']).area, s['top']) for s in own), reverse=True)
         top = cov[0][1] if cov and cov[0][0] > 0.5 else None
     on = unary_union([s['poly'] for s in own if top is not None and abs(s['top'] - top) < 0.6]) if top is not None else Polygon()
+    # beams cast with the slab, their top flush with it (K-21 / K-31: e.g. B-37…B-40 O.K = −0.15) are drawn outside the slab outline –
+    # the floor runs over them too (Avihai 13.11.2026: "the tiles did not cover the beams")
+    if top is not None: on = unary_union([on] + [beam_rect(b) for b in BEAMS + GBEAMS if abs(b['topRel'] - top) <= TZ.get('flushBeam_m', 0.03)])
     pc = room['poly'].intersection(on) if not on.is_empty else Polygon()
     faces = [f for f in FACES if f['room'] == room['key'] and f['side'] == 'in']
     doors = sum(o['s1'] - o['s0'] for f in faces for o in f['openings'] if o['z0'] <= f['z0'] + 0.01)
@@ -1125,7 +1128,7 @@ for fl, B in TZ.get('balconies', {}).items():
     UP = [b for b in BEAMS if b['topRel'] > st + 0.05 and b['bottomRel'] < st]
     W = unary_union([x['poly'] for x in S] + [c['poly'] for c in C] + [beam_rect(b) for b in UP])
     R = unary_union([r['poly'] for r in ROOMS if r['floor'] == fl]).buffer(0.001)
-    out = unary_union([s['poly'] for s in own]).difference(W).difference(R)
+    out = unary_union([s['poly'] for s in own] + [beam_rect(b) for b in BEAMS + GBEAMS if abs(b['topRel'] - st) <= TZ.get('flushBeam_m', 0.03)]).difference(W).difference(R)
     labs = [l for l in LABELS.get(fl, []) if B['label'] in l['text']]
     # strips narrower than sliverMax_m between the slab edge and a wall face (a few mm / cm of drawing tolerance) are not floor: an opening removes them
     sv = B.get('sliverMax_m', 0.05) / 2

@@ -473,7 +473,7 @@ export class TilingWorkshop {
   // exterior zone: the finish surface (from the permit spots) and the build-up under the tile
   extInfo(z) {
     if (z.r.stairLanding) return h('div', { class: 'muted' }, `משטח הכניסה ליחידה בתחתית מדרגות החוץ ${z.r.stairLanding}: פני ריצוף ${z.r.finishRel.toFixed(2)} על רצפת המרתף ${z.r.slab} (${z.r.slabTop.toFixed(2)}). שכבות כמו בפנים: ` + z.r.layers.map(l => `${this.F.BU.layers.find(x => x.id === l.id)?.short || l.id} ${f2(l.thickness_m * 100)} ס"מ`).join(' → ') + ' – זמני (open-issues #215).');
-    if (z.r.hatch) return h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. לחיצה על המכסה במודל – פתיחה / סגירה. מסגרת ובוכנות – זמני (open-issues #214).`);
+    if (z.r.hatch) return h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. לחיצה על המכסה במודל – פתיחה / סגירה. מסגרת ובוכנות – זמני (open-issues #216).`);
     const r = z.r, S = r.surface, BU = this.F.EX.buildUp, H0 = this.F.ctx.coords.H0 ?? 0;
     const lv = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} (${(v + H0).toFixed(2)})`;
     return h('div', { class: 'ext-info' },

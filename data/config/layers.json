@@ -451,6 +451,16 @@
      "visible": false
     },
     {
+     "id": "poolTile",
+     "label": "בריכה: ריצוף (רצפה, קירות, מדרגות)",
+     "visible": false
+    },
+    {
+     "id": "poolCoping",
+     "label": "בריכה: קופינג",
+     "visible": false
+    },
+    {
      "id": "roomLabels",
      "label": "שמות חדרים",
      "visible": false

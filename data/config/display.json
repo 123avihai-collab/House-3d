@@ -113,7 +113,8 @@
   "labelLift_m": 0.35,
   "overloadTint": "#ff8a65",
   "ghostColor": "#90caf9",
-  "ghostOpacity": 0.28
+  "ghostOpacity": 0.28,
+  "noBearingColor": "#e53935"
  },
  "framing": {
   "labelLift_m": 0.3,

@@ -258,8 +258,8 @@
   "caps": [
    {
     "id": "concrete",
-    "label": "קיר / רצפה בטון",
-    "color": "#7f8a96",
+    "label": "בטון (קיר / עמוד / ממ\"ד / חומה)",
+    "color": "#1e4fd8",
     "layers": [
      "basementWalls",
      "groundWalls",
@@ -284,7 +284,7 @@
    {
     "id": "column",
     "label": "עמוד בטון",
-    "color": "#1565c0",
+    "color": "#1e4fd8",
     "layers": [
      "groundColumns",
      "firstColumns"
@@ -292,8 +292,8 @@
    },
    {
     "id": "beam",
-    "label": "קורת בטון",
-    "color": "#c0392b",
+    "label": "קורת בטון (נחתכת)",
+    "color": "#0b1f5c",
     "layers": [
      "groundBeams",
      "groundFloorBeams",
@@ -304,8 +304,8 @@
    },
    {
     "id": "block",
-    "label": "קיר בלוק",
-    "color": "#e8a33d",
+    "label": "בלוק",
+    "color": "#d32f2f",
     "layers": [
      "blockWalls"
     ]
@@ -313,7 +313,7 @@
    {
     "id": "lintel",
     "label": "משקוף (בלוק משקוף)",
-    "color": "#8e44ad",
+    "color": "#8e1b1b",
     "layers": [
      "lintels"
     ]
@@ -368,6 +368,17 @@
     }
    ],
    "_docPresets": "מצבי חתך קבועים בסרגל (אביחי 13.11.2026): h_m = גובה מעל הריצוף; lintel = אמצע רצועת המשקופים של הקומה (נמדד מהמודל, שכבת lintels); drop = גובה הנמכת התקרה (data/finishes/dropped-ceiling.json, זמני); full = תחתית התקרה"
-  }
+  },
+  "legendHide": [
+   "column"
+  ],
+  "beamsAbove": {
+   "color": "#e8f2ff",
+   "dash_m": 0.25,
+   "gap_m": 0.12,
+   "lift_m": 0.01,
+   "label": "קורה מעל החתך (מקווקו)"
+  },
+  "_docColors": "צבעים כמו בתוכניות האדריכל (קומה קרקע – פיתוח היקפי: כחול = בטון, אדום = בלוק; אביחי 13.11.2026). קורה שנחתכת – כחול כהה; קורה מעל החתך – קו מקווקו על הרצפה (השלכה, כמו בשרטוט). legendHide – סוגים באותו צבע שלא חוזרים במקרא."
  }
 }

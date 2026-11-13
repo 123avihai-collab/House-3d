@@ -43,7 +43,9 @@ export class SectionTool {
     this.capped = new WeakSet();
     this.capsOn = false;
     app.store.on(s => this.apply(s.section));
-    app.registry.onChange(() => { if (this.capsOn) this.addCaps(); });   // components built later (deferred layers)
+    app.registry.onChange(() => { if (this.capsOn) this.addCaps(); this.beamsAbove(); });   // components built later (deferred layers), step changes
+    // beams above a horizontal cut: their plan outline as a dashed line on the floor of the cut floor (as in a drawing)
+    this.beamLines = new THREE.Group(); this.beamLines.name = 'beamsAbove'; app.viewer.scene.add(this.beamLines);
     this.apply(app.store.get().section);
   }
   apply(sec) {
@@ -68,7 +70,55 @@ export class SectionTool {
       const n = this.vPlane.normal, p = n.clone().multiplyScalar(-this.vPlane.constant + eps);
       m.position.copy(p); m.lookAt(p.clone().add(n));
     }
+    this.beamsAbove();
     this.app.viewer.invalidate();
+  }
+  // legend of the fill: one row per colour (display.json legendHide drops kinds sharing a colour) + the dashed beam line
+  legend() {
+    const hide = new Set(this.C.legendHide || []), B = this.C.beamsAbove;
+    return [...this.C.caps.filter(c => !hide.has(c.id)).map(c => ({ label: c.label, style: `background:${c.color}` })),
+      ...(B ? [{ label: B.label, style: `background: repeating-linear-gradient(90deg, ${B.color} 0 4px, transparent 4px 7px); border-color: transparent` }] : [])];
+  }
+  // plan outline (2D convex hull, scene x/z) of a beam component – cached; beams are straight prisms
+  hullOf(it) {
+    if (it._hull !== undefined) return it._hull;
+    const pts = [], v = new THREE.Vector3(); let y0 = Infinity, y1 = -Infinity;
+    it.object.updateMatrixWorld(true);
+    it.object.traverse(o => {
+      if (!o.isMesh || o.userData.sectionCap || o.isInstancedMesh || !o.geometry?.attributes?.position) return;
+      const P = o.geometry.attributes.position;
+      for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(o.matrixWorld); pts.push([v.x, v.z]); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); }
+    });
+    if (pts.length < 3) return (it._hull = null);
+    pts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    for (const p of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+    for (const p of pts.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+    return (it._hull = { ring: lo.slice(0, -1).concat(up.slice(0, -1)), y0, y1 });
+  }
+  // beams of the cut floor that lie wholly above the cut (bottom over the plane, up to its ceiling): dashed outline on its floor
+  beamsAbove() {
+    const B = this.C.beamsAbove; if (!B) return;
+    const st = this.app.store.get(), sec = st.section || {};
+    this.beamLines.clear();
+    if (!sec.hOn || sec.fill === false) return;
+    const fl = this.floorAt(sec.hLevel); if (!fl) return;
+    const beamKind = this.kinds.find(k => k.id === 'beam'); if (!beamKind) return;
+    const L = new Set(beamKind.layers), reg = this.app.registry, si = st.stageIndex, pts = [];
+    for (const it of reg.items) {
+      if (!L.has(it.tags.layer) || st.layers[it.tags.layer] === false || st.floors?.[it.tags.floor]?.visible === false) continue;
+      const [from, to] = reg.range(it.tags); if (si < from || si > to) continue;
+      const hh = this.hullOf(it); if (!hh) continue;
+      if (hh.y0 < sec.hLevel || hh.y0 > fl.top + 0.01) continue;   // cut by the plane (filled) / belongs to a higher ceiling
+      const y = fl.level + B.lift_m, r = hh.ring;
+      r.forEach((p, i) => { const q = r[(i + 1) % r.length]; pts.push(p[0], y, p[1], q[0], y, q[1]); });
+    }
+    if (!pts.length) return;
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const ls = new THREE.LineSegments(g, this._dash ||= new THREE.LineDashedMaterial({ color: B.color, dashSize: B.dash_m, gapSize: B.gap_m, depthTest: true }));
+    ls.computeLineDistances(); ls.raycast = () => {}; ls.renderOrder = 5;
+    this.beamLines.add(ls);
   }
   addCaps() {
     for (const it of this.app.registry.items) {

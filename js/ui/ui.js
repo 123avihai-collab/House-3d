@@ -652,7 +652,7 @@ export class UI {
     const first = FR ? h('div', {},
       h('h4', {}, "ח1ג – מעגלי קומה א' מהלוח הראשי (הצעה)"),
       h('table', { class: 'kv' }, tr('עלייה מעל הלוח', `${FR.riser.height_m.toFixed(1)} מ' – ליד קורה B-25, דרך FS2`), tr('צרור בחלל הטכני', `${FR.trunk.length_m.toFixed(1)} מ' (${FR.trunk.overVoid_m.toFixed(1)} מ' מעל חלל)`),
-        tr('הסתעפויות', FR.branches.map(b => `${b.door} ${b.length_m.toFixed(1)} מ'`).join(' · ')), tr('הנמכה (זמני)', coordsH(app, FR.levels.droppedCeilingAbs))),
+        tr('הסתעפויות', FR.branches.map(b => `${b.door} ${b.length_m.toFixed(1)} מ'`).join(' · ')), tr('הנמכה', `${Math.round(FR.levels.plenum_m * 100)} ס"מ – ${coordsH(app, FR.levels.droppedCeilingAbs)}, נטו ${FR.levels.netHeightUnderCeiling_m.toFixed(2)} מ'`), tr('מיני-מרכזי', FR.acReserve ? `מקום שמור ${FR.acReserve.size_m.join('×')} מ' במסדרון` : '—')),
       h('div', { class: 'list' }, h('button', { class: 'li', onclick: () => {
         const cur = app.store.get(); app.store.set({ stageIndex: app.registry.stepById('finishes'), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, showHidden: true }, { label: 'elFirst' });
         const it = E?.items.find(i => i.meta.id === 'FR-TRUNK'); if (it) app.tools.search.show(it); } }, "הצג את העלייה לקומה א'"))) : null;

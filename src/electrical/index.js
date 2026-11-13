@@ -194,7 +194,7 @@ export function buildElectrical(ctx) {
     const Lv = FR.levels, B = FR.bundle, z = Lv.routeAbs;
     const trayM = tint(std(D.trayColor, 0.55, 0.2)), brM = tint(std(D.branchColor, 0.55, 0.1));
     const tray = (g, a, b, w, hgt, m) => g.add(slabAlong(a, b, w, z - hgt / 2, z + hgt / 2, m));
-    const provRows = [['מעמד', 'הצעה – זמני'], ['החלטה', FR.decision], ['הנמכה (זמני)', `${fmtH(Lv.droppedCeilingAbs)} – ${Lv.droppedCeiling.note}`],
+    const provRows = [['מעמד', 'הצעה – זמני'], ['החלטה', FR.decision], ['הנמכה', `${Math.round(Lv.plenum_m * 100)} ס"מ → ${fmtH(Lv.droppedCeilingAbs)} (נטו ${Lv.netHeightUnderCeiling_m.toFixed(2)} מ') – ${Lv.droppedCeiling.note}`],
       ['רצפה גמורה קומה א\'', `${fmtH(Lv.firstFloorFinishAbs)} – ${Lv.firstFloorFinishSource}`], ['תקרת הגג (תחתית)', fmtH(Lv.roofSoffitAbs)], ['גובה התוואי', `${fmtH(z)} (חלל טכני ${Math.round(Lv.plenum_m * 100)} ס"מ)`], ['צנרת', `${B.conduits} – ${B.note}`]];
     // riser: in front of the niche wall, from the panel top to the plenum (inside the joinery cabinet, through FS2, closed trunking above)
     {
@@ -218,6 +218,18 @@ export function buildElectrical(ctx) {
       addF(g, { floor: 'first', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: 'צרור מעגלי קומה א\' בחלל הטכני', kind: 'elFirstTrunk', id: 'FR-TRUNK',
         rows: [...provRows, ['אורך', `${FR.trunk.length_m.toFixed(2)} מ', מתוכם ${FR.trunk.overVoid_m.toFixed(2)} מ' מעל חלל (סינר גבס)`], ['פתחים בקירות בלוקים', FR.trunk.blockWalls.join(', ') || '—'], ['תיבת חלוקה', FR.distribution.name], ['הערה', FR.trunk.note]],
         source: FR.source, note: 'הצעה בלבד – ממתין לאישור' });
+    }
+    // reserved volume for the mini-central indoor unit (translucent, provisional)
+    const A = FR.acReserve;
+    if (A) {
+      const g = new THREE.Group(), r = A.ringITM, c = A.centreITM, hgt = A.topAbs - A.bottomAbs;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(A.size_m[0], hgt, A.size_m[1]), std('#4fc3f7', 0.4, 0, { transparent: true, opacity: 0.35, depthWrite: false }));
+      m.position.copy(L([c[0], c[1], (A.topAbs + A.bottomAbs) / 2])); m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), new THREE.Vector3(A.alongITM[0], 0, -A.alongITM[1]).normalize()); g.add(m);
+      label(g, L([c[0], c[1], A.topAbs + D.labelOffset_m]), 'מקום שמור – מיני-מרכזי');
+      addF(g, { floor: 'first', system: 'hvac', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: A.name, kind: 'elAcReserve', id: 'AC-F1',
+        rows: [['מעמד', 'מקום שמור – זמני'], ['מידות', `${A.size_m.join('×')} מ'`], ['תחתית / ראש', `${fmtH(A.bottomAbs)} / ${fmtH(A.topAbs)} (מעל ההנמכה ${Math.round(A.aboveCeiling_m * 100)} ס"מ)`],
+          ['מתיבת החלוקה', `${A.fromBox_m.toFixed(2)} מ'`], ['מרחק מצנרת החשמל', `${A.clearFromTrays_m.toFixed(2)} מ' בתוכנית`], ['חשמל', A.power], ['הערה', A.note]],
+        source: FR.source, note: 'מקום שמור בלבד – היחידה טרם נבחרה' });
     }
     // one branch per room (to just inside the room door)
     for (const br of FR.branches) {

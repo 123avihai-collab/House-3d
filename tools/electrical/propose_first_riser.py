@@ -27,7 +27,7 @@ def seg_pt(a, b, p):
     return math.hypot(p[0]-a[0]-t*d[0], p[1]-a[1]-t*d[1])
 
 rs1 = ff['ceiling']['slab'][0]; soffit = H0+rs1['topRel']-rs1['thickness_m']
-DC = I['droppedCeiling']; dcAbs = H0+DC['undersideRel']; zRoute = soffit-I['routeLevelBelowSoffit_m']
+DC = I['droppedCeiling']; dcAbs = soffit-DC['depth_m'] if 'depth_m' in DC else H0+DC['undersideRel']; zRoute = soffit-I['routeLevelBelowSoffit_m']
 floors1 = [s['footprintITM'] for s in fg['ceiling']['slab']]      # first-floor slabs (FS1, FS2): no slab below = void
 concrete = [(w['id'], w['footprintITM']) for w in ff['walls']]
 blocks = [w for w in bl['walls'] if w['floor'] == 'first']
@@ -115,22 +115,57 @@ for rm in I['rooms']:
     bl_, bv, bc = describe(pth)
     branches.append({'door': rm['door'], 'doorName': o['name'], 'planITM': [[r3(p[0]), r3(p[1])] for p in pth], 'length_m': r3(bl_), 'overVoid_m': r3(bv), 'blockWalls': bc})
 riserTop = zRoute
+# ---- reserved volume for the first-floor mini-central indoor unit: under the conduits, above the dropped ceiling,
+# in the hall near the distribution box, fully over the first-floor slab (not the void), inside one room (no block wall through it),
+# clear in plan of the electrical trays (service access from below)
+AC = I['acReserve']; aw, ad_, ah = AC['size_m']
+acTop = soffit-AC['gapBelowSoffitForConduits_m']; acBot = acTop-ah
+trayLines = [trunk]+[[tuple(p) for p in b_['planITM']] for b_ in branches]
+ux = P['alongITM']; uy = (-ux[1], ux[0])
+def box_ring(c, rot):
+    a = ux if rot == 0 else uy; b2 = uy if rot == 0 else (-ux[0], -ux[1])
+    return [(c[0]+a[0]*sx*aw/2+b2[0]*sy*ad_/2, c[1]+a[1]*sx*aw/2+b2[1]*sy*ad_/2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+bestA = None
+for i in range(-45, 46):
+    for j in range(-45, 46):
+        c = (Dp[0]+ux[0]*i*0.1+uy[0]*j*0.1, Dp[1]+ux[1]*i*0.1+uy[1]*j*0.1)
+        if math.dist(c, Dp) > AC['maxFromBox_m']: continue
+        for rot in (0, 1):
+            ring = box_ring(c, rot)
+            if not all(inside(q, fs1['footprintITM']) for q in ring): continue
+            if any(in_concrete(q) for q in ring+[c]): continue
+            if any(seg_x(ring[k], ring[(k+1) % 4], w0, w1) is not None for _, w0, w1 in blockSegs for k in range(4)): continue
+            if any(inside(w0, ring) or inside(w1, ring) for _, w0, w1 in blockSegs): continue
+            gap = min(min(seg_pt(t[k], t[k+1], q) for k in range(len(t)-1) for q in ring+[c]) for t in trayLines if len(t) > 1)
+            crossT = any(seg_x(t[k], t[k+1], ring[m], ring[(m+1) % 4]) is not None for t in trayLines for k in range(len(t)-1) for m in range(4)) or any(inside(t[k], ring) for t in trayLines for k in range(len(t)))
+            if crossT or gap < AC['clearFromTrayPlan_m']: continue
+            sc = math.dist(c, Dp)
+            if not bestA or sc < bestA[0]: bestA = (sc, c, rot, ring, gap)
+acRes = None
+if bestA:
+    _, c, rot, ring, gap = bestA
+    acRes = {'name': AC['name'], 'centreITM': [r3(c[0]), r3(c[1])], 'ringITM': [[r3(q[0]), r3(q[1])] for q in ring], 'alongITM': [r3(x) for x in (ux if rot == 0 else uy)],
+             'size_m': AC['size_m'], 'bottomAbs': r3(acBot), 'topAbs': r3(acTop), 'clearFromTrays_m': r3(gap), 'fromBox_m': r3(math.dist(c, Dp)),
+             'aboveCeiling_m': r3(acBot-dcAbs), 'status': AC['status'], 'note': AC['note'], 'power': AC['power']}
 out = {'_doc': "ח1ג – מעגלי קומה א' מהלוח הראשי (עלייה מעל הלוח + חלוקה בהנמכת התקרה). נוצר ע״י tools/electrical/propose_first_riser.py – לא לערוך ידנית. הצעה (provisional).",
   'status': 'proposal', 'source': 'tools/electrical/propose_first_riser.py + tools/electrical/first-riser-inputs.json', 'decision': I['decision'],
   'levels': {'panelTopAbs': r3(H0+P['topRel']), 'fs2TopAbs': r3(H0+fs2['topRel']), 'fs2BottomAbs': r3(H0+fs2['bottomRel']), 'firstFloorFinishAbs': r3(H0+I['firstFloorFinishRel']), 'firstFloorFinishSource': I['firstFloorFinishSource'],
-             'droppedCeilingAbs': r3(dcAbs), 'droppedCeiling': DC, 'roofSoffitAbs': r3(soffit), 'routeAbs': r3(zRoute), 'plenum_m': r3(soffit-dcAbs)},
+             'droppedCeilingAbs': r3(dcAbs), 'droppedCeiling': DC, 'netHeightUnderCeiling_m': r3(dcAbs-(H0+I['firstFloorFinishRel'])), 'floorToSoffit_m': r3(soffit-(H0+I['firstFloorFinishRel'])), 'roofSoffitAbs': r3(soffit), 'routeAbs': r3(zRoute), 'plenum_m': r3(soffit-dcAbs)},
   'bundle': B,
   'riser': {'planITM': [r3(R[0]), r3(R[1])], 'fromAbs': r3(H0+P['topRel']), 'toAbs': r3(riserTop), 'height_m': r3(riserTop-(H0+P['topRel'])), 'alongITM': P['alongITM'], 'normalITM': P['normalITM'],
             'beamB25Gap_m': r3(beamGap), 'throughSlab': 'FS2', 'note': 'בתוך ארון הנגרות עד התקרה, שרוולים ברצפה FS2, ומעליה תעלה סגורה לאורך הקיר BK-F83 עד החלל הטכני'},
   'trunk': {'planITM': [[r3(p[0]), r3(p[1])] for p in trunk], 'length_m': r3(tl), 'overVoid_m': r3(tv), 'blockWalls': tc, 'note': I['planner']['note']},
   'distribution': {'name': I['distribution']['name'], 'planITM': [r3(Dp[0]), r3(Dp[1])], 'abs': r3(zRoute)},
-  'branches': branches, 'steps': I['steps'],
+  'branches': branches, 'acReserve': acRes, 'decisionsAdded': I.get('decisionsAdded', []), 'steps': I['steps'],
   'checks': [
     {'kind': 'beam', 'ref': 'קורה B-25 – הצרור עולה לפניה', 'clear_m': r3(beamGap), 'required_m': 0.0, 'ok': beamGap >= -1e-3, 'note': 'מרחק ציר הצרור מפני הקורה (הצרור צמוד לפני הקיר, הקורה מיושרת עם פני הקיר)'},
-    {'kind': 'plenum', 'ref': 'חלל טכני מעל ההנמכה', 'clear_m': r3(soffit-dcAbs), 'required_m': 0.2, 'ok': soffit-dcAbs >= 0.2, 'note': 'גובה זמני – E20'},
-    {'kind': 'route', 'ref': 'התוואי לא חוצה קירות בטון', 'clear_m': 1, 'required_m': 0, 'ok': True, 'note': 'אכיפה בחיפוש'}],
+    {'kind': 'plenum', 'ref': 'חלל טכני מעל ההנמכה', 'clear_m': r3(soffit-dcAbs), 'required_m': 0.32, 'ok': soffit-dcAbs >= 0.2, 'note': 'גובה זמני – E20'},
+    {'kind': 'route', 'ref': 'התוואי לא חוצה קירות בטון', 'clear_m': 1, 'required_m': 0, 'ok': True, 'note': 'אכיפה בחיפוש'},
+    {'kind': 'ac', 'ref': 'מקום למיני-מרכזי – נמצא', 'clear_m': 1 if acRes else -1, 'required_m': 0, 'ok': bool(acRes), 'note': 'נפח שמור במסדרון, מעל ההנמכה ומתחת לצנרת החשמל'},
+    {'kind': 'ac', 'ref': 'מיני-מרכזי – מרחק בתוכנית מצנרת החשמל', 'clear_m': acRes['clearFromTrays_m'] if acRes else -1, 'required_m': AC['clearFromTrayPlan_m'], 'ok': bool(acRes) and acRes['clearFromTrays_m'] >= AC['clearFromTrayPlan_m'], 'note': 'גישת שירות מלמטה בלי צנרת מעל היחידה'},
+    {'kind': 'ac', 'ref': 'מיני-מרכזי – מרווח מעל ההנמכה', 'clear_m': acRes['aboveCeiling_m'] if acRes else -1, 'required_m': 0.0, 'ok': bool(acRes) and acRes['aboveCeiling_m'] >= -1e-3, 'note': 'תחתית היחידה מעל ההנמכה'}],
 }
-out['summary'] = {'riser_m': out['riser']['height_m'], 'trunk_m': r3(tl), 'trunkOverVoid_m': r3(tv), 'branches_m': r3(sum(b['length_m'] for b in branches)), 'blockWallOpenings': len(tc)+sum(len(b['blockWalls']) for b in branches)}
+out['summary'] = {'riser_m': out['riser']['height_m'], 'trunk_m': r3(tl), 'trunkOverVoid_m': r3(tv), 'branches_m': r3(sum(b['length_m'] for b in branches)), 'blockWallOpenings': len(tc)+sum(len(b['blockWalls']) for b in branches), 'acReserve': bool(acRes)}
 json.dump(out, open(os.path.join(ROOT, 'data/electrical/first-riser.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 print(out['summary']); print('trunk', [[round(p[0]-179500,2), round(p[1]-576200,2)] for p in trunk], tc)
 for b in branches: print(b['door'], b['length_m'], b['overVoid_m'], b['blockWalls'])

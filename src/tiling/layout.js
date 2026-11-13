@@ -199,6 +199,14 @@ export function surfaceZ(S) {
   const pz = (E, N) => S.z + S.gE * (E - S.E) + S.gN * (N - S.N);
   // minZ: the finish does not go below the slab + layers + minimum fill (a zone kept to K-21 – owner change OC-16)
   if (S.minZ != null) { const f = surfaceZ({ ...S, minZ: null }); return (E, N) => Math.max(f(E, N), S.minZ); }
+  // raise: over concrete cast with the slab whose top is too high for the layers (a flush beam / the house slab edge) the finish is
+  // lifted to that concrete + the layers – only inside those outlines (exterior.json surface.raise, derive_exterior.py)
+  if (S.raise?.length) {
+    const f = surfaceZ({ ...S, raise: null });
+    const inR = (ring, E, N) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > N) !== (yj > N) && E < (xj - xi) * (N - yi) / (yj - yi) + xi) c = !c; } return c; };
+    return (E, N) => { const v = f(E, N); const r = S.raise.find(q => inR(q.ringITM, E, N)); return r ? Math.max(v, r.minZ) : v; };
+  }
   return (E, N) => {
     let sw = 0, sr = 0;
     for (const [e, n, r] of res) {

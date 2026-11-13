@@ -85,8 +85,52 @@ def pool_deck():
     return [p for p in getattr(rest, 'geoms', [rest]) if p.intersects(near) and p.area > 0.5], PO['pool']['deckSlabTop'] - H0
 
 
+def concrete_tops():
+    """concrete cast with the slabs whose top lies under the paving but outside every slab outline (Avihai 13.11.2026: "the paving did
+    not cover the beams"): K-21 ground beams (e.g. B-39 / B-40 O.K −0.15 at the north-west corner) and the basement-wall caps (BW1 −0.15,
+    between the west yard and the English courtyards). The part outside every slab, house / boundary wall, open zone, block wall and room ->
+    [(slab id it borders most, polygon, top, element id)]; whether the paving fits over it is checked per zone (main)"""
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+    FR = J('data/structure/framing.json')
+    rect = lambda b: LineString([b['axisITM'][0], b['axisITM'][-1]]).buffer(b['width_m'] / 2, cap_style=2, join_style=2)
+    SL = {s['id']: Polygon(s['footprintITM'], s.get('holesITM') or []) for s in GF['slab']}
+    lo = min(s['topRel'] for s in GF['slab'] if s['id'] in BU['slabs']) - FIT.get('flushBelow_m', 0.03)
+    el = [(b['id'], rect(b), b['topRel']) for b in FR['groundBeams'] if b.get('axisITM') and b['topRel'] >= lo]
+    # the house slabs (GS1, GS7) reach out past the façade in places (e.g. the west side along the English courtyards): that strip is
+    # outside every room – it is paved with the yard next to it
+    el += [(s['id'], SL[s['id']], s['topRel']) for s in GF['slab'] if s['id'] not in BU['slabs']]
+    el += [(f"{c['wall']}-cap{i + 1}", Polygon(c['footprintITM'], c.get('holesITM') or []), c['topRel']) for i, c in enumerate(GF.get('basementWallCaps', []))]
+    BL = J('data/architecture/blocks.json')['walls']
+    block = [LineString([w['axisITM'][0], w['axisITM'][-1]]).buffer(w['thickness_m'] / 2, cap_style=2, join_style=2) for w in BL if w['floor'] == 'ground' and w.get('axisITM')]
+    rooms = [Polygon(r['ringITM']) for r in J('data/architecture/rooms.json')['rooms'] if r['floor'] == 'ground' and len(r['ringITM']) > 2]
+    taken = unary_union([SL[k] for k in SL if k in BU['slabs']] + [Polygon(w['footprintITM'], w.get('holesITM') or []) for w in GF['walls']]
+                        + [Polygon(w['ringITM']) for w in J('data/structure/perimeter.json')['walls']]
+                        + [Polygon(z['footprintITM']) for z in GF['openZones']] + block + rooms)
+    out = []
+    for eid, poly, top in sorted(el, key=lambda e: -e[2]):   # the highest element wins an overlap (it is the surface under the paving)
+        rest = poly.difference(taken).buffer(-0.01, join_style=2).buffer(0.01, join_style=2)
+        for g in getattr(rest, 'geoms', [rest]):
+            if g.geom_type != 'Polygon' or g.area < 0.02: continue
+            out.append((g, top, eid))
+        taken = unary_union([taken, poly])
+    # each piece goes to the exterior zone it borders most – directly or through the pieces next to it (a beam end beyond a wall cap)
+    cand = [k for k in SL if k in BU['slabs']]
+    owner = {}
+    for _ in range(4):
+        for i, (g, top, eid) in enumerate(out):
+            if i in owner: continue
+            sh = {k: g.buffer(0.01).intersection(SL[k].boundary).length for k in cand}
+            for j, (h, _t, _e) in enumerate(out):
+                if j in owner and j != i: sh[owner[j]] = sh.get(owner[j], 0) + g.buffer(0.01).intersection(h.boundary).length
+            k = max(sh, key=sh.get) if sh else None
+            if k and sh[k] > 0.05: owner[i] = k
+    return [(owner[i], g, top, eid) for i, (g, top, eid) in enumerate(out) if i in owner]
+
+
 def main():
     zones, checks = [], []
+    CT = concrete_tops()
     for sl in GF['slab']:
         if sl['id'] not in BU['slabs']: continue
         P = Polygon(sl['footprintITM'], sl.get('holesITM') or [])
@@ -115,6 +159,34 @@ def main():
                 if p_[2] < floorZ: raised.append(dict(handle=p_[3], z=r3(p_[2] + H0), raisedTo=r3(floorZ + H0))); near[k_] = (p_[0], p_[1], floorZ, p_[3], p_[4])
         S, pz, f0, used, dropped = surface(near)
         f = f0 if floorZ is None else (lambda E, N: max(f0(E, N), floorZ))
+        # concrete tops next to the slab (flush beams, basement-wall caps – concrete_tops): joined to the zone where the paving
+        # layers + the minimum fill fit over them; else left out and listed (the paving would have to rise)
+        overTops, notFit, raisedSpots = [], [], []
+        for k_, g_, t_, e_ in CT:
+            if k_ != sl['id']: continue
+            fit = min(f(x, y) for x, y in list(g_.exterior.coords)[:-1]) - STACK - t_
+            if fit < -FIT.get('raiseMax_m', 0.05) - 1e-6: notFit.append(dict(element=e_, top=r3(t_), area=r3(g_.area), fill_m=r3(fit))); continue
+            overTops.append((g_, t_, e_, fit))
+        if overTops:
+            from shapely.ops import unary_union
+            U = unary_union([P] + [o[0] for o in overTops]).buffer(0.002, join_style=2).buffer(-0.002, join_style=2)
+            if U.geom_type == 'Polygon':
+                P = U
+                # the layers do not fit over a piece (fill < 0): the finish is lifted there to the concrete + the layers (a local step,
+                # at most raiseMax_m) – surface.raise, read by src/tiling/layout.js surfaceZ
+                rz = [(Polygon(o[0].exterior), r3(o[1] + STACK)) for o in overTops if o[3] < 0]
+                if rz:
+                    S['raise'] = [dict(ringITM=[[r3(x), r3(y)] for x, y in list(q.exterior.coords)[:-1]], minZ=m) for q, m in rz]
+                    # a permit spot inside a raised piece: the permit level is below that concrete + the layers – a conflict, listed
+                    raisedSpots = [dict(handle=p_[3], E=r3(p_[0]), N=r3(p_[1]), z=r3(p_[2] + H0), raisedTo=r3(m + H0), d=r3(m - p_[2]))
+                                   for p_ in used for q, m in rz if q.buffer(0.002).contains(Point(p_[0], p_[1])) and p_[2] < m]
+                    f1 = f
+                    f = lambda E, N, f1=f1, rz=rz: max([f1(E, N)] + [m for q, m in rz if q.buffer(0.002).contains(Point(E, N))])
+                for g_, t_, e_, _fit in overTops:
+                    slabParts.append(dict(ringITM=[[r3(x), r3(y)] for x, y in list(g_.exterior.coords)[:-1]], slabTop=r3(t_), area=r3(g_.area), element=e_,
+                                          source=f"{e_} – data/structure/{'floor-ground.json basementWallCaps' if '-cap' in e_ else 'floor-ground.json slab (מחוץ לחדרים ולקירות)' if e_.startswith('GS') else 'framing.json groundBeams'} (ראש ‎{t_:+.2f}, נוצק עם הרצפה; מחוץ לפוליגון של {sl['id']})"))
+            else:
+                notFit += [dict(element=o[2], top=r3(o[1]), area=r3(o[0].area), fill_m=None, reason='לא מתחבר לאזור') for o in overTops]; overTops = []
         if floorZ is not None: S['minZ'] = r3(floorZ)
         # sample the surface on a grid inside the slab: finish range, fill thickness range, mean, volume, steepest fall
         g = FIT['sampleGrid_m']; x0, y0, x1, y1 = P.bounds
@@ -127,7 +199,9 @@ def main():
         fz = [s_[2] for s_ in samp]
         inner = [s_[2] for s_ in samp[:len(samp) - (len(P.exterior.coords) - 1)]] or fz
         slabAt = lambda E, N: next((sp_['slabTop'] for sp_ in slabParts if Polygon(sp_['ringITM']).buffer(0.005).contains(Point(E, N))), top)
-        fill = [v - STACK - slabAt(E, N) for E, N, v in samp]
+        # the minimum-fill check: over the slab itself – the concrete joined from outside it (overTops) is listed with its own fill
+        OT = [o[0].buffer(0.005) for o in overTops]
+        fill = [v - STACK - slabAt(E, N) for E, N, v in samp if not any(q.contains(Point(E, N)) for q in OT)] or [v - STACK - slabAt(E, N) for E, N, v in samp]
         inn = samp[:len(samp) - (len(P.exterior.coords) - 1)] or samp
         fmean = sum(v - STACK - slabAt(E, N) for E, N, v in inn) / len(inn)
         slope = math.hypot(S['gE'], S['gN']) * 100
@@ -147,7 +221,7 @@ def main():
                  area=r3(P.area), void_m2=0.0, slabTop=top, finishRel=r3(sum(inner) / len(inner)), finishMin=r3(min(fz)), finishMax=r3(max(fz)),
                  buildUp_m=r3(sum(inner) / len(inner) - top), skirting_m=0, wallTiling=None,
                  parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(P.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(hh.coords)[:-1]] for hh in P.interiors])],
-                 slabParts=slabParts, slabArea_m2=r3(sl['area_m2']),
+                 slabParts=slabParts, slabArea_m2=r3(sl['area_m2']), raisedSpots=raisedSpots, overConcrete=[dict(element=o[2], top=r3(o[1]), area=r3(o[0].area), fill_m=r3(max(o[3], 0)), raised_m=r3(-o[3]) if o[3] < 0 else 0) for o in overTops], notFit=notFit,
                  surface=S, planeSlope_pct=round(slope, 2), planeFallAzimuth_deg=None if fall is None else round(fall, 1),
                  spots=[sp(p) for p in used], dropped=[sp(p) for p in dropped],
                  layers=layers, fillVolume_m3=r3(P.area * fmean), tileType=None,

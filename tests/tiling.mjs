@@ -76,7 +76,9 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     const H0 = a.modules.finishes.ctx.coords.H0, EXR = a.modules.finishes.EX?.rooms || [];
     r.ext = { zones: W.zones.filter(z => z.r.outdoor).length, want: EXR.length, bad: [] };
     for (const z of W.zones.filter(z => z.r.outdoor)) {
-      for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); if (Math.abs(d) > 0.001) r.ext.bad.push([z.key, sp.handle, +d.toFixed(4)]); }
+      for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); const rs = (z.r.raisedSpots || []).find(x => x.handle === sp.handle);
+        // a spot inside a raised piece (concrete too high for the permit level – listed in raisedSpots): the finish = the raised level
+        if (rs ? Math.abs(z.zTop(sp.E, sp.N) - (rs.raisedTo - H0)) > 0.001 : Math.abs(d) > 0.001) r.ext.bad.push([z.key, sp.handle, +d.toFixed(4)]); }
       const tl = z.r.layers.find(l => l.id === 'extTile'), st = z.r.layers.reduce((a2, l) => a2 + (l.dz0 != null ? l.thickness_m : 0), 0);
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
     }

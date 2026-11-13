@@ -116,7 +116,7 @@ export class TilingWorkshop {
     const k = fin.id;
     if (this.mats[k]) return this.mats[k];
     const m = new THREE.MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: fin.roughness ?? 0.5, metalness: 0, side: THREE.DoubleSide,
-      envMapIntensity: this.D.envMapIntensity ?? 0.9 });
+      envMapIntensity: this.D.envMapIntensity ?? 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
     if (fin.texture) {
       const ld = (f, srgb) => { const tx = new THREE.TextureLoader().load(`${fin.texture}/${f}`, () => this.F.ctx.viewer?.invalidate());
         tx.wrapS = tx.wrapT = THREE.RepeatWrapping; if (srgb) tx.colorSpace = THREE.SRGBColorSpace; tx.repeat.set(1 / fin.texSize_m, 1 / fin.texSize_m); return tx; };
@@ -133,10 +133,11 @@ export class TilingWorkshop {
         if (vTile.z > 0.0) {
           vec2 q = vTile.xy;
           float d = min(min(q.x, vTile.z - q.x), min(q.y, vTile.w - q.y));
-          float fw = max(fwidth(q.x), fwidth(q.y));
-          float jw = max(vJ, fw * ${px.toFixed(2)});
-          float line = 1.0 - smoothstep(jw, jw + fw, d);
-          float bevel = 1.0 - 0.10 * (1.0 - smoothstep(vJ, vJ + 0.004, d));
+          float fw = max(fwidth(d), 1e-5);
+          float jw = max(vJ, fw * ${(px / 2).toFixed(2)});
+          float fade = smoothstep(6.0, 18.0, min(vTile.z, vTile.w) / fw);
+          float line = (1.0 - smoothstep(jw, jw + fw, d)) * fade * 0.85;
+          float bevel = 1.0 - 0.08 * fade * (1.0 - smoothstep(vJ, vJ + 0.004, d));
           diffuseColor.rgb = mix(diffuseColor.rgb * bevel, uGrout, line);
         }`);
     };
@@ -152,7 +153,7 @@ export class TilingWorkshop {
     for (const z of this.zones) {
       const c = this.choice[z.key]; if (!c) continue;
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
-      const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z1 - (this.D.jointDepth_m ?? 0.003);
+      const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z0 + 0.0008;   // grout / joint bottom: on the adhesive (a full tile thickness under the face – no depth fight at a distance)
       const pos = [], col = [], uv = [], map = [], txy = [], tj = [];
       const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color();

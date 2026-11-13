@@ -241,7 +241,6 @@
   "groutColor": "#4f4c47",
   "narrowColor": "#ffa726",
   "sliverColor": "#e53935",
-  "jointDepth_m": 0.003,
   "viewDistance": 1.1,
   "jointMinPx": 1.8,
   "envMapIntensity": 0.9

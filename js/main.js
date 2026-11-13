@@ -7,6 +7,7 @@ import { StateStore } from './core/state.js';
 import { MaterialLibrary } from './core/materials.js';
 import { buildTerrain } from './geometry/terrain.js';
 import { buildSite, centroid } from './geometry/site.js';
+import { buildFrontStreet } from './geometry/frontStreet.js';
 import { buildEnvironment } from '../src/environment/index.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
@@ -58,6 +59,7 @@ async function main() {
   const T = (window.__buildMs = {}); const tm = (k, f) => { const t0 = performance.now(); const r = f(); T[k] = Math.round(performance.now() - t0); return r; };
   ctx.ground = tm('terrain', () => buildTerrain(ctx));
   tm('site', () => buildSite(ctx));
+  tm('frontStreet', () => buildFrontStreet(ctx));   // street in front of the lot (data/site/front-street.json)
   const environment = tm('environment', () => buildEnvironment(ctx));
   const quantities = { excavation: tm('excavation', () => buildExcavation(ctx)), piles: tm('piles', () => buildPiles(ctx)), foundations: tm('foundations', () => buildFoundations(ctx)),
     plumbing: tm('plumbingFoundations', () => buildPlumbingFoundations(ctx)), pool: tm('pool', () => buildPool(ctx)), groundFloor: tm('groundFloor', () => buildFloorSkeleton(ctx, data.floorGround)),

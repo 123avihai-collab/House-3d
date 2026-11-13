@@ -52,6 +52,7 @@ js/
     tin.js                 אינטרפולציית גבהים (TIN), כלי פוליגון
     terrain.js             משטחי קרקע: מגרש (מתוכנן/קיים), שכנים, מדרכה, כביש, משטח ייחוס
     site.js                גבול מגרש, נקודות, קווי בניין, קווי גובה, תוויות, חץ צפון, רשת ITM
+    frontStreet.js         הרחוב בחזית המגרש (רחוב משולב 960): ריצוף לפי החתך, נתיב, תעלה, איים, אבן גן; קו הרחוב של חזית החומה להשוואה
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
     foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
@@ -93,7 +94,7 @@ src/environment/           סביבה (שכונה): מחליף את משטחי �
   controls.js              הצגה/הסתרה של השכנים, שקיפות מעטפות, מבט על השכונה
 data/
   manifest.json            רשימת קובצי הנתונים
-  site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source); פני הקרקע הסופיים של המגרש לפי גבהי הפיתוח בגרמושקה – development-heights.json (tools/extract_dev_heights.py, אחריו derive_site.py)
+  site/                    נתוני מגרש וסביבה (נוצרים ע"י tools/, כל רשומה עם source); פני הקרקע הסופיים של המגרש לפי גבהי הפיתוח בגרמושקה – development-heights.json (tools/extract_dev_heights.py, אחריו derive_site.py); הרחוב בחזית – front-street.json (tools/extract_front_street.py; DWG + חזית החומה הקדמית, אימות docs/verification/front-street.md)
   structure/               כלונסאות, קו מרתף, חפירה (tools/extract_structure.py); קורות/רצפות/קירות (tools/extract_framing.py); בריכה (tools/extract_pool.py); שלד הקומות (tools/extract_floor.py → floor-ground.json, floor-first.json, floor-roof.json); מדרגות ופילר (tools/extract_stairs.py → stairs.json); חומות היקפיות (tools/extract_perimeter.py → perimeter.json); פתחים (tools/extract_openings.py → ../architecture/openings.json + חיתוך קירות הבטון – להריץ אחרי extract_floor.py ו-extract_framing.py); בדיקה עצמית tools/overlay_check.py; בדיקת תקרות ומעקות מול התוכניות tools/plan_check.py → docs/verification/plan-check.json
   config/                  תגיות, שכבות, כלים, קבועי תצוגה, חוקי מעטפת שכנים
   environment/             lots.json, streets.json (נוצרים ע"י tools/environment/), config, קריאות ידניות, תצוגה, חומרים

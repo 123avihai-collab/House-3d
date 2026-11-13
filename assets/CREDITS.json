@@ -198,5 +198,17 @@
    1200,
    1200
   ]
+ },
+ "rectangular_paving_grey": {
+  "name": "Rectangular Paving (greyscale colour map – derived locally for the grey \"מלבן\" street pavers)",
+  "authors": {
+   "Dimitrios Savva": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/rectangular_paving",
+  "dimensions_mm": [
+   2000,
+   2000
+  ]
  }
 }

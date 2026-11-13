@@ -22,7 +22,8 @@
   "maxDistance_m": 70,
   "alwaysLayers": [
    "plotBoundary",
-   "northArrow"
+   "northArrow",
+   "frontStreetProfile"
   ],
   "_doc": "js/core/labels.js: labels of the current step only (mode \"step\"), within maxDistance_m of the camera; alwaysLayers always",
   "pointMarkerRadius_m": 0.12
@@ -403,5 +404,16 @@
    "label": "◼ שחור",
    "_doc": "כפתור 'שחור' בשורת גובה קיר: כל המילויים בשחור (תוכנית אדריכלית לתכנון ריהוט), קורות מעל החתך באפור"
   }
+ },
+ "frontStreet": {
+  "_doc": "רחוב בחזית (js/geometry/frontStreet.js) – קבועי תצוגה בלבד",
+  "paveLift_m": 0.004,
+  "gutterLift_m": 0.008,
+  "islandLift_m": 0.006,
+  "edgeAbovePave_m": 0.003,
+  "profileLift_m": 0.0,
+  "profileColor": "#ff7043",
+  "profileWidth_px": 2.4,
+  "labelLift_m": 0.45
  }
 }

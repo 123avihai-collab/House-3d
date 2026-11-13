@@ -156,6 +156,54 @@
       "roughness": 1.0,
       "envMapIntensity": 0.7,
       "_doc": "שכבת מילוי סומסום וחול מתחת לריצוף – טקסטורת אבנים קטנות (Poly Haven gravel_stones, CC0; מפת הצבע הובהרה לגוון בז' כדי שיהיה שונה מהבטון) כדי לזהות את השכבה; קנה מידה 1.2 מ' – תצוגה, לא מידת אבן"
+    },
+    "envFsWalk": {
+      "texture": "assets/textures/rectangular_paving_grey",
+      "size_m": 1.0,
+      "tint": "#b9b8b5",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8,
+      "_why": "אבן משתלבת 'מלבן' 20/8/10 בגוון אפור (נספח 003 פרט 14 – 'גוון לבחירה, לא ניתן לבחור את גוון הרחוב'); 10 אבנים × 0.10 מ' באריח הטקסטורה = 1.0 מ'"
+    },
+    "envFsLane": {
+      "texture": "assets/textures/rectangular_paving_grey",
+      "size_m": 1.0,
+      "tint": "#3c3c3e",
+      "roughness": 1.0,
+      "envMapIntensity": 0.7,
+      "_why": "אבן משתלבת 'מלבן' שחור 20/8/10 – נתיב הנסיעה (נספח 003 פרט 14)"
+    },
+    "envFsGutter": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 1.0,
+      "tint": "#cfccc4",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8,
+      "_why": "אבן תעלה דו-שיפועית 30/10/50 (בטון)"
+    },
+    "envFsEdge": {
+      "texture": "assets/textures/concrete_floor_01",
+      "size_m": 1.0,
+      "tint": "#a9a7a2",
+      "roughness": 1.0,
+      "envMapIntensity": 0.8,
+      "_why": "אבן גן 'רמות' אפור 12.5/18.75/50"
+    },
+    "envFsIsland": {
+      "texture": "assets/textures/dry_ground_01",
+      "size_m": 2.0,
+      "tint": "#8a6f55",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6,
+      "_why": "אי שתילה – אדמת גן"
+    },
+    "envFsBase": {
+      "texture": "assets/textures/gravel_stones",
+      "size_m": 1.0,
+      "tint": "#d6d0c4",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6,
+      "_why": "שולי הריצוף (מצע) – תצוגה בלבד, שכבות המבנה לא כתובות"
     }
   }
 }

@@ -143,6 +143,7 @@ body.walking #walkspeed { display: flex; }
 .lbl.h { background: rgba(255, 213, 79, .92); color: #222; }
 .lbl.h-plot { background: #ffd54f; font-weight: 700; }
 .lbl.h-street { background: rgba(176, 190, 197, .95); color: #111; }
+.lbl.h-front { background: rgba(255, 112, 67, .95); color: #111; }
 .lbl.h-zero { background: #7e57c2; color: #fff; font-weight: 700; }
 .lbl.contour { background: rgba(93, 64, 55, .85); }
 .lbl.parcel { background: rgba(255, 183, 77, .85); color: #222; direction: rtl; }

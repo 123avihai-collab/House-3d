@@ -134,6 +134,17 @@ if 'tilingCatalog' in D:
         keys = {r['room'] for r in D['tiling']['rooms']}
         for s_ in DS['strips']:
             if 'source' not in s_ or s_['room'] not in keys or len(s_['ringITM']) < 3 or not s_['area_m2'] > 0: errors.append(f'door strip {s_.get("id")} bad')
+# street in front of the lot (tools/extract_front_street.py)
+if 'frontStreet' in D:
+    F = D['frontStreet']
+    if 'source' not in F: errors.append('frontStreet without source')
+    for z in F['zones']:
+        if 'source' not in z: errors.append(f'frontStreet zone {z["id"]} without source')
+        if z['heights'] == 'derived' and z.get('heightStatus') != 'provisional': errors.append(f'frontStreet zone {z["id"]} derived heights not provisional')
+    if F['edgeStone'].get('status') != 'provisional': errors.append('frontStreet edge stone reveal is not in the sources – must stay provisional')
+    if abs(F['section']['measuredWidth_m'] - F['section']['total_m']) > 0.05: errors.append('frontStreet width differs from the typical section')
+    if abs(F['elevation']['chainOrigin']['endCheck']['deviation_m']) > 0.05: errors.append('frontStreet elevation chain does not close on corner 2420')
+    if any(abs(v / F['elevation']['nominal_pt_per_m'] - 1) > 0.01 for v in F['elevation']['segmentScale_pt_per_m']): errors.append('frontStreet elevation scale is not 1:100')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

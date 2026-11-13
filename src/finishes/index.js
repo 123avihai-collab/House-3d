@@ -17,7 +17,7 @@ import { PoolFinish } from '../tiling/pool.js';
 const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
-const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', unknown: 'לא מסווג' };
+const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', balcony: 'מרפסת', unknown: 'לא מסווג' };
 const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)', filler: 'מילוי תצוגה (סדק מ"מ, לא בכמויות)' };
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 'p' + (x >>> 0).toString(36); };
@@ -410,8 +410,8 @@ class Finishes {
         name: `${d.label} – ${g.outdoor ? 'חוץ' : FLOOR_HE[g.fl]}`, kind: 'floorLayer', id: g.l.id + '-' + g.fl,
         rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
           ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
-          ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #195)'],
-            ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #196)`])] : [])],
+          ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200)'],
+            ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)`])] : [])],
         source: g.outdoor ? 'data/finishes/floors/exterior-buildup.json; data/finishes/tiling/exterior.json (tools/finishes/derive_exterior.py)' : 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json',
         note: g.outdoor ? this.EX.buildUp._doc : this.BU._doc });
     }
@@ -686,7 +686,7 @@ class Finishes {
     sheet('קורות', [['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'שטח', 'סוג'], ...(this.P.beams || []).map(b => [b.beam, FLOOR_HE[b.floor], b.bottom, b.top, b.pergola ? 'כן' : '', b.area, tl(this.typeOf(b))])]);
     sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.wpAll().map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
     sheet('רצפות', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', ...this.BU.layers.map(l => l.label + " (מ')"), 'סוג אריח'],
-      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), this.tiling?.choice[r.room] ? `${this.tiling.sizeOf(this.tiling.choice[r.room]).label} ${this.tiling.finBy[this.tiling.choice[r.room].finish]?.label || ''}` : 'טרם הוחלט'])]);
+      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], r.zoneName || this.rooms[r.room]?.name || r.roomName || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), this.tiling?.choice[r.room] ? `${this.tiling.sizeOf(this.tiling.choice[r.room]).label} ${this.tiling.finBy[this.tiling.choice[r.room].finish]?.label || ''}` : 'טרם הוחלט'])]);
     const name = 'plaster-tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

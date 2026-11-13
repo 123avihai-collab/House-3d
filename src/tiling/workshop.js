@@ -45,7 +45,7 @@ export class TilingWorkshop {
     // zones: the room floors + the exterior paving zones (data/finishes/tiling/exterior.json – a sloped finish surface r.zAt)
     this.zones = [...F.TL.rooms, ...(F.EX?.rooms || [])].filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => {
       const tileLayer = r.layers.find(l => l.id === 'floorTile' || l.id === 'extTile');
-      return { key: r.room, r, floor: r.floor, name: (r.outdoor ? r.roomName : F.rooms[r.room]?.name || r.roomName) || 'ללא שם',
+      return { key: r.room, r, floor: r.floor, name: (r.outdoor ? r.roomName : r.zoneName || F.rooms[r.room]?.name || r.roomName) || 'ללא שם',
         // the zone with its doorway strips as one polygon (door-strips.json zones) – a tile across the threshold is one tile
         parts: (data.tilingDoorStrips?.zones?.[r.room] || r.parts).map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer,
         zTop: r.zAt ? (E, N) => r.zAt(E, N) + tileLayer.dz1 : () => tileLayer.z1 };   // top of the tile at (E, N)
@@ -357,7 +357,7 @@ export class TilingWorkshop {
         l.color ? h('i', { class: 'swc', style: `background:${l.color}` }) : h('i', { class: 'swc off' }), ' ', l.short || l.label);
     }));
     wrap.append(h('h4', {}, 'שכבות הרצפה'), chips(BU.layers), h('div', { class: 'muted' }, 'פנים – עוביים: ' + BU.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 100) + ' ס"מ' : 'השארית'}`).join(' · ') + ' – זמני (open-issues #163).'));
-    if (EX) wrap.append(chips(EX.buildUp.layers), h('div', { class: 'muted' }, 'חוץ – מעל רצפות הבטון החיצוניות: ' + EX.buildUp.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 1000) + ' מ"מ' : 'משתנה (בשיפוע)'}`).join(' → ') + '. פני הריצוף – לפי גבהי הפיתוח בהיתר (שיפוע 1.5% / 2%). ⚠ זמני – אין פרט ריצוף / איטום חוץ (open-issues #170, #195).'));
+    if (EX) wrap.append(chips(EX.buildUp.layers), h('div', { class: 'muted' }, 'חוץ – מעל רצפות הבטון החיצוניות: ' + EX.buildUp.layers.map(l => `${l.short || l.label} ${l.thickness_m != null ? f2(l.thickness_m * 1000) + ' מ"מ' : 'משתנה (בשיפוע)'}`).join(' → ') + '. פני הריצוף – לפי גבהי הפיתוח בהיתר (שיפוע 1.5% / 2%). ⚠ זמני – אין פרט ריצוף / איטום חוץ (open-issues #170, #200).'));
 
     // zones
     const byFl = {};
@@ -367,7 +367,7 @@ export class TilingWorkshop {
       Object.entries(byFl).flatMap(([fl, zs]) => [h('tr', { class: 'grp' }, h('td', { colspan: 4 }, FLOOR_HE[fl])), ...zs.map(z => {
         const c = this.choice[z.key], L = c ? this.layout(z.key) : null;
         return h('tr', { class: 'zone-row' + (z.key === this.sel ? ' sel' : ''), 'data-room': z.key, onclick: () => this.select(z.key) },
-          h('td', {}, z.name, z.r.outdoor && !z.r.check?.ok ? h('span', { class: 'bad', title: 'סתירה: פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #196)' }, ' ⛔') : null), h('td', {}, f2(z.r.area)),
+          h('td', {}, z.name, z.r.outdoor && !z.r.check?.ok ? h('span', { class: 'bad', title: 'סתירה: פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)' }, ' ⛔') : null), h('td', {}, f2(z.r.area)),
           h('td', {}, c ? [h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` }), ' ', this.sizeOf(c).label] : h('span', { class: 'muted' }, 'לא נבחר')),
           h('td', {}, L ? (L.q.slivers ? h('span', { class: 'bad' }, `⚠ ${L.q.slivers} צרים`) : L.q.narrow ? h('span', { class: 'mid' }, `${L.q.narrow} מתחת לשליש`) : '✓') : ''));
       })])));
@@ -442,8 +442,8 @@ export class TilingWorkshop {
       h('div', { class: 'muted' }, `פני בטון ${lv(r.slabTop)} (K-21, ${r.slab}) · פני ריצוף ${lv(r.finishMin)} עד ${lv(r.finishMax)} · שיפוע המישור ${f2(r.planeSlope_pct)}%`
         + (r.planeFallAzimuth_deg != null ? ` לכיוון ${Math.round(r.planeFallAzimuth_deg)}°` : '') + ` · ${r.spots.length} נקודות גובה מההיתר${r.dropped.length ? ` (${r.dropped.length} הוצאו – גובה גינה בשולי האזור)` : ''}.`),
       h('div', { class: 'muted' }, 'מתחת לאריח: ' + BU.layers.map(l => { const x = r.layers.find(y => y.id === l.id); return `${l.short} ${x.thickness_m == null || x.min_m != null ? `${f2(x.min_m * 100)}–${f2(x.max_m * 100)} ס"מ` : f2(x.thickness_m * 1000) + ' מ"מ'}`; }).join(' → ')),
-      r.check.ok ? null : h('div', { class: 'warn' }, `⛔ סתירה: בטון השיפועים יורד עד ${f2(r.check.fillMin_m * 100)} ס"מ (מינימום ${f2(r.check.minFill_m * 100)}) – פני הריצוף בהיתר נמוכים מפני הבטון ${lv(r.slabTop)} + השכבות. לבירור מול הקונסטרוקטור / האדריכל (open-issues #196).`),
-      h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #195).'));
+      r.check.ok ? null : h('div', { class: 'warn' }, `⛔ סתירה: בטון השיפועים יורד עד ${f2(r.check.fillMin_m * 100)} ס"מ (מינימום ${f2(r.check.minFill_m * 100)}) – פני הריצוף בהיתר נמוכים מפני הבטון ${lv(r.slabTop)} + השכבות. לבירור מול הקונסטרוקטור / האדריכל (open-issues #201).`),
+      h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
   }
   extRows(z) {
     const r = z.r, L = (id) => r.layers.find(l => l.id === id), lab = (id) => this.F.EX.buildUp.layers.find(l => l.id === id)?.short || id;
@@ -505,8 +505,8 @@ export class TilingWorkshop {
     const EX = this.F.EX;
     if (EX) sheet('שכבות חוץ', [['אזור', 'רצפה', 'שטח מ"ר', 'פני בטון', 'פני ריצוף מינ\'', 'פני ריצוף מקס\'', 'שיפוע %', ...EX.buildUp.layers.map(l => `${l.short} (ס"מ)`), 'בטון שיפועים מינ\' ס"מ', 'בטון שיפועים מקס\' ס"מ', 'בטון שיפועים מ"ק', 'איטום מ"ר', 'סתירה'],
       ...EX.rooms.map(r => [r.roomName, r.slab, r.area, r.slabTop, r.finishMin, r.finishMax, r.planeSlope_pct, ...EX.buildUp.layers.map(l => +((r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
-        +(r.check.fillMin_m * 100).toFixed(1), +(r.check.fillMax_m * 100).toFixed(1), r.fillVolume_m3, r.area, r.check.ok ? '' : 'פני הריצוף נמוכים מהבטון + השכבות (#196)']),
-      [], ['זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #195). פני הריצוף – גבהי הפיתוח בהיתר (data/finishes/tiling/exterior.json).']]);
+        +(r.check.fillMin_m * 100).toFixed(1), +(r.check.fillMax_m * 100).toFixed(1), r.fillVolume_m3, r.area, r.check.ok ? '' : 'פני הריצוף נמוכים מהבטון + השכבות (#201)']),
+      [], ['זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200). פני הריצוף – גבהי הפיתוח בהיתר (data/finishes/tiling/exterior.json).']]);
     if (this.F.pool) { const P = this.F.pool, q = P.quantities(), c = P.c;
       sheet('בריכה', [['פריט', 'כמות', 'יחידה', 'פירוט'],
         ['רצפת הבריכה (נטו)', +q.floor.toFixed(2), 'מ"ר', `${q.tile.label} · ${P.surfColor('floor').label}`],

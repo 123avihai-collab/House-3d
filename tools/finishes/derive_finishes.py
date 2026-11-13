@@ -190,7 +190,7 @@ def room_labels():
 LABELS = room_labels()
 WET_WORDS = ('רחצה', 'מקלחת', 'שירותים', 'כביסה')
 TYPE_HE = {'dry': 'יבש', 'wet': 'רטוב', 'kitchen': 'מטבח', 'mamad': 'ממ"ד', 'basement': 'מרתף', 'stairs': 'חדר מדרגות',
-           'court': 'חצר אנגלית', 'outdoor': 'חוץ', 'unknown': 'לא מסווג'}
+           'court': 'חצר אנגלית', 'outdoor': 'חוץ', 'balcony': 'מרפסת', 'unknown': 'לא מסווג'}
 NET = J('data/plumbing/network.json')
 FIX = [n for n in NET['nodes'] if n['kind'] in ('wc', 'shower', 'basin', 'washer', 'sink', 'kitchenPoint', 'floorDrain', 'drumTrap')]
 COURTS = [poly(z['footprintITM']) for z in GF['openZones'] if z['zone'] in ('courtyard', 'basementStairs')]
@@ -990,11 +990,30 @@ print('fillers:', len(FILLERS), round(sum(f['length'] * (f['z1'] - f['z0']) for 
 
 # ---------------------------------------------------------------- floors: area per room, skirting, the floor build-up layers (no plaster on floors)
 BU = J('data/finishes/floors/buildup.json')
+TZ = CFG.get('tilingZones', {})
+TZ_EX = set(TZ.get('excludeSlabs', {}))
 TILES = []
+
+
+def wall_skirting(fl, parts, z_at):
+    """skirting of a floor part by geometry: its outline along the walls standing on it, less the door / vitrine widths (a room mostly void, a balcony)"""
+    S, C = solids_at(fl, z_at)
+    W = unary_union([x['poly'] for x in S if x['kind'] in ('concrete', 'block', 'column')]).buffer(0.03)
+    L = sum(g.exterior.intersection(W).length for g in parts)
+    dw = sum(o['width_m'] for o in OP if o['floor'] == fl and o['kind'] in ('door', 'sliding', 'vitrine') and not o['id'].startswith('OC-')
+             and any(g.exterior.distance(Point(o['centerITM'])) < 0.4 for g in parts))
+    return max(0, L - dw)
+
+
 for room in ROOMS:
     fl = room['floor']; z = CFG['cuts'][fl]
-    own = [s for s in SLABS if s['top'] < z and s['top'] > z - 3.0]
+    own = [s for s in SLABS if s['top'] < z and s['top'] > z - 3.0 and s['id'] not in TZ_EX]
+    # the floor slab = the one under a sample point of the room; a room that is mostly void (the first-floor gallery round the
+    # double-height space – its sample point falls in the void): the slab under most of it
     top = max([s['top'] for s in own if s['poly'].buffer(0.02).contains(room['poly'].representative_point())] or [None]) if own else None
+    if top is None and room['type'] not in ('court', 'outdoor'):
+        cov = sorted(((s['poly'].intersection(room['poly']).area, s['top']) for s in own), reverse=True)
+        top = cov[0][1] if cov and cov[0][0] > 0.5 else None
     on = unary_union([s['poly'] for s in own if top is not None and abs(s['top'] - top) < 0.6]) if top is not None else Polygon()
     pc = room['poly'].intersection(on) if not on.is_empty else Polygon()
     faces = [f for f in FACES if f['room'] == room['key'] and f['side'] == 'in']
@@ -1011,13 +1030,47 @@ for room in ROOMS:
         for l in BU['layers']:
             th = l['thickness_m'] if l['thickness_m'] is not None else tot - fixed
             layers.append(dict(id=l['id'], z0=r3(zc), z1=r3(zc + th), thickness_m=r3(th), status=l['status'])); zc += th
-    TILES.append(dict(room=room['key'], floor=fl, roomName=room['name'], roomType=room['type'], area=r3(pc.area),
+    mostlyVoid = bool(parts) and room['area_m2'] - pc.area > 0.5 * room['area_m2']
+    if mostlyVoid: skirting = wall_skirting(fl, parts, z)   # the faces of such a room run round the void too – only the walls on its floor count
+    TILES.append(dict(room=room['key'], floor=fl, roomName=room['name'], zoneName=TZ.get('names', {}).get(room['key']), roomType=room['type'], area=r3(pc.area),
                       void_m2=r3(room['area_m2'] - pc.area), slabTop=top, finishRel=ff, buildUp_m=r3(ff - top) if (ff is not None and top is not None) else None,
                       skirting_m=r3(max(0, skirting)) if room['type'] not in ('wet', 'court', 'outdoor') else 0,
+                      **(dict(skirtingBy='geometry') if mostlyVoid else {}),
                       wallTiling=dict(height_m=None, note='גובה חיפוי קירות – טרם הוחלט') if wet or room['type'] == 'kitchen' else None,
                       parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(h.coords)[:-1]] for h in g.interiors]) for g in parts],
                       ringITM=[[r3(x), r3(y)] for x, y in list(max(parts, key=lambda g: g.area).exterior.coords)[:-1]] if parts else [],
                       layers=layers, tileType=None, status='prep'))
+# balconies (13.11.2026): the slab of the floor outside the house – the parts holding an architect's label "מרפסת" (Revit, G-ANNO-TEXT).
+# Outline = the slab edge less the walls standing on it and the rooms; finish level – config tilingZones.balconies (the permit drawing)
+for fl, B in TZ.get('balconies', {}).items():
+    z = CFG['cuts'][fl]; ff = B['finishRel']
+    own = [s for s in SLABS if s['top'] < z and s['top'] > z - 3.0 and s['id'] not in TZ_EX]
+    S, C = solids_at(fl, B['wallCut'])
+    W = unary_union([x['poly'] for x in S] + [c['poly'] for c in C])
+    R = unary_union([r['poly'] for r in ROOMS if r['floor'] == fl]).buffer(0.001)
+    out = unary_union([s['poly'] for s in own]).difference(W).difference(R)
+    labs = [l for l in LABELS.get(fl, []) if B['label'] in l['text']]
+    # strips narrower than sliverMax_m between the slab edge and a wall face (a few mm / cm of drawing tolerance) are not floor: an opening removes them
+    sv = B.get('sliverMax_m', 0.05) / 2
+    out = out.buffer(-sv, join_style=2).buffer(sv, join_style=2).intersection(out)
+    regs = [clean(g) for g in getattr(out, 'geoms', [out]) if g.geom_type == 'Polygon' and g.area > 0.5 and any(g.contains(Point(l['itm'])) for l in labs)]
+    for i, g in enumerate(sorted(regs, key=lambda g: -g.centroid.y)):
+        top = max(s['top'] for s in own if s['poly'].intersection(g).area > 0.5 * g.area)
+        key = f"{fl}@balcony-{i + 1}"   # numbered north to south (stable: the saved tile choices are keyed by it)
+        side = (B.get('names') or [])[i] if i < len(B.get('names') or []) else f"{B['label']} {i + 1}"
+        layers = []
+        tot = ff - top; fixed = sum(l['thickness_m'] for l in BU['layers'] if l['thickness_m']); zc = top
+        for l in BU['layers']:
+            th = l['thickness_m'] if l['thickness_m'] is not None else tot - fixed
+            layers.append(dict(id=l['id'], z0=r3(zc), z1=r3(zc + th), thickness_m=r3(th), status='provisional' if l['status'] != 'placeholder' else l['status'])); zc += th
+        TILES.append(dict(room=key, floor=fl, roomName=side, zoneName=side, roomType='balcony', area=r3(g.area), void_m2=0, slabTop=top, finishRel=ff,
+                          finishStatus=B['status'], finishSource=B['source'], buildUp_m=r3(ff - top), skirting_m=r3(wall_skirting(fl, [g], B['wallCut'])), skirtingBy='geometry',
+                          wallTiling=None, labels=sorted({l['text'] for l in labs if g.contains(Point(l['itm']))}),
+                          parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(h.coords)[:-1]] for h in g.interiors])],
+                          ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], layers=layers, tileType=None, status='prep',
+                          source=f"{SLAB_BY[max(own, key=lambda s: s['poly'].intersection(g).area)['id']]['src']} (פני התקרה); תווית '{B['label']}' – תוכנית האדריכל; מפלס הריצוף: {B['source']}"))
+        print('balcony', key, side, r3(g.area), 'm2, skirting', TILES[-1]['skirting_m'])
+
 # wet floors: the waterproofing on the screed, under the adhesive (provisional – no floor detail)
 for t in TILES:
     if t['roomType'] != 'wet' or not t['layers']: continue
@@ -1122,7 +1175,7 @@ def export_xlsx(path='docs/quantities/plaster-quantities.xlsx'):
     sheet('איטום', ['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח', 'מעמד'],
           [[FLOOR_HE[w['floor']], RN.get(w['room']), w.get('owner', 'רצפה'), w['rule'], w.get('z0', w.get('z')), w.get('z1'), w['area'], w['status']] for w in WPROOF], [12, 30, 10, 30, 8, 8, 8, 10])
     sheet('רצפות', ['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'חלל (בלי רצפה) מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', 'סומסום מ\'', 'טיט/מדה מ\'', 'דבק מ\'', 'אריח מ\'', 'סוג אריח'],
-          [[FLOOR_HE[t['floor']], RN.get(t['room']), TYPE_HE.get(t['roomType']), t['area'], t['void_m2'], t['skirting_m'], t['slabTop'], t['finishRel']] +
+          [[FLOOR_HE[t['floor']], t.get('zoneName') or RN.get(t['room']), TYPE_HE.get(t['roomType']), t['area'], t['void_m2'], t['skirting_m'], t['slabTop'], t['finishRel']] +
            [next((l['thickness_m'] for l in t['layers'] if l['id'] == i), None) for i in ('floorFill', 'floorScreed', 'floorAdhesive', 'floorTile')] + ['טרם הוחלט'] for t in TILES],
           [12, 30, 12, 10, 12, 10, 9, 9, 9, 9, 9, 9, 12])
     os.makedirs(os.path.join(ROOT, os.path.dirname(path)), exist_ok=True)

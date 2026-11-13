@@ -33,6 +33,16 @@
      "visible": true
     },
     {
+     "id": "gardenFill",
+     "label": "גינה: מילוי אדמה מקומית (OC-17)",
+     "visible": true
+    },
+    {
+     "id": "gardenBase",
+     "label": "גינה: מצע מהודק 10 ס\"מ (OC-17)",
+     "visible": true
+    },
+    {
      "id": "existingOverlay",
      "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
      "visible": false

@@ -131,7 +131,7 @@ if 'tilingCatalog' in D:
     if 'tilingLayout' in D and 'source' not in D['tilingLayout']: errors.append('tiling layout without source')
     DS = D.get('tilingDoorStrips')
     if DS:
-        keys = {r['room'] for r in D['tiling']['rooms']}
+        keys = {r['room'] for r in D['tiling']['rooms']} | {r['room'] for r in (D.get('tilingExterior') or {}).get('rooms', [])}   # an outside door → the exterior zone
         for s_ in DS['strips']:
             if 'source' not in s_ or s_['room'] not in keys or len(s_['ringITM']) < 3 or not s_['area_m2'] > 0: errors.append(f'door strip {s_.get("id")} bad')
 # street in front of the lot (tools/extract_front_street.py)

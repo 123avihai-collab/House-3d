@@ -16,6 +16,7 @@ import { PoolFinish } from '../tiling/pool.js';
 
 const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
+const inRing = (ring, x, y) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
 const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', balcony: 'מרפסת', unknown: 'לא מסווג' };
 const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)', filler: 'מילוי תצוגה (סדק מ"מ, לא בכמויות)' };
@@ -131,7 +132,8 @@ class Finishes {
   layerZ(r, l, end) {
     if (!r.zAt) return l[end];
     const dz = end === 'z0' ? l.dz0 : l.dz1;
-    if (dz == null) return r.slabTop;
+    // the bottom of the slope fill: the slab – a part with its own concrete level (the pool deck, exterior.json slabParts)
+    if (dz == null) return r.slabParts?.length ? (E, N) => r.slabParts.find(sp => inRing(sp.ringITM, E, N))?.slabTop ?? r.slabTop : r.slabTop;
     return (E, N) => r.zAt(E, N) + dz;
   }
   quadTris(q, off = 0, n = null) {   // q: 4 corners [E, N, z]; optional offset along a plan normal

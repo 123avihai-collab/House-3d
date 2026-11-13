@@ -69,11 +69,37 @@ def surface(pts):
     return S, pz, f, used, dropped
 
 
+def pool_deck():
+    """the paved deck around the pool that is in no K-21 slab: the lot inside the boundary walls, less every ground slab,
+    open zone, house wall and the pool openings (pool + overflow gutter, cover channel, balance pit) – the pieces touching the pool"""
+    from shapely.ops import unary_union
+    lot = Polygon(J('data/site/plot-5187.json')['ring'])
+    walls = unary_union([Polygon(w['ringITM']) for w in J('data/structure/perimeter.json')['walls']])
+    slabs = unary_union([Polygon(s['footprintITM'], s.get('holesITM') or []) for s in GF['slab']])
+    oz = unary_union([Polygon(z['footprintITM']) for z in GF['openZones']])
+    hw = unary_union([Polygon(w['footprintITM'], w.get('holesITM') or []) for w in GF['walls']])
+    PO = J('data/structure/pool.json'); g, ch, tk = PO['gutter'], PO['channel'], PO['tank']
+    openings = unary_union([Polygon(g['ringOuterITM']), Polygon(ch['outerITM']), Polygon(tk['outerITM'])])
+    rest = lot.difference(walls).difference(slabs).difference(oz).difference(hw).difference(openings).buffer(-0.01, join_style=2).buffer(0.01, join_style=2)
+    near = openings.buffer(0.05)
+    return [p for p in getattr(rest, 'geoms', [rest]) if p.intersects(near) and p.area > 0.5], PO['pool']['deckSlabTop'] - H0
+
+
 def main():
     zones, checks = [], []
     for sl in GF['slab']:
         if sl['id'] not in BU['slabs']: continue
         P = Polygon(sl['footprintITM'], sl.get('holesITM') or [])
+        ZO0 = BU.get('zones', {}).get(sl['id'], {})
+        slabParts = []
+        if ZO0.get('extendPoolDeck'):   # the pool deck joins this slab's zone – one surface (Avihai 13.11)
+            from shapely.ops import unary_union
+            deck, deckTop = pool_deck()
+            U = unary_union([P] + deck).buffer(0.002, join_style=2).buffer(-0.002, join_style=2)
+            if U.geom_type != 'Polygon': raise SystemExit(f"{sl['id']}: the pool deck does not join the slab")
+            for dp in deck: slabParts.append(dict(ringITM=[[r3(x), r3(y)] for x, y in list(dp.exterior.coords)[:-1]], slabTop=r3(deckTop), area=r3(dp.area),
+                                                 source='data/structure/pool.json pool.deckSlabTop (חתכי הבריכה: "משטח בטון 280.33"); השטח – tools/finishes/derive_exterior.py pool_deck()'))
+            P = U
         inc = FIT.get('include', {}).get(sl['id'], {}).get('handles', [])
         near = []
         for sp in spots + [x for x in DH['spots'] if x['handle'] in inc and x.get('reason')]:
@@ -97,11 +123,13 @@ def main():
             for j in range(int((y1 - y0) / g) + 1):
                 E, N = x0 + (i + 0.5) * g, y0 + (j + 0.5) * g
                 if P.contains(Point(E, N)): samp.append((E, N, f(E, N)))
-        for E, N in sl['footprintITM']: samp.append((E, N, f(E, N)))
+        for E, N in list(P.exterior.coords)[:-1]: samp.append((E, N, f(E, N)))
         fz = [s_[2] for s_ in samp]
-        inner = [s_[2] for s_ in samp[:len(samp) - len(sl['footprintITM'])]] or fz
-        fill = [v - STACK - top for v in fz]
-        fmean = sum(inner) / len(inner) - STACK - top
+        inner = [s_[2] for s_ in samp[:len(samp) - (len(P.exterior.coords) - 1)]] or fz
+        slabAt = lambda E, N: next((sp_['slabTop'] for sp_ in slabParts if Polygon(sp_['ringITM']).buffer(0.005).contains(Point(E, N))), top)
+        fill = [v - STACK - slabAt(E, N) for E, N, v in samp]
+        inn = samp[:len(samp) - (len(P.exterior.coords) - 1)] or samp
+        fmean = sum(v - STACK - slabAt(E, N) for E, N, v in inn) / len(inn)
         slope = math.hypot(S['gE'], S['gN']) * 100
         layers, off = [], -STACK
         for l in BU['layers']:
@@ -118,7 +146,8 @@ def main():
         z = dict(room='ext:' + sl['id'], floor='ground', outdoor=True, roomName=sl['zoneLabel'], roomType='paving', slab=sl['id'],
                  area=r3(P.area), void_m2=0.0, slabTop=top, finishRel=r3(sum(inner) / len(inner)), finishMin=r3(min(fz)), finishMax=r3(max(fz)),
                  buildUp_m=r3(sum(inner) / len(inner) - top), skirting_m=0, wallTiling=None,
-                 parts=[dict(ringITM=sl['footprintITM'], holesITM=sl.get('holesITM') or [])],
+                 parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(P.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(hh.coords)[:-1]] for hh in P.interiors])],
+                 slabParts=slabParts, slabArea_m2=r3(sl['area_m2']),
                  surface=S, planeSlope_pct=round(slope, 2), planeFallAzimuth_deg=None if fall is None else round(fall, 1),
                  spots=[sp(p) for p in used], dropped=[sp(p) for p in dropped],
                  layers=layers, fillVolume_m3=r3(P.area * fmean), tileType=None,

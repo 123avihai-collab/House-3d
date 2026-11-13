@@ -33,5 +33,12 @@
  ],
  "unitConduitColor": "#c62828",
  "unitPanelColor": "#e3e5e8",
- "surfaceConduitColor": "#9e9e9e"
+ "surfaceConduitColor": "#9e9e9e",
+ "trayColor": "#e53935",
+ "branchColor": "#fb8c00",
+ "branchWidth_m": 0.1,
+ "branchHeight_m": 0.04,
+ "boxSize_m": 0.3,
+ "voidBoxColor": "#f5f5f0",
+ "voidBoxOpacity": 0.35
 }

@@ -185,5 +185,48 @@ export function buildElectrical(ctx) {
       if (surf.children.length) addU(surf, { floor: 'unit', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: `${f.id} – צנרת גלויה ביחידה`, kind: 'elUnitSurface', id: f.id + '-S', rows: frows, source: f.source, note: 'הצעה בלבד – ממתין לאישור' });
     }
   }
-  return { items, supply: S, units: UN };
+  // ---- ח1ג: first-floor circuits from the main panel – riser above the panel, trunk in the plenum, one branch per room
+  const FR = data.electricalFirstRiser;
+  if (FR) {
+    const fstep = Object.fromEntries(FR.steps.map(s => [s.step, s]));
+    const frow = (id) => ['שלב ביצוע', fstep[id] ? `${fstep[id].n}. ${fstep[id].title}` : id];
+    const addF = (grp, tags, meta) => { scene.add(grp); const it = registry.add(grp, tags, { ...meta, rows: [...(meta.rows || []), frow(tags.step)] }); it.meta.electrical = true; items.push(it); return it; };
+    const Lv = FR.levels, B = FR.bundle, z = Lv.routeAbs;
+    const trayM = tint(std(D.trayColor, 0.55, 0.2)), brM = tint(std(D.branchColor, 0.55, 0.1));
+    const tray = (g, a, b, w, hgt, m) => g.add(slabAlong(a, b, w, z - hgt / 2, z + hgt / 2, m));
+    const provRows = [['מעמד', 'הצעה – זמני'], ['החלטה', FR.decision], ['הנמכה (זמני)', `${fmtH(Lv.droppedCeilingAbs)} – ${Lv.droppedCeiling.note}`],
+      ['רצפה גמורה קומה א\'', `${fmtH(Lv.firstFloorFinishAbs)} – ${Lv.firstFloorFinishSource}`], ['תקרת הגג (תחתית)', fmtH(Lv.roofSoffitAbs)], ['גובה התוואי', `${fmtH(z)} (חלל טכני ${Math.round(Lv.plenum_m * 100)} ס"מ)`], ['צנרת', `${B.conduits} – ${B.note}`]];
+    // riser: in front of the niche wall, from the panel top to the plenum (inside the joinery cabinet, through FS2, closed trunking above)
+    {
+      const g = new THREE.Group(); const r = FR.riser;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(B.riserWidth_m, r.toAbs - r.fromAbs, B.trayHeight_m), trayM);
+      m.position.copy(L([r.planITM[0], r.planITM[1], (r.fromAbs + r.toAbs) / 2]));
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(r.normalITM[0], 0, -r.normalITM[1]).normalize()); m.castShadow = true; g.add(m);
+      g.add(collar(L([r.planITM[0], r.planITM[1], (Lv.fs2TopAbs + Lv.fs2BottomAbs) / 2]), new THREE.Vector3(0, 1, 0), B.riserWidth_m / 2 + 0.03, Lv.fs2TopAbs - Lv.fs2BottomAbs + 0.06, sleeveM));
+      label(g, L([r.planITM[0], r.planITM[1], r.toAbs + D.labelOffset_m]), `עלייה לקומה א' · ${r.height_m.toFixed(1)} מ'`);
+      addF(g, { floor: 'ground', system: 'electrical', stage: 'ceiling', layer: 'elSupply', step: 'finishes' }, { name: 'עלייה לקומה א\' מעל הלוח הראשי', kind: 'elFirstRiser', id: 'FR-RISER',
+        rows: [...provRows, ['עלייה', `${fmtH(r.fromAbs)} → ${fmtH(r.toAbs)} (${r.height_m.toFixed(2)} מ')`], ['קורה B-25', `הצרור עולה לפניה – ${r.beamB25Gap_m.toFixed(2)} מ' מפני הקורה; לא חודר לקורה`], ['רצפה', `שרוולים ב-${r.throughSlab}`], ['הערה', r.note]],
+        source: FR.source, note: 'הצעה בלבד – ממתין לאישור' });
+    }
+    // trunk in the plenum + gypsum box over the void
+    {
+      const g = new THREE.Group(), t = FR.trunk.planITM;
+      for (let i = 0; i < t.length - 1; i++) tray(g, t[i], t[i + 1], B.trayWidth_m, B.trayHeight_m, trayM);
+      const dp = FR.distribution.planITM;
+      const bx = new THREE.Mesh(new THREE.BoxGeometry(D.boxSize_m, D.boxSize_m * 0.5, D.boxSize_m), std('#263238', 0.5, 0.3)); bx.position.copy(L([dp[0], dp[1], z])); g.add(bx);
+      label(g, L([dp[0], dp[1], z + D.labelOffset_m]), 'תיבת חלוקה – קומה א\'');
+      addF(g, { floor: 'first', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: 'צרור מעגלי קומה א\' בחלל הטכני', kind: 'elFirstTrunk', id: 'FR-TRUNK',
+        rows: [...provRows, ['אורך', `${FR.trunk.length_m.toFixed(2)} מ', מתוכם ${FR.trunk.overVoid_m.toFixed(2)} מ' מעל חלל (סינר גבס)`], ['פתחים בקירות בלוקים', FR.trunk.blockWalls.join(', ') || '—'], ['תיבת חלוקה', FR.distribution.name], ['הערה', FR.trunk.note]],
+        source: FR.source, note: 'הצעה בלבד – ממתין לאישור' });
+    }
+    // one branch per room (to just inside the room door)
+    for (const br of FR.branches) {
+      const g = new THREE.Group(), q = br.planITM;
+      for (let i = 0; i < q.length - 1; i++) tray(g, q[i], q[i + 1], D.branchWidth_m, D.branchHeight_m, brM);
+      addF(g, { floor: 'first', system: 'electrical', stage: 'finishes', layer: 'elSupply', step: 'finishes' }, { name: `הסתעפות לחדר – דלת ${br.door}`, kind: 'elFirstBranch', id: `FR-${br.door}`,
+        rows: [...provRows, ['לחדר', `${br.door} – ${br.doorName}`], ['אורך', `${br.length_m.toFixed(2)} מ'`], ['פתחים בקירות', br.blockWalls.join(', ') || '—'], ['הערה', 'הסתעפות סכמטית עד פנים החדר; הפיזור לנקודות – בשלב הנקודות (ח4)']],
+        source: FR.source, note: 'הצעה בלבד – ממתין לאישור' });
+    }
+  }
+  return { items, supply: S, units: UN, firstRiser: FR };
 }

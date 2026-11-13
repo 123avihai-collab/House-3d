@@ -622,6 +622,7 @@ export class UI {
   }
 
   panel_electric() {
+    const coordsH = (app, H) => app.coords.fmtH(H);
     const { app } = this; const el = app.data.tools.electrical;
     const S = app.data.electricalSupply, ED = app.data.electricalDisplay, E = app.modules.electrical;
     const goStep = (st) => {   // construction step of the supply + only the systems that matter for it, then frame the feeder
@@ -647,7 +648,15 @@ export class UI {
       h('div', { class: 'list' }, UN.units.map(u => h('button', { class: 'li', onclick: () => {
         const cur = app.store.get(); app.store.set({ stageIndex: app.registry.stepById('finishes'), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, plumbing: { ...(cur.plumbing || {}), xray: true }, showHidden: true }, { label: 'elUnit' });
         const it = E?.items.find(i => i.meta.id === u.panel.id); if (it) app.tools.search.show(it); } }, `הצג את ${u.panel.id}`)))) : null;
-    return h('div', {}, supply, units,
+    const FR = app.data.electricalFirstRiser;
+    const first = FR ? h('div', {},
+      h('h4', {}, "ח1ג – מעגלי קומה א' מהלוח הראשי (הצעה)"),
+      h('table', { class: 'kv' }, tr('עלייה מעל הלוח', `${FR.riser.height_m.toFixed(1)} מ' – ליד קורה B-25, דרך FS2`), tr('צרור בחלל הטכני', `${FR.trunk.length_m.toFixed(1)} מ' (${FR.trunk.overVoid_m.toFixed(1)} מ' מעל חלל)`),
+        tr('הסתעפויות', FR.branches.map(b => `${b.door} ${b.length_m.toFixed(1)} מ'`).join(' · ')), tr('הנמכה (זמני)', coordsH(app, FR.levels.droppedCeilingAbs))),
+      h('div', { class: 'list' }, h('button', { class: 'li', onclick: () => {
+        const cur = app.store.get(); app.store.set({ stageIndex: app.registry.stepById('finishes'), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, showHidden: true }, { label: 'elFirst' });
+        const it = E?.items.find(i => i.meta.id === 'FR-TRUNK'); if (it) app.tools.search.show(it); } }, "הצג את העלייה לקומה א'"))) : null;
+    return h('div', {}, supply, units, first,
       h('h4', {}, 'נקודות חשמל ', soon()),
       h('p', { class: 'muted' }, 'הצבת שקעים, מפסקים, נקודות תאורה ותקשורת לפי גבהים סטנדרטיים, עם כתב כמויות נקודות.'),
       h('div', { class: 'list' }, el.pointTypes.map(p => h('button', { class: 'li na', disabled: true }, p.label))),

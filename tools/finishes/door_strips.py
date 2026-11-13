@@ -5,7 +5,7 @@ belong to the floor of the big space, e.g. the corridor belongs to the central s
 The room floors (data/finishes/tiling/surfaces.json) stop at the wall faces, so the floor inside the wall thickness under
 every door / vitrine is in no zone. The strip is taken from the door jambs of the plaster data (data/finishes/plaster/
 surfaces.json reveals, part "jamb" – both sides of the opening, through the wall thickness, from the real wall geometry):
-convex hull of the jambs' bottom edges at slab level, minus the room floors of that storey (only the gap is left).
+bounding rectangle of the jambs' bottom edges at slab level (ק71: not the hull – no wedge where one jamb is shallower), minus the room floors of that storey (only the gap is left).
 Each strip joins the adjacent zone with the largest floor area (the main space – Avihai's rule).
 
 Output: data/finishes/tiling/door-strips.json
@@ -50,7 +50,9 @@ for rv in P['reveals']:
         if zb > slab + 0.05: continue          # a window / a sill above the floor: no floor strip
         pts += [(p[0], p[1]) for p in q['q'] if abs(p[2] - zb) < 1e-3]
     if len(pts) < 3: continue
-    hull = MultiPoint(pts).convex_hull
+    # the bounding rectangle of the jambs, not their hull: where one jamb is shallower than the other (the pocket of the
+    # ממ"ד sliding door, G21) the hull is a trapezoid and leaves a wedge between the strip and the room floor (ק71)
+    hull = MultiPoint(pts).minimum_rotated_rectangle
     if hull.area < MIN_AREA: continue
     gap = hull.difference(unary_union([polys[r['room']] for r in rs]))
     parts = [g for g in getattr(gap, 'geoms', [gap]) if g.area >= MIN_AREA and g.geom_type == 'Polygon']

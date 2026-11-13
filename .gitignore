@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 # Permit sheet (file contains the owners' names) – not uploaded by the owner; kept local only
 sources/permit/
+# agent worktrees (temporary)
+.claude/worktrees/

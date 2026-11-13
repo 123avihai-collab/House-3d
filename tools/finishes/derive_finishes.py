@@ -1046,7 +1046,11 @@ for fl, B in TZ.get('balconies', {}).items():
     z = CFG['cuts'][fl]; ff = B['finishRel']
     own = [s for s in SLABS if s['top'] < z and s['top'] > z - 3.0 and s['id'] not in TZ_EX]
     S, C = solids_at(fl, B['wallCut'])
-    W = unary_union([x['poly'] for x in S] + [c['poly'] for c in C])
+    # the concrete base under the railing ("מסד בטון" in the architect's plan) = the upstand beams of the slab (K-31: O.K above the slab top,
+    # e.g. B-10 / B-17 / B-18 30/70, +4.15) – no tiles on them
+    st = max(s['top'] for s in own)
+    UP = [b for b in BEAMS if b['topRel'] > st + 0.05 and b['bottomRel'] < st]
+    W = unary_union([x['poly'] for x in S] + [c['poly'] for c in C] + [beam_rect(b) for b in UP])
     R = unary_union([r['poly'] for r in ROOMS if r['floor'] == fl]).buffer(0.001)
     out = unary_union([s['poly'] for s in own]).difference(W).difference(R)
     labs = [l for l in LABELS.get(fl, []) if B['label'] in l['text']]
@@ -1065,7 +1069,7 @@ for fl, B in TZ.get('balconies', {}).items():
             layers.append(dict(id=l['id'], z0=r3(zc), z1=r3(zc + th), thickness_m=r3(th), status='provisional' if l['status'] != 'placeholder' else l['status'])); zc += th
         TILES.append(dict(room=key, floor=fl, roomName=side, zoneName=side, roomType='balcony', area=r3(g.area), void_m2=0, slabTop=top, finishRel=ff,
                           finishStatus=B['status'], finishSource=B['source'], buildUp_m=r3(ff - top), skirting_m=r3(wall_skirting(fl, [g], B['wallCut'])), skirtingBy='geometry',
-                          wallTiling=None, labels=sorted({l['text'] for l in labs if g.contains(Point(l['itm']))}),
+                          wallTiling=None, curbs=sorted(b['id'] for b in UP if beam_rect(b).buffer(0.01).intersects(g)), labels=sorted({l['text'] for l in labs if g.contains(Point(l['itm']))}),
                           parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], holesITM=[[[r3(x), r3(y)] for x, y in list(h.coords)[:-1]] for h in g.interiors])],
                           ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], layers=layers, tileType=None, status='prep',
                           source=f"{SLAB_BY[max(own, key=lambda s: s['poly'].intersection(g).area)['id']]['src']} (פני התקרה); תווית '{B['label']}' – תוכנית האדריכל; מפלס הריצוף: {B['source']}"))

@@ -235,8 +235,18 @@ class Finishes {
     const def = Object.fromEntries(this.BU.layers.map(l => [l.id, l]));
     for (const g of Object.values(byLayer)) {
       const d = def[g.l.id];
-      const mat = d.color ? this.mat(d.color) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false });
+      // a textured layer (the sumsum + sand fill: small stones – data/materials/materials.json) gets UVs in metres:
+      // top / bottom faces from plan, sides along the edge – so the layer is recognisable in a section / interior view
+      const tex = d.material ? this.ctx.materials.get(d.material) : null; if (tex) tex.side = THREE.DoubleSide;
+      const mat = tex || (d.color ? this.mat(d.color) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false }));
       const m = this.mesh(g.pts, g.map, mat);
+      if (tex) {
+        const P = m.geometry.attributes.position.array, N = m.geometry.attributes.normal.array, uv = new Float32Array(P.length / 3 * 2);
+        for (let i = 0, k = 0; i < P.length; i += 3, k += 2) {
+          if (Math.abs(N[i + 1]) > 0.5) { uv[k] = P[i]; uv[k + 1] = P[i + 2]; } else { uv[k] = Math.abs(N[i]) > Math.abs(N[i + 2]) ? P[i + 2] : P[i]; uv[k + 1] = P[i + 1]; }
+        }
+        m.geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      }
       const grp = new THREE.Group(); grp.add(m);
       if (!d.color) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineBasicMaterial({ color: '#90a4ae' })); e.userData.keep = true; grp.add(e); }
       const rs = this.TL.rooms.filter(r => g.rooms.has(r.room)), area = rs.reduce((a, r) => a + r.area, 0);

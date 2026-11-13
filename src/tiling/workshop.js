@@ -46,7 +46,8 @@ export class TilingWorkshop {
     this.zones = [...F.TL.rooms, ...(F.EX?.rooms || [])].filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => {
       const tileLayer = r.layers.find(l => l.id === 'floorTile' || l.id === 'extTile');
       return { key: r.room, r, floor: r.floor, name: (r.outdoor ? r.roomName : F.rooms[r.room]?.name || r.roomName) || 'ללא שם',
-        parts: r.parts.map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer,
+        // the zone with its doorway strips as one polygon (door-strips.json zones) – a tile across the threshold is one tile
+        parts: (data.tilingDoorStrips?.zones?.[r.room] || r.parts).map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer,
         zTop: r.zAt ? (E, N) => r.zAt(E, N) + tileLayer.dz1 : () => tileLayer.z1 };   // top of the tile at (E, N)
     });
     this.zoneBy = Object.fromEntries(this.zones.map(z => [z.key, z]));

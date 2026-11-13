@@ -81,6 +81,8 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
     }
     r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile').length;
+    r.ext.changeMarks = a.registry.items.filter(i => i.meta.kind === 'changeMark').length; r.ext.changeWant = EXR.filter(x => x.change).length;
+    for (const x of EXR) if (x.surface.minZ != null && x.check.fillMin_m < x.check.minFill_m - 1e-6) r.ext.bad.push([x.room, 'below K-21 minimum']);
     W.select(k);
     // "הצג חלוקה": the button in the panel, one shared uniform (no rebuild), back off
     const items0 = a.registry.items.filter(i => i.meta.kind === 'tiles').length;
@@ -100,7 +102,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     fail(name, 'workshop check failed', { ...info, out: undefined });
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
-  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones) fail(name, 'exterior paving check failed', info.ext);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant) fail(name, 'exterior paving check failed', info.ext);
   // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
   const pool = await page.evaluate(async () => {
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };

@@ -411,9 +411,24 @@ class Finishes {
         rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
           ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
           ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200)'],
+            ...rs.filter(r => r.change).map(r => [`🔴 ${r.change}`, `${r.roomName} (${r.slab}): ${r.changeReason}`]),
             ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)`])] : [])],
         source: g.outdoor ? 'data/finishes/floors/exterior-buildup.json; data/finishes/tiling/exterior.json (tools/finishes/derive_exterior.py)' : 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json',
         note: g.outdoor ? this.EX.buildUp._doc : this.BU._doc });
+    }
+    // an exterior zone marked for change (owner-changes.json – e.g. OC-16, the parking kept to K-21): red outline + tag
+    for (const r of (this.EX?.rooms || []).filter(x => x.change)) {
+      const col = this.ctx.data.display.ownerChangeColor || '#e53935', grp = new THREE.Group(), pts = [];
+      for (const p of r.parts) { const ring = p.ringITM;
+        for (let i = 0; i < ring.length; i++) { const a = ring[i], b = ring[(i + 1) % ring.length], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+          for (let k = 0; k < n; k++) { const A = [a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n], B = [a[0] + (b[0] - a[0]) * (k + 1) / n, a[1] + (b[1] - a[1]) * (k + 1) / n];
+            pts.push(...this.V(A[0], A[1], r.zAt(...A) + 0.02), ...this.V(B[0], B[1], r.zAt(...B) + 0.02)); } } }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      const ln = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: col, depthTest: false })); ln.renderOrder = 9; ln.userData.keep = true; grp.add(ln);
+      let cx = 0, cy = 0; const ring = r.parts[0].ringITM; ring.forEach(([x, y]) => { cx += x; cy += y; }); cx /= ring.length; cy /= ring.length;
+      const d = h('div', { class: 'lbl oc-tag' }, `${r.change} – לשינוי: ${r.roomName}`);
+      const o = new CSS2DObject(d); o.position.set(...this.V(cx, cy, r.zAt(cx, cy) + 0.3)); o.userData.annotation = true; grp.add(o);
+      this.add(grp, { floor: r.floor, step: 'tiling', layer: 'extTile' }, { name: `${r.change} – ${r.roomName} (לשינוי)`, kind: 'changeMark', id: 'chg-' + r.slab, pickable: false });
     }
     this.tiling?.build3D();
     this.floorItems = this.items.slice(n0);

@@ -214,10 +214,12 @@ def main():
     # above ±0.00), so the first riser off the finished ground floor and the last riser onto the finished first floor are 17.5
     # like all the others. The flight stands on the ground slab (-0.15) – the 15 cm floor build-up abuts riser 16 – and
     # bears on the ground ceiling edge (FS1 +3.70) at riser 37.
-    # Design (proposal): two straight flights with a soffit parallel to the pitch line (waist ⟂ = WAIST), the turn (26–28)
-    # a slab whose soffit continues flush with flight A's soffit, 27–28 cast on it.
+    # Design (proposal, Avihai 13.11.2026): a FOLDED-PLATE stair – the soffit is stepped parallel to the treads and risers
+    # (constant thickness TF under every tread and behind every riser), two straight flights + the turn (26–28), each turn
+    # tread a slab of the same thickness under its own top. TF – no source (provisional, as the ST1 waist).
+    TF = WAIST
     TT = {t['n']: t for t in treads}
-    def run_flight(ns, z_floor, first_on_floor):
+    def run_flight(ns, z_start_bottom, z_before):
         rs = [np.array(TT[n]['ringITM']) for n in ns]
         c0, c1 = rs[0].mean(0), rs[-1].mean(0)
         run = (c1 - c0) / np.linalg.norm(c1 - c0)
@@ -229,35 +231,35 @@ def main():
         width = float(np.linalg.norm(front[1] - front[0]))
         o = lambda P: float((P - origin) @ run)
         sb = [(min(o(P) for P in r), max(o(P) for P in r)) for r in rs]
+        sb[0] = (0.0, sb[0][1])
         tops = [TT[n]['topRel'] for n in ns]
         going = (sb[-1][1] - sb[0][0]) / len(ns)
-        m = rise2 / going; off = WAIST / math.cos(math.atan(m))
-        soff = lambda x: tops[0] + m * x - off      # nosing line (front edges) lowered by the waist ⟂
-        z0 = z_floor if first_on_floor else soff(0)
-        prof = [(0.0, z0)]
-        for (a, b), z in zip(sb, tops): prof += [(a, z), (b, z)]
-        prof[1] = (0.0, tops[0])
-        prof += [(sb[-1][1], soff(sb[-1][1]))]
-        if first_on_floor and soff(0) > z_floor: prof += [(0.0, soff(0))]
-        elif first_on_floor: x = (z_floor - tops[0] + off) / m; prof += [(x, z_floor)]
+        prof = [(0.0, z_start_bottom), (0.0, tops[0])]
+        for k, ((a, b), z) in enumerate(zip(sb, tops)):
+            if k: prof.append((a, z))
+            prof.append((b, z))
+        end = sb[-1][1]
+        prof += [(end + TF, tops[-1]), (end + TF, tops[-1] - TF)]      # last tread's plate runs TF on under the next part (bearing)
+        for k in range(len(ns) - 1, 0, -1):                             # stepped soffit: tread line − TF, riser line + TF
+            prof += [(sb[k][0] + TF, tops[k] - TF), (sb[k][0] + TF, tops[k - 1] - TF)]
+        prof += [(TF, tops[0] - TF), (TF, z_start_bottom)]
         return {'treads': ns, 'originITM': [r3(v) for v in origin], 'runDirITM': [round(float(v), 6) for v in run], 'rightDirITM': [round(float(v), 6) for v in right],
-                'width_m': r3(width), 'going_m': r3(going), 'profile': [[r3(a), r3(b)] for a, b in prof], 'soffitEnd': r3(soff(sb[-1][1])),
-                'soffitStart': r3(soff(0)), 'pitch_deg': round(math.degrees(math.atan(m)), 1)}
-    FA = run_flight(list(range(16, 26)), relc['ground'], True)
-    FB = run_flight(list(range(29, 37)), None, False)
-    turnBottom = FA['soffitEnd']
+                'width_m': r3(width), 'going_m': r3(going), 'profile': [[r3(a), r3(b)] for a, b in prof],
+                'pitch_deg': round(math.degrees(math.atan(rise2 / going)), 1)}
+    FA = run_flight(list(range(16, 26)), relc['ground'], None)                       # riser 16 stands on the ground slab
+    FB = run_flight(list(range(29, 37)), r3(TT[28]['topRel'] - TF), TT[28]['topRel'])  # springs from winder 28's plate
     st2['concreteProposal'] = {
         'change': 'OC-3', 'step': 'stairsPour', 'cladding': None, 'finish_m': 0.0, 'floorBuildUp_m': r3(fin2['ground']),
-        'waist_m': WAIST, 'bottomRel': relc['ground'], 'topRel': fc['topRel'], 'ceilingThickness_m': fc.get('thickness_m'),
+        'soffit': 'stepped', 'thickness_m': TF, 'thicknessStatus': 'provisional', 'bottomRel': relc['ground'], 'topRel': fc['topRel'], 'ceilingThickness_m': fc.get('thickness_m'),
         'flights': [dict(FA, id='ST2-A', numbers='16–25'), dict(FB, id='ST2-B', numbers='29–36')],
-        'turn': {'treads': [26, 27, 28], 'bottomRel': turnBottom},
+        'turn': {'treads': [26, 27, 28], 'thickness_m': TF},
         'firstRiser_m': r3(TT[16]['topRel'] - rel['ground']), 'lastRiser_m': r3(rel['first'] - TT[36]['topRel']),
         'note': 'הצעת בעלים (OC-3): גרם בטון באותו תוואי ובאותם רום ושלח (22 × 17.5 ס"מ), **בלי חיפוי** – הבטון הוא המדרך הגמור. '
                 'רום ראשון מהריצוף ±0.00 = רום אחרון אל הריצוף +3.85 = 17.5 ס"מ. הגרם עומד על רצפת הקרקע ‎-0.15 (מילוי וריצוף 15 ס"מ צמודים לרום 16) '
-                'ונשען על שפת תקרת הקרקע +3.70 (FS1). שני שלחים עם תחתית משופעת (עובי ⟂ 20 ס"מ, זמני) ופודסט פנייה 26–28 בהמשך התחתית. '
+                'ונשען על שפת תקרת הקרקע +3.70 (FS1). גרם מקופל: התחתית מדורגת במקביל למדרכים ולרומים, עובי אחיד 20 ס"מ (זמני), גם מתחת למדרכי הפנייה 26–28. '
                 'ממתין לתוכנית אדריכל + קונסטרוקטור.',
         'source': f"{GA} (תוואי, שלבים 16–37); {SEC} (רום, ±0.00 / +3.85); K-21 GS1 / K-31 FS1 (מפלסי בטון)"}
-    print('ST2 OC-3 flights', [(f['id'], f['going_m'], f['pitch_deg'], f['profile'][:3], f['profile'][-3:]) for f in st2['concreteProposal']['flights']], 'turn', turnBottom)
+    print('ST2 OC-3 folded flights', [(f['id'], f['going_m'], f['profile'][:3], f['profile'][-4:]) for f in st2['concreteProposal']['flights']])
     st2['anchors'] = anchors
     print('ST2 anchors', [(a['n'], a['wall'], a.get('contact_m')) for a in anchors])
 

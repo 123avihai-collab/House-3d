@@ -27,12 +27,15 @@ python3 tools/plumbing/verify_editor.py            # עורך הצנרת: טבל
 node tools/plumbing/editor_findings.mjs            # עורך הצנרת: ממצאי הבדיקות בהצעה -> docs/verification/editor-stage-3-findings.md
 ```
 
+**תוכניות קונסטרוקציה חיות:** `plans.html` – תוכנית K-400 (יסודות וכלונסאות) על הגיליון המקורי: לחיצה על כלונס / קורה / קיר / יסוד פותחת כרטיס עם הסבר פשוט, סקיצת מבט צד וחתך, מידות ומפלסים, השורה מטבלת הכלונסאות ופירוט ברזל (כמות, קוטר, אורך, ק"ג – אותו חישוב של כתב הכמויות). שכבות, צביעה לפי קוטר / מפלס / עומס / אורך, חיפוש, מדידה, קישור ישיר (`#pile-7`). נתונים: `python3 tools/plans/build_k400.py` → `data/plans/k400.json`. אימות: [docs/verification/plans-k400.md](docs/verification/plans-k400.md). שאר הגיליונות (K-11…K-41) – בשלב הבא. ארטיפקט נפרד: https://claude.ai/artifact/KZGRehkmopAgbxZPqYMBbP
+
 **עורך צנרת דו-ממדי:** `editor.html` – מבט על לפי קומה, רקע אדריכלי, שלד, שכבות הצעה ויועץ. מקור האמת לתוואי: `data/plumbing/routes.json`. פירוט ושלבים: [docs/plumbing/editor.md](docs/plumbing/editor.md).
 
 ## מבנה
 
 ```
 index.html                 מעטפת הדף + importmap
+plans.html                 תוכניות קונסטרוקציה חיות (js/plans/, css/plans.css, data/plans/, tools/plans/)
 editor.html                עורך צנרת דו-ממדי (js/editor/, css/editor.css) – docs/plumbing/editor.md
 css/app.css                עיצוב (RTL, מותאם לטלפון)
 js/
@@ -157,7 +160,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | **שלב 2:** חפירה ליחידת הדיור (שלב "חפירה") + 49 כלונסאות (שלב "כלונסאות") | ✅ | שכבות "חפירה" ו"כלונסאות". לחיצה על כלונס: קוטר, L, ראש, תחתית, ITM, עומס מול המותר |
 | **שכבת הצעות לשינוי** (הסימונים האדומים, OC-n): **מצב תוכנית** (ברירת מחדל – לפי התוכניות, בלי שום אדום) / **מצב הצעות** (השינויים הממתינים – באדום). מתג: התג בסרגל העליון, בקרה ← הערות, ושכבות ← שלד. רשימה (בקרה ← הערות): שם, הערה, סטטוס ממתין לאדריכל / אושר / נדחה, "מוצג" לכל שינוי; לחיצה על שם – קפיצה לשלב ולמקום. אושר = נכנס לתוכנית הבסיס, בלי אדום; נדחה = לא מוצג. הסטטוס נשמר במסד הארטיפקט (collection `proposals`). הקישור 🔗 שומר את המצב (`&prop=1`) | ✅ | `js/tools/proposals.js`, `data/changes/owner-changes.json` (proposalStatus, proposalVariant) · [אימות](docs/verification/proposals.md) |
 | פאנל **כמויות**: כלונסאות לפי סוג, מטר קידוח, בטון, נפח חפירה, דיפון + העתקה | ✅ | מחושב מהגיאומטריה |
-| **כתב כמויות שלד (Excel), סבב 1** (13.11.2026): עפר, כלונסאות, בטון לכל אלמנט (נוסחה n × A × (h − קיזוז)), טפסנות (שטח מגע → לוחות, עץ, תמיכות), ברזל לפי הפריסות (K-400, K-x2, K-x3), איטום וניקוז, בלוקים, משקופים וארגזי תריס, בריכה; פחת לכל חומר; מחירון עם מקורות; לפי שלב; סיכום לפי קבלן (איטום – קבלן נפרד, 13.11); **עלות קבלן לפני רווח + בדיקת הצעה והנחה** (`data/quantities/contractor-cost.json`); בקרה מול המודל | ✅ | `python3 tools/boq/build_boq.py` → `docs/quantities/boq-skeleton.xlsx` · הנחות: `data/quantities/boq-params.json` · מחירים: `data/quantities/prices.json` · בקרה: `node tools/boq/export_model_quantities.mjs` · [אימות](docs/verification/boq-1.md) · פתוחים #182–#190 |
+| **כתב כמויות שלד (Excel), סבב 1** (13.11.2026): עפר, כלונסאות, בטון לכל אלמנט (נוסחה n × A × (h − קיזוז)), טפסנות (שטח מגע → לוחות, עץ, תמיכות), ברזל לפי הפריסות (K-400, K-x2, K-x3), איטום וניקוז, בלוקים, משקופים וארגזי תריס, בריכה; פחת לכל חומר; מחירון עם מקורות; לפי שלב; סיכום לפי קבלן (איטום – קבלן נפרד, 13.11); **עלות קבלן לפני רווח + בדיקת הצעה והנחה** (`data/quantities/contractor-cost.json`); **הכנה לשיחה עם הקבלנים** – כמויות, טווח נמוך/צפוי/גבוה, שאלות ונורות אדומות (`data/quantities/negotiation.json`); בקרה מול המודל | ✅ | `python3 tools/boq/build_boq.py` → `docs/quantities/boq-skeleton.xlsx` · הנחות: `data/quantities/boq-params.json` · מחירים: `data/quantities/prices.json` · בקרה: `node tools/boq/export_model_quantities.mjs` · [אימות](docs/verification/boq-1.md) · פתוחים #182–#190 |
 | נקודת מבט "חפירה וכלונסאות" | ✅ | עוברת אוטומטית לשלב כלונסאות |
 
 ### פיצ'רים נוספים שהוספתי

@@ -26,7 +26,7 @@ import elements as EL
 
 ROOT = EL.ROOT
 OUT = ROOT / 'docs/quantities/boq-skeleton.xlsx'
-SN = OrderedDict(sum='סיכום', cost='עלות קבלן', step='לפי שלב', ew='01 עבודות עפר', conc='02 בטון', fw='02 טפסנות', rb='02 ברזל',
+SN = OrderedDict(sum='סיכום', nego='הכנה לשיחה', cost='עלות קבלן', step='לפי שלב', ew='01 עבודות עפר', conc='02 בטון', fw='02 טפסנות', rb='02 ברזל',
                  blk='04 בנייה', wp='05 איטום וניקוז', price='מחירון', par='הנחות ופחת', chk='בקרה', open='פתוחים')
 STATUS_HE = {'source': 'מקור', 'approved': 'אושר', 'provisional': 'זמני', 'approx': 'בקירוב', 'missing': 'חסר', 'owner-change': 'שינוי דייר'}
 FLOOR_HE = EL.FLOOR_HE
@@ -55,6 +55,7 @@ class Book:
         self.price = {}    # key → absolute ref
         self.priceUnit = {}
         self.missingPrices = []
+        self.nego = {}
         self.open = []     # open issues rows
         self.sum = OrderedDict()   # chapter → (cost ref, note)
         self.qty = OrderedDict()   # headline quantity → (ref, unit)
@@ -260,13 +261,17 @@ def build_concrete(B, E):
         f = '+'.join(f"{col('L')}{x}" for x in rows)
         S.row(r, [None, None, f"כלונס קדוח ø{int(d*100)} {'עד 12 מ' if Lmax == 12 else '12–20 מ'}' – מטר קידוח ({len(rows)} כלונסאות)", None, None, None, "מ'", None, None, None, None, None, None, 'Σ L',
                   f"={f}", None, None, f"={B.PR(key)}", f"=P{r}*S{r}"], [None] * 14 + [NUM, None, None, NIS, NIS], note='K-400 טבלת כלונסאות; קידוח יבש; מחיר כולל בטון, בלי ברזל')
+        B.nego.setdefault('piles', []).append((f"כלונס ø{int(d*100)} {'עד 12' if Lmax == 12 else '12–20'} מ' ({len(rows)} יח') – קידוח + בטון ב-30", f"{q('conc')}!P{r}", "מ'", key))
         r += 1
     S.row(r, [None, None, 'בדיקה סונית – עד 40 כלונסאות (K-400: "בדיקות סוניות בכל הכלונסאות לאחר 7 ימים")', None, None, None, "קומפ'", None, None, None, None, None, None, '',
-              1, None, None, f"={B.PR('sonic_lump')}", f"=P{r}*S{r}"], [None] * 14 + [QTY, None, None, NIS, NIS]); r += 1
+              1, None, None, f"={B.PR('sonic_lump')}", f"=P{r}*S{r}"], [None] * 14 + [QTY, None, None, NIS, NIS])
+    B.nego.setdefault('piles', []).append(('בדיקות סוניות – עד 40 כלונסאות', f"{q('conc')}!P{r}", "קומפ'", 'sonic_lump')); r += 1
     S.row(r, [None, None, 'בדיקה סונית – תוספת לכלונס מעל 40', None, None, None, "יח'", None, None, None, None, None, None, "מס' כלונסאות − 40",
-              f"=MAX(0,{len(pr)}-40)", None, None, f"={B.PR('sonic_extra')}", f"=P{r}*S{r}"], [None] * 14 + [QTY, None, None, NIS, NIS]); r += 1
+              f"=MAX(0,{len(pr)}-40)", None, None, f"={B.PR('sonic_extra')}", f"=P{r}*S{r}"], [None] * 14 + [QTY, None, None, NIS, NIS])
+    B.nego.setdefault('piles', []).append(('בדיקה סונית – תוספת לכלונס מעל 40', f"{q('conc')}!P{r}", "יח'", 'sonic_extra')); r += 1
     S.row(r, [None, None, 'ניסיון קידוח בשיטה יבשה (K-400)', None, None, None, 'קומפ\'', None, None, None, None, None, None, '', 1, None, None, f"={B.PR('pile_trial')}", f"=P{r}*S{r}"],
-          [None] * 14 + [QTY, None, None, NIS, NIS]); r += 1
+          [None] * 14 + [QTY, None, None, NIS, NIS])
+    B.nego.setdefault('piles', []).append(('ניסיון קידוח בשיטה יבשה', f"{q('conc')}!P{r}", "קומפ'", 'pile_trial')); r += 1
     S.row(r, [None, None, 'סה"כ כלונסאות', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, f"=SUM(T{r0}:T{r-1})"],
           [None] * 18 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['02.1 כלונסאות – קידוח, בטון, בדיקות'] = (f"{q('conc')}!T{r}", 'מחיר למטר כולל בטון; הברזל בגיליון "02 ברזל"')
@@ -407,6 +412,7 @@ def build_rebar(B, E):
     S.header(r, ["מס'", 'מזהה', 'אלמנט', 'שלב ביצוע', 'פריט ברזל', 'ø מ"מ', 'כמות / מ\' למ"ר / יחס', "אורך (מ') / שטח (מ\"ר) / נפח", "סה\"כ מ'", 'ק"ג/מ\'', 'ק"ג נטו', 'פחת', 'ק"ג להזמנה', 'סטטוס', 'מקור'])
     r += 1
     r0 = r; no = 0
+    pileRows = []
     concA = lambda e, k: f"{q('conc')}!${col_letter(CC[k])}${e['row']}"
     for e in E:
         for x in e.get('rb', []):
@@ -431,6 +437,8 @@ def build_rebar(B, E):
                         f"={B.P('waste.rebar')}", f"=L{r}*(1+M{r})", STATUS_HE.get(st, st), x['src']]
                 fm = [QTY, None, None, None, None, QTY, NUM, NUM3, NUM, NUM3, NUM, PCT1, NUM]
             S.row(r, vals, fm, fill=BAND_FILL if no % 2 == 0 else None, wrap_cols=(16,))
+            if e['sec'] == 'piles':
+                pileRows.append(r)
             if st != 'source':
                 S.paint(r, 15, WARN_FILL)
             r += 1
@@ -457,6 +465,7 @@ def build_rebar(B, E):
     B.qty['ברזל – נטו'] = (f"{q('rb')}!L{tonRow}/1000", 'טון')
     B.qty['ברזל – להזמנה (כולל פחת)'] = (f"{q('rb')}!N{tonRow}/1000", 'טון')
     B.rbRange = (r0, r1)
+    B.rbPile = f"SUM({q('rb')}!N{min(pileRows)}:N{max(pileRows)})" if pileRows else '0'
     S.finish(r)
 
 
@@ -489,25 +498,30 @@ def build_earth(B):
         if sts != 'מקור':
             S.paint(r, 13, WARN_FILL)
         cutRows.append(r)
+        B.nego.setdefault('earth', []).append((lab, f"{q('ew')}!I{r}", unitQ, pk))
         r += 1
     n = len(rows)
     S.row(r, [n + 1, 'פינוי עודפי עפר לאתר מורשה (כל החפירה × תפיחה, פחות שימוש חוזר)', st['excavation'], 'Σ חפירה × תפיחה × (1 − שימוש חוזר)',
               '=' + '+'.join(f"F{x}" for x in cutRows), 'מ"ק', f"={B.P('earthworks.bulking')}*(1-{B.P('earthworks.reuseFill_pct')})", f"=F{r}*H{r}", 'מ"ק רופף',
               f"={B.PR('haul_m3')}", f"=I{r}*K{r}", 'זמני', exc['earthworks']['fill']['source'][:150]], [QTY, None, None, None, NUM, None, NUM3, NUM, None, NIS, NIS], wrap_cols=(14,))
-    haul = r; r += 1
+    haul = r; B.nego.setdefault('earth', []).append(('פינוי עודפי עפר לאתר מורשה', f"{q('ew')}!I{r}", 'מ"ק רופף', 'haul_m3')); r += 1
     S.row(r, [n + 2, '— מספר משאיות פינוי (לבקרה)', None, 'נפח רופף / נפח משאית', f"=I{haul}", 'מ"ק', f"=1/{B.P('earthworks.truck_m3')}", f"=ROUNDUP(F{r}*H{r},0)", 'משאיות', 0, 0, '', ''],
           [QTY, None, None, None, NUM, None, NUM3, QTY, None, NIS, NIS]); r += 1
     fill = exc['earthworks']['fill']
     S.row(r, [n + 3, 'מילוי חוזר לאורך קירות המרתף – מצע ג\' (חומר נברר), שכבות 20 ס"מ, 96% MOD.AASHTO', st['backfill'], 'גריד: פני עבודה − פני חפירה',
               round(EV['fillWalls'], 3), 'מ"ק מהודק', f"={B.P('earthworks.compaction')}", f"=F{r}*H{r}", 'מ"ק מובא', f"={B.PR('fill_m3')}", f"=F{r}*K{r}", 'מקור', fill['source'][:150]],
-          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,), note='מחיר למ"ק מהודק; "כמות לחיוב" = נפח רופף להזמנה. ' + ' | '.join(fill.get('conflicts', []))); r += 1
+          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,), note='מחיר למ"ק מהודק; "כמות לחיוב" = נפח רופף להזמנה. ' + ' | '.join(fill.get('conflicts', [])))
+    B.nego['earth'].append(("מילוי מצע ג' לאורך קירות המרתף, מהודק 96%", f"{q('ew')}!F{r}", 'מ"ק מהודק', 'fill_m3')); r += 1
     S.row(r, [n + 4, 'מילוי מתחת לרצפות מחוץ לבור – מצע ג\' מהודק', st['backfill'], 'גריד', round(EV['fillSlabs'], 3), 'מ"ק מהודק', f"={B.P('earthworks.compaction')}",
-              f"=F{r}*H{r}", 'מ"ק מובא', f"={B.PR('fill_m3')}", f"=F{r}*K{r}", 'מקור', fill['source'][:150]], [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,)); r += 1
+              f"=F{r}*H{r}", 'מ"ק מובא', f"={B.PR('fill_m3')}", f"=F{r}*K{r}", 'מקור', fill['source'][:150]], [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,))
+    B.nego['earth'].append(("מילוי מצע ג' מתחת לרצפות מחוץ לבור", f"{q('ew')}!F{r}", 'מ"ק מהודק', 'fill_m3')); r += 1
     S.row(r, [n + 5, f"דיפון זמני – {X['shoringLength_m']:.1f} מ' באורך, גובה עד {X['shoringMaxHeight_m']:.2f} מ' (חסר תכנון דיפון)", st['excavation'], 'אורך × גובה חתך',
               round(X['shoringArea_m2'], 3), 'מ"ר', 1, f"=F{r}*H{r}", 'מ"ר', f"={B.PR('shoring_m2')}", f"=I{r}*K{r}", 'זמני', exc['shoringRule'][:150]],
-          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,), note=exc['shoringNote'][:200]); S.paint(r, 13, WARN_FILL); r += 1
+          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,), note=exc['shoringNote'][:200]); S.paint(r, 13, WARN_FILL)
+    B.nego['earth'].append(('דיפון זמני (חסר תכנון)', f"{q('ew')}!I{r}", 'מ"ר', 'shoring_m2')); r += 1
     S.row(r, [n + 6, 'הידוק שתית בתחתית החפירה', st['excavation'], 'שטח תחתית', round(X['bottomArea_m2'], 3), 'מ"ר', 1, f"=F{r}*H{r}", 'מ"ר', f"={B.PR('compaction_m2')}", f"=I{r}*K{r}", 'זמני', 'דוח הקרקע §10'],
-          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,)); r += 1
+          [QTY, None, None, None, NUM, None, NUM, NUM, None, NIS, NIS], wrap_cols=(14,))
+    B.nego['earth'].append(('הידוק שתית בתחתית החפירה', f"{q('ew')}!I{r}", 'מ"ר', 'compaction_m2')); r += 1
     S.row(r, [None, 'סה"כ עבודות עפר', None, None, None, None, None, None, None, None, f"=SUM(L{r0}:L{r-1})"], [None] * 10 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['01 עבודות עפר'] = (f"{q('ew')}!L{r}", 'נפחי עפר מהמודל (גריד)')
     B.qty['חפירה כוללת (בטבע)'] = (f"SUM({q('ew')}!F{r0+1}:F{r0+5})", 'מ"ק')
@@ -529,11 +543,14 @@ def build_wp(B, E):
     r += 1; r0 = r
     wp = F['waterproofing']
     S.row(r, [1, 'פריימר ביטומני לקירות המרתף (פני חוץ)', B.steps['waterproofing'], 'היקף × גובה', wp['area_m2'], 'מ"ר', 0, f"=F{r}*(1+H{r})", f"={B.PR('primer_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]],
-          [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,), note=f"היקף {wp['perimeter_m']:.2f} מ' × {wp['topRel']-wp['bottomRel']:.2f} מ'"); r += 1
+          [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,), note=f"היקף {wp['perimeter_m']:.2f} מ' × {wp['topRel']-wp['bottomRel']:.2f} מ'")
+    B.nego.setdefault('wp', []).append(('פריימר ביטומני', f"{q('wp')}!I{r}", 'מ"ר', 'primer_m2')); r += 1
     S.row(r, [2, 'יריעות ביטומניות SBS 4 מ"מ – 2 שכבות', B.steps['waterproofing'], 'שטח × שכבות', f"={wp['area_m2']}*{B.P('membrane.layers')}", 'מ"ר', f"={B.P('waste.membrane')}", f"=F{r}*(1+H{r})",
-              f"={B.PR('membrane_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
+              f"={B.PR('membrane_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,))
+    B.nego['wp'].append(('יריעות ביטומניות SBS 4 מ"מ – 2 שכבות (מ"ר יריעה)', f"{q('wp')}!I{r}", 'מ"ר', 'membrane_m2')); r += 1
     S.row(r, [3, 'לוח הגנה (פוליסטירן / לוח ביטומני) לפני המילוי החוזר', B.steps['waterproofing'], 'שטח', wp['area_m2'], 'מ"ר', f"={B.P('waste.geotextile')}", f"=F{r}*(1+H{r})",
-              f"={B.PR('protection_board_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,)); r += 1
+              f"={B.PR('protection_board_m2')}", f"=I{r}*J{r}", 'זמני', wp['source'][:120]], [QTY, None, None, None, NUM, None, PCT1, NUM, NIS, NIS], wrap_cols=(13,))
+    B.nego['wp'].append(('לוח הגנה לפני המילוי החוזר', f"{q('wp')}!I{r}", 'מ"ר', 'protection_board_m2')); r += 1
     S.row(r, [None, 'סה"כ איטום – קבלן איטום', None, None, None, None, None, None, None, f"=SUM(K{r0}:K{r-1})"], [None] * 9 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['05.1 איטום קירות המרתף (זמני – אין פרט איטום)'] = (f"{q('wp')}!K{r}", 'פריימר + 2 יריעות + לוח הגנה')
     r += 2
@@ -868,6 +885,7 @@ def build_cost(B):
     S.row(r, [None, 'סה"כ עלות ישירה', None, None, None, None, '=' + '+'.join(rows['md']), None, '=' + '+'.join(rows['mat'] + rows['lab'] + rows['sub'])],
           [None] * 6 + [NUM, None, NIS], bold=True, fill=TOTAL_FILL, top=True)
     direct = f"J{r}"; mdTot = f"H{r}"; r += 2
+    B.costRows = {k: [f"{q('cost')}!{x}" for x in v] for k, v in rows.items() if k}
     # ---------- site overheads
     S.section(r, 'ג · הוצאות אתר (לפי משך העבודה)'); r += 1
     S.header(r, ["מס'", 'סעיף', 'בסיס', 'כמות', "יח'", '', '', '₪ ליח\'', 'עלות (₪)'], h=30); r += 1
@@ -888,7 +906,8 @@ def build_cost(B):
     k += 1
     S.row(r, [k, 'ביטוח עבודות קבלניות (CAR + צד ג\')', '% מהעלות הישירה', f"={P('insurance_pct')}", '%', None, None, f"={direct}", f"=E{r}*I{r}"], [QTY, None, None, PCT1, None, None, None, NIS, NIS]); r += 1
     S.row(r, [None, 'סה"כ הוצאות אתר', None, None, None, None, None, None, f"=SUM(J{s0}:J{r-1})"], [None] * 8 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
-    siteTot = f"J{r}"; r += 2
+    siteTot = f"J{r}"; B.costSite = f"{q('cost')}!J{r}"; r += 2
+    B.costPar = {k: f"{q('cost')}!{v}" for k, v in par.items()}
     # ---------- totals
     S.section(r, 'ד · עלות כוללת לקבלן ותרחישי רווח'); r += 1
     S.header(r, ['', 'פריט', '', '', '', '', '', '', 'סכום (₪)'], h=15); r += 1
@@ -925,6 +944,84 @@ def build_cost(B):
     S.finish(r)
 
 
+# ------------------------------------------------------------------ negotiation brief per contractor
+def build_nego(B):
+    """One brief per contractor for the price talk: our quantities, expected price range (low / expected / high
+    from the price list), the target and walk-away prices, questions to ask and red flags."""
+    ws = B.ws['nego']; T = J('data/quantities/negotiation.json')
+    S = Sheet(ws, note_col=10, widths={'A': 2, 'B': 5, 'C': 54, 'D': 13, 'E': 11, 'F': 13, 'G': 13, 'H': 13, 'I': 15, 'J': 46})
+    S.title(1, 'הכנה לשיחה עם הקבלנים | כמויות, טווח מחיר, שאלות ונורות אדומות',
+            'הכמויות מהמודל (נוסחאות לגיליונות הפירוט). טווח המחיר = כמות × מחיר נמוך / צפוי / גבוה מגיליון "מחירון". קבלן השלד – מגיליון "עלות קבלן" (עלות לפני רווח + רווח). '
+            'עמודה "הצעת הקבלן" – למלא בזמן השיחה. לא לחשוף את המחירים שלנו לקבלן.')
+    lo = lambda k: f"IF(ISNUMBER({B.price[k].replace('$F$', '$G$')}),{B.price[k].replace('$F$', '$G$')},{B.price[k]})"
+    hi = lambda k: f"IF(ISNUMBER({B.price[k].replace('$F$', '$H$')}),{B.price[k].replace('$F$', '$H$')},{B.price[k]})"
+    from style_kit import BOX, F_BODY
+
+    def textrow(rr, n, t, h=30):
+        S.row(rr, [n], [QTY], h=h)
+        ws.merge_cells(start_row=rr, start_column=3, end_row=rr, end_column=10)
+        c = ws.cell(row=rr, column=3); c.value = t; c.font = F_BODY; c.alignment = C_W
+        for cc in range(3, 11):
+            ws.cell(row=rr, column=cc).border = BOX
+    r = 3
+    S.section(r, 'כללי – לכל הקבלנים'); r += 1
+    for i, t in enumerate(T['general']):
+        textrow(r, i + 1, t); r += 1
+    r += 1
+    totals = {}
+
+    def brief(key, lines, extra=None):
+        nonlocal r
+        C = T['contractors'][key]
+        S.section(r, C['title']); r += 1
+        S.header(r, ["מס'", 'סעיף', 'כמות', "יח'", 'נמוך (₪)', 'צפוי (₪)', 'גבוה (₪)', 'הצעת הקבלן (₪)'], h=30); r += 1
+        r0 = r
+        for i, (lab, qref, unit, pk) in enumerate(lines):
+            S.row(r, [i + 1, lab, f"={qref}", unit, f"=D{r}*{lo(pk)}", f"=D{r}*{B.PR(pk)}", f"=D{r}*{hi(pk)}", None], [QTY, None, NUM, None, NIS, NIS, NIS, NIS],
+                  fill=BAND_FILL if i % 2 else None)
+            S.paint(r, 9, INPUT_FILL); r += 1
+        if extra:
+            for lab, qf, unit, lof, exf, hif in extra:
+                S.row(r, [r - r0 + 1, lab, qf, unit, lof, exf, hif, None], [QTY, None, NUM, None, NIS, NIS, NIS, NIS]); S.paint(r, 9, INPUT_FILL); r += 1
+        rng = (lambda c: f"={c}{r0}") if key == 'skeleton' else (lambda c: f"=SUM({c}{r0}:{c}{r-1})")
+        S.row(r, [None, f"סה\"כ {C['title']}" + (' – כולל חומרים' if key == 'skeleton' else ''), None, None, rng('F'), rng('G'), rng('H'), rng('I')],
+              [None, None, None, None, NIS, NIS, NIS, NIS], bold=True, fill=TOTAL_FILL, top=True)
+        tot = r; totals[key] = tot; r += 1
+        S.row(r, [None, 'ההצעה מול הצפוי', None, None, None, None, None, f"=IF(I{tot}=0,\"מלא את ההצעה\",IF(I{tot}<F{tot},\"⚠ מתחת לנמוך – לבדוק מה חסר\",IF(I{tot}<=G{tot},\"✔ טוב – עד הצפוי\",IF(I{tot}<=H{tot},\"סביר – לבקש הנחה עד הצפוי\",\"✘ מעל הגבוה – לבקש הנחה של \"&TEXT(1-G{tot}/I{tot},\"0%\")))))"],
+              [None] * 8, bold=True, fill=HERO_FILL); r += 1
+        S.row(r, [None, 'שאלות לשיחה'], [None], bold=True, fill=NOW_FILL); r += 1
+        for i, t in enumerate(C['questions']):
+            textrow(r, i + 1, t); r += 1
+        S.row(r, [None, 'נורות אדומות בהצעה'], [None], bold=True, fill=WARN_FILL); r += 1
+        for i, t in enumerate(C['redFlags']):
+            textrow(r, i + 1, t); r += 1
+        r += 1
+
+    pile_rebar = (f"ברזל כלונסאות – כלובים 7–8ø16, ספירלה ø8, טבעות ø14 (אם בהיקף שלו)", f"{B.rbPile}/1000", 'טון', 'rebar_ton')
+    brief('piles', B.nego['piles'] + [pile_rebar])
+    brief('earth', B.nego['earth'])
+    # skeleton: from the contractor-cost sheet (cost before profit → price with the target profit)
+    CR, CP = B.costRows, B.costPar
+    sub = CR['sub']   # earth, piles, pump, drain, crane, tools (in that order)
+    mat, lab = '+'.join(CR['mat']), '+'.join(CR['lab'])
+    oh, tg, mn, hp = CP['overhead_pct'], CP['target_profit_pct'], CP['min_profit_pct'], CP['high_profit_pct']
+    site = B.costSite
+    full = f"(({mat}+{lab}+{sub[2]}+{sub[3]}+{sub[4]}+{sub[5]}+{site})*(1+{oh}))"
+    labo = f"(({lab}+{sub[4]}+{sub[5]}+{site})*(1+{oh}))"
+    extra = [('שלד כולל חומרים (בטון, ברזל, טפסנות, בלוקים, משאבה, מנוף, אתר) – בלי עפר וכלונסאות', 1, "קומפ'",
+              f"={full}*(1+{mn})", f"={full}*(1+{tg})", f"={full}*(1+{hp})"),
+             ('— חלופה: שלד עבודה בלבד (כולל מנוף, כלים, אתר) – החומרים עלינו; לא נכלל בסה"כ', 1, "קומפ'", f"={labo}*(1+{mn})", f"={labo}*(1+{tg})", f"={labo}*(1+{hp})")]
+    brief('skeleton', [], extra)
+    brief('wp', B.nego['wp'])
+    S.section(r, 'ריכוז'); r += 1
+    S.header(r, ['', 'קבלן', '', '', 'נמוך (₪)', 'צפוי (₪)', 'גבוה (₪)', 'הצעות (₪)'], h=30); r += 1
+    g0 = r
+    for k, tot in totals.items():
+        S.row(r, [None, T['contractors'][k]['title'], None, None, f"=F{tot}", f"=G{tot}", f"=H{tot}", f"=I{tot}"], [None, None, None, None, NIS, NIS, NIS, NIS],
+              note='חלופת "כולל חומרים"; חלופת עבודה בלבד – בפרק קבלן השלד' if k == 'skeleton' else None); r += 1
+    S.finish(r)
+
+
 def main():
     E = EL.collect()
     B = Book()
@@ -938,6 +1035,7 @@ def main():
     build_blocks(B)
     build_steps(B, E)
     build_cost(B)
+    build_nego(B)
     build_check(B)
     build_open(B)
     build_summary(B)

@@ -2459,7 +2459,7 @@
    "slabTop": 3.7,
    "finishRel": 3.83,
    "finishStatus": "provisional",
-   "finishSource": "גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #194)",
+   "finishSource": "גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #197)",
    "buildUp_m": 0.13,
    "skirting_m": 9.215,
    "skirtingBy": "geometry",
@@ -2644,7 +2644,7 @@
    ],
    "tileType": null,
    "status": "prep",
-   "source": "sources/structure/k-31.dxf IfcSlab + קווי קירות/עמודים; Floor Tag O.K=+3.70 D=25 (פני התקרה); תווית 'מרפסת' – תוכנית האדריכל; מפלס הריצוף: גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #194)"
+   "source": "sources/structure/k-31.dxf IfcSlab + קווי קירות/עמודים; Floor Tag O.K=+3.70 D=25 (פני התקרה); תווית 'מרפסת' – תוכנית האדריכל; מפלס הריצוף: גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #197)"
   },
   {
    "room": "first@balcony-2",
@@ -2657,7 +2657,7 @@
    "slabTop": 3.7,
    "finishRel": 3.83,
    "finishStatus": "provisional",
-   "finishSource": "גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #194)",
+   "finishSource": "גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #197)",
    "buildUp_m": 0.13,
    "skirting_m": 14.285,
    "skirtingBy": "geometry",
@@ -2834,7 +2834,7 @@
    ],
    "tileType": null,
    "status": "prep",
-   "source": "sources/structure/k-31.dxf IfcSlab + קווי קירות/עמודים; Floor Tag O.K=+3.70 D=25 (פני התקרה); תווית 'מרפסת' – תוכנית האדריכל; מפלס הריצוף: גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #194)"
+   "source": "sources/structure/k-31.dxf IfcSlab + קווי קירות/עמודים; Floor Tag O.K=+3.70 D=25 (פני התקרה); תווית 'מרפסת' – תוכנית האדריכל; מפלס הריצוף: גרמושקה: דק המרפסת הצפונית ‎+3.83 (open-issues #135); המרפסת הדרומית-מערבית – אותו מפלס, זמני (open-issues #197)"
   }
  ]
 }

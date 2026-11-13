@@ -112,17 +112,24 @@ export function buildStairs(ctx) {
     });
     scene.add(ag);
     // changed variant – the concrete stair
+    // no cladding: concrete tread = finished tread. Flights = side profile (sloped soffit) extruded across the width; the turn
+    // (26–28) = prisms down to the turn soffit (flush with flight A's soffit)
     const cg = new THREE.Group(); let m3 = 0;
-    for (const t of st.treads) {
-      const zt = t.topRel - CP.finish_m, zb = Math.max(CP.bottomRel, zt - st.rise_m - CP.waist_m);
-      const m = prism(t.ringITM, null, zb, zt, conc); cg.add(m); cg.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), PM)); m3 += vol(m.geometry);
-    }
+    const addC = (m) => { cg.add(m); cg.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), PM)); m3 += vol(m.geometry); };
+    for (const f of CP.flights) addC(flightMesh(f, conc));
+    for (const n of CP.turn.treads) { const t = st.treads.find(x => x.n === n); addC(prism(t.ringITM, null, CP.turn.bottomRel, t.topRel - CP.finish_m, conc)); }
     const c0 = centroid(st.treads[Math.floor(st.treads.length / 2)].ringITM);
     cg.add(label(`הצעה – ממתין לתוכנית (${CP.change}): גרם בטון ${st.risers} × ${Math.round(st.rise_m * 1000) / 10}`, c0[0], c0[1], CP.topRel + DS.labelLift_m, 'lbl change'));
     registry.add(cg, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'stairsProposal', step: CP.step }, {
       id: `${st.id}-concrete`, name: `גרם מדרגות בטון – הצעה (${CP.change})`, status: 'provisional', variant: { change: CP.change, show: 'changed' },
-      rows: [['רומים', `${st.risers} × ${(st.rise_m * 100).toFixed(1)} ס"מ – כמו בתוכנית`], ['תחתית / הגעה (בטון)', `${coords.fmtH(coords.H0 + CP.bottomRel)} / ${coords.fmtH(coords.H0 + CP.topRel)}`],
-        ['עובי שיפוע (זמני)', `${Math.round(CP.waist_m * 100)} ס"מ`], ['נפח בטון (הערכה)', `${m3.toFixed(2)} מ"ק`]],
+      rows: [['רומים', `${st.risers} × ${(st.rise_m * 100).toFixed(1)} ס"מ – כמו בתוכנית`],
+        ['רום ראשון / אחרון (מהריצוף)', `${(CP.firstRiser_m * 100).toFixed(1)} / ${(CP.lastRiser_m * 100).toFixed(1)} ס"מ`],
+        ['חיפוי', CP.cladding || 'אין – הבטון הוא המדרך הגמור'],
+        ['שלחים', CP.flights.map((f) => `${f.numbers}: רוחב ${f.width_m.toFixed(2)} · שלח ${f.going_m.toFixed(3)} · שיפוע ${f.pitch_deg}°`).join(' | ')],
+        ['2R+G', `${((2 * st.rise_m + CP.flights[0].going_m) * 100).toFixed(1)} ס"מ`],
+        ['תחתית / הגעה (בטון)', `${coords.fmtH(coords.H0 + CP.bottomRel)} רצפת הקרקע / ${coords.fmtH(coords.H0 + CP.topRel)} שפת התקרה`],
+        ['פודסט פנייה 26–28 – תחתית', coords.fmtH(coords.H0 + CP.turn.bottomRel)],
+        ['עובי שיפוע ⟂ (זמני)', `${Math.round(CP.waist_m * 100)} ס"מ`], ['נפח בטון (הערכה)', `${m3.toFixed(2)} מ"ק`]],
       note: CP.note, source: CP.source,
     });
     scene.add(cg);

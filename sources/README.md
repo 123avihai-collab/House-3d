@@ -136,6 +136,7 @@ node tools/verify_stage2.mjs       # -> docs/verification/stage-2.md
 python3 tools/environment/extract_environment.py  # -> data/environment/{lots,streets}.json
 python3 tools/environment/verify_environment.py   # -> docs/verification/environment.md
 python3 tools/extract_pool.py      # -> data/structure/pool.json (k-21 + חתכי/תוכנית הבריכה 1:50)
+python3 tools/finishes/derive_pool_finish.py   # -> data/finishes/pool/surfaces.json (משטחי ריצוף הבריכה + קופינג, נגזר מ-pool.json)
 python3 tools/extract_floor.py     # -> data/structure/floor-ground.json (k-21, k-31, K-31 PDF)
 python3 tools/verify_stage3.py     # -> docs/verification/stage-3.md
 ```

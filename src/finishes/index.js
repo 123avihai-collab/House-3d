@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { TilingWorkshop } from '../tiling/workshop.js';
+import { PoolFinish } from '../tiling/pool.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
 // exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
@@ -35,6 +36,7 @@ export function buildFinishes(ctx) {
   const D = data.display.finishes;
   const F = new Finishes(ctx, P, T, TL, R, D);
   if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up
+  if (data.poolSurfaces && data.poolCatalog) F.pool = new PoolFinish(F);   // pool tiling + coping (src/tiling/pool.js)
   F.build();
   return F;
 }
@@ -143,6 +145,7 @@ class Finishes {
     registry.defer([...plasterLayers], () => this.buildPlaster());
     registry.defer(['wetProofing'], () => this.buildWaterproofing());
     registry.defer(this.BU.layers.map(l => l.id), () => this.buildFloors());
+    if (this.pool) registry.defer(['poolTile', 'poolCoping'], () => this.pool.build3D());
     registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
     if (this.ctx.data.droppedCeiling) registry.defer(['droppedCeiling'], () => this.buildDropped());
@@ -656,7 +659,7 @@ class Finishes {
     if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); app.registry.onChange(() => this.syncOverhead());
+  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); this.pool?.connect(app); app.registry.onChange(() => this.syncOverhead());
     let last = JSON.stringify(app.store.get().dropCeiling || {});
     app.store.on((st) => { const k = JSON.stringify(st.dropCeiling || {}); if (k !== last) { last = k; this.rebuildDropped(); } }); }
 }

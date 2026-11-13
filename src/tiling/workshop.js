@@ -369,6 +369,7 @@ export class TilingWorkshop {
     const z = this.zoneBy[this.sel];
     if (z) wrap.append(this.zoneEditor(z));
     wrap.append(this.totalsBox());
+    if (this.F.pool) wrap.append(this.F.pool.panel());   // pool tiling + coping (src/tiling/pool.js)
     return wrap;
   }
   zoneEditor(z) {
@@ -474,6 +475,17 @@ export class TilingWorkshop {
     sheet('שכבות רצפה', [['קומה', 'אזור', 'שטח מ"ר', ...this.F.BU.layers.map(l => `${l.short || l.label} (ס"מ)`), ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => `${l.short || l.label} מ"ק`)],
       ...this.zones.map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), ...this.F.BU.layers.map(l => +((z.r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
         ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => +(z.r.area * (z.r.layers.find(x => x.id === l.id)?.thickness_m || 0)).toFixed(3))])]);
+    if (this.F.pool) { const P = this.F.pool, q = P.quantities(), c = P.c;
+      sheet('בריכה', [['פריט', 'כמות', 'יחידה', 'פירוט'],
+        ['רצפת הבריכה (נטו)', +q.floor.toFixed(2), 'מ"ר', `${q.tile.label} · ${P.surfColor('floor').label}`],
+        ['קירות הבריכה', +q.walls.toFixed(2), 'מ"ר', `${P.surfColor('walls').label} · גובה ${q.wallH.toFixed(2)} מ'`],
+        ['מדרגות ומשטח רביצה', +q.steps.toFixed(2), 'מ"ר', P.surfColor('steps').label],
+        ['מתוכם פס בשפת המדרגות', +q.edge_m.toFixed(2), 'מ"א', c.stepEdge ? P.colBy[c.stepEdgeColor]?.label : 'ללא'],
+        ['סה"כ ריצוף בריכה', +q.total.toFixed(2), 'מ"ר', ''], ['להזמנה', q.units, q.unitLabel, `${q.order_m2.toFixed(2)} מ"ר, רזרבה ${c.spare_pct}%`],
+        ['דבק לבריכות', +q.adhesive_kg.toFixed(1), 'ק"ג', ''], ['רובה אפוקסי', +q.epoxy_kg.toFixed(2), 'ק"ג', ''],
+        ['קופינג', +q.coping.len_m.toFixed(2), 'מ"א', `${q.coping.mat.label} · ${Math.round(q.coping.width_m * 100)}×${Math.round(c.coping.thick_m * 100)} ס"מ · ${q.coping.runs.map(r => `${r.k}×${(r.piece_m * 100).toFixed(1)}`).join(' / ')} ס"מ`],
+        ['קופינג – יחידות להזמנה', q.coping.order, 'יח\'', `${q.coping.pieces} בפריסה`], ['דבק לקופינג', +q.coping.mortar_kg.toFixed(1), 'ק"ג', ''],
+        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #191)']]); }
     const name = 'tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

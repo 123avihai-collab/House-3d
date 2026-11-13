@@ -112,12 +112,12 @@ export function buildStairs(ctx) {
     });
     scene.add(ag);
     // changed variant – the concrete stair
-    // no cladding: concrete tread = finished tread. Flights = side profile (sloped soffit) extruded across the width; the turn
-    // (26–28) = prisms down to the turn soffit (flush with flight A's soffit)
+    // no cladding: concrete tread = finished tread. Folded plate: flights = side profile with a stepped soffit extruded across
+    // the width; the turn (26–28) = each tread a plate of the same thickness under its own top
     const cg = new THREE.Group(); let m3 = 0;
     const addC = (m) => { cg.add(m); cg.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), PM)); m3 += vol(m.geometry); };
     for (const f of CP.flights) addC(flightMesh(f, conc));
-    for (const n of CP.turn.treads) { const t = st.treads.find(x => x.n === n); addC(prism(t.ringITM, null, CP.turn.bottomRel, t.topRel - CP.finish_m, conc)); }
+    for (const n of CP.turn.treads) { const t = st.treads.find(x => x.n === n); const zt = t.topRel - CP.finish_m; addC(prism(t.ringITM, null, zt - CP.turn.thickness_m, zt, conc)); }
     const c0 = centroid(st.treads[Math.floor(st.treads.length / 2)].ringITM);
     cg.add(label(`הצעה – ממתין לתוכנית (${CP.change}): גרם בטון ${st.risers} × ${Math.round(st.rise_m * 1000) / 10}`, c0[0], c0[1], CP.topRel + DS.labelLift_m, 'lbl change'));
     registry.add(cg, { floor: 'ground', system: 'structure', stage: 'slab', layer: 'stairsProposal', step: CP.step }, {
@@ -128,8 +128,8 @@ export function buildStairs(ctx) {
         ['שלחים', CP.flights.map((f) => `${f.numbers}: רוחב ${f.width_m.toFixed(2)} · שלח ${f.going_m.toFixed(3)} · שיפוע ${f.pitch_deg}°`).join(' | ')],
         ['2R+G', `${((2 * st.rise_m + CP.flights[0].going_m) * 100).toFixed(1)} ס"מ`],
         ['תחתית / הגעה (בטון)', `${coords.fmtH(coords.H0 + CP.bottomRel)} רצפת הקרקע / ${coords.fmtH(coords.H0 + CP.topRel)} שפת התקרה`],
-        ['פודסט פנייה 26–28 – תחתית', coords.fmtH(coords.H0 + CP.turn.bottomRel)],
-        ['עובי שיפוע ⟂ (זמני)', `${Math.round(CP.waist_m * 100)} ס"מ`], ['נפח בטון (הערכה)', `${m3.toFixed(2)} מ"ק`]],
+        ['תחתית', CP.soffit === 'stepped' ? 'מדורגת במקביל למדרכים (גרם מקופל), כולל הפנייה 26–28' : 'משופעת'],
+        ['עובי הלוח (זמני)', `${Math.round(CP.thickness_m * 100)} ס"מ`], ['נפח בטון (הערכה)', `${m3.toFixed(2)} מ"ק`]],
       note: CP.note, source: CP.source,
     });
     scene.add(cg);

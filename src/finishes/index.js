@@ -157,20 +157,73 @@ class Finishes {
     for (const s of this.surf) {
       const ty = this.typeOf(s), fl = s.floor;
       if (this.typeBy[ty]?.drawn === false) continue;   // no plaster there (membrane, cladding, neighbour side, "ללא")
-      const g = groups[ty + '|' + fl] ||= { ty, fl, pts: [], map: [] };
+      const g = groups[ty + '|' + fl] ||= { ty, fl, pts: [], map: [], over: {} };
+      // overhead plaster (ceiling, soffit, exposed beam) hangs a few mm under its slab / beam: a horizontal cut just under the
+      // slab removed the concrete but left the plaster sheet over the whole room (Avihai 13.11.2026). It is kept as separate
+      // pieces that are hidden together with the concrete above them (syncOverhead)
+      const o = this.overheadOf(s);
+      const dst = o ? (g.over[o.key] ||= { ...o, pts: [], map: [] }) : g;
       const tris = this.surfTris(s, off);
-      for (let i = 0; i < tris.length; i += 3) { g.pts.push(tris[i], tris[i + 1], tris[i + 2]); g.map.push(s.key); }
+      for (let i = 0; i < tris.length; i += 3) { dst.pts.push(tris[i], tris[i + 1], tris[i + 2]); dst.map.push(s.key); }
     }
-    this.plasterItems = [];
+    this.plasterItems = []; this.overhead = [];
     for (const g of Object.values(groups)) {
-      if (!g.pts.length) continue;
+      const over = Object.values(g.over).filter(o => o.pts.length);
+      if (!g.pts.length && !over.length) continue;
       const t = this.typeBy[g.ty];
       const m = this.mesh(g.pts, g.map, this.mat(t.color));
+      for (const o of over) {
+        const c = this.mesh(o.pts, o.map, m.material); c.userData.overhead = o; m.add(c); this.overhead.push(c);
+      }
       const it = this.add(m, { floor: g.fl, step: 'plaster', layer: 'plaster_' + g.ty }, {
         name: `${t.label} – ${FLOOR_HE[g.fl]}`, kind: 'plaster', id: 'PL-' + g.ty + '-' + g.fl, pickable: true,
         rows: [], source: 'data/finishes/plaster/surfaces.json (נגזר מהגיאומטריה – tools/finishes/derive_finishes.py)', note: this.T.scratchNote,
         onClick: (hit) => this.pick(hit) });
       this.plasterItems.push(it);
+    }
+  }
+  // the concrete a downward-facing plaster surface hangs from: { key, z } (slab bottom – ceilings, soffit patches) or
+  // { key, beam, bottom, top } (an exposed beam: follows that beam's concrete)
+  overheadOf(s) {
+    if (s.cat === 'ceiling') return { key: 'z' + s.z.toFixed(3), z: s.z };
+    if (s.cat === 'patch' && !s.vertical && !s.up && s.part === 'soffit') return { key: 'z' + s.z.toFixed(3), z: s.z };
+    if (s.cat === 'beam') return { key: 'b' + s.beam + '@' + s.bottom.toFixed(3), beam: s.beam, bottom: s.bottom, top: s.top, z: s.bottom };
+    return null;
+  }
+  // after every visibility change: overhead plaster shows only while the concrete above it does
+  //  · a horizontal cut at or under the slab bottom / beam bottom removes the slab / beam – and its plaster
+  //  · an exposed beam follows its concrete beam (hidden with "הסתר את הקורות של הקומה החתוכה", the floors tab switches, steps)
+  //  · a ceiling follows the "תקרה" switch of the floors tab (the slab layer whose underside is at that level)
+  syncOverhead() {
+    if (!this.overhead?.length) return;
+    const app = this.app; if (!app) return;
+    const st = app.store.get(), sec = st.section || {}, cut = sec.hOn ? sec.hLevel : Infinity, eps = 0.003;
+    const reg = this.ctx.registry;
+    if (!this._beamIdx) {   // concrete beams by name, with their height range (built once – beams are not deferred)
+      this._beamIdx = {}; const b = new THREE.Box3();
+      for (const it of reg.items) {
+        if (!/Beams$/.test(it.tags.layer) || it.tags.system !== 'structure') continue;
+        const id = String(it.meta.name || '').split(/[ ·]/)[0]; if (!id) continue;
+        b.setFromObject(it.object); if (b.isEmpty()) continue;
+        (this._beamIdx[id] ||= []).push({ it, y0: b.min.y, y1: b.max.y });
+      }
+    }
+    if (!this._slabAt) {   // slab underside level -> the slab items there (the "תקרה" switch hides them)
+      this._slabAt = []; const b = new THREE.Box3();
+      const L = new Set(app.data.display.sectionCut?.wallCut?.ceilingSlabLayers || []);
+      for (const it of reg.items) if (L.has(it.tags.layer)) { b.setFromObject(it.object); if (!b.isEmpty()) this._slabAt.push({ it, y0: b.min.y, y1: b.max.y }); }
+    }
+    for (const c of this.overhead) {
+      const o = c.userData.overhead;
+      let on = cut > o.z + eps;
+      if (on && o.beam) {
+        const cand = (this._beamIdx[o.beam] || []).filter(x => x.y0 < o.top - 0.01 && x.y1 > o.bottom + 0.01);
+        if (cand.length) on = cand.some(x => x.it.object.visible);
+      } else if (on) {
+        const sl = this._slabAt.filter(x => Math.abs(x.y0 - o.z) < 0.02);
+        if (sl.length) on = sl.some(x => x.it.object.visible);
+      }
+      c.visible = on;
     }
   }
   rebuildPlaster() {
@@ -536,5 +589,5 @@ class Finishes {
     if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); }
+  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); app.registry.onChange(() => this.syncOverhead()); }
 }

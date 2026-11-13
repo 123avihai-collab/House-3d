@@ -71,6 +71,16 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       if (L.size.l_m !== P.l_m || L.size.w_m !== P.w_m || L.size.thick_m !== P.thick_m || Math.abs(r.product.boxM2 - P.box_m2) > 1e-6 || !r.product.fin) r.productFail = true;
       await W.setChoice(k2, { size: '60x60', finish: 'lightGrey', product: '' });
     }
+    // exterior paving (data/finishes/tiling/exterior.json): the tile top passes through every permit spot (±1 mm),
+    // the stack under it = the build-up, the tiles of an outdoor zone sit on the extTile layer
+    const H0 = a.modules.finishes.ctx.coords.H0, EXR = a.modules.finishes.EX?.rooms || [];
+    r.ext = { zones: W.zones.filter(z => z.r.outdoor).length, want: EXR.length, bad: [] };
+    for (const z of W.zones.filter(z => z.r.outdoor)) {
+      for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); if (Math.abs(d) > 0.001) r.ext.bad.push([z.key, sp.handle, +d.toFixed(4)]); }
+      const tl = z.r.layers.find(l => l.id === 'extTile'), st = z.r.layers.reduce((a2, l) => a2 + (l.dz0 != null ? l.thickness_m : 0), 0);
+      if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
+    }
+    r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile').length;
     W.select(k);
     // "הצג חלוקה": the button in the panel, one shared uniform (no rebuild), back off
     const items0 = a.registry.items.filter(i => i.meta.kind === 'tiles').length;
@@ -90,6 +100,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     fail(name, 'workshop check failed', { ...info, out: undefined });
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones) fail(name, 'exterior paving check failed', info.ext);
   // export
   const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);
   await page.evaluate(() => window.__app.modules.finishes.tiling.exportXlsx());
@@ -106,7 +117,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, xlsx }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, xlsx }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

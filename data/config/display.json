@@ -62,7 +62,24 @@
   "stepUp_m": 0.45,
   "fallSpeed_mps": 4.0,
   "wallClearance_m": 0.3,
-  "_docWalk": "walk mode (js/tools/navigation.js): speeds slow/normal/fast, the highest step that is climbed (stairs, slab level steps), descent speed off an edge, distance kept from walls – display constants, not model dimensions"
+  "_docWalk": "walk mode (js/tools/navigation.js): speeds slow/normal/fast, the highest step that is climbed (stairs, slab level steps), descent speed off an edge, distance kept from walls – display constants, not model dimensions",
+  "walkFovs_deg": [
+   50,
+   75,
+   100
+  ],
+  "walkFovLabels": [
+   "אדם",
+   "רחב",
+   "רחב מאוד"
+  ],
+  "walkFovRange_deg": [
+   35,
+   120
+  ],
+  "planFov_deg": 3,
+  "planNearMargin_m": 80,
+  "_docFov": "זווית ראייה (אנכית, מעלות) – קבועי תצוגה: walkFovs_deg = כפתורי זווית בהליכה (אדם / רחב / רחב מאוד; גלגלת העכבר משנה בין walkFovRange_deg) – רחב = יותר מהחדר מאותה נקודה (לתמונה), לא ראייה אמיתית; planFov_deg = מבט תוכנית ישר מלמעלה: מצלמה גבוהה עם זווית צרה מאוד, כמעט בלי פרספקטיבה (קירות נראים כקווים ולא באלכסון); planNearMargin_m – מישור הקרוב של המצלמה בתוכנית (דיוק עומק)"
  },
  "ao": {
   "enabled": true,
@@ -379,6 +396,12 @@
    "lift_m": 0.01,
    "label": "קורה מעל החתך (מקווקו)"
   },
-  "_docColors": "צבעים כמו בתוכניות האדריכל (קומה קרקע – פיתוח היקפי: כחול = בטון, אדום = בלוק; אביחי 13.11.2026). קורה שנחתכת – כחול כהה; קורה מעל החתך – קו מקווקו על הרצפה (השלכה, כמו בשרטוט). legendHide – סוגים באותו צבע שלא חוזרים במקרא."
+  "_docColors": "צבעים כמו בתוכניות האדריכל (קומה קרקע – פיתוח היקפי: כחול = בטון, אדום = בלוק; אביחי 13.11.2026). קורה שנחתכת – כחול כהה; קורה מעל החתך – קו מקווקו על הרצפה (השלכה, כמו בשרטוט). legendHide – סוגים באותו צבע שלא חוזרים במקרא.",
+  "mono": {
+   "color": "#111111",
+   "beamsAboveColor": "#6b6b6b",
+   "label": "◼ שחור",
+   "_doc": "כפתור 'שחור' בשורת גובה קיר: כל המילויים בשחור (תוכנית אדריכלית לתכנון ריהוט), קורות מעל החתך באפור"
+  }
  }
 }

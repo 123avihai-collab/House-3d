@@ -113,6 +113,12 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     // the six cut states + the provisional dropped ceiling (editable)
     info.cutPresets = await page.evaluate(() => { const a = window.__app, S = a.tools.section, W = a.data.display.sectionCut.wallCut;
       return { n: W.presets.length, ground: W.presets.map(p => S.presetLevel('ground', p)).filter(v => v != null).length, drop: a.modules.finishes?.dropHeight('ground') }; });
+    // plan view (straight down, narrow fov) and back; black fills
+    info.planView = await page.evaluate(() => { const a = window.__app, c = a.viewer.camera, P0 = c.position.clone(), T0 = a.viewer.controls.target.clone(); a.nav.planView(true); const t = a.viewer.controls.target, d = c.position.clone().sub(t);
+      const r = { fov: c.fov, tilt: Math.atan2(Math.hypot(d.x, d.z), d.y) * 180 / Math.PI }; a.nav.planView(false); r.back = c.fov; c.position.copy(P0); a.viewer.controls.target.copy(T0); a.viewer.controls.update();
+      a.store.set({ section: { ...a.store.get().section, mono: true } }, { record: false }); r.mono = a.tools.section.kinds.every(k => k.cap.color.getHexString() === a.data.display.sectionCut.mono.color.slice(1));
+      a.store.set({ section: { ...a.store.get().section, mono: false } }, { record: false }); return r; });
+    if (info.planView.tilt > 0.01 || info.planView.fov >= info.planView.back || !info.planView.mono) throw new Error('plan view ' + JSON.stringify(info.planView));
     if (info.cutPresets.ground !== info.cutPresets.n || info.cutPresets.drop == null) throw new Error('cut presets ' + JSON.stringify(info.cutPresets));
     if (!info.sectionFill.caps || info.sectionFill.shown !== info.sectionFill.caps || !info.sectionFill.row || !info.sectionFill.floors) throw new Error('section fill ' + JSON.stringify(info.sectionFill));
     await page.evaluate(() => { window.__app.store.undo(); window.__app.store.undo(); });

@@ -14,6 +14,8 @@ export class Navigation {
     app.viewer.updaters.push((dt) => this.step(dt));
     window.addEventListener('keydown', e => { if (this.walking && !isTyping(e)) { this.keys.add(e.code); e.preventDefault(); } });
     window.addEventListener('keyup', e => this.keys.delete(e.code));
+    // walk: the mouse wheel widens / narrows the view (zoom out from the same point – the camera does not move)
+    app.viewer.renderer.domElement.addEventListener('wheel', (e) => { if (!this.walking) return; e.preventDefault(); this.setWalkFov(this.walkFov() + Math.sign(e.deltaY) * 5, false); this.app.ui.syncWalkSpeed?.(); }, { passive: false });
   }
   viewpoints() {
     const { data, coords, ground } = this.app;
@@ -34,7 +36,7 @@ export class Navigation {
     return vps;
   }
   goTo(vp) {
-    this.stopWalk();
+    this.stopWalk(); this.planView(false);
     if (vp.stage || vp.step) { const i = vp.step ? this.app.registry.stepById(vp.step) : this.app.registry.stepIndex(vp.stage, 'unit'); if (i >= 0) this.app.store.set({ stageIndex: i }, { label: 'stage' }); }
     this.app.viewer.flyTo(vp.target.clone(), vp.target.clone().add(vp.offset));
   }
@@ -57,9 +59,50 @@ export class Navigation {
     this.app.store.set({ quality: { ...q, walkSpeed: i } }, { record: false });
     this.app.ui.toast(`מהירות הליכה: ${C.walkSpeedLabels?.[i] || ''} (${C.walkSpeeds_mps[i]} מ'/ש')`);
   }
+  // ----- field of view (Avihai 13.11.2026: in a narrow room a wider view from the same point, for a picture) -----
+  setFov(f) { const cam = this.app.viewer.camera; cam.fov = f; cam.updateProjectionMatrix(); this.app.viewer.invalidate(); }
+  walkFov() { const C = this.app.display.camera, q = this.app.store.get().quality; return q.walkFovDeg ?? C.walkFovs_deg?.[0] ?? C.fov; }
+  setWalkFov(f, toast = true) {
+    const C = this.app.display.camera, [a, b] = C.walkFovRange_deg || [C.fov, C.fov];
+    f = Math.round(Math.max(a, Math.min(b, f)));
+    this.app.store.set({ quality: { ...this.app.store.get().quality, walkFovDeg: f } }, { record: false });
+    if (this.walking) this.setFov(f);
+    if (toast) this.app.ui.toast(`זווית ראייה: ${f}°`);
+  }
+  // ----- plan view: straight down, almost no perspective (a very narrow view from high up), walls along the screen axes -----
+  planView(on = !this.plan) {
+    const v = this.app.viewer, C = this.app.display.camera, cam = v.camera;
+    if (on === !!this.plan) return;
+    if (on) {
+      this.stopWalk();
+      this.plan = { fov: cam.fov, near: cam.near, far: cam.far };
+      const t = v.controls.target.clone(), half = Math.max(12, cam.position.distanceTo(t) * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
+      const d = half / Math.tan(THREE.MathUtils.degToRad(C.planFov_deg / 2));
+      this.setFov(C.planFov_deg);
+      // house axes along the screen: the camera looks down with the house rotation (js/tools/snap.js houseAxes)
+      const a = THREE.MathUtils.degToRad(houseAxes(this.app.data, this.app.display.measure?.axisHistogramBinDeg ?? 0.5).deg), e = d * 1e-5;
+      cam.position.set(t.x + Math.sin(a) * e, t.y + d, t.z + Math.cos(a) * e);
+      v.controls.enableRotate = false;
+      this._planNear = () => { const dd = cam.position.distanceTo(v.controls.target); cam.near = Math.max(0.1, dd - C.planNearMargin_m); cam.far = dd + 2 * C.planNearMargin_m; cam.updateProjectionMatrix(); };
+      v.controls.addEventListener('change', this._planNear); this._planNear();
+      v.controls.update();
+      this.app.ui.hint('מבט תוכנית: ישר מלמעלה, בלי פרספקטיבה · גלגלת = זום, גרירה ימנית = הזזה · ▣ שוב ליציאה');
+    } else {
+      v.controls.removeEventListener('change', this._planNear);
+      cam.near = this.plan.near; cam.far = this.plan.far; this.setFov(this.plan.fov);
+      const t = v.controls.target, d = Math.min(60, cam.position.distanceTo(t) * Math.tan(THREE.MathUtils.degToRad(C.planFov_deg / 2)) / Math.tan(THREE.MathUtils.degToRad(this.plan.fov / 2)));
+      cam.position.set(t.x, t.y + d, t.z + d * 0.02);
+      v.controls.enableRotate = true; v.controls.update();
+      this.plan = null;
+    }
+    document.querySelector('#toolbar [data-k="plan"]')?.classList.toggle('on', !!this.plan);
+    v.invalidate();
+  }
   startWalk() {
     const v = this.app.viewer; const C = this.app.display.camera;
+    this.planView(false);
     this.walking = true;
+    this.setFov(this.walkFov());
     v.controls.enabled = false;
     const dir = new THREE.Vector3(); v.camera.getWorldDirection(dir);
     this.yaw = Math.atan2(-dir.x, -dir.z); this.pitch = 0;
@@ -100,7 +143,7 @@ export class Navigation {
     const f = this.groundAt(x, z, y0);
     if (f === null || f < levelRel - 1.0) return false;
     const dir = new THREE.Vector3(); v.camera.getWorldDirection(dir);
-    if (!this.walking) { this.walking = true; v.controls.enabled = false; this.vy = 0; this.pitch = 0; this.app.ui.setWalkUI(true); }
+    if (!this.walking) { this.planView(false); this.walking = true; v.controls.enabled = false; this.vy = 0; this.pitch = 0; this.setFov(this.walkFov()); this.app.ui.setWalkUI(true); }
     this.yaw = Math.atan2(-dir.x, -dir.z);
     v.camera.position.set(x, f + C.eyeHeight_m, z);
     v.invalidate();
@@ -111,6 +154,7 @@ export class Navigation {
     if (!this.walking) return;
     const v = this.app.viewer;
     this.walking = false;
+    this.setFov(this.app.display.camera.fov);
     const dir = new THREE.Vector3(); v.camera.getWorldDirection(dir);
     v.controls.target.copy(v.camera.position).addScaledVector(dir, 10);
     v.controls.enabled = true;

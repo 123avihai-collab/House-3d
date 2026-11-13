@@ -142,6 +142,8 @@ export class UI {
     app.store.on((st) => document.querySelector('#toolbar [data-k="edit"]')?.classList.toggle('on', st.mode === 'edit'));
     tb.append(h('button', { title: 'מבט כללי', onclick: () => app.nav.goTo(app.nav.viewpoints()[0]) }, '⌂'));
     tb.append(h('button', { title: 'מבט על', onclick: () => app.nav.goTo(app.nav.viewpoints()[1]) }, '⊙'));
+    // plan view (Avihai 13.11.2026): straight down, no perspective – walls are lines, for furniture planning
+    tb.append(h('button', { 'data-k': 'plan', title: 'מבט תוכנית: ישר מלמעלה בזווית 90°, בלי פרספקטיבה, הקירות לאורך המסך (לחיצה נוספת – יציאה)', onclick: () => app.nav.planView() }, '▣'));
     const setMap = (on) => { const q = app.store.get().quality; app.store.set({ quality: { ...q, minimap: on } }, { label: 'minimap' }); };
     tb.append(h('button', { 'data-k': 'minimap', title: 'מפה קטנה: הצגה / הסתרה', onclick: () => setMap(app.store.get().quality.minimap === false) }, '🗺'));
     // labels: of the current step -> all -> none
@@ -189,13 +191,19 @@ export class UI {
       const C = this.app.display.camera;
       this.walkSpeedBar = h('div', { id: 'walkspeed', class: 'seg small', title: 'מהירות הליכה (מקשים 1 / 2 / 3)' },
         (C.walkSpeeds_mps || []).map((v, i) => h('button', { 'data-i': i, onclick: () => this.app.nav.setSpeed(i) }, `${C.walkSpeedLabels?.[i] || i + 1}`)));
+      // field of view: human / wide / very wide (the mouse wheel in between) – to see more of a narrow room from the same point
+      this.walkSpeedBar.append(h('span', { class: 'wfov-sep' }, '👁'), ...(C.walkFovs_deg || []).map((f, i) => h('button', { 'data-fov': f, title: `זווית ראייה ${f}° (גלגלת – בין ${C.walkFovRange_deg?.join('° ל-')}°)`, onclick: () => this.app.nav.setWalkFov(f) }, C.walkFovLabels?.[i] || `${f}°`)),
+        this.walkFovVal = h('small', { class: 'wfov-val' }));
       document.getElementById('viewport').append(this.walkSpeedBar);
     }
     this.syncWalkSpeed();
   }
   syncWalkSpeed() {
     const i = this.app.store.get().quality.walkSpeed ?? 1;
-    this.walkSpeedBar?.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+    this.walkSpeedBar?.querySelectorAll('button[data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+    const f = this.app.nav?.walkFov?.();
+    this.walkSpeedBar?.querySelectorAll('button[data-fov]').forEach(b => b.classList.toggle('on', +b.dataset.fov === f));
+    if (this.walkFovVal && f != null) this.walkFovVal.textContent = `${f}°`;
   }
 
   // ---------------- side panel with tabs ----------------
@@ -783,7 +791,10 @@ export class UI {
     // the dropped-ceiling height of the cut floor – provisional, changed here (finishes module, state.dropCeiling)
     this.dropInp = h('input', { type: 'number', step: 0.01, class: 'cut-drop', title: 'גובה הנמכת התקרה (זמני) – יחסית ל-±0.00', onchange: (e) => app.modules.finishes?.setDrop(this.cutFloorSel.value, +e.target.value) });
     this.dropBox = h('label', { class: 'cut-dropbox', title: 'הנמכת תקרה – זמני, אין גובה בתוכניות' }, '⚠ הנמכה', this.dropInp);
-    this.cutRow = h('div', { class: 'stg-cut' }, this.cutFloorSel, h('span', { class: 'cut-pres' }, this.cutPresets), this.cutRange, this.cutVal, this.dropBox, legend);
+    // black plan (Avihai 13.11.2026): every fill black – an architect's plan, pleasant from above for furniture planning
+    this.monoBtn = h('button', { class: 'small cut-mono', title: 'תוכנית בשחור: כל המילויים בשחור (לתכנון ריהוט) – לחיצה נוספת: צבעים לפי סוג', onclick: () => {
+      const sec = app.store.get().section; app.store.set({ section: { ...sec, mono: !sec.mono } }, { label: 'mono' }); } }, ST.C.mono?.label || '◼');
+    this.cutRow = h('div', { class: 'stg-cut' }, this.cutFloorSel, h('span', { class: 'cut-pres' }, this.cutPresets), this.cutRange, this.cutVal, this.dropBox, this.monoBtn, legend);
     return this.cutRow;
   }
   syncCutRow() {
@@ -791,6 +802,7 @@ export class UI {
     const on = !!sec.hOn;
     this.cutBtn.classList.toggle('on', on);
     this.cutRow.classList.toggle('hidden', !on);
+    this.monoBtn.classList.toggle('on', !!sec.mono); this.cutRow.classList.toggle('mono', !!sec.mono);
     if (document.body.classList.contains('cutrow') !== on) { document.body.classList.toggle('cutrow', on); app.viewer.resize(); }
     if (!on) return;
     const fls = ST.wallFloors();

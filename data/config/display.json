@@ -142,7 +142,10 @@
  "stairs": {
   "labelLift_m": 0.4,
   "anchorMarker_m": 0.04,
-  "anchorColor": "#5d6d7e"
+  "anchorColor": "#5d6d7e",
+  "plasterOffset_m": 0.002,
+  "plasterRoughness": 0.9,
+  "plasterColor": "#9c9d98"
  },
  "openings": {
   "_doc": "פרופילי חלונות/דלתות לתצוגה בלבד – אין מקור (מפרט חלונות חסר); sleeveDefaultRel – גובה תצוגה זמני לשרוול בלי גובה במקור; leafParkColor – סימון אזור חניית הכנף; slideSeconds – משך פתיחה / סגירה של כנפי הממ\"ד; nicheColor – קו המתאר של גומחות חלון הממ\"ד (נראה דרך הקיר); handleRel / handleHeight_m – ידית דלת הממ\"ד להמחשה (אין גובה במקור); sleeveBoreColor / sleeveBoreRatio – סימון קדח השרוול",

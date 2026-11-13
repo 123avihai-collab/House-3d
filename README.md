@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 3 – שלד לפי תוכניות הקונסטרוקטור (K-11…K-43, K-400): מרתף, קומת קרקע, קומה א', גג ופרגולות, חומות, מדרגות ופילר; 24 שלבי בנייה; ביקורת ברזל. חלונות ודלתות – בהמתנה** (אושר 07.11.2026; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3](docs/verification/stage-3.md) · [סביבה](docs/verification/environment.md) · [גרם בטון ST2 (OC-3)](docs/verification/stair-st2-concrete.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 3 – שלד לפי תוכניות הקונסטרוקטור (K-11…K-43, K-400): מרתף, קומת קרקע, קומה א', גג ופרגולות, חומות, מדרגות ופילר; 24 שלבי בנייה; ביקורת ברזל. חלונות ודלתות – בהמתנה** (אושר 07.11.2026; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3](docs/verification/stage-3.md) · [סביבה](docs/verification/environment.md) · [גרם בטון ST2 (OC-3)](docs/verification/stair-st2-concrete.md) · [מדרגות ST1](docs/verification/stair-st1.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 

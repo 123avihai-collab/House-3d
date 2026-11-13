@@ -46,7 +46,7 @@ export class Hatches {
     const rg = new THREE.Group(); rg.add(roof);
     this.items.push(F.ctx.registry.add(rg, { floor: 'ground', system: 'structure', stage: 'walls', layer: 'pool' }, { name: 'תקרת חדר המכונות – עם 2 פתחים למכסים (זמני)', status: 'provisional',
       rows: [['תחתית / ראש', `${R.bottom.toFixed(2)} / ${R.top.toFixed(2)} (${Math.round(R.thickness_m * 100)} ס"מ)`], ['פתחים', this.H.hatches.map(h => `${h.label} ${Math.round(h.clear_m[0] * 100)}×${Math.round(h.clear_m[1] * 100)}`).join(' · ')]],
-      source: R.source, note: 'עובי התקרה לפי "גובה פנים 180" בחתך א – זמני (open-issues #206)' }));
+      source: R.source, note: 'עובי התקרה לפי "גובה פנים 180" בחתך א – זמני (open-issues #208)' }));
     F.ctx.scene.add(rg);
     for (const [id, L] of Object.entries(this.lids)) {
       const h = L.h, ring = h.openingITM, lid = inset(ring, P.frameTop_m);
@@ -86,7 +86,7 @@ export class Hatches {
           ['מסגרת / מגש', `${P.frameMaterial} · עומק ${Math.round(P.frameDepth_m * 1000)} מ"מ · פס נראה ${Math.round(P.frameTop_m * 1000)} מ"מ`],
           ['פתיחה', `ציר בצד ${h.hinge === 'pool' ? 'הבריכה' : 'הנגדי'} · ${P.openAngle_deg}° · ${P.struts} בוכנות`], ['ריצוף', 'באותה רשת פוגות של הריצוף מסביב (סדנת ריצוף, אזור ' + L.r.roomName + ')'],
           ['עומס', P.load], ['לחיצה', 'פתיחה / סגירה']],
-        source: h.source, note: 'סוג מוצר, מידות מסגרת ובוכנות – זמניים (open-issues #206)', onClick: () => this.toggle(id) });
+        source: h.source, note: 'סוג מוצר, מידות מסגרת ובוכנות – זמניים (open-issues #208)', onClick: () => this.toggle(id) });
       F.ctx.scene.add(grp); this.items.push(it);
       this.pose(id);
     }

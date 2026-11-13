@@ -60,6 +60,7 @@ export function buildStairs(ctx) {
         m3 += vol(m.geometry);
       }
       stats.concrete_m3 += m3;
+      if (st.sidePlaster?.length) buildSidePlaster(st);
     } else {
       for (const t of st.treads) {
         const m = prism(t.ringITM, null, t.topRel - st.treadThickness_m, t.topRel, light); g.add(m);
@@ -75,7 +76,10 @@ export function buildStairs(ctx) {
       : { floor: st.floor, system: 'finishes', stage: 'finishes', layer: 'stairsLight' };
     const rows = [['רומים', `${st.risers} × ${(st.rise_m * 100).toFixed(1)} ס"מ`]];
     if (st.flights) rows.push(['שלחים', st.flights.map((f) => `${f.numbers}: רוחב ${f.width_m.toFixed(2)} · שלח ${f.going_m.toFixed(3)}`).join(' | ')],
-      ['עובי שיפוע (ניצב)', `${Math.round(st.waist_m * 100)} ס"מ`]);
+      [st.soffit === 'stepped' ? 'עובי הלוח' : 'עובי שיפוע (ניצב)', `${Math.round(st.waist_m * 100)} ס"מ`]);
+    if (st.firstRiser_m) rows.push(['רום ראשון / אחרון (מהריצוף)', `${(st.firstRiser_m * 100).toFixed(1)} / ${(st.lastRiser_m * 100).toFixed(1)} ס"מ`],
+      ['חיפוי', st.cladding || 'אין – הבטון הוא המדרך הגמור'], ['תחתית', st.soffit === 'stepped' ? 'מדורגת (גרם מקופל)' : 'משופעת']);
+    if (st.sidePlaster?.length) rows.push(['טיח צדדים', st.sidePlaster.map(p => `${p.flight} ${p.area_m2.toFixed(2)} מ"ר`).join(' · ')]);
     if (st.landings?.length) rows.push(['פודסטים', st.landings.map((L) => `${L.label} ${coords.fmtH(coords.H0 + L.topRel)} (D=${Math.round(L.thickness_m * 100)})`).join(' · ')]);
     if (st.treads) rows.push(['מדרכים', `${st.treads.length} (כולל 27–28 פנייה), עובי ${Math.round(st.treadThickness_m * 100)} ס"מ`]);
     if (m3) rows.push(['נפח בטון', `${m3.toFixed(2)} מ"ק`]);
@@ -84,6 +88,30 @@ export function buildStairs(ctx) {
       ...(CP ? { variant: { change: CP.change, show: 'original' } } : {}) });
     scene.add(g);
     if (CP) buildStairProposal(st, CP);
+  }
+
+  // interior plaster on the exposed side of a flight (data: st.sidePlaster – the side not cast against a wall): the side profile
+  // (stepped soffit) as a surface just outside the flight's side, in the plaster layer of its type
+  function buildSidePlaster(st) {
+    const T = data.plasterTypes?.types || [];
+    for (const sp of st.sidePlaster) {
+      const f = st.flights.find(x => x.id === sp.flight); const ty = T.find(t => t.id === sp.type) || {};
+      const g = new THREE.ShapeGeometry(new THREE.Shape(f.profile.map(([a, z]) => new THREE.Vector2(a, z))));
+      const [x0, z0] = coords.xz(...f.originITM);
+      const dir = (v) => { const [a, b] = coords.xz(f.originITM[0] + v[0], f.originITM[1] + v[1]); return new THREE.Vector3(a - x0, 0, b - z0).normalize(); };
+      const run = dir(f.runDirITM), right = dir(f.rightDirITM);
+      const off = sp.side === 'right' ? f.width_m + DS.plasterOffset_m : -DS.plasterOffset_m;
+      const M = new THREE.Matrix4().makeBasis(run, new THREE.Vector3(0, 1, 0), right); M.setPosition(x0 + right.x * off, 0, z0 + right.z * off);
+      g.applyMatrix4(M);
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: ty.color || DS.plasterColor, roughness: DS.plasterRoughness, side: THREE.DoubleSide,
+        polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+      m.receiveShadow = true;
+      registry.add(m, { floor: st.floor, system: 'finishes', stage: 'finishes', layer: `plaster_${sp.type}`, step: 'plaster' }, {
+        id: `${f.id}-plaster-${sp.side}`, name: `${ty.label || 'טיח'} – צד השלח ${f.numbers} (${st.name})`, status: st.status,
+        rows: [['שטח', `${sp.area_m2.toFixed(2)} מ"ר`], ['צד', 'הצד החשוף (לא צמוד לקיר)']], source: st.source,
+      });
+      scene.add(m);
+    }
   }
 
   // OC-3 (Avihai's note 14): the light / floating stair of the plans vs a concrete stair on the same path.

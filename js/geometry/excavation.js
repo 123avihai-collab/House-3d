@@ -5,6 +5,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { regionMesh } from './terrain.js';
 import { pointInRing, distToPolyline, nearestOnRing, densifyRing, ringArea, distToRing } from './tin.js';
+import { surfaceZ } from '../../src/tiling/layout.js';
 
 // Excavation for the dwelling unit (basement), from data/structure/excavation.json:
 // floor = bottom outline + working space (floorOutlineITM) at bottomAbs.
@@ -171,7 +172,12 @@ export function buildExcavation(ctx) {
     // a zone: 'garden', another change's slab ring (e.g. 'OC-8'), or { key, ringITM, surfaceRel } given in the data
     const ring = typeof k === 'object' ? k.ringITM : k === 'garden' ? garden : OCG[k]?.slab?.ringITM; if (!ring) continue;
     const rel = typeof k === 'object' && k.surfaceRel != null ? k.surfaceRel : g.terrain.surfaceRel;
-    zone(typeof k === 'object' ? `${id}-${k.key}` : k, ring).terrain = { id, g, fn: () => coords.H0 + rel };
+    // followPaving (OC-17): the surface follows the finished paving of an outdoor zone (exterior.json, its sloped surface) + offset
+    const FP = g.terrain.followPaving, PR = FP && (data.tilingExterior?.rooms || []).find(r => r.slab === FP.slab);
+    const pz = PR ? surfaceZ(PR.surface) : null;
+    if (FP && !pz) console.warn(`${id}: no paving surface for ${FP.slab}`);
+    const fn = pz ? (E, N) => coords.H0 + pz(E, N) + FP.offset_m : () => coords.H0 + rel;
+    zone(typeof k === 'object' ? `${id}-${k.key}` : k, ring).terrain = { id, g, fn, layers: g.terrain.layers };
   }
   for (const z of ocZones) {
     const S = z.slab, V = (id, show) => ({ change: id, show });
@@ -349,12 +355,49 @@ const exMeta = {
     rows: [['גינה / רצועות', 'פני הקרקע המתוכננים (מפה למשתכן)'], ['מתחת לרצפות', 'נשאר מתחת למבנה']],
     ocZones: ocZones.map(z => z.key),
     note: 'פני הקרקע הסופיים בגינה וברצועות – לפי גבהי הפיתוח בתוכנית קומת הקרקע של ההיתר (הערת אביחי 09.11.2026); בתוך הבית, הרצפות, הבריכה והחצרות – המבנה.', source: 'data/site/development-heights.json; data/structure/floor-ground.json' });
+  // an applied terrain change with layers (OC-17, garden): local soil fill from the levelled ground up to the base, then the
+  // compacted base course; each layer its own mesh / layer / volume (data/changes/owner-changes-geometry.json terrain.layers)
+  const buildLayers = (z, v, zCtrl) => {
+    const A = v.applied, Ls = A.layers, base = Ls.find(l => l.key === 'base'), fillL = Ls.find(l => l.key === 'fill');
+    const t = base?.thickness_m || 0, topF = v.fn, botF = (E, N) => topF(E, N) - t;
+    const area = Math.abs(ringArea(z.ring)), c = ocById[A.id] || { title: A.id, description: '' };
+    // fill volume on the volume grid: base underside − levelled ground (working surface)
+    let fv = 0, cv = 0, fMin = Infinity, fMax = 0, tMin = Infinity, tMax = -Infinity;
+    const xs = z.ring.map(p => p[0]), ys = z.ring.map(p => p[1]);
+    for (let x = Math.min(...xs) + gv / 2; x < Math.max(...xs); x += gv) for (let y = Math.min(...ys) + gv / 2; y < Math.max(...ys); y += gv) {
+      if (!pointInRing(x, y, z.ring)) continue;
+      const dd = botF(x, y) - working(x, y), d = Math.max(0, dd); fv += d * gv * gv; cv += Math.max(0, -dd) * gv * gv; fMin = Math.min(fMin, d); fMax = Math.max(fMax, d);
+      tMin = Math.min(tMin, topF(x, y)); tMax = Math.max(tMax, topF(x, y));
+    }
+    for (const [E, N] of z.ring) { tMin = Math.min(tMin, topF(E, N)); tMax = Math.max(tMax, topF(E, N)); }
+    const meta = { ...fillMeta, role: 'plot', area, status: 'owner-change', note: c.description, source: A.g.terrain.source, ocId: A.id };
+    const add = (fn, mat, L, name, rows) => {
+      const m = regionMesh(z.ring, fn, coords, materials.get(mat), null, T, zCtrl);
+      const gz = new THREE.Group(); gz.add(m);
+      const pts = z.ring.concat([z.ring[0]]).map(([E, N]) => coords.toLocal(E, N, fn(E, N) + 0.02));
+      gz.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: ocColor })));
+      registry.add(gz, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: L.layer }, { ...meta, name, rows, hMax: m.userData.hMax, hMin: m.userData.hMin });
+      scene.add(gz);
+    };
+    const f3 = (h) => `${h.toFixed(3)} (${(h - coords.H0 < 0 ? '−' : '+') + Math.abs(h - coords.H0).toFixed(3)})`;
+    const rng = (a, b) => (Math.abs(b - a) < 0.0005 ? f3(a) : `${f3(a)} – ${f3(b)}`);
+    if (fillL) add(botF, 'soilFillLocal', fillL, `גינה – ${fillL.label} (${A.id}, החלטת אביחי)`, [
+      ['חומר', fillL.material], ['מ-', 'פני הקרקע אחרי היישור (חישוף + יישור המגרש)'], ['עד', `תחתית המצע ${rng(tMin - t, tMax - t)}`],
+      ['עובי', `${Math.round(fMin * 100)}–${Math.round(fMax * 100)} ס"מ`], ['נפח מילוי', `${fv.toFixed(1)} מ"ק`],
+      ...(cv > 0.05 ? [['חיתוך (קרקע מעל תחתית המצע)', `${cv.toFixed(1)} מ"ק`]] : []), ['שטח', `${area.toFixed(1)} מ"ר`]]);
+    if (base) add(topF, 'gardenBase', base, `גינה – ${base.label} ${Math.round(t * 100)} ס"מ (${A.id}, החלטת אביחי)`, [
+      ['ראש המצע', `${rng(tMin, tMax)} = פני הריצוף ${A.g.terrain.followPaving?.slab || ''} − ${Math.round(Math.abs(A.g.terrain.followPaving?.offset_m || 0) * 100)} ס"מ`],
+      ['תחתית', rng(tMin - t, tMax - t)], ['עובי', `${Math.round(t * 100)} ס"מ`], ['חומר / הידוק', `${base.material} · ${base.compaction}`],
+      ['נפח', `${(area * t).toFixed(2)} מ"ק`], ['שטח', `${area.toFixed(1)} מ"ר`]]);
+    stats.garden = { id: A.id, area_m2: area, top: [tMin, tMax], base_m3: area * t, fill_m3: fv, cut_m3: cv, fillThk: [fMin, fMax] };
+  };
   // the two versions of every owner-change zone of the final surface
   const ocById = Object.fromEntries((data.ownerChanges?.changes || []).map(c => [c.id, c]));
   const ocColor = display.framing.ownerChangeColor;
   for (const z of ocZones) {
     const zCtrl = ctrlL.filter(p => pointInRing(p.x, p.y, z.ring));
     for (const v of z.versions) {
+      if (v.applied?.layers) { buildLayers(z, v, zCtrl); continue; }
       const c = v.oc ? (ocById[v.oc.id] || { title: v.oc.id, description: '' }) : null;
       const m = regionMesh(z.ring, v.fn, coords, materials.get('soilPlot'), null, T, v.plans ? zCtrl : []);
       const gz = new THREE.Group(); gz.add(m);

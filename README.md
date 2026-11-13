@@ -3,7 +3,7 @@
 מודל תלת-ממדי מדויק של הבית ושל המגרש. אתר סטטי (Three.js) שעובד גם בטלפון.
 כל מידה במודל נגזרת מקבצי המקור בלבד. ראו [CLAUDE.md](CLAUDE.md) (חוקי הפרויקט) ו-[sources/README.md](sources/README.md).
 
-**שלב נוכחי: 3 – שלד לפי תוכניות הקונסטרוקטור (K-11…K-43, K-400): מרתף, קומת קרקע, קומה א', גג ופרגולות, חומות, מדרגות ופילר; 24 שלבי בנייה; ביקורת ברזל. חלונות ודלתות – בהמתנה** (אושר 07.11.2026; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3](docs/verification/stage-3.md) · [סביבה](docs/verification/environment.md) · [גרם בטון ST2 (OC-3)](docs/verification/stair-st2-concrete.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
+**שלב נוכחי: 3 – שלד לפי תוכניות הקונסטרוקטור (K-11…K-43, K-400): מרתף, קומת קרקע, קומה א', גג ופרגולות, חומות, מדרגות ופילר; 24 שלבי בנייה; ביקורת ברזל. חלונות ודלתות – בהמתנה** (אושר 07.11.2026; עד IFC). אימות: [שלב 1](docs/verification/stage-1.md) · [שלב 2](docs/verification/stage-2.md) · [שלב 2ב](docs/verification/stage-2b.md) · [שלב 3](docs/verification/stage-3.md) · [סביבה](docs/verification/environment.md) · [גרם בטון ST2 (OC-3)](docs/verification/stair-st2-concrete.md) · [מדרגות ST1](docs/verification/stair-st1.md) · שאלות פתוחות: [docs/open-issues.md](docs/open-issues.md)
 
 ## הרצה
 
@@ -53,7 +53,7 @@ js/
     terrain.js             משטחי קרקע: מגרש (מתוכנן/קיים), שכנים, מדרכה, כביש, משטח ייחוס
     site.js                גבול מגרש, נקודות, קווי בניין, קווי גובה, תוויות, חץ צפון, רשת ITM
     frontStreet.js         הרחוב בחזית המגרש (רחוב משולב 960): ריצוף לפי החתך, נתיב, תעלה, איים, אבן גן; קו הרחוב של חזית החומה להשוואה
-    excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח
+    excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח; הגינה הצפונית (OC-17): מילוי אדמה מקומית + מצע מהודק 10 ס"מ עד 2 ס"מ מתחת לפני ריצוף GS2 – שכבות gardenFill / gardenBase, [אימות](docs/verification/garden-fill.md)
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
     foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
     floors.js              שלד קומה: רצפה, קירות ועמודים שעולים ממנה, תקרה וקורות (floor-<קומה>.json)
@@ -151,7 +151,7 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 | סרגל שלבי בנייה + "רק שלד" / "הכול" | ✅ | בשלב "מצב קיים" המגרש מוצג לפי מדידת 2025. מ"גמרים" ואילך מוצגים פני הקרקע המתוכננים |
 | שכבות ותשתיות, הדלקה וכיבוי לפי סוג, צבע לכל מערכת | ✅ (מגרש, סביבה) · מערכות: בקרוב | `data/config/layers.json` |
 | **ריצוף חוץ** (13.11.2026): 6 אזורים, 172.95 מ"ר – מרפסת, חניה, חצרות, מרווח מערבי, כניסה. פני הריצוף בשיפוע, ועוברים בדיוק בכל 26 נקודות הגובה שבהיתר. שכבות: בטון שיפועים (משתנה) → איטום צמנטי → דבק → אריח חוץ (בסדנת הריצוף, קבוצה "ריצוף חוץ"). כמויות: בטון שיפועים במ"ק, איטום במ"ר, גיליון "שכבות חוץ" בייצוא. **רשת פוגות משותפת** (catalog.json gridGroups): כל החוץ + מרפסות קומה א' באותה רשת – פוגות רציפות, שינוי באזור אחד חל על כולם, "פריסה מושלמת לכל הרשת"; ספי הדלתות החוצה שייכים לאזור החוץ | ✅ זמני | `tools/finishes/derive_exterior.py`, `data/finishes/tiling/exterior.json` · [אימות](docs/verification/exterior-paving.md) · פתוחים: #200–#204 (🔴 #201 / OC-16 חניה – לפי K-21, לשינוי) |
-| **מכסי ריצוף לחדר המכונות של הבריכה** (13.11.2026): 2 מכסים 100×107 (מתוכנית האדריכל) – מסגרת נירוסטה, מגש מרוצף באותה רשת פוגות של הריצוף מסביב, ציר בצד הבריכה, פתיחה ל-95° עם 2 בוכנות (לחיצה במודל = פתיחה / סגירה); תקרת חדר המכונות עם הפתחים | ✅ זמני | `src/tiling/hatches.js`, `tools/finishes/derive_hatches.py`, `data/finishes/exterior/hatches*.json` · [אימות](docs/verification/pool-hatches.md) · פתוח: #206 |
+| **מכסי ריצוף לחדר המכונות של הבריכה** (13.11.2026): 2 מכסים 100×107 (מתוכנית האדריכל) – מסגרת נירוסטה, מגש מרוצף באותה רשת פוגות של הריצוף מסביב, ציר בצד הבריכה, פתיחה ל-95° עם 2 בוכנות (לחיצה במודל = פתיחה / סגירה); תקרת חדר המכונות עם הפתחים | ✅ זמני | `src/tiling/hatches.js`, `tools/finishes/derive_hatches.py`, `data/finishes/exterior/hatches*.json` · [אימות](docs/verification/pool-hatches.md) · פתוח: #208 |
 | טיח, איטום, שכבות רצפה (שלב 5א) | ✅ | טיח צמנטי באפור אחד על קירות, קורות, גליפים ותקרות; איטום חדרים רטובים; 4 שכבות רצפה; חיפויי חוץ (קטגוריה נפרדת, כבויה). לשונית "טיח וריצוף": מקרא, כמויות, מחירון, ייצוא xlsx. תיקונים 11.11: docs/finishes/plaster.md. **12.11: טיח במישור אחד** – מדרגות עד 8 ס"מ בין אלמנטים נבלעות בעובי הטיח, פינות נסגרות, AO לא "רואה" דרך הטיח ([בדיקה](docs/verification/plaster-flatten.md)). פתוחים: open-issues #151–#165, #172, #177 |
 | תכנון חשמל + כתב כמויות נקודות | בתכנון | פרוגרמה ותוכנית עבודה: [docs/electrical/01-program.md](docs/electrical/01-program.md). ח1 (הזנה ראשית, אושר 10.11.2026): [docs/electrical/02-supply.md](docs/electrical/02-supply.md) – `python3 tools/electrical/propose_supply.py && python3 tools/electrical/verify_supply.py`; לוח "חשמל" במודל – שלב אחר שלב. ח1ב (לוח לכל יחידת דיור, הצעה): [docs/electrical/03-unit-panels.md](docs/electrical/03-unit-panels.md) – `python3 tools/electrical/propose_units.py && python3 tools/electrical/verify_units.py`. ממתין להחלטות E8–E18 |
 | מידות: לחיצה על רכיב → מידות, מקור, מרחקים לגבולות (ולקירות כשיהיו) | ✅ | |

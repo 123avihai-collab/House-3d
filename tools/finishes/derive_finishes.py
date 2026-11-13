@@ -952,6 +952,79 @@ for c in CLOSERS + GAPCL:
                     typeReason='גליף של פתח בקיר בטון – צדי הפתח (והמשקוף)', source=c['src'])
 
 
+# ---------------------------------------------------------------- exterior paving (ק68–ק75, 13.11.2026): outside, the plaster starts at the
+# paving surface in front of the face (tools/finishes/paving.py ← data/finishes/tiling/exterior.json) – the slab edges / beam
+# sides at the level steps between the exterior slabs (B-37) and the foot of the walls are inside the paving build-up; the
+# basement walls outside: waterproofing + protection sheet only up to the ground / paving in front, cement plaster above (ק68)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import numpy as np
+from paving import Paving
+PAVE = Paving()
+import skin as SKIN
+SOIL_AT = SKIN.soil_and_floor(globals())[0]
+
+
+def refit(f, z0, z1):
+    """a copy of the wall face record cut to [z0, z1]: openings clipped, areas recomputed"""
+    g = dict(f); g['z0'], g['z1'] = r3(z0), r3(z1)
+    ops = []
+    for o in f['openings']:
+        oz0, oz1 = max(o['z0'], z0), min(o['z1'], z1)
+        if oz1 - oz0 > 0.005: ops.append(dict(o, z0=r3(oz0), z1=r3(oz1)))
+    g['openings'] = ops
+    g['gross'] = r3(f['length'] * (z1 - z0))
+    g['openingsArea'] = r3(sum((o['s1'] - o['s0']) * (o['z1'] - o['z0']) for o in ops
+                               if (o['s1'] - o['s0']) * (o['z1'] - o['z0']) >= TYPES['params']['openingMinArea_m2']))
+    g['net'] = r3(g['gross'] - g['openingsArea'])
+    if f.get('scaffold'):
+        lim = f['standing'] + TYPES['params']['scaffoldAbove_m']
+        g['scaffold'] = z1 > lim + 1e-6
+        g['scaffoldArea'] = r3(g['net'] * max(0.0, z1 - max(z0, lim)) / (z1 - z0)) if g['scaffold'] else 0.0
+    return g
+
+
+PAVE_LOG = []
+NEWF = []
+for f in FACES:
+    if f['side'] != 'out' and f['floor'] != 'site': NEWF.append(f); continue
+    if f['floor'] == 'unit' and f['defaultType'] == 'membrane':
+        # the ground / paving in front of the face (the lowest along it – no strip of membrane left in sight)
+        L = f['length']; k = max(2, int(L / 0.1) + 1)
+        t = np.linspace(0.02, max(0.02, L - 0.02), k) / L
+        X = f['a'][0] + (f['b'][0] - f['a'][0]) * t + f['normal'][0] * 0.03; Y = f['a'][1] + (f['b'][1] - f['a'][1]) * t + f['normal'][1] * 0.03
+        g0 = float(np.min(SOIL_AT(X, Y)))
+        if f['z0'] + 0.02 < g0 < f['z1'] - 0.02:
+            lo, hi = refit(f, f['z0'], g0), refit(f, g0, f['z1'])
+            hi['defaultType'], hi['typeReason'] = 'exterior', 'קיר מרתף מבחוץ, מעל פני הקרקע / הריצוף שלפניו – טיח צמנטי (ק68)'
+            hi['zSource'] = f'פני הקרקע / הריצוף שלפני הקיר {g0 + H0:.2f}'
+            lo['typeReason'] = f['typeReason'] + f' – עד פני הקרקע / הריצוף שלפניו ({g0 + H0:.2f})'
+            NEWF += [lo, hi]; PAVE_LOG.append(('split', f['owner'], r3(g0), r3(f['length']))); continue
+        NEWF.append(f); continue
+    pv = PAVE.along(f['a'], f['b'], f['normal'])
+    if np.isnan(pv).all(): NEWF.append(f); continue
+    z0 = float(np.nanmin(pv))
+    if z0 <= f['z0'] + 0.002: NEWF.append(f); continue
+    if z0 >= f['z1'] - 0.02: PAVE_LOG.append(('drop', f['owner'], r3(z0), r3(f['length']))); continue
+    g = refit(f, z0, f['z1']); g['zSource'] = f'פני הריצוף שלפני הקיר {z0 + H0:.2f}'
+    NEWF.append(g); PAVE_LOG.append(('clip', f['owner'], r3(z0), r3(f['length'])))
+FACES[:] = NEWF
+for b_ in BEAMSURF:
+    keep = []
+    for x in b_['sides']:
+        if x.get('room'): keep.append(x); continue
+        pv = PAVE.along(x['a'], x['b'], x['normal'])
+        if np.isnan(pv).all(): keep.append(x); continue
+        z0 = float(np.nanmin(pv))
+        if z0 <= x['z0'] + 0.002: keep.append(x); continue
+        if z0 >= x['z1'] - 0.02: PAVE_LOG.append(('drop', b_['beam'], r3(z0), r3(math.dist(x['a'], x['b'])))); continue
+        x = dict(x, z0=r3(z0), area=r3(math.dist(x['a'], x['b']) * (x['z1'] - z0))); keep.append(x)
+        PAVE_LOG.append(('clip', b_['beam'], r3(z0), r3(math.dist(x['a'], x['b']))))
+    if len(keep) != len(b_['sides']) or any(k_ is not o_ for k_, o_ in zip(keep, b_['sides'])):
+        b_['sides'] = keep; b_['area'] = b_['net'] = r3(sum(x['area'] for x in keep) + sum(x['area'] for x in b_['flats']))
+BEAMSURF[:] = [b_ for b_ in BEAMSURF if b_['sides'] or b_['flats']]
+print('paving clip (ק68–ק75):', {k: sum(1 for x in PAVE_LOG if x[0] == k) for k in ('clip', 'drop', 'split')})
+for x in PAVE_LOG: print('  ', *x)
+
 # ---------------------------------------------------------------- keys, overrides
 def keyed(items, fn):
     seen = defaultdict(int)
@@ -1097,6 +1170,65 @@ def summarize():
 
 
 TOT = summarize()
+# ---------------------------------------------------------------- proposals (ק76, 13.11.2026): the cantilever beam an owner change puts in
+# place of a cancelled wall (js/geometry/proposals.js – footprint = the wall, depth = the beam it catches): exterior plaster on
+# its free sides, soffit and top. Shown only with the change on (variant "changed"); not in the quantities (a proposal).
+PROPOSAL_BEAMS = []
+CANCELLED = {w['id'] for D in (GF, FF, RF) for w in D['walls'] if w.get('cancelledBy')}
+for D in (GF, FF, RF):
+    for w in D['walls']:
+        if not w.get('cancelledBy') or not w.get('framedBy'): continue
+        fb = w['framedBy'][0]; bz, tz = fb['bottomRel'], fb['topRel']
+        R = poly(w['footprintITM']).buffer(0.001, join_style=2).buffer(-0.001, join_style=2)
+        if R.geom_type != 'Polygon': R = max(R.geoms, key=lambda g: g.area)
+        occ = [o for o in OCC if o.get('id') not in CANCELLED and o['top'] > bz + 0.005 and o['bottom'] < tz - 0.005]
+        occ += [dict(P=x['P'], poly=x['R'], bottom=x['bottomRel'], top=x['topRel'], id=x['id']) for x in BEAM_LIST if x['topRel'] > bz + 0.005 and x['bottomRel'] < tz - 0.005]
+        sides = []
+        ring = list(R.exterior.coords)
+        for A, B in zip(ring, ring[1:]):
+            L = math.dist(A, B)
+            if L < 0.03: continue
+            ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L; nx, ny = unit_normal(A, B, True)
+            if R.contains(Point((A[0] + B[0]) / 2 + nx * 0.01, (A[1] + B[1]) / 2 + ny * 0.01)): nx, ny = -nx, -ny
+            n = max(1, int(L / 0.05)); ds = L / n; run = None; out_ = []
+            for j in range(n):
+                q = Point(A[0] + ux * (j + 0.5) * ds + nx * 0.02, A[1] + uy * (j + 0.5) * ds + ny * 0.02)
+                iv = [[bz, tz]]
+                for o in occ:
+                    if not o['P'].contains(q): continue
+                    nv = []
+                    for lo, hi in iv:
+                        if o['bottom'] > lo: nv.append([lo, min(hi, o['bottom'])])
+                        if o['top'] < hi: nv.append([max(lo, o['top']), hi])
+                    iv = [v for v in nv if v[1] - v[0] > 0.02]
+                key_ = tuple((r3(lo), r3(hi)) for lo, hi in iv)
+                if run and run[2] == key_: run[1] = (j + 1) * ds
+                else:
+                    if run and run[2]: out_.append(run)
+                    run = [j * ds, (j + 1) * ds, key_]
+            if run and run[2]: out_.append(run)
+            for s0, s1, ivs in out_:
+                for lo, hi in ivs:
+                    sides.append(dict(a=[r3(A[0] + ux * s0), r3(A[1] + uy * s0)], b=[r3(A[0] + ux * s1), r3(A[1] + uy * s1)], normal=[r3(nx), r3(ny)],
+                                      z0=lo, z1=hi, area=r3((s1 - s0) * (hi - lo)), room=None))
+        under = [o['poly'] for o in occ + [o for o in OCC if o.get('id') not in CANCELLED] if abs(o['top'] - bz) < 0.03]
+        over = [o['poly'] for o in OCC + [dict(poly=x['R'], bottom=x['bottomRel']) for x in BEAM_LIST] if o.get('id') not in CANCELLED and abs(o['bottom'] - tz) < 0.03 or (o.get('kind') == 'slab' and o['bottom'] - 0.03 <= tz <= o['top'] + 0.03)]
+        flats = []
+        for g, z_, part in [(R.difference(unary_union(under)) if under else R, bz, 'soffit'), (R.difference(unary_union(over)) if over else R, tz, 'top')]:
+            for q in getattr(g, 'geoms', [g]):
+                if q.geom_type != 'Polygon' or q.area < 0.01: continue
+                q = clean(q)
+                if q.geom_type != 'Polygon': continue
+                flats.append(dict(part=part, z=r3(z_), ringITM=[[r3(x), r3(y)] for x, y in list(q.exterior.coords)[:-1]], area=r3(q.area), room=None))
+        area = r3(sum(x['area'] for x in sides) + sum(x['area'] for x in flats))
+        PROPOSAL_BEAMS.append(dict(kind='beam', beam=f"{w['cancelledBy']}-cantilever", floor='ground', room=None, roomType='outdoor', width=w['thickness_m'],
+                                   bottom=r3(bz), top=r3(tz), pergola=False, sides=sides, flats=flats, area=area, net=area, scaffold=False, scaffoldArea=0,
+                                   defaultType='exterior', type='exterior', overridden=False, key=f"ground|beam|{w['cancelledBy']}-cantilever#1",
+                                   variant=dict(change=w['cancelledBy'], show='changed'), proposal=True,
+                                   typeReason=f"קורת זיז מוצעת ({w['cancelledBy']}) במקום {w.get('displayName') or w['id']} – טיח חוץ צמנטי, רק במצב ההצעה (ק76); לא בכמויות",
+                                   source=f"js/geometry/proposals.js – מתאר {w['id']} ({w['source']}), עומק כמו {fb['id']} (זמני)", status='provisional'))
+print('proposal beams (ק76):', [(b['beam'], b['area'], len(b['sides']), [f['part'] for f in b['flats']]) for b in PROPOSAL_BEAMS])
+
 for r in ROOMS: r.pop('poly', None)
 meta = dict(source='tools/finishes/derive_finishes.py – נגזר מגיאומטריית המודל (ראו _doc)', generated='derived')
 dump('data/architecture/rooms.json', dict(_doc='חדרים – נגזרים מהחללים הסגורים בין פני הקירות בכל קומה (tools/finishes/derive_finishes.py). '
@@ -1106,7 +1238,7 @@ dump('data/finishes/plaster/surfaces.json', dict(_doc='משטחי טיח – נ�
      'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה), top (ראש קיר / מעקה), reveal (גליפים: צדי הפתח והמשקוף), beam (קורה גלויה: דפנות, תחתית, ראש). '
      'patch (השלמה – פן חשוף של השלד שאף משטח אחר לא מכסה: אדן, שפת רצפה במדרגה, גומחה, קצה קיר, תחתית מבחוץ; vertical: a→b + z0..z1, אחרת ringITM ב-z, up = פונה למעלה). net = ברוטו פחות פתחים. '
      'מישור אחד (tools/finishes/flatten.py): shift = הטיח מוקדם למישור המשטח (עובי משתנה, מ\'), ext = הארכה בפינה [בקצה a, בקצה b], hidden = פן מדרגה בתוך הטיח המעובה (בכמויות, לא מצויר); fillers – מילוי תצוגה של סדקי מ"מ (לא בכמויות). meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
-     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, patches=PATCHES, fillers=FILLERS, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
+     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, proposalBeams=PROPOSAL_BEAMS, patches=PATCHES, fillers=FILLERS, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
 dump('data/finishes/tiling/surfaces.json', dict(_doc='רצפות – שטח לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פנלים (היקף פחות דלתות), ושכבות הרצפה: סומסום / טיט-מדה / דבק / אריח '
      '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES))
 dump('data/finishes/cladding/surfaces.json', dict(_doc='חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.',

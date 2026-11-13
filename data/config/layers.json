@@ -73,6 +73,16 @@
      "visible": true
     },
     {
+     "id": "frontStreet",
+     "label": "רחוב בחזית – ריצוף, תעלה, איים, אבן גן",
+     "visible": true
+    },
+    {
+     "id": "frontStreetProfile",
+     "label": "קו הרחוב לפי חזית החומה (השוואה)",
+     "visible": true
+    },
+    {
      "id": "pillar",
      "label": "פילר מערכות + חדר אשפה",
      "visible": true

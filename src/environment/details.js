@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { regionMesh } from '../../js/geometry/terrain.js';
+import { pointInRing } from '../../js/geometry/tin.js';
 import { ENV_TAGS } from './common.js';
 import { treeGeometry, shrubGeometry } from './vegetation.js';
 
@@ -15,6 +16,9 @@ export function buildDetails(ctx, mats, lots) {
   const interpOf = Object.fromEntries(lots.map(x => [x.lot.parcel, x.interp]));
   const gAt = (E, N) => ground.heightAt(E, N, 'env');
   const M = (n) => mats.get(n);
+  // street in front of lot 5187: modelled in detail by js/geometry/frontStreet.js – lane / channel / islands are skipped inside it
+  const fs = data.frontStreet?.outline, inFs = (p) => !!fs && pointInRing(p[0], p[1], fs);
+  const fsHole = fs ? [fs] : [];
 
   // box between two plan points a,b (ITM), from z0 to z1, thickness t, pushed out by `off` along the outward normal
   // UVs in metres (texture tile size from the material)
@@ -151,6 +155,7 @@ export function buildDetails(ctx, mats, lots) {
   }
   for (const b of D.bays) {
     if (b.kind === 'line') { const z = gAt(...b.pts[0]); S.lines.push(box(b.pts[0], b.pts[b.pts.length - 1], z + 0.005, z + 0.02, 0.1, 0, [0, 0])); }
+    else if (inFs(centre(b.ring))) continue;
     else {
       // planting island: soil 5 cm below a raised edge stone (אבן גן) all around it
       const zs = b.ring.map(p => gAt(...p)), zt = Math.max(...zs), r = b.ring, ec = D.config.street.islandEdge;
@@ -165,7 +170,7 @@ export function buildDetails(ctx, mats, lots) {
   // integrated street lane (dark 'מלבן' pavers), regular-road parking bays, driveway crossings, bollards
   const curbH = D.config.street.curbHeight_m, LaneG = [], BayG = [], CrossG = [], BolG = [];
   const flat = (ring, lift, arr) => { const zs = ring.map(p => gAt(...p)); arr.push(extrude(ring, Math.min(...zs) + lift - 0.01, Math.max(...zs) + lift)); };
-  for (const r of D.lane || []) { const g = regionMesh(r, (E, N) => gAt(E, N), coords, M('envLane'), null, T, []).children[0].geometry; g.translate(0, 0.012, 0); LaneG.push(g); }
+  for (const r of D.lane || []) { const g = regionMesh(r, (E, N) => gAt(E, N), coords, M('envLane'), null, T, [], fsHole).children[0].geometry; g.translate(0, 0.012, 0); LaneG.push(g); }
   for (const b of D.bayPave || []) { const g = regionMesh(b.ring, (E, N) => gAt(E, N), coords, M('envBay'), null, T, []).children[0].geometry; g.translate(0, 0.01, 0); BayG.push(g); }
   for (const c of D.crossings || []) { const g = regionMesh(c.ring, (E, N) => gAt(E, N), coords, M('nbDriveway'), null, T, []).children[0].geometry; g.translate(0, (c.curbCut ? curbH : 0) + 0.02, 0); CrossG.push(g); }
   for (const b of D.bollards || []) { const g = new THREE.CylinderGeometry(0.07, 0.08, 0.8, 10); g.translate(X(b.at[0]), Y(b.z) + 0.4, Z(b.at[1])); BolG.push(g); }
@@ -176,6 +181,7 @@ export function buildDetails(ctx, mats, lots) {
   const GutG = [];
   for (const gt of D.gutters || []) for (let i = 0; i < gt.pts.length - 1; i++) {
     const a = gt.pts[i], b = gt.pts[i + 1], z = Math.min(gAt(...a), gAt(...b));
+    if (inFs(a) && inFs(b)) continue;
     GutG.push(box(a, b, z - 0.1, z + 0.015, gt.width, 0, [0, 0]));
   }
   merged(GutG, M('curb'), 'streetFurniture', { name: 'תעלת ניקוז – אבן תעלה דו-שיפועית 30/10/50', kind: 'gutter', source: D.config.street.gutter_why }, false);
@@ -211,3 +217,5 @@ export function buildDetails(ctx, mats, lots) {
   merged(Lp.head, M('nbLamp'), 'streetFurniture', lm);
   return { houseMaterials: houseMats };
 }
+
+function centre(r) { return r.reduce((s, p) => [s[0] + p[0] / r.length, s[1] + p[1] / r.length], [0, 0]); }

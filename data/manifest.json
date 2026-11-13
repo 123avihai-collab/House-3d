@@ -65,7 +65,8 @@
   "poolCatalog": "data/finishes/pool/catalog.json",
   "poolLayout": "data/finishes/pool/layout.json",
   "droppedCeiling": "data/finishes/dropped-ceiling.json",
-  "tilingDoorStrips": "data/finishes/tiling/door-strips.json"
+  "tilingDoorStrips": "data/finishes/tiling/door-strips.json",
+  "frontStreet": "data/site/front-street.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

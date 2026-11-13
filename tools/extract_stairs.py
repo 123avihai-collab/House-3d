@@ -115,18 +115,21 @@ def flight(f, x0, x1, ys, z0, rise, start, waist, sense):
             'treadLevels': [r3(v) for v in z], 'riserS_m': [r3(v) for v in s], 'sense': sense}
 
 
-def fold(F, levels, zb0, t):
-    """re-profile a straight flight as a FOLDED PLATE (Avihai 13.11.2026): levels = the level reached by each riser (finished =
-    concrete, no cladding); zb0 = bottom of the first riser (the slab / landing it stands on); t = plate thickness – the soffit
-    is stepped parallel to the treads (tread − t) and risers (riser + t); the plate runs t on under the next landing (bearing)."""
+def slope(F, levels, zb0, t):
+    """re-profile a straight flight to the given riser levels (finished = concrete, no cladding) with a SLOPED soffit
+    (Avihai 13.11.2026): the nosing line lowered by the waist t (perpendicular). zb0 = bottom of the first riser where it
+    stands on a floor slab (None: the flight springs from the landing edge, the soffit starts at the first riser)."""
     s = F['riserS_m']; n = len(s)
-    prof = [(s[0], zb0), (s[0], levels[0])]
-    for k in range(1, n): prof += [(s[k], levels[k - 1]), (s[k], levels[k])]
-    prof += [(s[-1] + t, levels[-1]), (s[-1] + t, levels[-1] - t)]
-    for k in range(n - 1, 0, -1):
-        prof += [(s[k] + t, levels[k] - t), (s[k] + t, levels[k - 1] - t)]
-    prof += [(s[0] + t, levels[0] - t), (s[0] + t, zb0)]
-    return dict(F, profile=[[r3(a), r3(b)] for a, b in prof], treadLevels=[r3(v) for v in levels], soffit='stepped')
+    going = (s[-1] - s[0]) / (n - 1); m = (levels[-2] - levels[0]) / (s[-2] - s[0]) if n > 2 else levels[0] / going
+    off = t / math.cos(math.atan(m))
+    soff = lambda x: levels[0] + m * (x - s[0]) - off
+    # the last riser climbs onto the landing / slab (drawn as its own slab) – the flight stops at that riser line
+    z0 = zb0 if zb0 is not None else soff(s[0])
+    prof = [(s[0], z0), (s[0], levels[0])]
+    for k in range(1, n - 1): prof += [(s[k], levels[k - 1]), (s[k], levels[k])]
+    prof += [(s[-1], levels[-2]), (s[-1], soff(s[-1]))]
+    if zb0 is not None and soff(s[0]) > zb0: prof += [(s[1], soff(s[1])), (s[1], zb0)]   # first tread solid on the slab
+    return dict(F, profile=[[r3(a), r3(b)] for a, b in prof], treadLevels=[r3(v) for v in levels], soffit='sloped')
 
 
 def ring(f, pts):
@@ -175,10 +178,10 @@ def main():
     # Avihai 13.11.2026 (redesign): NO cladding – the concrete tread is the finished tread, measured from the FINISHED floors
     # (unit -2.60 / ground ±0.00): riser 1 stands on the basement slab -2.75 (the 15 cm floor build-up abuts it), every riser
     # rise1 incl. the first one off the unit's tiling, landing 8 = -2.60 + 8·rise1 (concrete = finish), riser 15 reaches the
-    # ground slab -0.15 + build-up = ±0.00. Folded plate (stepped soffit) like ST2, thickness WAIST (section A-A, approx).
+    # ground slab -0.15 + build-up = ±0.00. Sloped soffit (Avihai: diagonal, not stepped), waist WAIST (section A-A, approx).
     L8 = rel['basement'] + 8 * rise1
-    A = fold(A, [rel['basement'] + (k + 1) * rise1 for k in range(8)], relc['basement'], WAIST)
-    B = fold(B, [L8 + (k + 1) * rise1 for k in range(6)] + [relc['ground']], L8 - LAND, WAIST)
+    A = slope(A, [rel['basement'] + (k + 1) * rise1 for k in range(8)], relc['basement'], WAIST)
+    B = slope(B, [L8 + (k + 1) * rise1 for k in range(6)] + [relc['ground']], None, WAIST)
     # plaster on the exposed side of each flight: the side away from the shaft wall (the 9 cm slot between the two flights,
     # seen from the unit); the other side is cast against the basement wall
     BWm = [Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0) for w in FRm['basementWalls']] + [Polygon(w['footprintITM']).buffer(0) for w in FGm['walls']]
@@ -191,7 +194,7 @@ def main():
         for side in ('left', 'right'):
             if exposed(F, side): sidePlaster.append({'flight': fid, 'side': side, 'type': 'interior', 'area_m2': r3(Polygon(F['profile']).area)})
     st1 = {'id': 'ST1', 'name': 'מדרגות בטון: מרתף ← קרקע', 'kind': 'concrete', 'floor': 'unit', 'step': 'groundSlab',
-           'rise_m': r3(rise1), 'risers': 15, 'waist_m': WAIST, 'soffit': 'stepped', 'cladding': None, 'sidePlaster': sidePlaster,
+           'rise_m': r3(rise1), 'risers': 15, 'waist_m': WAIST, 'soffit': 'sloped', 'cladding': None, 'sidePlaster': sidePlaster,
            'firstRiser_m': r3(A['treadLevels'][0] - rel['basement']), 'lastRiser_m': r3(rel['ground'] - B['treadLevels'][-2]),
            'flights': [dict(A, id='ST1-A', numbers='1–8'), dict(B, id='ST1-B', numbers='9–15')],
            'landings': [{'id': 'ST1-L8', 'label': 'פודסט ביניים (8)', 'ringITM': [[r3(a), r3(b)] for a, b in land8.exterior.coords[:-1]],
@@ -202,7 +205,7 @@ def main():
                               'source': f"K-11 BS1 O.K={relc['basement']:+.2f}; K-21 GS1 O.K={relc['ground']:+.2f}; ריצוף {round(fin1['ground'] * 100)} ס\"מ מעל הבטון בשני הקצוות (סביב הגרם – לא על המדרכים)"},
            'crossCheck_m': {'flight9to15_groundVsBasementSheet': chkB},
            'status': 'approx',
-           'note': 'אין תוכנית קונסטרוקציה למדרגות: מיקום ומספר שלבים מהתוכניות האדריכליות, עובי הלוח / הפודסט נמדדו בחתך א-א 1:100. תכנון מחדש (אביחי 13.11.2026): בלי חיפוי – הבטון הוא המדרך הגמור; כל 15 הרומים שווים, כולל הראשון מריצוף היחידה ‎-2.60 והאחרון אל ריצוף הקרקע ±0.00. רום 1 עומד על רצפת המרתף ‎-2.75 (מילוי וריצוף 15 ס"מ צמודים אליו), פודסט הביניים ‎-1.21 בדיוק בגובה רום 8, רום 15 מגיע לרצפת הקרקע ‎-0.15 + 15 ס"מ ריצוף. גרם מקופל – תחתית מדורגת. טיח פנים על הצד החשוף של כל שלח.',
+           'note': 'אין תוכנית קונסטרוקציה למדרגות: מיקום ומספר שלבים מהתוכניות האדריכליות, עובי הלוח / הפודסט נמדדו בחתך א-א 1:100. תכנון מחדש (אביחי 13.11.2026): בלי חיפוי – הבטון הוא המדרך הגמור; כל 15 הרומים שווים, כולל הראשון מריצוף היחידה ‎-2.60 והאחרון אל ריצוף הקרקע ±0.00. רום 1 עומד על רצפת המרתף ‎-2.75 (מילוי וריצוף 15 ס"מ צמודים אליו), פודסט הביניים ‎-1.21 בדיוק בגובה רום 8, רום 15 מגיע לרצפת הקרקע ‎-0.15 + 15 ס"מ ריצוף. תחתית משופעת (באלכסון) בשני השלחים, עובי ⟂ 20 ס"מ. טיח פנים על הצד החשוף של כל שלח.',
            'source': f'{BA} (שלבים 1–8); {GA} (שלבים 9–15, מוצגים בחיתוך); {SEC} (מפלסים, "מדרגות בטון ירידה למרתף", עוביים); K-21 (פתח הפיר)'}
 
     # ---------- ST2: light stair ground -> first floor (section: "מדרגות קלות עלייה קומה א'"), risers 16-37 ----------

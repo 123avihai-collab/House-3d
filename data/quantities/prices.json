@@ -294,6 +294,34 @@
      "source_date": "2022",
      "confidence": "low",
      "note": "פוליביד – ללא מחיר מפורסם"
+    },
+    {
+     "key": "concrete_b20",
+     "item": "בטון מובא ב-20 (לבטון רזה) – מחיר מפעל",
+     "unit": "מ\"ק",
+     "price": 290,
+     "low": 260,
+     "high": 320,
+     "scope": "supply",
+     "source_title": "מחיר קוב בטון 2026 – israel-concrete.co.il",
+     "source_url": "https://israel-concrete.co.il/guides/concrete-price",
+     "source_date": "2026-10",
+     "confidence": "medium",
+     "note": "לפני שאיבה"
+    },
+    {
+     "key": "void_former_supply",
+     "item": "ארגזי הפרדה 25 ס\"מ – אספקה בלבד",
+     "unit": "מ\"ר",
+     "price": 45,
+     "low": 35,
+     "high": 55,
+     "scope": "supply",
+     "source_title": "הערכה – 55 ₪/מ\"ר כולל הנחה (כתב כמויות 2022) פחות עבודה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": ""
     }
    ]
   },
@@ -416,6 +444,34 @@
      "source_date": "2025-05",
      "confidence": "high",
      "note": "רשתות מרותכות מותקנות: 4,403.08 ₪/טון; חומר בלבד ~3,600 ₪/טון"
+    },
+    {
+     "key": "rebar_material",
+     "item": "ברזל מצולע – חומר בלבד",
+     "unit": "טון",
+     "price": 3600,
+     "low": 3400,
+     "high": 4500,
+     "scope": "supply",
+     "source_title": "פרו בילדר – מוט ברזל בניין מצולע 12 מ\"מ",
+     "source_url": "https://probuilder.co.il/product/%D7%9E%D7%95%D7%98-%D7%91%D7%A8%D7%96%D7%9C-%D7%91%D7%A0%D7%99%D7%99%D7%9F-12-%D7%9E%D7%9E/",
+     "source_date": "2024–2025",
+     "confidence": "medium",
+     "note": "הובלה חינם מ-6 טון"
+    },
+    {
+     "key": "rebar_cut_bend",
+     "item": "חיתוך וכיפוף ברזל – תוספת לטון",
+     "unit": "טון",
+     "price": 150,
+     "low": 80,
+     "high": 180,
+     "scope": "labor",
+     "source_title": "פרו בילדר (חיתוך 100 ₪/טון) + כיפוף 80–180 ₪/טון",
+     "source_url": "https://probuilder.co.il/",
+     "source_date": "2024–2025",
+     "confidence": "medium",
+     "note": ""
     },
     {
      "key": "spacer",

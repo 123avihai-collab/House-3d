@@ -26,7 +26,7 @@ import elements as EL
 
 ROOT = EL.ROOT
 OUT = ROOT / 'docs/quantities/boq-skeleton.xlsx'
-SN = OrderedDict(sum='סיכום', step='לפי שלב', ew='01 עבודות עפר', conc='02 בטון', fw='02 טפסנות', rb='02 ברזל',
+SN = OrderedDict(sum='סיכום', cost='עלות קבלן', step='לפי שלב', ew='01 עבודות עפר', conc='02 בטון', fw='02 טפסנות', rb='02 ברזל',
                  blk='04 בנייה', wp='05 איטום וניקוז', price='מחירון', par='הנחות ופחת', chk='בקרה', open='פתוחים')
 STATUS_HE = {'source': 'מקור', 'approved': 'אושר', 'provisional': 'זמני', 'approx': 'בקירוב', 'missing': 'חסר', 'owner-change': 'שינוי דייר'}
 FLOOR_HE = EL.FLOOR_HE
@@ -294,6 +294,7 @@ def build_concrete(B, E):
           [None] * 18 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['02.2 בטון רזה וארגזי הפרדה'] = (f"{q('conc')}!T{r}", 'K-400 פרט רצפה תלויה')
     B.leanRow = r0
+    B.lean = dict(m3=f"({q('conc')}!P{r0}+{q('conc')}!P{r0+2})", m3order=f"({q('conc')}!R{r0}+{q('conc')}!R{r0+2})", void=f"({q('conc')}!R{r0+1}+{q('conc')}!R{r0+3})")
     r += 2
     # ---- concrete material + placing + pump
     S.section(r, 'בטון – חומר, יציקה ושאיבה'); r += 1
@@ -309,6 +310,7 @@ def build_concrete(B, E):
           note='שלבי היציקה מרצף הבנייה במודל (data/config/tags.json sequence): ' + ', '.join(B.steps[s].split('· ')[1] for s in pours if s in B.steps)); r += 1
     S.row(r, [None, None, 'משאבת בטון – תוספת לכל מ"ק מעבר ל-10 ביציקה', None, None, None, 'מ"ק', None, None, None, None, None, None, 'Σ להזמנה − 10 × יציקות',
               f"=MAX(0,R{B.concTotal}-10*P{r-1})", None, None, f"={B.PR('pump_m3')}", f"=P{r}*S{r}"], [None] * 14 + [NUM3, None, None, NIS, NIS]); r += 1
+    B.pump = f"({q('conc')}!T{r-2}+{q('conc')}!T{r-1})"
     S.row(r, [None, None, 'סה"כ בטון – חומר, יציקה ושאיבה', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, f"=SUM(T{r0}:T{r-1})"],
           [None] * 18 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['02.3 בטון ב-30 – חומר, יציקה ושאיבה'] = (f"{q('conc')}!T{r}", 'בלי כלונסאות')
@@ -357,7 +359,7 @@ def build_formwork(B, E):
     for typ, he in FW_HE.items():
         S.row(r, [None, he, None, None, None, None, f"=SUMIF($F${r0}:$F${r1},\"{he}\",$H${r0}:$H${r1})", 'מ"ר'], [None] * 6 + [NUM]); tot[typ] = f"H{r}"; r += 1
     S.row(r, [None, 'סה"כ שטח טפסנות', None, None, None, None, '=' + '+'.join(tot.values()), 'מ"ר'], [None] * 6 + [NUM], bold=True, fill=TOTAL_FILL, top=True)
-    totAll = f"H{r}"; B.qty['טפסנות – שטח מגע'] = (f"{q('fw')}!H{r}", 'מ"ר'); r += 1
+    totAll = f"H{r}"; B.fwTot = f"{q('fw')}!H{r}"; B.qty['טפסנות – שטח מגע'] = (f"{q('fw')}!H{r}", 'מ"ר'); r += 1
     S.row(r, [None, 'תמיכות – סה"כ יח\' (בכל היציקות)', None, None, None, None, f"=SUMIF($F${r0}:$F${r1},\"תמיכות*\",$H${r0}:$H${r1})", "יח'"], [None] * 6 + [QTY], bold=True)
     props = f"H{r}"; r += 2
     # materials
@@ -382,6 +384,7 @@ def build_formwork(B, E):
         r += 1
     S.row(r, [None, 'סה"כ חומרי טפסנות', None, None, None, None, None, None, None, f"=SUM(K{m0}:K{r-1})"], [None] * 9 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
     B.sum['02.4 טפסנות – חומרים (לוחות, עץ, תמיכות, אביזרים)'] = (f"{q('fw')}!K{r}", 'לפי מספר שימושים')
+    B.fwMat = f"{q('fw')}!K{r}"
     r += 1
     S.row(r, [len(items) + 1, 'עבודת טפסנות (הרכבה ופירוק) – לפי שטח מגע', None, None, None, 'Σ שטח', f"={totAll}", 'מ"ר', f"={B.PR('formwork_labor')}", f"=H{r}*J{r}"],
           [QTY, None, None, None, None, None, NUM, None, NIS, NIS])
@@ -443,6 +446,7 @@ def build_rebar(B, E):
     S.row(r, [3, 'סה"כ ברזל – מסופק, חתוך, מכופף ומותקן', None, None, None, None, None, None, None, None, f"=L{r-2}+L{r-1}", None, f"=N{r-2}+N{r-1}", 'טון',
               f"={B.PR('rebar_ton')}", f"=N{r}/1000*P{r}"], [None] * 10 + [NUM, None, NUM, None, NIS, NIS], bold=True)
     tonRow = r; r += 1
+    B.rbKg = f"{q('rb')}!N{tonRow}"
     S.row(r, [4, 'חוט קשירה (נכלל בדרך כלל במחיר ההתקנה – לבקרה)', None, None, None, None, None, None, None, None, None, None, f"=ROUNDUP(N{tonRow}/1000*{B.P('rebar.wireKgPerTon')},0)", 'ק"ג', 0, f"=N{r}*P{r}"],
           [None] * 10 + [None, None, QTY, None, NIS, NIS]); r += 1
     S.row(r, [5, 'ספייסרים (שומרי מרחק) – רצפות, תקרות, קירות', None, None, None, None, None, None, None, None, None, None,
@@ -611,6 +615,8 @@ def build_blocks(B):
     S.row(r, [None, 'סה"כ ארגזי תריס', None, None, f"=SUM(F{s0}:F{r-1})", None, None, f"=SUM(I{s0}:I{r-1})", None, None, None, f"=SUM(M{s0}:M{r-1})"], [None] * 4 + [NUM3, None, None, NUM3, None, None, None, NIS],
           bold=True, fill=TOTAL_FILL, top=True)
     boxTot = r; r += 2
+    B.blk = dict(area=f"{q('blk')}!E{blkTot}", blocks=f"{q('blk')}!M{blkTot}", bond=f"{q('blk')}!M{bondTot}", lintel=f"{q('blk')}!M{linTot}",
+                 box=f"{q('blk')}!M{boxTot}", lintelConc=f"{q('blk')}!K{linTot}", lintels=f"{q('blk')}!J{linTot}", boxes=f"COUNT({q('blk')}!F{s0}:F{boxTot-1})")
     S.section(r, 'עבודה'); r += 1
     S.header(r, ["מס'", 'פריט', '', 'כמות', "יח'", '', '', '', '', '', '₪ ליח\'', 'עלות (₪)'], h=30); r += 1
     S.row(r, [1, 'בניית קירות בלוקים בהדבקה (עבודה)', None, f"=E{blkTot}", 'מ"ר', None, None, None, None, None, f"={B.PR('block_labor_m2')}", f"=E{r}*L{r}"], [QTY, None, None, NUM, None, None, None, None, None, None, NIS, NIS]); r += 1
@@ -772,6 +778,142 @@ def build_summary(B):
     S.finish(r, landscape=False)
 
 
+# ------------------------------------------------------------------ contractor's own cost (cost-plus) and bid check
+def build_cost(B):
+    """What the skeleton works really cost the contractor before profit: materials at supplier prices, own labour
+    by productivity norms × employer day cost, subcontractors and equipment at market prices, site overheads by
+    duration, company overhead. Then profit scenarios and a check of the contractor's bid."""
+    ws = B.ws['cost']; D = J('data/quantities/contractor-cost.json')
+    S = Sheet(ws, note_col=11, widths={'A': 2, 'B': 5, 'C': 50, 'D': 24, 'E': 12, 'F': 9, 'G': 12, 'H': 9, 'I': 13, 'J': 15, 'K': 46})
+    S.title(1, 'עלות קבלן השלד | כמה העבודה עולה לו באמת – לפני רווח',
+            'חומרים במחיר ספק · עבודה עצמית = כמות × נורמת תפוקה (ימי אדם) × עלות מעסיק ליום · קבלני משנה וצמ"ה במחיר שוק · הוצאות אתר לפי משך העבודה · תקורת חברה. '
+            'היקף = קבלן השלד (בלי איטום). 🟡 = קלט: נורמות, עלויות, משך, הצעת הקבלן. מקורות: data/quantities/contractor-cost.json.')
+    par = {}
+    r = 3
+    # ---------- inputs
+    S.section(r, 'א · נתוני קלט – נורמות ועלויות'); r += 1
+    S.header(r, ["מס'", 'פרמטר', 'מקור', 'ערך', "יח'", 'ודאות'], h=30); r += 1
+    n = 0
+    for grp in D['inputs']:
+        S.row(r, [None, grp['title']], [None], bold=True, fill=NOW_FILL); r += 1
+        for it in grp['items']:
+            n += 1
+            v = it['value']
+            S.row(r, [n, it['item'], it.get('source_title', ''), v, it['unit'], {'high': 'גבוהה', 'medium': 'בינונית', 'low': 'נמוכה'}.get(it.get('confidence'), '')],
+                  [QTY, None, None, PCT1 if it['unit'] == '%' else NUM, None, None], fill=BAND_FILL if n % 2 == 0 else None,
+                  note=((it.get('note') or '') + (' · ' + it['source_url'] if it.get('source_url') else '')) or None, wrap_cols=(4,))
+            if it['unit'] == '%':
+                ws.cell(row=r, column=5).value = v / 100
+            S.paint(r, 5, INPUT_FILL)
+            if it.get('confidence') == 'low':
+                S.paint(r, 7, WARN_FILL)
+            par[it['key']] = f"$E${r}"
+            r += 1
+    P = lambda k: par[k]
+    r += 1
+    # ---------- direct cost
+    S.section(r, 'ב · עלות ישירה לקבלן'); r += 1
+    S.header(r, ["מס'", 'סעיף', 'בסיס', 'כמות', "יח'", 'נורמה / מקדם', 'ימי אדם', '₪ ליח\' / ליום', 'עלות (₪)'], h=30); r += 1
+    rows = {}
+    k = 0
+
+    def line(key, label, basis, qty, unit, norm, rate, cost=None, fmtq=NUM, note=None, cat=None):
+        nonlocal r, k
+        k += 1
+        md = f"=E{r}*G{r}" if norm is not None else None
+        c = cost or (f"=H{r}*I{r}" if norm is not None else f"=E{r}*I{r}")
+        S.row(r, [k, label, basis, qty, unit, norm, md, rate, c], [QTY, None, None, fmtq, None, RATE if norm is not None else None, NUM, NIS, NIS],
+              fill=BAND_FILL if k % 2 == 0 else None, note=note, wrap_cols=(4,))
+        rows.setdefault(cat, []).append(f"J{r}")
+        if norm is not None:
+            rows.setdefault('md', []).append(f"H{r}")
+        r += 1
+
+    day = f"({P('day_skilled')}*{P('crew_skilled_share')}+{P('day_helper')}*(1-{P('crew_skilled_share')}))"
+    S.row(r, [None, '1. חומרים – במחיר ספק (כולל פחת)'], [None], bold=True, fill=NOW_FILL); r += 1
+    line('conc', 'בטון ב-30 מובא', 'גיליון 02 בטון – להזמנה', f"={q('conc')}!R{B.concTotal}", 'מ"ק', None, f"={B.PR('concrete_b30')}", cat='mat')
+    line('lean', 'בטון רזה ב-20', 'גיליון 02 בטון – להזמנה', f"={B.lean['m3order']}", 'מ"ק', None, f"={B.PR('concrete_b20')}", cat='mat')
+    line('void', 'ארגזי הפרדה 25 ס"מ', 'גיליון 02 בטון – להזמנה', f"={B.lean['void']}", 'מ"ר', None, f"={B.PR('void_former_supply')}", cat='mat')
+    line('rebar', 'ברזל מצולע – חומר + חיתוך וכיפוף', 'גיליון 02 ברזל – להזמנה', f"={B.rbKg}/1000", 'טון', None, f"={B.PR('rebar_material')}+{B.PR('rebar_cut_bend')}", fmtq=NUM3, cat='mat')
+    line('fwmat', 'חומרי טפסנות (לוחות, עץ, תמיכות, אביזרים)', 'גיליון 02 טפסנות', 1, 'קומפ\'', None, f"={B.fwMat}", cat='mat')
+    line('blk', 'בלוקי איטונג, דבק, טיט, בלוקי משקוף, ארגזי תריס', 'גיליון 04 בנייה', 1, 'קומפ\'', None, f"={B.blk['blocks']}+{B.blk['bond']}+{B.blk['lintel']}+{B.blk['box']}", cat='mat')
+    line('lintc', 'בטון מילוי למשקופים (ב-30)', 'גיליון 04 בנייה', f"={B.blk['lintelConc']}", 'מ"ק', None, f"={B.PR('concrete_b30')}", fmtq=NUM3, cat='mat')
+    S.row(r, [None, '2. עבודה עצמית – ימי אדם × עלות מעסיק ליום (צוות מעורב)'], [None], bold=True, fill=NOW_FILL); r += 1
+    T = B.fwTypeRefs
+    for typ, lab, nk in (('walls', 'טפסנות קירות', 'norm_fw_walls'), ('columns', 'טפסנות עמודים', 'norm_fw_columns'), ('beams', 'טפסנות קורות', 'norm_fw_beams'),
+                         ('slabs', 'טפסנות תקרות', 'norm_fw_slabs'), ('edges', 'טפסנות שוליים ולחיים', 'norm_fw_edges')):
+        line(typ, f"{lab} – הרכבה ופירוק", 'גיליון 02 טפסנות', f"={q('fw')}!{T[typ]}", 'מ"ר', f"={P(nk)}", f"={day}", cat='lab')
+    line('rbfix', 'קשירת והתקנת ברזל', 'גיליון 02 ברזל', f"={B.rbKg}/1000", 'טון', f"={P('norm_rebar')}", f"={day}", fmtq=NUM3, cat='lab')
+    line('place', 'יציקה, ויברציה והחלקה (עם משאבה)', 'גיליון 02 בטון – נטו', f"={q('conc')}!P{B.concTotal}", 'מ"ק', f"={P('norm_concrete')}", f"={day}", cat='lab')
+    line('leanl', 'יציקת בטון רזה', 'גיליון 02 בטון', f"={B.lean['m3']}", 'מ"ק', f"={P('norm_lean')}", f"={day}", cat='lab')
+    line('voidl', 'הנחת ארגזי הפרדה', 'גיליון 02 בטון', f"={B.lean['void']}", 'מ"ר', f"={P('norm_void')}", f"={day}", cat='lab')
+    line('blkl', 'בניית קירות איטונג בהדבקה', 'גיליון 04 בנייה', f"={B.blk['area']}", 'מ"ר', f"={P('norm_blocks')}", f"={day}", cat='lab')
+    line('lintl', 'משקופים וארגזי תריס – הרכבה, זיון ויציקה', 'גיליון 04 בנייה', f"={B.blk['lintels']}+{B.blk['boxes']}", "יח'", f"={P('norm_lintel')}", f"={day}", fmtq=QTY, cat='lab')
+    S.row(r, [None, '3. קבלני משנה וצמ"ה – במחיר שוק (מה שהקבלן משלם)'], [None], bold=True, fill=NOW_FILL); r += 1
+    line('earth', 'עבודות עפר (חפירה, פינוי, מילוי, דיפון)', 'גיליון 01 עבודות עפר', 1, 'קומפ\'', None, f"={B.sum['01 עבודות עפר'][0]}", cat='sub')
+    line('piles', 'כלונסאות – קידוח ויציקה + בדיקות סוניות', 'גיליון 02 בטון', 1, 'קומפ\'', None, f"={B.sum['02.1 כלונסאות – קידוח, בטון, בדיקות'][0]}", cat='sub')
+    line('pump', 'משאבת בטון', 'גיליון 02 בטון', 1, 'קומפ\'', None, f"={B.pump}", cat='sub')
+    line('drain', 'ניקוז בגב החומות (קומפלט)', 'גיליון 05', 1, 'קומפ\'', None, f"={B.sum['05.2 ניקוז בגב החומות (חצץ, בד גיאוטכני, צינורות)'][0]}", cat='sub')
+    line('crane', 'מנוף – הרמת ברזל, טפסנות ובלוקים', 'ימי מנוף ליציקה × יציקות', f"={len(B.pours)}*{P('crane_days_per_pour')}", 'יום', None, f"={P('crane_day')}", cat='sub')
+    line('tools', 'כלים, ויברטורים, ציוד קטן וחומרי עזר', '% מהעבודה העצמית', f"={P('tools_pct')}", '%', None, '=' + '+'.join(rows['lab']), cost=f"=E{r}*I{r}", fmtq=PCT1, cat='sub')
+    S.row(r, [None, 'סה"כ עלות ישירה', None, None, None, None, '=' + '+'.join(rows['md']), None, '=' + '+'.join(rows['mat'] + rows['lab'] + rows['sub'])],
+          [None] * 6 + [NUM, None, NIS], bold=True, fill=TOTAL_FILL, top=True)
+    direct = f"J{r}"; mdTot = f"H{r}"; r += 2
+    # ---------- site overheads
+    S.section(r, 'ג · הוצאות אתר (לפי משך העבודה)'); r += 1
+    S.header(r, ["מס'", 'סעיף', 'בסיס', 'כמות', "יח'", '', '', '₪ ליח\'', 'עלות (₪)'], h=30); r += 1
+    s0 = r; k = 0
+    lot = J('data/site/plot-5187.json')
+    per = round(EL.ring_perim(lot['ring']), 2) if isinstance(lot.get('ring'), list) else 0
+    site = [('מנהל עבודה באתר', 'משך העבודה', f"={P('months')}", 'חודש', f"={P('foreman_month')}"),
+            ('ממונה בטיחות – ביקורים', 'משך העבודה', f"={P('months')}", 'חודש', f"={P('safety_month')}"),
+            ('מבנה אתר + שירותים כימיים', 'משך העבודה', f"={P('months')}", 'חודש', f"={P('site_cabin_month')}"),
+            ('גדר אתר זמנית', f"היקף המגרש {per} מ'", per, "מ'", f"={P('fence_m')}"),
+            ('חיבור מים וחשמל זמני + צריכה', 'משך העבודה', f"={P('months')}", 'חודש', f"={P('utilities_month')}"),
+            ('בדיקות מעבדה לבטון (קוביות)', 'יציקה', len(B.pours), 'יציקה', f"={P('lab_per_pour')}"),
+            ('מודד – סימון כלונסאות, צירים ומפלסים', 'ימי מודד', f"={P('surveyor_days')}", 'יום', f"={P('surveyor_day')}"),
+            ('פינוי פסולת בנייה – מכולות', 'מכולות', f"={P('waste_containers')}", "יח'", f"={P('container')}")]
+    for i, (lab, basis, qv, unit, rate) in enumerate(site):
+        k += 1
+        S.row(r, [k, lab, basis, qv, unit, None, None, rate, f"=E{r}*I{r}"], [QTY, None, None, NUM, None, None, None, NIS, NIS], fill=BAND_FILL if k % 2 == 0 else None); r += 1
+    k += 1
+    S.row(r, [k, 'ביטוח עבודות קבלניות (CAR + צד ג\')', '% מהעלות הישירה', f"={P('insurance_pct')}", '%', None, None, f"={direct}", f"=E{r}*I{r}"], [QTY, None, None, PCT1, None, None, None, NIS, NIS]); r += 1
+    S.row(r, [None, 'סה"כ הוצאות אתר', None, None, None, None, None, None, f"=SUM(J{s0}:J{r-1})"], [None] * 8 + [NIS], bold=True, fill=TOTAL_FILL, top=True)
+    siteTot = f"J{r}"; r += 2
+    # ---------- totals
+    S.section(r, 'ד · עלות כוללת לקבלן ותרחישי רווח'); r += 1
+    S.header(r, ['', 'פריט', '', '', '', '', '', '', 'סכום (₪)'], h=15); r += 1
+    S.row(r, [None, 'עלות ישירה + הוצאות אתר'], [None]); ws.cell(row=r, column=10).value = f"={direct}+{siteTot}"; ws.cell(row=r, column=10).number_format = NIS; dir2 = f"J{r}"; r += 1
+    S.row(r, [None, 'תקורת חברה (משרד, הנהלה, מימון, ערבויות)', None, f"={P('overhead_pct')}", '%', None, None, f"={dir2}", f"=E{r}*I{r}"], [None, None, None, PCT1, None, None, None, NIS, NIS]); r += 1
+    S.row(r, [None, 'עלות כוללת לקבלן – נקודת איזון (בלי רווח)', None, None, None, None, None, None, f"={dir2}+J{r-1}"], [None] * 8 + [NIS], bold=True, hero=True, fill=HERO_FILL, top=True)
+    cost = f"$J${r}"; B.costRef = f"{q('cost')}!J{r}"; r += 2
+    S.header(r, ['', 'רווח קבלן', '', 'אחוז רווח', '', '', '', '', 'מחיר ללקוח (₪)'], h=15); r += 1
+    for i, pct in enumerate(D['profitScenarios']):
+        S.row(r, [None, f"תרחיש רווח {pct}%", None, pct / 100, None, None, None, None, f"={cost}*(1+E{r})"], [None, None, None, PCT1, None, None, None, None, NIS], fill=BAND_FILL if i % 2 else None); r += 1
+    r += 1
+    # ---------- bid check
+    S.section(r, 'ה · בדיקת הצעת הקבלן'); r += 1
+    S.header(r, ['', 'פריט', '', 'ערך', '', '', '', '', 'סכום (₪)'], h=15); r += 1
+    S.row(r, [None, 'הצעת הקבלן – להקליד (באותו היקף: עפר, כלונסאות, שלד, בלוקים, ניקוז; בלי איטום, בלי מע"מ)'], [None]); S.paint(r, 10, INPUT_FILL)
+    ws.cell(row=r, column=10).number_format = NIS; bid = f"$J${r}"; r += 1
+    S.row(r, [None, 'הרווח הגלום בהצעה', None, f"=IF({bid}>0,{bid}/{cost}-1,0)", None, None, None, None, f"=IF({bid}>0,{bid}-{cost},0)"], [None, None, None, PCT1, None, None, None, None, NIS], bold=True); r += 1
+    S.row(r, [None, 'רווח הוגן (יעד למשא ומתן)', None, f"={P('target_profit_pct')}", None, None, None, None, f"={cost}*(1+E{r})"], [None, None, None, PCT1, None, None, None, None, NIS]); tgt = f"J{r}"; S.paint(r, 5, INPUT_FILL); r += 1
+    S.row(r, [None, 'רצפת רווח (מתחתיה – סיכון לאיכות / לעזיבת הקבלן)', None, f"={P('min_profit_pct')}", None, None, None, None, f"={cost}*(1+E{r})"], [None, None, None, PCT1, None, None, None, None, NIS]); flo = f"J{r}"; S.paint(r, 5, INPUT_FILL); r += 1
+    S.row(r, [None, 'הנחה סבירה לבקש – עד מחיר היעד', None, f"=IF({bid}>0,MAX(0,{bid}-{tgt})/{bid},0)", None, None, None, None, f"=IF({bid}>0,MAX(0,{bid}-{tgt}),0)"], [None, None, None, PCT1, None, None, None, None, NIS], bold=True, fill=TOTAL_FILL); r += 1
+    S.row(r, [None, 'הנחה מקסימלית – עד רצפת הרווח', None, f"=IF({bid}>0,MAX(0,{bid}-{flo})/{bid},0)", None, None, None, None, f"=IF({bid}>0,MAX(0,{bid}-{flo}),0)"], [None, None, None, PCT1, None, None, None, None, NIS], bold=True, fill=TOTAL_FILL); r += 1
+    S.row(r, [None, 'הערכה', None, None, None, None, None, None,
+              f"=IF({bid}=0,\"הקלד את הצעת הקבלן\",IF({bid}<{flo},\"⚠ מתחת לרצפה – לבדוק היקף ואיכות\",IF({bid}<={tgt},\"✔ מחיר טוב\",IF({bid}<={cost}*(1+{P('high_profit_pct')}),\"מחיר סביר – יש מקום להנחה\",\"✘ יקר – לבקש הנחה משמעותית\"))))"],
+          [None] * 9, bold=True, hero=True, fill=HERO_FILL); r += 2
+    # ---------- sanity check per m2
+    S.section(r, 'ו · בקרת סבירות'); r += 1
+    S.header(r, ['', 'בדיקה', '', 'ערך', "יח'", '', '', '', 'הערה'], h=15); r += 1
+    S.row(r, [None, 'ימי אדם – סה"כ עבודה עצמית', None, f"={mdTot}", 'ימי אדם'], [None, None, None, NUM]); r += 1
+    S.row(r, [None, 'משך מינימלי בצוות ממוצע', None, f"={mdTot}/{P('crew_size')}/22", 'חודשים'], [None, None, None, NUM], note='ימי אדם / גודל צוות / 22 ימי עבודה בחודש – לבדוק מול "משך העבודה" בקלט'); r += 1
+    S.row(r, [None, 'עלות כוללת לקבלן לכל מ"ר יציקה (רצפות ותקרות הבית)', None, f"={cost}/{P('cast_area_m2')}", '₪/מ"ר'], [None, None, None, NIS],
+          note='להשוואה: קבלן שלד בדרום – עבודה בלבד 1,000–1,500 ₪/מ"ר, כולל חומרים 1,500–2,200 ₪/מ"ר (בונים בית) – כולל רווח'); r += 1
+    S.finish(r)
+
+
 def main():
     E = EL.collect()
     B = Book()
@@ -784,6 +926,7 @@ def main():
     build_wp(B, E)
     build_blocks(B)
     build_steps(B, E)
+    build_cost(B)
     build_check(B)
     build_open(B)
     build_summary(B)

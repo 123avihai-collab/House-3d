@@ -34,12 +34,17 @@
     },
     {
      "id": "gardenFill",
-     "label": "גינה: מילוי אדמה מקומית (OC-17)",
+     "label": "גינות: מילוי אדמה מקומית (OC-17)",
      "visible": true
     },
     {
      "id": "gardenBase",
-     "label": "גינה: מצע מהודק 10 ס\"מ (OC-17)",
+     "label": "גינות: מצע מהודק 10 ס\"מ (OC-17)",
+     "visible": true
+    },
+    {
+     "id": "gardenTurf",
+     "label": "גינות: דשא סינטטי 3 ס\"מ (OC-17)",
      "visible": true
     },
     {

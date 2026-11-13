@@ -95,9 +95,13 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 #pl-north { position: absolute; top: 10px; right: max(10px, env(safe-area-inset-right, 0px)); width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--panel) 90%, transparent); border: 1px solid var(--line); display: grid; place-items: center; pointer-events: none; }
 #pl-north i { position: absolute; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 15px solid var(--bad); top: 4px; left: 14px; transform-origin: 6px 16px; }
 #pl-north span { margin-top: 15px; font-size: 11px; font-weight: 700; }
+#pl-zoom { position: absolute; top: 58px; right: max(10px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+#pl-zoom button { width: 40px; height: 40px; border: none; background: var(--panel); font-size: 20px; line-height: 1; cursor: pointer; }
+#pl-zoom button + button { border-top: 1px solid var(--line); }
+#pl-zoom button:active { background: var(--chip); }
 #pl-scale { position: absolute; bottom: 10px; left: max(10px, env(safe-area-inset-left, 0px)); font: 11px var(--font-num); padding: 0 4px 2px; border-bottom: 2px solid var(--ink); border-inline: 2px solid var(--ink); pointer-events: none; text-align: center; background: color-mix(in srgb, var(--panel) 80%, transparent); }
 #pl-tip { position: absolute; z-index: 6; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 12px; padding: 4px 8px; border-radius: 5px; white-space: nowrap; transform: translate(50%, -130%); }
-#pl-measure-out { position: absolute; top: 58px; right: max(10px, env(safe-area-inset-right, 0px)); background: var(--panel); border: 1px solid var(--bad); color: var(--bad); border-radius: 6px; padding: 4px 10px; font: 600 13px var(--font-num); }
+#pl-measure-out { position: absolute; top: 148px; right: max(10px, env(safe-area-inset-right, 0px)); background: var(--panel); border: 1px solid var(--bad); color: var(--bad); border-radius: 6px; padding: 4px 10px; font: 600 13px var(--font-num); }
 #pl-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); background: var(--paper); }
 
 #pl-panel { grid-area: panel; min-width: 0; min-height: 0; overflow: auto; background: var(--panel); border-inline-start: 1px solid var(--line); position: relative; }

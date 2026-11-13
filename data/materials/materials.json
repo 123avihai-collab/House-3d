@@ -220,6 +220,14 @@
       "roughness": 1.0,
       "envMapIntensity": 0.6,
       "_doc": "מילוי אדמה מקומית (OC-17) – גוון כהה מפני הקרקע, תצוגה בלבד"
+    },
+    "gardenTurf": {
+      "texture": "assets/textures/leafy_grass",
+      "size_m": 2.0,
+      "tint": "#9fd07a",
+      "roughness": 0.9,
+      "envMapIntensity": 0.7,
+      "_doc": "דשא סינטטי בגינות (OC-17) – טקסטורת דשא (Poly Haven leafy_grass, CC0) בגוון ירוק אחיד, תצוגה בלבד"
     }
   }
 }

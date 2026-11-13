@@ -51,15 +51,21 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1400, height: 860 }
   if (n.piles !== D.piles.length) fail(`${name}: drawn piles ${n.piles} ≠ ${D.piles.length}`);
   if (n.beams !== D.beams.length) fail(`${name}: drawn beams ${n.beams} ≠ ${D.beams.length}`);
   // click a pile on the plan
-  const p = D.piles.find((q) => q.id === '7');
-  const box = await page.locator('[data-key="pile:7"] .shape').boundingBox();
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  // the first pile that is not covered by an overlay (legend, zoom buttons)
+  const pick = await page.evaluate(() => {
+    for (const c of document.querySelectorAll('[data-key^="pile:"] .shape')) {
+      const r = c.getBoundingClientRect(), x = r.x + r.width / 2, y = r.y + r.height / 2;
+      if (document.elementFromPoint(x, y)?.closest('.el') === c.parentNode) return { id: c.parentNode.dataset.key.slice(5), x, y };
+    }
+  });
+  const p = D.piles.find((q) => q.id === pick.id);
+  await page.mouse.click(pick.x, pick.y);
   await page.waitForTimeout(200);
   const card = await page.evaluate(() => ({ h: document.querySelector('#pl-card h2')?.textContent, sk: document.querySelectorAll('#pl-card .sk svg').length, rows: document.querySelectorAll('#pl-card table.rb tbody tr').length, hash: location.hash }));
-  if (card.h !== 'כלונס 7') fail(`${name}: click pile 7 → card "${card.h}"`);
+  if (card.h !== 'כלונס ' + p.id) fail(`${name}: click pile ${p.id} → card "${card.h}"`);
   if (card.sk !== 2) fail(`${name}: pile sketches ${card.sk}`);
   if (card.rows !== p.rebar.length + 1) fail(`${name}: rebar rows ${card.rows}`);
-  if (card.hash !== '#pile-7') fail(`${name}: hash ${card.hash}`);
+  if (card.hash !== '#pile-' + p.id) fail(`${name}: hash ${card.hash}`);
   if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `plans-${name}-pile.png`) });
   // search a beam
   await page.fill('#pl-q', 'B-39'); await page.press('#pl-q', 'Enter'); await page.waitForTimeout(200);
@@ -76,6 +82,32 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1400, height: 860 }
   const itm = Math.hypot(a.E - b.E, a.N - b.N), got = parseFloat(txt.replace(/[^\d.]/g, ''));
   const tol = name === 'phone' ? 0.03 : 0.015;   // screen-pixel rounding of the click
   if (!(Math.abs(got - itm) < tol)) fail(`${name}: measure 1–2 ${got} vs ITM ${itm.toFixed(3)}`);
+  if (name === 'phone') {
+    // real touch pinch (CDP): the sheet point under the fingers' midpoint must stay there, zoom follows the finger distance
+    await page.click('#pl-measure');   // measuring off
+    const cdp = await ctx.newCDPSession(page);
+    const r = await page.locator('#pl-svg').boundingBox();
+    const mx = r.x + r.width / 2, my = r.y + r.height / 2;
+    const vb = () => page.evaluate(() => document.querySelector('#pl-svg').getAttribute('viewBox').split(' ').map(Number));
+    const worldAt = (v) => [v[0] + (mx - r.x) / r.width * v[2], v[1] + (my - r.y) / r.width * v[2]];
+    const v0 = await vb(); const w0 = worldAt(v0);
+    const tp = (d) => [{ x: mx - d, y: my, id: 1 }, { x: mx + d, y: my, id: 2 }];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: tp(40) });
+    let prev = v0[2], monotonic = true;
+    for (let d = 44; d <= 120; d += 4) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: tp(d) });
+      await page.waitForTimeout(20);
+      const w = (await vb())[2]; if (w > prev + 1e-6) monotonic = false; prev = w;
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(100);
+    const v1 = await vb(); const w1 = worldAt(v1);
+    const ratio = v0[2] / v1[2], drift = Math.hypot(w1[0] - w0[0], w1[1] - w0[1]) / v1[2] * r.width;
+    if (!(ratio > 2.7 && ratio < 3.3)) fail(`phone pinch: zoom ×${ratio.toFixed(2)} (expected ≈3)`);
+    if (!monotonic) fail('phone pinch: zoom not monotonic (jumps)');
+    if (drift > 3) fail(`phone pinch: anchor drift ${drift.toFixed(1)} px`);
+    console.log(`phone pinch: ×${ratio.toFixed(2)}, anchor drift ${drift.toFixed(2)} px, monotonic ${monotonic}`);
+  }
   const hs = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   if (hs > 0) fail(`${name}: horizontal scroll ${hs}px`);
   if (errors.length) fail(`${name}: console errors:\n  ` + errors.join('\n  '));

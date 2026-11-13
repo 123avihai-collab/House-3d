@@ -35,12 +35,18 @@
   "thicknesses_m": [0.02, 0.03, 0.05],
   "overhangs_m": [0, 0.02, 0.03, 0.05],
   "joint_mm": [3, 5],
+  "stockWidths_m": [0.22, 0.25, 0.3, 0.33, 0.4],
+  "_stockWidths": "רוחב המלאי של הספק. רחב מהרוחב הנדרש (קיר + בליטה) – חיתוך לאורך בכל יחידה (נספר ברשימת החיתוכים). 22 = בדיוק הרוחב, בלי חיתוך לאורך.",
+  "corners": [ { "id": "miter", "label": "מיטר 45° (מקובל)" }, { "id": "butt", "label": "ישרה – הצלע הארוכה עוברת" } ],
+  "layouts": [ { "id": "center", "label": "סימטרית מהמרכז – חיתוכים בפינות" }, { "id": "equal", "label": "יחידות שוות לכל צלע" } ],
+  "rules": { "minEndFrac": 0.5, "minInnerFrac": 0.3333, "minEdge_m": 0.1, "movementMax_m": 4.5, "kerf_mm": 3, "status": "provisional",
+   "_doc": "כללי פריסה מקובלים (אין מפרט במקורות): יחידת קצה (פינה) לא קצרה מחצי יחידה בצד החוץ ומשליש יחידה (ולפחות 10 ס\"מ) בצד המים – אחרת יחידות שוות לאורך הצלע; תפר התפשטות (מילוי גמיש) בכל פינה ולפחות כל 4.5 מ'; עובי מסור 3 מ\"מ (לשילוב שתי יחידות מיטר מאותה יחידת מלאי – בשפה ישרה בלבד). זמני – לאשר מול הספק / הקבלן (open-issues #194)." },
   "edges": [ { "id": "bull", "label": "מעוגל (בולנוז)" }, { "id": "square", "label": "ישר" } ],
   "_doc": "רוחב הקופינג = עובי קיר הבריכה (20 ס\"מ, k-21) + בליטה לתוך הבריכה. ראש = 280.48 (המשטח המרוצף). חלוקה שווה לכל צלע; הצלעות הארוכות עוברות עד הפינות. מעוגל – מראה בלבד."
  },
  "defaults": {
   "tile": "mosaic25", "color": "sky", "wallColor": "", "stepColor": "", "stepEdge": true, "stepEdgeColor": "ocean", "stepEdgeWidth_m": 0.05,
-  "coping": { "material": "limestone", "length_m": 0.6, "thick_m": 0.03, "overhang_m": 0.02, "joint_mm": 3, "edge": "bull" },
+  "coping": { "material": "limestone", "length_m": 0.6, "thick_m": 0.03, "overhang_m": 0.02, "joint_mm": 3, "edge": "bull", "stockW_m": 0.25, "corner": "miter", "layout": "center" },
   "spare_pct": 10
  },
  "_defaults": "ערכי פתיחה – אביחי משנה בסדנה. stepEdge = פס בצבע מנוגד בשפת כל מדרגה (בטיחות, מקובל בבריכות). wallColor / stepColor ריקים = כמו הרצפה.",

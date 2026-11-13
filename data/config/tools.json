@@ -1,26 +1,81 @@
 {
   "_doc": "Work modes, workshops and tool registry. implemented=false -> shown with 'בקרוב'.",
   "modes": [
-    { "id": "view",      "label": "צפייה",  "implemented": true },
-    { "id": "edit",      "label": "עריכה",  "implemented": true, "hint": "עריכת שלד: בחירת אלמנט וכתיבת הוראת תיקון לקלוד" },
-    { "id": "furniture", "label": "ריהוט",  "implemented": false },
-    { "id": "tiling",    "label": "ריצוף",  "implemented": false },
-    { "id": "coping",    "label": "קופינג", "implemented": false }
+    {
+      "id": "view",
+      "label": "צפייה",
+      "implemented": true
+    },
+    {
+      "id": "edit",
+      "label": "עריכה",
+      "implemented": true,
+      "hint": "עריכת שלד: בחירת אלמנט וכתיבת הוראת תיקון לקלוד"
+    },
+    {
+      "id": "furniture",
+      "label": "ריהוט",
+      "implemented": false
+    },
+    {
+      "id": "tiling",
+      "label": "ריצוף",
+      "implemented": true,
+      "hint": "סדנת ריצוף: אריח לכל אזור, פריסה, כמויות"
+    },
+    {
+      "id": "coping",
+      "label": "קופינג",
+      "implemented": false
+    }
   ],
   "workshops": [
-    { "id": "carpentry", "label": "נגרות",   "implemented": false },
-    { "id": "pergola",   "label": "פרגולה",  "implemented": false },
-    { "id": "cladding",  "label": "חיפויים", "implemented": false }
+    {
+      "id": "tiling",
+      "label": "ריצוף",
+      "implemented": true,
+      "mode": "tiling"
+    },
+    {
+      "id": "carpentry",
+      "label": "נגרות",
+      "implemented": false
+    },
+    {
+      "id": "pergola",
+      "label": "פרגולה",
+      "implemented": false
+    },
+    {
+      "id": "cladding",
+      "label": "חיפויים",
+      "implemented": false
+    }
   ],
   "electrical": {
     "implemented": false,
     "pointTypes": [
-      { "id": "socket",   "label": "שקע" },
-      { "id": "switch",   "label": "מפסק" },
-      { "id": "light",    "label": "נקודת תאורה" },
-      { "id": "data",     "label": "תקשורת" }
+      {
+        "id": "socket",
+        "label": "שקע"
+      },
+      {
+        "id": "switch",
+        "label": "מפסק"
+      },
+      {
+        "id": "light",
+        "label": "נקודת תאורה"
+      },
+      {
+        "id": "data",
+        "label": "תקשורת"
+      }
     ],
     "note": "גובהי ההתקנה הסטנדרטיים יוגדרו בקובץ נתונים נפרד, לפי מקור שתאשר, לפני מימוש הכלי."
   },
-  "rooms": { "implemented": false, "note": "רשימת החדרים תיווצר מנתוני הבית (שלב 3 ואילך)." }
+  "rooms": {
+    "implemented": false,
+    "note": "רשימת החדרים תיווצר מנתוני הבית (שלב 3 ואילך)."
+  }
 }

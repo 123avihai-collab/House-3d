@@ -59,6 +59,7 @@ js/
     (js/tools/prefs.js     תצוגות שמורות + שחזור השכבות האחרונות – לכל משתמש ב-db של הארטיפקט, data/users/<id>/prefs)
     mamad.js               ממ"ד לפי תוכנית האדריכל: כנפי חלון (נגררות לגומחות) ודלת הזזה – נפתחות / נסגרות בלחיצה, שרוולים ביציקה (data/architecture/mamad.json ← tools/extract_mamad.py)
     blocks.js              שלב 4א: קירות בלוקים איטונג 60×25 בנדבכים + ארגזי תריס + משקופים (דלתות וחלונות) מבלוק משקוף (data/architecture/blocks.json ← tools/extract_blocks.py; כמויות: python3 tools/extract_blocks.py --xlsx → docs/quantities/blocks-quantities.xlsx) · בדיקת מגע: python3 tools/verify_blocks.py → docs/verification/blocks-check.md
+src/tiling/                סדנת ריצוף: layout.js (מנוע פריסה – חיתוך אריחים בפוליגון האזור, אופטימיזציה, כמויות), workshop.js (בחירה לכל אזור, תלת-ממד, תוכנית, ייצוא) · node tests/tiling.mjs
 src/finishes/index.js      שלב 5א: טיח לפי סוג (7 סוגים, צבע לכל סוג), איטום חדרים רטובים, הכנה לריצוף, שמות חדרים – שכבות "טיח, איטום וריצוף", לשונית "טיח וריצוף" (מקרא, כמויות, מחירון, ייצוא xlsx, מבט פנימי), לחיצה על משטח → שינוי סוג (נשמר ב-db של הארטיפקט, collection "plaster")
                            נתונים: python3 tools/finishes/derive_finishes.py → data/architecture/rooms.json, data/finishes/plaster/surfaces.json, data/finishes/tiling/surfaces.json, docs/quantities/plaster-quantities.xlsx
                            החלטות: data/finishes/plaster/types.json (סוגים, פרמטרים, מחירים), overrides.json (דריסות), data/finishes/rooms-input.json (סוג/שם חדר), data/finishes/config.json · בדיקה: python3 tools/finishes/verify_finishes.py → docs/verification/finishes-check.md · node tests/finishes.mjs
@@ -132,7 +133,8 @@ sources/                   קבצי מקור (ב-git, חוץ מ-sources/permit �
 
 | כלי | מצב | הערות |
 |---|---|---|
-| מצבי עבודה: צפייה / עריכה / ריהוט / ריצוף / קופינג, סדנאות (נגרות, פרגולה, חיפויים) | צפייה ✅ · אחרים: בקרוב | `data/config/tools.json` |
+| מצבי עבודה: צפייה / עריכה / ריהוט / ריצוף / קופינג, סדנאות (ריצוף, נגרות, פרגולה, חיפויים) | צפייה, עריכה, **ריצוף** ✅ · אחרים: בקרוב | `data/config/tools.json` |
+| **סדנת ריצוף** (13.11.2026): אריח לכל אזור – מידה, גימור, דוגמה (ישר / הזחה / אלכסון), כיוון, נקודת התחלה, פוגה, הזזה; תוכנית פריסה בפאנל (גרירה = הזזה), "⚡ פריסה מושלמת" (מינימום חיתוכים צרים), אריחים במודל עם סימון חיתוכים; כמויות: שלמים / חתוכים / פנלים / רזרבה / קרטונים / דבק / רובה / סומסום ומדה במ"ק; ייצוא xlsx | ✅ | `src/tiling/`, `data/finishes/tiling/catalog.json` · [אימות](docs/verification/tiling.md) · בחירות: מסד הארטיפקט (collection `tiling`) · פתוחים: #163, #178, #179 |
 | בורר קומות: הצגה, הסתרה, שקיפות, "רק קומה זו" | ✅ | בשלב 1 יש רכיבים רק ב"מגרש וסביבה" |
 | חיפוש אלמנט לפי שם (🔍 בסרגל העליון: B7, GW19, C9) – מסמן, מציג אם מוסתר וטס אליו | ✅ | `js/tools/search.js` |
 | ביקורת ברזל לכל שלב (לשונית "ביקורת ברזל") + ברזל בכרטיס כל אלמנט | ✅ | מגיליונות הברזל K-12…K-43 (`data/structure/rebar.json`); הסימונים "נבדק" / הערה – במסד של המודל (או בדפדפן) |

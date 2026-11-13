@@ -57,7 +57,9 @@
   "plasterTypes": "data/finishes/plaster/types.json",
   "tiling": "data/finishes/tiling/surfaces.json",
   "electricalUnits": "data/electrical/units.json",
-  "cladding": "data/finishes/cladding/surfaces.json"
+  "cladding": "data/finishes/cladding/surfaces.json",
+  "tilingCatalog": "data/finishes/tiling/catalog.json",
+  "tilingLayout": "data/finishes/tiling/layout.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

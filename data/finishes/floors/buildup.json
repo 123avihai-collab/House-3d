@@ -1,12 +1,41 @@
 {
- "_doc": "שכבות הרצפה מעל היציקה (אביחי 11.11.2026): סומסום, טיט / מדה, דבק לאריחים, אריח. העובי הכולל = פני הריצוף פחות פני הבטון של הקומה (מהמקורות: K-11 / K-21 / K-31 ו-openings.json floorFinishRel). החלוקה בין השכבות – זמנית (אין פרט רצפה במקורות) – open-issues #163. האריח – מקום שמור בלבד: בלי צבע, סוג או מידות.",
+ "_doc": "שכבות הרצפה מעל היציקה (אביחי 11.11.2026): מילוי סומסום וחול, טיט / מדה, דבק לאריחים, אריח. העובי הכולל = פני הריצוף פחות פני הבטון של הקומה (מהמקורות: K-11 / K-21 / K-31 ו-openings.json floorFinishRel). החלוקה בין השכבות – זמנית (אין פרט רצפה במקורות) – open-issues #163. האריח – נבחר לכל אזור בסדנת הריצוף (src/tiling, 13.11.2026); אזור שלא נבחר – מקום שמור.",
  "status": "provisional",
- "source": "החלטת אביחי 11.11.2026 (סדר השכבות); עוביים – זמני",
+ "source": "החלטת אביחי 11.11.2026 (סדר השכבות); 13.11.2026 – מילוי סומסום וחול, ריצוף בדבק; עוביים – זמני",
  "layers": [
-  { "id": "floorFill", "label": "סומסום (מילוי מעל היציקה)", "thickness_m": null, "_thickness": "השארית: העובי הכולל פחות שאר השכבות", "color": "#d9cfc1", "status": "provisional" },
-  { "id": "floorScreed", "label": "טיט / מדה", "thickness_m": 0.04, "color": "#a3a39e", "status": "provisional" },
-  { "id": "floorAdhesive", "label": "דבק לאריחים", "thickness_m": 0.005, "color": "#7d7d78", "status": "provisional" },
-  { "id": "floorTile", "label": "אריח – מקום שמור (בלי צבע / סוג / מידות)", "thickness_m": 0.01, "color": null, "status": "placeholder" }
+  {
+   "id": "floorFill",
+   "label": "מילוי סומסום וחול (מעל היציקה)",
+   "thickness_m": null,
+   "_thickness": "השארית: העובי הכולל פחות שאר השכבות",
+   "color": "#d9cfc1",
+   "status": "provisional",
+   "short": "מילוי סומסום וחול"
+  },
+  {
+   "id": "floorScreed",
+   "label": "טיט / מדה",
+   "thickness_m": 0.04,
+   "color": "#a3a39e",
+   "status": "provisional",
+   "short": "טיט / מדה"
+  },
+  {
+   "id": "floorAdhesive",
+   "label": "דבק לאריחים",
+   "thickness_m": 0.005,
+   "color": "#7d7d78",
+   "status": "provisional",
+   "short": "דבק"
+  },
+  {
+   "id": "floorTile",
+   "label": "אריח – לפי סדנת הריצוף (מקום שמור באזור שלא נבחר)",
+   "thickness_m": 0.01,
+   "color": null,
+   "status": "placeholder",
+   "short": "אריח"
+  }
  ],
  "wetProofingOn": "floorScreed",
  "_wetProofingOn": "איטום רצפת החדר הרטוב מוצג על פני המדה, מתחת לדבק – זמני"

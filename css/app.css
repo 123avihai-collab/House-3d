@@ -333,3 +333,22 @@ table.mtable td.acts { white-space: nowrap; }
 .proposals select.pstatus.pending { border-color: #e53935; }
 .proposals select.pstatus.approved { border-color: #43a047; }
 .proposals .pshow { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; }
+
+/* tiling workshop (src/tiling) */
+.tiling table.zones tr.zone-row { cursor: pointer; }
+.tiling table.zones tr.zone-row:hover td { background: rgba(255,122,69,.08); }
+.tiling table.zones tr.zone-row.sel td { background: rgba(255,122,69,.18); font-weight: 600; }
+.tiling table.zones tr.grp td { font-weight: 700; padding-top: 6px; }
+.tiling .bad { color: #c62828; font-weight: 600; }
+.tiling .mid { color: #e65100; }
+.tiling .zone-ed { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; margin: 8px 0; }
+.tiling .zone-ed .row { display: flex; align-items: center; gap: 6px; margin: 3px 0; flex-wrap: wrap; }
+.tiling .zone-ed .row > span:first-child { min-width: 128px; }
+.tiling .zone-ed select { max-width: 190px; }
+.tiling svg.tile-plan { width: 100%; height: auto; max-height: 420px; background: #fafafa; border: 1px solid var(--line); border-radius: 6px; touch-action: none; cursor: grab; margin-top: 6px; }
+.tiling .tile-stats { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; margin: 4px 0; }
+.tiling .legend { font-size: 11.5px; }
+.tiling .layers-chips button { display: inline-flex; align-items: center; gap: 4px; }
+.tiling label.chk { font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; }
+.tiling input[type=number] { background: #2a3039; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 5px; width: 64px; }
+.tiling svg.tile-plan { background: #20252c; }

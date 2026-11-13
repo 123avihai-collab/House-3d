@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { TilingWorkshop } from '../tiling/workshop.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
 // exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
@@ -33,6 +34,7 @@ export function buildFinishes(ctx) {
   if (!P || !T) return null;
   const D = data.display.finishes;
   const F = new Finishes(ctx, P, T, TL, R, D);
+  if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up
   F.build();
   return F;
 }
@@ -219,8 +221,9 @@ class Finishes {
   }
   // the floor build-up over the slab: fill / screed / adhesive / tile placeholder – one layer each (no plaster on floors)
   buildFloors() {
-    const byLayer = {};
+    const byLayer = {}; const n0 = this.items.length;
     for (const r of this.TL.rooms) for (const l of r.layers || []) for (const p of r.parts) {
+      if (l.id === 'floorTile' && this.tiling?.has(r.room)) continue;   // tiles chosen in the workshop – drawn by src/tiling instead of the placeholder
       const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set() };
       const top = this.ringTris(p.ringITM, p.holesITM, l.z1), bot = this.ringTris(p.ringITM, p.holesITM, l.z0 + 0.0005);
       const ring = p.ringITM, sides = [];
@@ -243,6 +246,17 @@ class Finishes {
           ['נפח', `${f2(area * g.l.thickness_m)} מ"ק`], ['סדר', 'יציקה → סומסום → טיט / מדה → דבק → אריח']],
         source: 'data/finishes/floors/buildup.json; data/finishes/tiling/surfaces.json', note: this.BU._doc });
     }
+    this.tiling?.build3D();
+    this.floorItems = this.items.slice(n0);
+  }
+  // the floor layers again (a tile chosen / changed in the workshop): placeholder + tiles
+  rebuildFloors() {
+    if (!this.floorItems) return;
+    this.ctx.registry.remove(this.floorItems); this.items = this.items.filter(i => !this.floorItems.includes(i));
+    if (this.tiling) this.tiling.items = [];
+    this.buildFloors();
+    this.app?.store && this.ctx.registry.apply(this.app.store.get());
+    this.app?.viewer.invalidate();
   }
   // exterior cladding – own category (off): known items only (the street side of the street wall – stone)
   buildCladding() {
@@ -401,7 +415,8 @@ class Finishes {
     const app = this.app;
     const wrap = h('div', { class: 'finishes ctl' });
     if (groupId === 'plaster') wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי באפור אחד – על כל פני הקירות (בלוק ובטון, פנים וחוץ), קורות ועמודים גלויים, גליפים ותקרות; בלי טיח על רצפות. ' + this.T.scratchNote + '. דריסה: לחיצה על משטח במצב "מידות".'));
-    if (groupId === 'tiling') wrap.append(h('p', { class: 'muted' }, 'מעל היציקה: סומסום → טיט / מדה → דבק → אריח (מקום שמור). העוביים זמניים – ' + (this.BU.status === 'provisional' ? 'open-issues #163' : '') + '.'));
+    if (groupId === 'tiling') wrap.append(h('p', { class: 'muted' }, 'מעל היציקה: מילוי סומסום וחול → טיט / מדה → דבק → אריח. האריח נבחר לכל אזור בסדנת הריצוף (מקום שמור באזור שלא נבחר). העוביים זמניים – ' + (this.BU.status === 'provisional' ? 'open-issues #163' : '') + '.'),
+      this.tiling ? h('div', { class: 'btns' }, h('button', { class: 'small primary', onclick: () => app.store.set({ mode: 'tiling' }, { label: 'mode' }) }, '▦ סדנת ריצוף')) : null);
     if (groupId === 'waterproofingGroup') {   // the wet-room waterproofing heights (defaults – provisional)
       const inp = (k, unit, step) => h('input', { type: 'number', min: 0, step, class: 'price wp-h', 'data-k': k,
         value: unit === 'cm' ? Math.round(this.wpH[k] * 100) : this.wpH[k], onchange: (e) => this.setWp({ [k]: e.target.value === '' ? null : unit === 'cm' ? +e.target.value / 100 : +e.target.value }) });
@@ -502,7 +517,7 @@ class Finishes {
     sheet('קורות', [['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'שטח', 'סוג'], ...(this.P.beams || []).map(b => [b.beam, FLOOR_HE[b.floor], b.bottom, b.top, b.pergola ? 'כן' : '', b.area, tl(this.typeOf(b))])]);
     sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.wpAll().map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
     sheet('רצפות', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', ...this.BU.layers.map(l => l.label + " (מ')"), 'סוג אריח'],
-      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), 'טרם הוחלט'])]);
+      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), this.tiling?.choice[r.room] ? `${this.tiling.sizeOf(this.tiling.choice[r.room]).label} ${this.tiling.finBy[this.tiling.choice[r.room].finish]?.label || ''}` : 'טרם הוחלט'])]);
     const name = 'plaster-tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -511,5 +526,5 @@ class Finishes {
     if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  attach(app) { this.app = app; this.connect(); }
+  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); }
 }

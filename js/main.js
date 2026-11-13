@@ -172,13 +172,16 @@ async function main() {
   // edit mode = skeleton correction notes for Claude
   let lastMode = store.get().mode;
   store.on((s) => {
-    if (s.mode === lastMode) return; lastMode = s.mode;
+    if (s.mode === lastMode) return; const prevMode = lastMode; lastMode = s.mode;
     if (s.mode === 'edit') { app.setTool('fix'); app.ui.openTab('fixes', !app.ui.isMobile()); } else if (app.activeTool === 'fix') app.setTool('inspect');
+    // tiling mode = the tiling workshop (src/tiling): tile layer on, the zone list in "נתונים ← סדנת ריצוף"
+    if (s.mode === 'tiling') finishes?.tiling?.enter(); else if (prevMode === 'tiling') finishes?.tiling?.leave();
   });
   applyState(store.get());
   app.prefs = new Prefs(app);   // last layers / saved views – restored on open (Avihai 08.11)
   app.ui.refreshPanel();
   app.setTool(store.get().mode === 'edit' ? 'fix' : 'inspect');
+  if (store.get().mode === 'tiling') finishes?.tiling?.enter();
 
   // deep link
   const hp = new URLSearchParams(location.hash.slice(1));

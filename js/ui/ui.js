@@ -35,8 +35,9 @@ export class UI {
     const modes = h('div', { class: 'seg', id: 'modes' }, app.data.tools.modes.map(m =>
       h('button', { 'data-mode': m.id, class: m.implemented ? '' : 'na', title: m.implemented ? m.label : `${m.label} – בקרוב`,
         onclick: () => m.implemented ? app.store.set({ mode: m.id }, { label: 'mode' }) : this.toast(`מצב "${m.label}" – בקרוב`) }, m.label)));
-    const ws = h('select', { class: 'ws', title: 'סדנאות', onchange: (e) => { const w = app.data.tools.workshops.find(x => x.id === e.target.value); if (w) this.toast(`סדנת ${w.label} – בקרוב`); e.target.value = ''; } },
-      h('option', { value: '' }, 'סדנאות ▾'), app.data.tools.workshops.map(w => h('option', { value: w.id }, `${w.label} (בקרוב)`)));
+    const ws = h('select', { class: 'ws', title: 'סדנאות', onchange: (e) => { const w = app.data.tools.workshops.find(x => x.id === e.target.value);
+      if (w?.implemented && w.mode) app.store.set({ mode: w.mode }, { label: 'mode' }); else if (w) this.toast(`סדנת ${w.label} – בקרוב`); e.target.value = ''; } },
+      h('option', { value: '' }, 'סדנאות ▾'), app.data.tools.workshops.map(w => h('option', { value: w.id }, w.implemented ? w.label : `${w.label} (בקרוב)`)));
     const btn = (icon, title, fn, id) => h('button', { class: 'icon', title, onclick: fn, id }, icon);
     const fileIn = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none', onchange: async (e) => {
       const f = e.target.files[0]; if (!f) return;
@@ -206,7 +207,7 @@ export class UI {
       { id: 'layers', icon: '▦', label: 'שכבות', tabs: [['layers', 'שכבות']] },
       { id: 'view', icon: '👁', label: 'תצוגה', tabs: [['floors', 'קומות'], ['sun', 'שמש וצל'], ['section', 'חתך'], ['nav', 'ניווט'], ['settings', 'הגדרות']] },
       { id: 'review', icon: '📋', label: 'בקרה', tabs: [['fixes', 'תיקונים לקלוד'], ['notes', 'הערות'], ['tools', 'מדידה'], ['rebar', 'ביקורת ברזל']] },
-      { id: 'data', icon: '📊', label: 'נתונים', tabs: [['quantities', 'כמויות'], ['finishes', 'טיח, איטום וריצוף'], ['electric', 'חשמל']] },
+      { id: 'data', icon: '📊', label: 'נתונים', tabs: [['quantities', 'כמויות'], ['finishes', 'טיח, איטום וריצוף'], ['tiling', 'סדנת ריצוף'], ['electric', 'חשמל']] },
     ];
     // a panel_* added later and not placed above shows under "נתונים" (it never disappears)
     const placed = new Set(this.sections.flatMap(x => x.tabs.map(t => t[0])));
@@ -665,6 +666,7 @@ export class UI {
       h('div', { class: 'btns' }, h('button', { onclick: () => this.copy(list.map(({ item, info, key }) => `${T.checks[key]?.ok ? '✓' : '☐'} ${item.meta.id || ''} ${item.meta.name || ''}\n` + info.map(([k, v]) => `   ${k}: ${v}`).join('\n') + (T.checks[key]?.note ? `\n   הערה: ${T.checks[key].note}` : '')).join('\n'), 'רשימת הביקורת הועתקה') }, '📋 העתק רשימה')));
   }
 
+  panel_tiling() { return this.app.modules?.finishes?.tiling?.panel(this) || h('div', { class: 'muted' }, 'אין נתוני ריצוף'); }
   panel_finishes() { return this.app.modules?.finishes?.panel(this) || h('div', { class: 'muted' }, 'אין נתוני גמרים'); }
   panel_electric() {
     const { app } = this; const el = app.data.tools.electrical;

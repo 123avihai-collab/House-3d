@@ -118,6 +118,17 @@ if 'routes' in D:
     for n in R['nodes']:
         if 'source' not in n: errors.append(f'routes node {n["id"]} without source')
 if 'planBackground' in D and 'source' not in D['planBackground']: errors.append('plan-background without source')
+# tiling workshop (src/tiling): catalog options + the choices kept in the repo
+if 'tilingCatalog' in D:
+    TC = D['tilingCatalog']
+    if 'source' not in TC: errors.append('tiling catalog without source')
+    for s_ in TC['sizes']:
+        if not (s_['w_m'] > 0 and s_['l_m'] >= s_['w_m'] and s_.get('perBox', 0) >= 1): errors.append(f'tiling size {s_["id"]} bad')
+    ids = {k: {x['id'] for x in TC[k]} for k in ('sizes', 'finishes', 'patterns', 'directions', 'origins')}
+    for k, v in (D.get('tilingLayout', {}).get('rooms') or {}).items():
+        for f_, grp in (('size', 'sizes'), ('finish', 'finishes'), ('pattern', 'patterns'), ('direction', 'directions'), ('origin', 'origins')):
+            if v.get(f_) not in ids[grp] and not (f_ == 'size' and v.get(f_) == 'custom'): errors.append(f'tiling layout {k}: unknown {f_} {v.get(f_)}')
+    if 'tilingLayout' in D and 'source' not in D['tilingLayout']: errors.append('tiling layout without source')
 if errors:
     print('DATA ERRORS:'); [print(' -', e) for e in errors]; sys.exit(1)
 print(f'data OK: {len(D)} files')

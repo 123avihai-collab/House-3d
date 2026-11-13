@@ -1,0 +1,253 @@
+{
+ "_doc": "סדנת הריצוף (src/tiling): קטלוג מידות אריחים מסחריות, גימורים, דוגמאות הנחה, כללי חיתוך ומקדמי צריכה לחישוב כמויות. אלה אפשרויות בחירה לאביחי – לא מידות מהתוכניות. הבחירה לכל אזור נשמרת במסד הארטיפקט (collection \"tiling\") ונרשמת ב-data/finishes/tiling/layout.json. מקדמי הצריכה (דבק, רובה, אריחים בקרטון, גובה פנל) – זמניים, לבדוק מול היצרן / הספק שייבחר (open-issues #178).",
+ "source": "קטלוג מידות סטנדרטיות של אריחי פורצלן (אביחי 13.11.2026 – בחירה לפי אזורים בסדנה); מקדמי צריכה – זמני",
+ "status": "catalog",
+ "sizes": [
+  {
+   "id": "30x60",
+   "label": "30×60",
+   "w_m": 0.3,
+   "l_m": 0.6,
+   "thick_m": 0.009,
+   "perBox": 8,
+   "status": "provisional"
+  },
+  {
+   "id": "45x45",
+   "label": "45×45",
+   "w_m": 0.45,
+   "l_m": 0.45,
+   "thick_m": 0.009,
+   "perBox": 6,
+   "status": "provisional"
+  },
+  {
+   "id": "60x60",
+   "label": "60×60",
+   "w_m": 0.6,
+   "l_m": 0.6,
+   "thick_m": 0.01,
+   "perBox": 4,
+   "status": "provisional"
+  },
+  {
+   "id": "75x75",
+   "label": "75×75",
+   "w_m": 0.75,
+   "l_m": 0.75,
+   "thick_m": 0.01,
+   "perBox": 3,
+   "status": "provisional"
+  },
+  {
+   "id": "80x80",
+   "label": "80×80",
+   "w_m": 0.8,
+   "l_m": 0.8,
+   "thick_m": 0.01,
+   "perBox": 3,
+   "status": "provisional"
+  },
+  {
+   "id": "100x100",
+   "label": "100×100",
+   "w_m": 1.0,
+   "l_m": 1.0,
+   "thick_m": 0.01,
+   "perBox": 2,
+   "status": "provisional"
+  },
+  {
+   "id": "120x120",
+   "label": "120×120",
+   "w_m": 1.2,
+   "l_m": 1.2,
+   "thick_m": 0.01,
+   "perBox": 2,
+   "status": "provisional"
+  },
+  {
+   "id": "60x120",
+   "label": "60×120",
+   "w_m": 0.6,
+   "l_m": 1.2,
+   "thick_m": 0.01,
+   "perBox": 2,
+   "status": "provisional"
+  },
+  {
+   "id": "80x160",
+   "label": "80×160",
+   "w_m": 0.8,
+   "l_m": 1.6,
+   "thick_m": 0.01,
+   "perBox": 2,
+   "status": "provisional"
+  },
+  {
+   "id": "20x120",
+   "label": "20×120 (דמוי עץ)",
+   "w_m": 0.2,
+   "l_m": 1.2,
+   "thick_m": 0.009,
+   "perBox": 6,
+   "status": "provisional"
+  },
+  {
+   "id": "20x20",
+   "label": "20×20",
+   "w_m": 0.2,
+   "l_m": 0.2,
+   "thick_m": 0.009,
+   "perBox": 25,
+   "status": "provisional"
+  }
+ ],
+ "finishes": [
+  {
+   "id": "whiteMarble",
+   "label": "לבן דמוי שיש",
+   "color": "#e8e5df",
+   "vary": 0.053,
+   "roughness": 0.28
+  },
+  {
+   "id": "ivory",
+   "label": "שמנת",
+   "color": "#ddd3c2",
+   "vary": 0.045,
+   "roughness": 0.45
+  },
+  {
+   "id": "lightGrey",
+   "label": "אפור בהיר",
+   "color": "#c4c2bd",
+   "vary": 0.045,
+   "roughness": 0.5
+  },
+  {
+   "id": "concrete",
+   "label": "דמוי בטון",
+   "color": "#a19f99",
+   "vary": 0.075,
+   "roughness": 0.8,
+   "texture": "assets/textures/concrete_floor_01",
+   "texSize_m": 2.0
+  },
+  {
+   "id": "anthracite",
+   "label": "אנתרציט",
+   "color": "#55575a",
+   "vary": 0.045,
+   "roughness": 0.55
+  },
+  {
+   "id": "oak",
+   "label": "דמוי עץ אלון",
+   "color": "#b08c62",
+   "vary": 0.135,
+   "roughness": 0.6
+  }
+ ],
+ "patterns": [
+  {
+   "id": "grid",
+   "label": "ישר (רשת)",
+   "rowShift": 0
+  },
+  {
+   "id": "half",
+   "label": "הזחה 1/2 (לבנים)",
+   "rowShift": 0.5
+  },
+  {
+   "id": "third",
+   "label": "הזחה 1/3",
+   "rowShift": 0.3333333
+  },
+  {
+   "id": "diagonal",
+   "label": "אלכסון 45°",
+   "rowShift": 0,
+   "rotate_deg": 45
+  }
+ ],
+ "directions": [
+  {
+   "id": "along",
+   "label": "לאורך הקיר הארוך",
+   "rotate_deg": 0
+  },
+  {
+   "id": "across",
+   "label": "לרוחב (90°)",
+   "rotate_deg": 90
+  }
+ ],
+ "origins": [
+  {
+   "id": "center",
+   "label": "אריח במרכז האזור"
+  },
+  {
+   "id": "jointCenter",
+   "label": "פוגה במרכז האזור"
+  },
+  {
+   "id": "corner",
+   "label": "אריח שלם מהפינה"
+  }
+ ],
+ "joints_mm": [
+  1.5,
+  2,
+  3,
+  5
+ ],
+ "defaults": {
+  "size": "60x60",
+  "finish": "lightGrey",
+  "pattern": "grid",
+  "direction": "along",
+  "origin": "center",
+  "joint_mm": 2,
+  "du_cm": 0,
+  "dv_cm": 0,
+  "spare_pct": 5
+ },
+ "_defaults": "ערכי פתיחה כשבוחרים אריח לאזור – אביחי משנה בסדנה.",
+ "cuts": {
+  "hardMin_m": 0.05,
+  "softMinFrac": 0.3333,
+  "_doc": "חתיכה צרה מ-5 ס\"מ – פסולה (אדום); צרה משליש מהאריח בכיוון החיתוך – לא מומלצת (כתום). כללי עבודה מקובלים – לא ממקור."
+ },
+ "consumption": {
+  "status": "provisional",
+  "adhesive": [
+   {
+    "maxLong_m": 0.35,
+    "kg_m2": 4.0
+   },
+   {
+    "maxLong_m": 0.65,
+    "kg_m2": 5.0
+   },
+   {
+    "maxLong_m": 99,
+    "kg_m2": 6.5
+   }
+  ],
+  "_adhesive": "דבק צמנטי C2TE – ק\"ג למ\"ר לפי הצלע הארוכה (מעל 60 ס\"מ – מריחה כפולה). זמני.",
+  "adhesiveBag_kg": 25,
+  "groutDensity": 1.6,
+  "groutBag_kg": 5,
+  "_grout": "רובה (ק\"ג/מ\"ר) = (A+B)/(A·B) × עובי × פוגה × 1.6 [מ\"מ]. זמני.",
+  "skirtingHeight_m": 0.07,
+  "_skirting": "פנל חתוך מאותו אריח – גובה זמני. מספר הרצועות מאריח = floor(רוחב / גובה הפנל) באורך הצלע הארוכה."
+ },
+ "excludeRoomTypes": [
+  "court",
+  "outdoor"
+ ],
+ "_excludeRoomTypes": "חצרות אנגליות / גג – לא בסדנה (ריצוף חוץ – בהמשך)."
+}

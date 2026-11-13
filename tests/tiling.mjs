@@ -1,0 +1,100 @@
+// Headless test of the tiling workshop (src/tiling): mode "ריצוף", a tile per zone, layout, optimisation, quantities, export.
+// Checks: no console errors; the laid tile area + the joints = the zone area; every zone of the workshop is a floor of the
+// derived data; "פריסה מושלמת" never makes a zone worse; a change is drawn in 3D (tile items) and the placeholder of that
+// zone goes; the Excel export is a real xlsx file. Optional screenshots: node tests/tiling.mjs --shots <dir>
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { chromium, devices } = require('playwright');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const shotsDir = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
+const server = http.createServer((req, res) => {
+  const p = path.join(root, decodeURIComponent(req.url.split('?')[0].split('#')[0]));
+  const f = p.endsWith('/') ? path.join(p, 'index.html') : p;
+  fs.readFile(f, (err, buf) => { if (err) { res.writeHead(404); res.end(); return; } res.writeHead(200, { 'Content-Type': types[path.extname(f)] || 'application/octet-stream' }); res.end(buf); });
+}).listen(0);
+const url = `http://127.0.0.1:${server.address().port}/index.html`;
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+let failed = false;
+const fail = (...a) => { failed = true; console.error(...a); };
+
+for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }, acceptDownloads: true }], ['phone', { ...devices['Pixel 7'], acceptDownloads: true }]]) {
+  const ctx = await browser.newContext(opts);
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', e => errors.push(String(e)));
+  page.on('requestfailed', r => errors.push('request failed: ' + r.url()));
+  await page.goto(url);
+  await page.waitForFunction(() => window.__ready === true || (window.__errors && window.__errors.length), null, { timeout: 120000 });
+  await page.waitForTimeout(1000);
+  const info = await page.evaluate(async () => {
+    const a = window.__app, W = a.modules.finishes.tiling;
+    try { localStorage.removeItem('house3d.tiling'); } catch {}
+    for (const z of W.zones) if (W.choice[z.key]) await W.setChoice(z.key, null, { rebuild: false });
+    a.store.set({ mode: 'tiling' }, { label: 'mode' });
+    const r = { zones: W.zones.length, tab: a.ui.tab, tileOn: a.store.get().layers.floorTile, placeholder0: a.registry.items.filter(i => i.meta.kind === 'floorLayer' && i.tags.layer === 'floorTile').length };
+    // every zone: 60×60, then the best layout; area check
+    const out = [];
+    for (const z of W.zones) {
+      await W.setChoice(z.key, { size: '60x60', finish: 'lightGrey' }, { rebuild: false });
+      const L0 = W.layout(z.key);
+      const o = W.optimizeZone(z.key);
+      await W.setChoice(z.key, { du_cm: o.du_cm, dv_cm: o.dv_cm }, { rebuild: false });
+      const L1 = W.layout(z.key);
+      const j = L1.tile.j;
+      out.push({ key: z.key, area: z.r.area, laid: L1.stats.zoneArea_m2, tiles: L1.stats.tileArea_m2, before: L0.stats.score, after: L1.stats.score, slivers0: L0.q.slivers, slivers1: L1.q.slivers, order: L1.q.order, layTiles: L1.q.layTiles, j });
+    }
+    W.rebuild(); W.refresh();
+    r.out = out;
+    r.tileItems = a.registry.items.filter(i => i.meta.kind === 'tiles').length;
+    r.visibleTiles = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.object.visible).length;
+    r.placeholder1 = a.registry.items.filter(i => i.meta.kind === 'floorLayer' && i.tags.layer === 'floorTile').length;
+    r.panelRows = document.querySelectorAll('#panel .tiling tr.zone-row').length;
+    r.plan = !!document.querySelector('#panel .tiling svg.tile-plan polygon');
+    const T = W.totals(); r.order = T.order.map(o => [o.size, o.order, o.boxes]); r.totalArea = +T.area.toFixed(3);
+    // a pattern / size change: the counts change, the area stays
+    const k = W.zones.find(z => z.r.area > 50).key;
+    await W.setChoice(k, { size: '60x120', pattern: 'half' });
+    r.big = { area: +W.layout(k).stats.zoneArea_m2.toFixed(3), tiles: W.layout(k).q.layTiles };
+    W.select(k);
+    return r;
+  });
+  for (const z of info.out) {
+    const d = Math.abs(z.laid - z.area);
+    if (d > Math.max(0.02, z.area * 5e-4)) fail(name, 'zone area differs from the data', z.key, z.laid, z.area);
+    if (z.tiles > z.laid + 1e-6 || z.tiles < z.laid * 0.97) fail(name, 'tile area out of range', z);
+    if (z.after > z.before + 1e-9) fail(name, 'optimise made it worse', z);
+    if (z.order < z.layTiles) fail(name, 'order below the layout', z);
+  }
+  if (info.tab !== 'tiling' || !info.tileOn || info.tileItems !== info.zones || info.visibleTiles !== info.zones || info.placeholder1 >= info.placeholder0 && info.placeholder0 > 0 && info.zones > 0 && info.placeholder1 !== 0 || !info.plan || info.panelRows !== info.zones)
+    fail(name, 'workshop check failed', { ...info, out: undefined });
+  // export
+  const dl = page.waitForEvent('download', { timeout: 20000 }).catch(() => null);
+  await page.evaluate(() => window.__app.modules.finishes.tiling.exportXlsx());
+  const d = await dl;
+  let xlsx = 0;
+  if (d) { const p = await d.path(); const buf = fs.readFileSync(p); xlsx = buf.length; if (buf[0] !== 0x50 || buf[1] !== 0x4b) fail(name, 'export is not an xlsx'); } else fail(name, 'no export download');
+  if (shotsDir) {
+    fs.mkdirSync(shotsDir, { recursive: true });
+    await page.evaluate(() => { const W = window.__app.modules.finishes.tiling; W.showZone(W.sel); });
+    await page.waitForTimeout(3000);
+    await page.screenshot({ path: path.join(shotsDir, `tiling-${name}.png`) });
+    await page.evaluate(() => { const a = window.__app; a.ui.setPanel(false); a.viewer.invalidate(); });
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
+  }
+  const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, xlsx }));
+  const errs = errors.filter(e => !/favicon/.test(e));
+  if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
+  await ctx.close();
+}
+await browser.close();
+server.close();
+if (failed) { console.error('tiling: FAILED'); process.exit(1); }
+console.log('tiling: OK');

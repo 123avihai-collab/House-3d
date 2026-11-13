@@ -418,5 +418,15 @@
   "profileColor": "#ff7043",
   "profileWidth_px": 2.4,
   "labelLift_m": 0.45
+ },
+ "hatches": {
+  "steelColor": "#c9cdd1",
+  "steelMetalness": 0.85,
+  "steelRoughness": 0.32,
+  "mortarColor": "#9e9a92",
+  "placeholderColor": "#b7b3ab",
+  "openMs": 1400,
+  "barrelFrac": 0.6,
+  "_doc": "מכסי ריצוף מעל חדר המכונות (src/tiling/hatches.js) – מראה בלבד"
  }
 }

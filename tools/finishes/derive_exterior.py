@@ -23,6 +23,7 @@ r3 = lambda v: round(float(v), 3)
 GF = J('data/structure/floor-ground.json')
 DH = J('data/site/development-heights.json')
 BU = J('data/finishes/floors/exterior-buildup.json')
+HT = J('data/finishes/exterior/hatches.json')   # tiled hatches over the pool machine room (tools/finishes/derive_hatches.py)
 H0 = J('data/site/origin.json')['H0']
 FIT = BU['fit']
 STACK = sum(l['thickness_m'] for l in BU['layers'] if l['thickness_m'] is not None)   # everything above the slope fill
@@ -79,9 +80,10 @@ def pool_deck():
     oz = unary_union([Polygon(z['footprintITM']) for z in GF['openZones']])
     hw = unary_union([Polygon(w['footprintITM'], w.get('holesITM') or []) for w in GF['walls']])
     PO = J('data/structure/pool.json'); g, ch, tk = PO['gutter'], PO['channel'], PO['tank']
-    openings = unary_union([Polygon(g['ringOuterITM']), Polygon(ch['outerITM']), Polygon(tk['outerITM'])])
+    # the machine-room roof is paved too (Avihai 13.11 – tiled hatches): only its hatch openings stay out of the deck
+    openings = unary_union([Polygon(g['ringOuterITM']), Polygon(ch['outerITM'])] + [Polygon(h['openingITM']) for h in HT['hatches']])
     rest = lot.difference(walls).difference(slabs).difference(oz).difference(hw).difference(openings).buffer(-0.01, join_style=2).buffer(0.01, join_style=2)
-    near = openings.buffer(0.05)
+    near = unary_union([openings, Polygon(tk['outerITM'])]).buffer(0.05)
     return [p for p in getattr(rest, 'geoms', [rest]) if p.intersects(near) and p.area > 0.5], PO['pool']['deckSlabTop'] - H0
 
 
@@ -157,6 +159,19 @@ def main():
                  source=f"פני ריצוף: data/site/development-heights.json (sources/permit/permit-sheet1-gramushka.dwg, ישויות {', '.join(p[3] for p in used)}); פני בטון ופוליגון: data/structure/floor-ground.json {sl['id']} ({sl['source'].split(';')[0]}); שכבות: data/finishes/floors/exterior-buildup.json")
         zones.append(z)
         checks.append((sl['id'], z['area'], top, z['finishMin'], z['finishMax'], slope, min(fill), max(fill), len(used), len(dropped)))
+    # the hatch lids: own zones in the shared grid (the tiles continue the paving around), on the surface of the zone they sit in
+    PR = HT['product']
+    for h in HT['hatches']:
+        lid = Polygon(h['openingITM']).buffer(-PR['frameTop_m'], join_style=2)
+        host = next(z for z in zones if Polygon(z['parts'][0]['ringITM']).buffer(0.05).contains(Polygon(h['openingITM']).centroid))
+        tl = next(l for l in host['layers'] if l['id'] == 'extTile')
+        zones.append(dict(room='ext:' + h['id'], floor='ground', outdoor=True, hatch=h['id'], roomName=h['label'], roomType='paving', slab=host['slab'],
+                          area=r3(lid.area), void_m2=0.0, slabTop=host['slabTop'], finishRel=host['finishRel'], finishMin=host['finishMin'], finishMax=host['finishMax'],
+                          buildUp_m=None, skirting_m=0, wallTiling=None, parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(lid.exterior.coords)[:-1]], holesITM=[])],
+                          surface=host['surface'], planeSlope_pct=host['planeSlope_pct'], planeFallAzimuth_deg=host['planeFallAzimuth_deg'], spots=[], dropped=[],
+                          layers=[dict(tl)], fillVolume_m3=0.0, tileType=None, status='provisional', slabStatus='provisional',
+                          check=dict(minFill_m=BU['minFill_m'], ok=True, fillMin_m=0.0, fillMax_m=0.0),
+                          source=f"מכסה מרוצף {h['id']} – data/finishes/exterior/hatches.json ({h['source']}); פני הריצוף – כמו האזור {host['room']}"))
     out = dict(_doc='ריצוף חוץ – אזור לכל רצפת בטון חיצונית בקומת הקרקע: פני ריצוף במישור בשיפוע (מגבהי הפיתוח), שכבות: בטון שיפועים (משתנה) → איטום → דבק → אריח. נוצר ע"י tools/finishes/derive_exterior.py – לא לערוך ידנית.',
                source='data/structure/floor-ground.json; data/site/development-heights.json; data/finishes/floors/exterior-buildup.json',
                status='provisional', buildUp=BU, rooms=zones)

@@ -491,6 +491,11 @@
      "visible": false
     },
     {
+     "id": "poolHatches",
+     "label": "ריצוף חוץ: מכסי חדר המכונות (נפתחים בלחיצה)",
+     "visible": false
+    },
+    {
      "id": "roomLabels",
      "label": "שמות חדרים",
      "visible": false

@@ -75,7 +75,14 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     // the stack under it = the build-up, the tiles of an outdoor zone sit on the extTile layer
     const H0 = a.modules.finishes.ctx.coords.H0, EXR = a.modules.finishes.EX?.rooms || [];
     r.ext = { zones: W.zones.filter(z => z.r.outdoor).length, want: EXR.length, bad: [] };
-    for (const z of W.zones.filter(z => z.r.outdoor)) {
+    // tiled hatches (src/tiling/hatches.js): built, a click opens the lid to the product's angle (tiles attached), again – closed
+    const HZ = a.modules.finishes.hatches;
+    if (HZ) { a.store.set({ layers: { ...a.store.get().layers, poolHatches: true } }, { label: 'layers' });
+      const ids = Object.keys(HZ.lids), L = HZ.lids[ids[0]]; L.t = 1; HZ.pose(ids[0]);
+      const ang = 2 * Math.acos(Math.min(1, Math.abs(L.lid.quaternion.w))) * 180 / Math.PI;
+      r.hatch = { n: ids.length, items: a.registry.items.filter(i => i.meta.kind === 'hatch').length, ang: +ang.toFixed(2), want: HZ.P.openAngle_deg, attached: L.objs.size };
+      L.t = 0; HZ.pose(ids[0]); r.hatch.closed = +(2 * Math.acos(Math.min(1, Math.abs(L.lid.quaternion.w))) * 180 / Math.PI).toFixed(3); }
+    for (const z of W.zones.filter(z => z.r.outdoor && !z.r.hatch)) {
       for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); if (Math.abs(d) > 0.001) r.ext.bad.push([z.key, sp.handle, +d.toFixed(4)]); }
       const tl = z.r.layers.find(l => l.id === 'extTile'), st = z.r.layers.reduce((a2, l) => a2 + (l.dz0 != null ? l.thickness_m : 0), 0);
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
@@ -112,7 +119,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     fail(name, 'workshop check failed', { ...info, out: undefined });
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
-  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8) fail(name, 'exterior paving check failed', info.ext);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001) fail(name, 'exterior paving check failed', info.ext);
   // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
   const pool = await page.evaluate(async () => {
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };
@@ -153,7 +160,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, hatch: info.hatch, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

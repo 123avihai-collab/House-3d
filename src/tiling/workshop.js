@@ -258,6 +258,7 @@ export class TilingWorkshop {
         source: 'src/tiling (סדנת ריצוף) – data/finishes/tiling/catalog.json; אזור: data/finishes/tiling/surfaces.json', note: 'מקדמי צריכה – זמניים (open-issues #178)',
         onClick: () => { this.select(z.key); this.app?.ui.openTab('tiling'); } });
       this.items.push(it);
+      if (z.r.hatch) this.F.hatches?.attach(z.r.hatch, grp);   // a hatch lid: the tiles open with it (src/tiling/hatches.js)
     }
   }
   rebuild() {
@@ -290,7 +291,7 @@ export class TilingWorkshop {
   enter() {
     const app = this.app; if (!app) return;
     const st = app.store.get();
-    app.store.set({ layers: { ...st.layers, floorTile: true, extTile: true, poolTile: true, poolCoping: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
+    app.store.set({ layers: { ...st.layers, floorTile: true, extTile: true, poolTile: true, poolCoping: true, poolHatches: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
     if (this.built) this.rebuild();   // cut pieces marked in this mode
     this.drawOutline();
     app.ui.openTab('tiling', !app.ui.isMobile());
@@ -470,6 +471,7 @@ export class TilingWorkshop {
   }
   // exterior zone: the finish surface (from the permit spots) and the build-up under the tile
   extInfo(z) {
+    if (z.r.hatch) return h('div', { class: 'muted' }, `מכסה מרוצף נפתח מעל חדר המכונות (${z.r.hatch}): הריצוף על המכסה – באותה רשת פוגות של האזור ${z.r.slab}. לחיצה על המכסה במודל – פתיחה / סגירה. מסגרת ובוכנות – זמני (open-issues #206).`);
     const r = z.r, S = r.surface, BU = this.F.EX.buildUp, H0 = this.F.ctx.coords.H0 ?? 0;
     const lv = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)} (${(v + H0).toFixed(2)})`;
     return h('div', { class: 'ext-info' },
@@ -481,6 +483,7 @@ export class TilingWorkshop {
       h('div', { class: 'warn' }, '⚠ זמני: סדר השכבות והעוביים – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200).'));
   }
   extRows(z) {
+    if (z.r.hatch) return [];
     const r = z.r, L = (id) => r.layers.find(l => l.id === id), lab = (id) => this.F.EX.buildUp.layers.find(l => l.id === id)?.short || id;
     return [[lab('extFill'), `${f2(r.fillVolume_m3)} מ"ק (${f2(L('extFill').min_m * 100)}–${f2(L('extFill').max_m * 100)} ס"מ, ממוצע ${f2(L('extFill').thickness_m * 100)}, זמני)`],
       [lab('extProofing'), `${f2(r.area)} מ"ר (${f2(L('extProofing').thickness_m * 1000)} מ"מ, זמני)`]];

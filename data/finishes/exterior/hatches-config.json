@@ -1,0 +1,32 @@
+{
+ "_doc": "מכסי ריצוף לחדר המכונות של הבריכה – הגדרות (זמני). סוג מוצר לפי בקשת אביחי 13.11.2026: מכסה שקוע למילוי ריצוף (recessed tile-insert access cover), מסגרת ומגש נירוסטה 316 (סביבת בריכה), אטם EPDM, ציר בצד אחד, פתיחה ל-95° בעזרת 2 בוכנות (גז / הידראוליות). דוגמאות מוצר: Inza TIRA (מכסה למילוי עם בוכנות גז לחדרים טכניים של בריכות), ACO UniFace GS/SS (עומק מסגרת 83 מ\"מ). ספק / דגם – טרם נבחרו (open-issues #206).",
+ "status": "provisional",
+ "source": "בקשת אביחי 13.11.2026; מאפייני סוג המוצר: https://www.archiexpo.com/prod/inza-inox-sl/product-4658221-2555780.html , https://www.aco.co.uk/products/uniface-access-covers",
+ "product": {
+  "label": "מכסה שקוע למילוי ריצוף – נירוסטה 316, בוכנות, פתיחה 95°",
+  "frameMaterial": "נירוסטה 316",
+  "frameTop_m": 0.006,
+  "_frameTop": "רוחב פס המסגרת הנראה בפני הריצוף (המסגרת החיצונית + שפת המגש) – זמני",
+  "frameDepth_m": 0.083,
+  "_frameDepth": "עומק המסגרת / המגש (ACO UniFace GS/SS: 83 מ\"מ) – זמני",
+  "trayPlate_m": 0.004,
+  "openAngle_deg": 95,
+  "struts": 2,
+  "strutBaseDepth_m": 0.06,
+  "strutBaseFromHinge_m": 0.08,
+  "strutLidFromHinge_m": 0.42,
+  "strutInset_m": 0.05,
+  "strutBarrelR_m": 0.011,
+  "strutRodR_m": 0.005,
+  "_struts": "2 בוכנות, אחת בכל צד, בין דופן המסגרת לתחתית המגש – נקודות חיבור זמניות (מראה)",
+  "load": "A15 (הולכי רגל) – זמני"
+ },
+ "roof": {
+  "innerHeight_m": 1.8,
+  "_innerHeight": "חתך א של הבריכה: 'גובה פנים 180' מעל רצפת חדר המכונות 278.33"
+ },
+ "hatches": [
+  { "id": "H1", "label": "מכסה חדר מכונות", "hinge": "pool", "_hinge": "הציר בצד הבריכה (צפון) – הכנף נפתחת ל-95° ועומדת כמחיצה בין הפתח לבריכה. זמני – לאישור אביחי" },
+  { "id": "H2", "label": "מכסה בור איזון", "hinge": "pool" }
+ ]
+}

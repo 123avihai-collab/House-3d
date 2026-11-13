@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { TilingWorkshop } from '../tiling/workshop.js';
 import { surfaceZ, gridPieces } from '../tiling/layout.js';
+import { Hatches } from '../tiling/hatches.js';
 import { PoolFinish } from '../tiling/pool.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
@@ -47,7 +48,8 @@ export function buildFinishes(ctx) {
   }
   const F = new Finishes(ctx, P, T, TL, R, D);
   if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up
-  if (data.poolSurfaces && data.poolCatalog) F.pool = new PoolFinish(F);   // pool tiling + coping (src/tiling/pool.js)
+  if (data.poolSurfaces && data.poolCatalog) F.pool = new PoolFinish(F);
+  if (data.hatches && F.EX) F.hatches = new Hatches(F);   // tiled hatches over the pool machine room (src/tiling/hatches.js)   // pool tiling + coping (src/tiling/pool.js)
   F.build();
   return F;
 }
@@ -169,6 +171,7 @@ class Finishes {
     registry.defer([...plasterLayers], () => this.buildPlaster());
     registry.defer(['wetProofing'], () => this.buildWaterproofing());
     registry.defer([...this.BU.layers, ...this.EXL].map(l => l.id), () => this.buildFloors());
+    if (this.hatches) registry.defer(['poolHatches', 'pool'], () => this.hatches.build());
     if (this.pool) registry.defer(['poolTile', 'poolCoping'], () => this.pool.build3D());
     registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
@@ -370,6 +373,7 @@ class Finishes {
     const byLayer = {}; const n0 = this.items.length;
     const step = this.ctx.data.display.tiling?.exteriorGrid_m ?? 0.5;
     for (const r of [...this.TL.rooms, ...(this.EX?.rooms || [])]) for (const l of r.layers || []) for (const p of r.parts) {
+      if (r.hatch) continue;   // a hatch lid: its tray is drawn by src/tiling/hatches.js, its tiles by the workshop
       if ((l.id === 'floorTile' || l.id === 'extTile') && this.tiling?.has(r.room)) continue;   // tiles chosen in the workshop – drawn by src/tiling instead of the placeholder
       const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set(), outdoor: !!r.outdoor };
       const z0 = this.layerZ(r, l, 'z0'), z1 = this.layerZ(r, l, 'z1');
@@ -441,6 +445,7 @@ class Finishes {
     if (!this.floorItems) return;
     this.ctx.registry.remove(this.floorItems); this.items = this.items.filter(i => !this.floorItems.includes(i));
     if (this.tiling) this.tiling.items = [];
+    this.hatches?.detachAll();
     this.buildFloors();
     this.app?.store && this.ctx.registry.apply(this.app.store.get());
     this.app?.viewer.invalidate();

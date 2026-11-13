@@ -53,7 +53,8 @@
   "electricalSupply": "data/electrical/supply.json",
   "electricalDisplay": "data/electrical/display.json",
   "electricalUnits": "data/electrical/units.json",
-  "electricalFirstRiser": "data/electrical/first-riser.json"
+  "electricalFirstRiser": "data/electrical/first-riser.json",
+  "electricalPointsFirst": "data/electrical/points-first.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

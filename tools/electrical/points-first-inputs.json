@@ -1,0 +1,37 @@
+{
+  "_doc": "ח4 (קומה א') – נקודות חשמל לכל חדר: תאורה, מפסקים, שקעים, תריסים, תקשורת, מזגן. ערכי תכנון (provisional) – כמויות וגבהים לפי נוהג מקובל, לאישור אביחי. המיקום נגזר מהקירות והפתחים שבמודל.",
+  "source": "הנחת תכנון – docs/electrical/05-first-floor-points.md; זיהוי חדרים: תוויות תוכנית האדריכל (sources/plumbing/אינסטלציה חתכים הכל.dxf, בלוק alef: 'חדר', 'קומה א'', 'חלל כלוא', 'חלל עולה') + קבועות האינסטלציה",
+  "decision": "אביחי 13.11.2026: חלופה א' – כל מעגל מהלוח הראשי, כולל שקעים ותאורה בכל חדר",
+  "heights": {"status": "provisional", "note": "גבהים מקובלים (מרכז האביזר מעל רצפה גמורה) – E6, לאישור",
+    "socket": 0.30, "switch": 1.05, "bathSocket": 1.10, "mirrorLight": 2.00, "thermostat": 1.50, "data": 0.30, "shutterSwitch": 1.05, "shutterAboveHead": 0.15, "smokeOnCeiling": true},
+  "labels": [
+    {"text": "חדר", "ITM": [179595.25, 576241.75], "room": "room1", "name": "חדר 1"},
+    {"text": "חדר", "ITM": [179596.01, 576243.64], "room": "room2", "name": "חדר 2"},
+    {"text": "קומה א' H=2.80", "ITM": [179598.07, 576240.39], "room": "hall", "name": "מבואה / ראש המדרגות"},
+    {"text": "חלל כלוא", "ITM": [179598.68, 576236.43], "room": "voidFS2", "name": "חלל כלוא (FS2)"}
+  ],
+  "labelsSource": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק alef, שכבה G-ANNO-TEXT (הוצב ב-ITM בהזזה של data/architecture/openings.json placement.alef)",
+  "rooms": {
+    "bedroom": {"lights": 1, "sockets": 5, "data": 1, "shutter": true, "switches": 1,
+                "note": "חדר שינה: נקודת תאורה במרכז, מפסק ליד הדלת, 5 שקעים (2 ליד המיטה, שולחן, טלוויזיה, כללי), נקודת תקשורת, תריס חשמלי לויטרינה (מפסק + נקודת מנוע)"},
+    "bath": {"lights": 1, "mirrorLight": true, "bathSocket": true, "switchOutside": true,
+             "note": "חדר רחצה: תאורה בתקרה + נקודה מעל המראה, שקע מוגן מים ליד הכיור (לפחות 0.60 מ' מהמקלחת), מפסק מחוץ לדלת; יש חלון – בלי מאוורר"},
+    "hall": {"lights": 2, "sockets": 1, "thermostat": true, "smoke": true, "twoWay": true,
+             "note": "מבואה: 2 נקודות תאורה במחליף (ראש המדרגות + ליד הדלתות), שקע אחד, תרמוסטט למיני-מרכזי, גלאי עשן"}
+  },
+  "circuits": [
+    {"id": "F-L1", "kind": "light", "name": "תאורה – חדר 1 + רחצה 1 + מבואה", "rooms": ["room1", "bath1", "hall"], "breaker": "10A", "conduit": "ø20"},
+    {"id": "F-L2", "kind": "light", "name": "תאורה – חדר 2 + רחצה 2", "rooms": ["room2", "bath2"], "breaker": "10A", "conduit": "ø20"},
+    {"id": "F-S1", "kind": "socket", "name": "שקעים – חדר 1", "rooms": ["room1"], "breaker": "16A", "conduit": "ø20"},
+    {"id": "F-S2", "kind": "socket", "name": "שקעים – חדר 2", "rooms": ["room2"], "breaker": "16A", "conduit": "ø20"},
+    {"id": "F-S3", "kind": "socket", "name": "שקעים – חדרי רחצה + מבואה (פחת 30mA)", "rooms": ["bath1", "bath2", "hall"], "breaker": "16A", "conduit": "ø20"},
+    {"id": "F-SH", "kind": "shutter", "name": "תריסים חשמליים – חדרים 1, 2", "rooms": ["room1", "room2"], "breaker": "10A", "conduit": "ø20"},
+    {"id": "F-AC", "kind": "ac", "name": "מיני-מרכזי – יחידה פנימית (ההזנה לעבה בנפרד)", "rooms": ["hall"], "breaker": "לפי היחידה", "conduit": "ø25"},
+    {"id": "F-ACc", "kind": "lv", "name": "פיקוד מיני-מרכזי – תרמוסטט", "rooms": ["hall"], "breaker": "—", "conduit": "ø16"},
+    {"id": "F-D1", "kind": "lv", "name": "תקשורת – חדר 1", "rooms": ["room1"], "breaker": "—", "conduit": "ø25"},
+    {"id": "F-D2", "kind": "lv", "name": "תקשורת – חדר 2", "rooms": ["room2"], "breaker": "—", "conduit": "ø25"},
+    {"id": "F-SD", "kind": "lv", "name": "גלאי עשן / אזעקה – מבואה", "rooms": ["hall"], "breaker": "—", "conduit": "ø16"},
+    {"id": "F-SP", "kind": "spare", "name": "שמור (2 צינורות)", "rooms": [], "breaker": "—", "conduit": "2×ø25"}
+  ],
+  "place": {"cornerClear_m": 0.25, "openingClear_m": 0.2, "doorSwitchGap_m": 0.15, "bathSocketFromBasin_m": 0.45, "showerClear_m": 0.6, "step_m": 0.05}
+}

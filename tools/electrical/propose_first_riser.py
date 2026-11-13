@@ -125,6 +125,20 @@ ux = P['alongITM']; uy = (-ux[1], ux[0])
 def box_ring(c, rot):
     a = ux if rot == 0 else uy; b2 = uy if rot == 0 else (-ux[0], -ux[1])
     return [(c[0]+a[0]*sx*aw/2+b2[0]*sy*ad_/2, c[1]+a[1]*sx*aw/2+b2[1]*sy*ad_/2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+# the hall polygon (the region holding the architect's "קומה א'" label, on the first-floor slab) – the unit must sit in the hall
+from shapely.geometry import Polygon as SP, LineString as SL, Point as SPt
+from shapely.ops import unary_union as SU
+def _ext(a, c, e):
+    dx, dy = c[0]-a[0], c[1]-a[1]; l = math.hypot(dx, dy); return [(a[0]-dx/l*e, a[1]-dy/l*e), (c[0]+dx/l*e, c[1]+dy/l*e)]
+_W = [SL(_ext(*w['axisITM'], 0.12)).buffer(w['thickness_m']/2+0.015, cap_style=2) for w in blocks]+[SP(r).buffer(0.03) for _, r in concrete]
+for x in op.values():
+    if x['floor'] != 'first': continue
+    c_ = x['centerITM']; a_ = x['axisITM']; hh = x['width_m']/2+0.08
+    _W.append(SL([(c_[0]-a_[0]*hh, c_[1]-a_[1]*hh), (c_[0]+a_[0]*hh, c_[1]+a_[1]*hh)]).buffer(0.14, cap_style=2))
+_free = SP(rs1['footprintITM']).difference(SU(_W))
+_hallLbl = SPt(*I['acReserve']['hallLabelITM'])
+_hall = next(g_ for g_ in (_free.geoms if hasattr(_free, 'geoms') else [_free]) if g_.contains(_hallLbl)).intersection(SP(fs1['footprintITM']).buffer(-0.05))
+_hall = max(_hall.geoms, key=lambda q: q.area) if hasattr(_hall, 'geoms') else _hall
 bestA = None
 for i in range(-45, 46):
     for j in range(-45, 46):
@@ -132,7 +146,7 @@ for i in range(-45, 46):
         if math.dist(c, Dp) > AC['maxFromBox_m']: continue
         for rot in (0, 1):
             ring = box_ring(c, rot)
-            if not all(inside(q, fs1['footprintITM']) for q in ring): continue
+            if not all(inside(q, fs1['footprintITM']) for q in ring) or not _hall.contains(SP(ring)): continue
             if any(in_concrete(q) for q in ring+[c]): continue
             if any(seg_x(ring[k], ring[(k+1) % 4], w0, w1) is not None for _, w0, w1 in blockSegs for k in range(4)): continue
             if any(inside(w0, ring) or inside(w1, ring) for _, w0, w1 in blockSegs): continue

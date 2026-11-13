@@ -240,5 +240,36 @@ export function buildElectrical(ctx) {
         source: FR.source, note: 'הצעה בלבד – ממתין לאישור' });
     }
   }
-  return { items, supply: S, units: UN, firstRiser: FR };
+  // ---- ח4 first floor: electrical points (lights, switches, sockets, data, shutters, bath IP44, thermostat, smoke, AC power) – one item per room
+  const PF = data.electricalPointsFirst;
+  if (PF) {
+    const byRoom = {};
+    for (const p of PF.points) (byRoom[p.room] ||= []).push(p);
+    const pm = {};
+    const matOf = (k) => (pm[k] ||= tint(std(D.pointStyle[k]?.color || '#999', 0.4, 0.1)));
+    const circ = Object.fromEntries(PF.circuits.map(c => [c.id, c]));
+    for (const [room, pts] of Object.entries(byRoom)) {
+      const g = new THREE.Group();
+      for (const p of pts) {
+        const st_ = D.pointStyle[p.kind] || { size: 0.09, shape: 'plate' };
+        let m;
+        if (st_.shape === 'disk') { m = new THREE.Mesh(new THREE.CylinderGeometry(st_.size / 2, st_.size / 2, 0.03, 20), matOf(p.kind)); m.position.copy(L([p.ITM[0], p.ITM[1], p.abs - 0.015])); }
+        else {
+          m = new THREE.Mesh(new THREE.BoxGeometry(st_.size, st_.size, 0.025), matOf(p.kind));
+          const nrm = p.normalITM ? new THREE.Vector3(p.normalITM[0], 0, -p.normalITM[1]).normalize() : new THREE.Vector3(0, 0, 1);
+          m.position.copy(L([p.ITM[0], p.ITM[1], p.abs])).addScaledVector(nrm, 0.0125); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), nrm);
+        }
+        m.castShadow = false; g.add(m);
+      }
+      const r0 = pts[0];
+      const counts = PF.counts[r0.roomName] || {};
+      const rows = [['מעמד', 'הצעה – זמני'], ['החלטה', PF.decision], ['נקודות', Object.entries(counts).map(([k, v]) => `${v}× ${k}`).join(' · ')],
+        ['מעגלים', [...new Set(pts.map(p => p.circuit).filter(Boolean))].map(c => `${c} ${circ[c]?.name || ''}`).join(' · ')],
+        ['גבהים (זמני, E6)', `שקע ${PF.heights.socket} · מפסק ${PF.heights.switch} · שקע רחצה ${PF.heights.bathSocket} · תרמוסטט ${PF.heights.thermostat} מ' מעל הרצפה; תאורה בהנמכה ${fmtH(PF.levels.ceilingAbs)}`],
+        ...pts.filter(p => p.note).slice(0, 4).map(p => [p.label, p.note])];
+      const it = scene.add(g) && registry.add(g, { floor: 'first', system: 'electrical', stage: 'finishes', layer: 'elPoints', step: 'finishes' }, { name: `נקודות חשמל – ${r0.roomName}`, kind: 'elPoints', id: `PF-${room}`, rows, source: PF.source, note: 'הצעה בלבד – ממתין לאישור' });
+      it.meta.electrical = true; items.push(it);
+    }
+  }
+  return { items, supply: S, units: UN, firstRiser: FR, pointsFirst: PF };
 }

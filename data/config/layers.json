@@ -464,6 +464,11 @@
      "visible": true
     },
     {
+     "id": "elPoints",
+     "label": "נקודות חשמל קומה א' (הצעה): תאורה, מפסקים, שקעים, תקשורת, תריסים",
+     "visible": true
+    },
+    {
      "id": "sockets",
      "label": "שקעים",
      "implemented": false

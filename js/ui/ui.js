@@ -656,7 +656,13 @@ export class UI {
       h('div', { class: 'list' }, h('button', { class: 'li', onclick: () => {
         const cur = app.store.get(); app.store.set({ stageIndex: app.registry.stepById('finishes'), systemFilter: ED.stepFilter, layers: { ...cur.layers, elSupply: true }, showHidden: true }, { label: 'elFirst' });
         const it = E?.items.find(i => i.meta.id === 'FR-TRUNK'); if (it) app.tools.search.show(it); } }, "הצג את העלייה לקומה א'"))) : null;
-    return h('div', {}, supply, units, first,
+    const PF = app.data.electricalPointsFirst;
+    const pts = PF ? h('div', {},
+      h('h4', {}, "ח4 – נקודות חשמל קומה א' (הצעה)"),
+      h('table', { class: 'kv' }, ...Object.entries(PF.counts).map(([room, c]) => tr(room, Object.entries(c).map(([k, v]) => `${v} ${k}`).join(' · '))),
+        tr('סה"כ', `${PF.summary.points} נקודות · ${PF.summary.circuits} מעגלי חשמל · ${PF.summary.conduitsUp} צינורות בעלייה`), tr('גבהים', 'זמני – לאישור (E6)')),
+      h('h4', {}, 'מעגלים – קומה א\''), h('table', { class: 'kv' }, ...PF.circuits.map(c => tr(c.id, `${c.name} · ${c.breaker} · ${c.conduit}`)))) : null;
+    return h('div', {}, supply, units, first, pts,
       h('h4', {}, 'נקודות חשמל ', soon()),
       h('p', { class: 'muted' }, 'הצבת שקעים, מפסקים, נקודות תאורה ותקשורת לפי גבהים סטנדרטיים, עם כתב כמויות נקודות.'),
       h('div', { class: 'list' }, el.pointTypes.map(p => h('button', { class: 'li na', disabled: true }, p.label))),

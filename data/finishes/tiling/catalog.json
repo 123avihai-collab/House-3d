@@ -128,11 +128,13 @@
   {
    "id": "concrete",
    "label": "דמוי בטון",
-   "color": "#a19f99",
+   "color": "#e2dfd8",
    "vary": 0.075,
    "roughness": 0.8,
    "texture": "assets/textures/concrete_floor_01",
-   "texSize_m": 2.0
+   "texSize_m": 1.2,
+   "pbr": true,
+   "swatch": "#a19f99"
   },
   {
    "id": "anthracite",
@@ -144,9 +146,14 @@
   {
    "id": "oak",
    "label": "דמוי עץ אלון",
-   "color": "#b08c62",
-   "vary": 0.135,
-   "roughness": 0.6
+   "color": "#f2ebe2",
+   "vary": 0.06,
+   "roughness": 0.6,
+   "texture": "assets/textures/oak_veneer_01",
+   "texSize_m": 1.83,
+   "pbr": true,
+   "grainAlongLength": true,
+   "swatch": "#b08c62"
   }
  ],
  "patterns": [
@@ -249,5 +256,6 @@
   "court",
   "outdoor"
  ],
- "_excludeRoomTypes": "חצרות אנגליות / גג – לא בסדנה (ריצוף חוץ – בהמשך)."
+ "_excludeRoomTypes": "חצרות אנגליות / גג – לא בסדנה (ריצוף חוץ – בהמשך).",
+ "_finishes": "גימור = מראה בלבד. דמוי עץ – טקסטורת oak_veneer_01, דמוי בטון – concrete_floor_01 (Poly Haven, CC0); השאר – צבע אחיד עם גיוון קל בין אריחים. הפוגות מצוירות בשיידר (נראות מכל מרחק)."
 }

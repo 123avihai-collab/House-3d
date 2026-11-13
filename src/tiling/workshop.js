@@ -109,15 +109,38 @@ export class TilingWorkshop {
   }
 
   // ---------------------------------------------------------------- 3D: the tiles of every zone with a choice (layer floorTile)
+  // tile material: finish colour × vertex colour (per-tile shade); textured finishes (concrete, wood) with PBR maps.
+  // The joints are drawn in the shader from the position inside the tile (attribute tileXY: u, v from the tile corner,
+  // tile L, W; tileJ: half joint) – at least ~1 px wide at any distance / angle, the real width up close.
   matOf(fin) {
     const k = fin.id;
     if (this.mats[k]) return this.mats[k];
     const m = new THREE.MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: fin.roughness ?? 0.5, metalness: 0, side: THREE.DoubleSide,
-      envMapIntensity: 0.9 });
+      envMapIntensity: this.D.envMapIntensity ?? 0.9 });
     if (fin.texture) {
-      const t = new THREE.TextureLoader().load(`${fin.texture}/color.webp`, () => this.F.ctx.viewer?.invalidate());
-      t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.repeat.set(1 / fin.texSize_m, 1 / fin.texSize_m); m.map = t;
+      const ld = (f, srgb) => { const tx = new THREE.TextureLoader().load(`${fin.texture}/${f}`, () => this.F.ctx.viewer?.invalidate());
+        tx.wrapS = tx.wrapT = THREE.RepeatWrapping; if (srgb) tx.colorSpace = THREE.SRGBColorSpace; tx.repeat.set(1 / fin.texSize_m, 1 / fin.texSize_m); return tx; };
+      m.map = ld('color.webp', true);
+      if (fin.pbr) { m.normalMap = ld('normal.jpg', false); m.roughnessMap = ld('roughness.webp', false); m.normalScale.set(0.6, 0.6); }
     }
+    const grout = new THREE.Color(this.D.groutColor || '#8f8b84'), px = this.D.jointMinPx ?? 1.1;
+    m.onBeforeCompile = (sh) => {
+      sh.uniforms.uGrout = { value: grout };
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 tileXY;\nattribute float tileJ;\nvarying vec4 vTile;\nvarying float vJ;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTile = tileXY; vJ = tileJ;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uGrout;\nvarying vec4 vTile;\nvarying float vJ;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+        if (vTile.z > 0.0) {
+          vec2 q = vTile.xy;
+          float d = min(min(q.x, vTile.z - q.x), min(q.y, vTile.w - q.y));
+          float fw = max(fwidth(q.x), fwidth(q.y));
+          float jw = max(vJ, fw * ${px.toFixed(2)});
+          float line = 1.0 - smoothstep(jw, jw + fw, d);
+          float bevel = 1.0 - 0.10 * (1.0 - smoothstep(vJ, vJ + 0.004, d));
+          diffuseColor.rgb = mix(diffuseColor.rgb * bevel, uGrout, line);
+        }`);
+    };
+    m.customProgramCacheKey = () => 'tileJoints';
     return (this.mats[k] = m);
   }
   build3D() {
@@ -130,7 +153,8 @@ export class TilingWorkshop {
       const c = this.choice[z.key]; if (!c) continue;
       const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
       const z1 = z.tileLayer.z1, z0 = z.tileLayer.z0, zt = z1 - (this.D.jointDepth_m ?? 0.003);
-      const pos = [], col = [], uv = [], map = [], jl = [];
+      const pos = [], col = [], uv = [], map = [], txy = [], tj = [];
+      const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color();
       const W = (u, v, zz) => { const [E, N] = lay.frame.toWorld([u, v]); return V(E, N, zz); };
       for (const p of lay.pieces) {
@@ -144,14 +168,16 @@ export class TilingWorkshop {
         if (THREE.ShapeUtils.isClockWise(C2)) C2.reverse();
         Hs.forEach(hh => { if (!THREE.ShapeUtils.isClockWise(hh)) hh.reverse(); });
         const all = [...C2, ...Hs.flat()];
-        const push = (u, v, zz, uu = u, vv = v) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b); uv.push(uu + ou, vv + ov); };
+        // top face: uv in metres (+ offset per tile; wood – grain along the tile length), tileXY = place inside the tile
+        const push = (u, v, zz, top = true) => { pos.push(...W(u, v, zz)); col.push(tmp.r, tmp.g, tmp.b);
+          const lu = u - p.x0, lv = v - p.y0; uv.push(grain ? lv + ou : u + ou, grain ? lu + ov : v + ov);
+          if (top) txy.push(lu, lv, L, Wd); else txy.push(0, 0, 0, 0); tj.push(jh); };
         for (const t of THREE.ShapeUtils.triangulateShape(C2, Hs)) { for (const i of t) push(all[i].x, all[i].y, z1); map.push(z.key); }
-        // tile edges down to the joint (the joints read as fine dark lines) + a thin line on every edge (visible at any zoom)
+        // tile edges down to the joint (seen up close / in a section)
         for (let i = 0; i < C2.length; i++) {
           const a = C2[i], b = C2[(i + 1) % C2.length];
-          jl.push(...W(a.x, a.y, z1 + 0.002), ...W(b.x, b.y, z1 + 0.002));
-          push(a.x, a.y, zt, a.x, a.y); push(b.x, b.y, zt, b.x, b.y); push(b.x, b.y, z1, b.x, b.y + 0.01);
-          push(a.x, a.y, zt, a.x, a.y); push(b.x, b.y, z1, b.x, b.y + 0.01); push(a.x, a.y, z1, a.x, a.y + 0.01);
+          push(a.x, a.y, zt, false); push(b.x, b.y, zt, false); push(b.x, b.y, z1, false);
+          push(a.x, a.y, zt, false); push(b.x, b.y, z1, false); push(a.x, a.y, z1, false);
           map.push(z.key, z.key);
         }
       }
@@ -159,6 +185,8 @@ export class TilingWorkshop {
       g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
       g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
       g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+      g.setAttribute('tileXY', new THREE.Float32BufferAttribute(txy, 4));
+      g.setAttribute('tileJ', new THREE.Float32BufferAttribute(tj, 1));
       g.computeVertexNormals();
       const m = new THREE.Mesh(g, this.matOf(fin)); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
       // the grout under the joints (the zone polygon, a hair below the tile face)
@@ -166,10 +194,7 @@ export class TilingWorkshop {
       for (const part of z.parts) { const t = F.ringTris(part[0], part.slice(1), zt); gp.push(...t); }
       const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(gp.flat(), 3)); gg.computeVertexNormals();
       const gmsh = new THREE.Mesh(gg, grout); gmsh.receiveShadow = true; gmsh.userData.keep = true;
-      const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(jl, 3));
-      const lines = new THREE.LineSegments(lg, this.lineMat ||= new THREE.LineBasicMaterial({ color: this.D.jointLineColor || '#6d6a64', transparent: true, opacity: this.D.jointLineOpacity ?? 0.7 }));
-      lines.userData.keep = true;
-      const grp = new THREE.Group(); grp.add(gmsh, m, lines);
+      const grp = new THREE.Group(); grp.add(gmsh, m);
       const q = lay.q, sz = lay.size;
       const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,
@@ -247,7 +272,7 @@ export class TilingWorkshop {
     const drawPieces = (L) => {
       gp.replaceChildren();
       for (const p of L.pieces) {
-        const fill = p.sev === 2 ? (this.D.sliverColor || '#e53935') : p.sev === 1 ? (this.D.narrowColor || '#ffa726') : fin.color;
+        const fill = p.sev === 2 ? (this.D.sliverColor || '#e53935') : p.sev === 1 ? (this.D.narrowColor || '#ffa726') : (fin.swatch || fin.color);
         gp.append(s('polygon', { points: P(p.poly), fill, 'fill-opacity': p.full ? 1 : 0.8, stroke: '#00000033', 'stroke-width': 0.004 }));
         if (p.sev && p.cut != null && Math.max(p.bw, p.bh) > 0.12) { const t = s('text', { x: (p.poly.reduce((a, q) => a + q[0], 0) / p.poly.length).toFixed(3), y: (-p.poly.reduce((a, q) => a + q[1], 0) / p.poly.length).toFixed(3), 'font-size': 0.11, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: '#000' }); t.textContent = Math.round(p.cut * 100); gp.append(t); }
       }
@@ -311,7 +336,7 @@ export class TilingWorkshop {
         const c = this.choice[z.key], L = c ? this.layout(z.key) : null;
         return h('tr', { class: 'zone-row' + (z.key === this.sel ? ' sel' : ''), 'data-room': z.key, onclick: () => this.select(z.key) },
           h('td', {}, z.name), h('td', {}, f2(z.r.area)),
-          h('td', {}, c ? [h('i', { class: 'swc', style: `background:${this.finBy[c.finish]?.color}` }), ' ', this.sizeOf(c).label] : h('span', { class: 'muted' }, 'לא נבחר')),
+          h('td', {}, c ? [h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` }), ' ', this.sizeOf(c).label] : h('span', { class: 'muted' }, 'לא נבחר')),
           h('td', {}, L ? (L.q.slivers ? h('span', { class: 'bad' }, `⚠ ${L.q.slivers} צרים`) : L.q.narrow ? h('span', { class: 'mid' }, `${L.q.narrow} מתחת לשליש`) : '✓') : ''));
       })])));
 
@@ -340,7 +365,7 @@ export class TilingWorkshop {
     box.append(...[
       row('מידה (ס"מ):', sel('size', [...this.C.sizes.map(x => [x.id, x.label]), ['custom', 'מידה אחרת…']])),
       c.size === 'custom' ? row('רוחב × אורך (ס"מ), באריזה:', num('w_cm', 1, 5, 300), ' × ', num('l_cm', 1, 5, 300), ' · ', num('perBox', 1, 1, 100)) : null,
-      row('גימור:', sel('finish', this.C.finishes.map(x => [x.id, x.label])), h('i', { class: 'swc', style: `background:${this.finBy[c.finish]?.color}` })),
+      row('גימור:', sel('finish', this.C.finishes.map(x => [x.id, x.label])), h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` })),
       row('דוגמה:', sel('pattern', this.C.patterns.map(x => [x.id, x.label]))),
       row('כיוון:', sel('direction', this.C.directions.map(x => [x.id, x.label]))),
       row('נקודת התחלה:', sel('origin', this.C.origins.map(x => [x.id, x.label]))),
@@ -358,7 +383,7 @@ export class TilingWorkshop {
       h('button', { class: 'small x', onclick: () => this.setChoice(z.key, null) }, 'הסר ריצוף')));
     const lay = this.layout(z.key);
     box.append(this.plan(z.key), this.statsEl = this.statsBox(lay),
-      h('div', { class: 'muted legend' }, h('i', { class: 'swc', style: `background:${this.finBy[c.finish]?.color}` }), ' שלם/חתוך · ', h('i', { class: 'swc', style: `background:${this.D.narrowColor}` }), ' מתחת לשליש אריח · ',
+      h('div', { class: 'muted legend' }, h('i', { class: 'swc', style: `background:${(this.finBy[c.finish]?.swatch || this.finBy[c.finish]?.color)}` }), ' שלם/חתוך · ', h('i', { class: 'swc', style: `background:${this.D.narrowColor}` }), ' מתחת לשליש אריח · ',
         h('i', { class: 'swc', style: `background:${this.D.sliverColor}` }), ` צר מ-${Math.round(this.C.cuts.hardMin_m * 100)} ס"מ (המספר = רוחב החיתוך בס"מ) · ✚ אריח ההתחלה · גרירה = הזזה`));
     const q = lay.q;
     box.append(h('table', { class: 'qty' },
@@ -385,7 +410,7 @@ export class TilingWorkshop {
       const L = this.layout(z.key), fin = this.finBy[c.finish];
       zones.push({ z, c, L, fin });
       const k = L.size.label + '|' + fin.label;
-      const o = order[k] ||= { size: L.size.label, finish: fin.label, color: fin.color, area: 0, tiles: 0, order: 0, boxes: 0, perBox: L.q.perBox, adh: 0, grout: 0, zones: 0 };
+      const o = order[k] ||= { size: L.size.label, finish: fin.label, color: fin.swatch || fin.color, area: 0, tiles: 0, order: 0, boxes: 0, perBox: L.q.perBox, adh: 0, grout: 0, zones: 0 };
       o.area += L.q.area_m2; o.tiles += L.q.layTiles + L.q.skirtingTiles; o.order += L.q.order; o.zones++; o.adh += L.q.adhesive_kg; o.grout += L.q.grout_kg;
     }
     for (const o of Object.values(order)) o.boxes = Math.ceil(o.order / o.perBox);

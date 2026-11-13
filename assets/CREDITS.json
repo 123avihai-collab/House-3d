@@ -174,5 +174,17 @@
    2000
   ],
   "note": "color map brightened ×2 and warmed (sumsum + sand fill under the floor tiles)"
+ },
+ "oak_veneer_01": {
+  "name": "Oak Veneer 01",
+  "authors": {
+   "Jenelle van Heerden": "All"
+  },
+  "license": "CC0",
+  "url": "https://polyhaven.com/a/oak_veneer_01",
+  "dimensions_mm": [
+   1830,
+   1830
+  ]
  }
 }

@@ -20,7 +20,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from style_kit import (Sheet, NIS, PCT1, QTY, NUM, NUM3, TOTAL_FILL, HERO_FILL, BAND_FILL, INPUT_FILL, WARN_FILL,
+from style_kit import (Sheet, NIS, PCT1, QTY, NUM, NUM3, RATE, TOTAL_FILL, HERO_FILL, BAND_FILL, INPUT_FILL, WARN_FILL,
                        NOW_FILL, C_C, C_W, F_NOTE, col_letter)
 import elements as EL
 
@@ -616,7 +616,7 @@ def build_blocks(B):
           bold=True, fill=TOTAL_FILL, top=True)
     boxTot = r; r += 2
     B.blk = dict(area=f"{q('blk')}!E{blkTot}", blocks=f"{q('blk')}!M{blkTot}", bond=f"{q('blk')}!M{bondTot}", lintel=f"{q('blk')}!M{linTot}",
-                 box=f"{q('blk')}!M{boxTot}", lintelConc=f"{q('blk')}!K{linTot}", lintels=f"{q('blk')}!J{linTot}", boxes=f"COUNT({q('blk')}!F{s0}:F{boxTot-1})")
+                 box=f"{q('blk')}!M{boxTot}", lintelConc=f"{q('blk')}!K{linTot}", lintels=f"COUNT({q('blk')}!E{l0}:E{linTot-1})", boxes=f"COUNT({q('blk')}!F{s0}:F{boxTot-1})")
     S.section(r, 'עבודה'); r += 1
     S.header(r, ["מס'", 'פריט', '', 'כמות', "יח'", '', '', '', '', '', '₪ ליח\'', 'עלות (₪)'], h=30); r += 1
     S.row(r, [1, 'בניית קירות בלוקים בהדבקה (עבודה)', None, f"=E{blkTot}", 'מ"ר', None, None, None, None, None, f"={B.PR('block_labor_m2')}", f"=E{r}*L{r}"], [QTY, None, None, NUM, None, None, None, None, None, None, NIS, NIS]); r += 1
@@ -762,6 +762,9 @@ def build_summary(B):
         subs.append(f"C{r}"); r += 1
     S.row(r, ['סה"כ פרויקט – כל הקבלנים (ללא מע"מ, ללא רווח ותקורות)', '=' + '+'.join(subs), f"=IF($C${grand}=0,0,C{r}/$C${grand})"], [None, NIS, PCT1], bold=True, hero=True, fill=HERO_FILL, top=True)
     r += 1
+    S.row(r, ['עלות קבלן השלד לפני רווח – כולל הוצאות אתר, מנוף ותקורה (גיליון "עלות קבלן")', f"={B.costRef}", None], [None, NIS, None], bold=True, fill=NOW_FILL,
+          note='מחירי השוק למעלה הם ללא הוצאות אתר ותקורה; בגיליון "עלות קבלן" – חומר במחיר ספק + ימי אדם + אתר + תקורה. שם גם בדיקת הצעת הקבלן')
+    r += 1
     S.note(r, 'שיוך פרקים לקבלנים: data/quantities/boq-params.json (contractors) – איטום = קבלן נפרד (החלטת אביחי 13.11.2026). הכמויות של כל הקבלנים נשארות בקובץ.')
     r += 2
     S.section(r, '2 · כמויות עיקריות'); r += 1
@@ -789,6 +792,12 @@ def build_cost(B):
             'חומרים במחיר ספק · עבודה עצמית = כמות × נורמת תפוקה (ימי אדם) × עלות מעסיק ליום · קבלני משנה וצמ"ה במחיר שוק · הוצאות אתר לפי משך העבודה · תקורת חברה. '
             'היקף = קבלן השלד (בלי איטום). 🟡 = קלט: נורמות, עלויות, משך, הצעת הקבלן. מקורות: data/quantities/contractor-cost.json.')
     par = {}
+    # cast area of the house (floor + ceiling slabs) for the per-m² check
+    fr, fg, ff = J('data/structure/framing.json'), J('data/structure/floor-ground.json'), J('data/structure/floor-first.json')
+    castA = round(sum(x['area_m2'] for x in fr['slabs']) + sum(x['area_m2'] for x in fg['slab'] if x['zone'] in ('house', 'mamad', 'entry'))
+                  + sum(x['area_m2'] for x in fg['ceiling']['slab']) + sum(x['area_m2'] for x in ff['ceiling']['slab']), 1)
+    D['inputs'].append(dict(title='בקרה', items=[dict(key='cast_area_m2', item='שטח יציקה – רצפות ותקרות הבית (מרתף, קרקע, ‎+3.70, גג)', unit='מ"ר', value=castA,
+                        source_title='data/structure (framing, floor-ground, floor-first)', confidence='high', note='בלי רצפות חוץ')]))
     r = 3
     # ---------- inputs
     S.section(r, 'א · נתוני קלט – נורמות ועלויות'); r += 1
@@ -883,7 +892,7 @@ def build_cost(B):
     # ---------- totals
     S.section(r, 'ד · עלות כוללת לקבלן ותרחישי רווח'); r += 1
     S.header(r, ['', 'פריט', '', '', '', '', '', '', 'סכום (₪)'], h=15); r += 1
-    S.row(r, [None, 'עלות ישירה + הוצאות אתר'], [None]); ws.cell(row=r, column=10).value = f"={direct}+{siteTot}"; ws.cell(row=r, column=10).number_format = NIS; dir2 = f"J{r}"; r += 1
+    S.row(r, [None, 'עלות ישירה + הוצאות אתר', None, None, None, None, None, None, f"={direct}+{siteTot}"], [None] * 8 + [NIS]); dir2 = f"J{r}"; r += 1
     S.row(r, [None, 'תקורת חברה (משרד, הנהלה, מימון, ערבויות)', None, f"={P('overhead_pct')}", '%', None, None, f"={dir2}", f"=E{r}*I{r}"], [None, None, None, PCT1, None, None, None, NIS, NIS]); r += 1
     S.row(r, [None, 'עלות כוללת לקבלן – נקודת איזון (בלי רווח)', None, None, None, None, None, None, f"={dir2}+J{r-1}"], [None] * 8 + [NIS], bold=True, hero=True, fill=HERO_FILL, top=True)
     cost = f"$J${r}"; B.costRef = f"{q('cost')}!J{r}"; r += 2
@@ -894,8 +903,8 @@ def build_cost(B):
     # ---------- bid check
     S.section(r, 'ה · בדיקת הצעת הקבלן'); r += 1
     S.header(r, ['', 'פריט', '', 'ערך', '', '', '', '', 'סכום (₪)'], h=15); r += 1
-    S.row(r, [None, 'הצעת הקבלן – להקליד (באותו היקף: עפר, כלונסאות, שלד, בלוקים, ניקוז; בלי איטום, בלי מע"מ)'], [None]); S.paint(r, 10, INPUT_FILL)
-    ws.cell(row=r, column=10).number_format = NIS; bid = f"$J${r}"; r += 1
+    S.row(r, [None, 'הצעת הקבלן – להקליד (באותו היקף: עפר, כלונסאות, שלד, בלוקים, ניקוז; בלי איטום, בלי מע"מ)', None, None, None, None, None, None, 0], [None] * 8 + [NIS])
+    S.paint(r, 10, INPUT_FILL); bid = f"$J${r}"; r += 1
     S.row(r, [None, 'הרווח הגלום בהצעה', None, f"=IF({bid}>0,{bid}/{cost}-1,0)", None, None, None, None, f"=IF({bid}>0,{bid}-{cost},0)"], [None, None, None, PCT1, None, None, None, None, NIS], bold=True); r += 1
     S.row(r, [None, 'רווח הוגן (יעד למשא ומתן)', None, f"={P('target_profit_pct')}", None, None, None, None, f"={cost}*(1+E{r})"], [None, None, None, PCT1, None, None, None, None, NIS]); tgt = f"J{r}"; S.paint(r, 5, INPUT_FILL); r += 1
     S.row(r, [None, 'רצפת רווח (מתחתיה – סיכון לאיכות / לעזיבת הקבלן)', None, f"={P('min_profit_pct')}", None, None, None, None, f"={cost}*(1+E{r})"], [None, None, None, PCT1, None, None, None, None, NIS]); flo = f"J{r}"; S.paint(r, 5, INPUT_FILL); r += 1
@@ -910,7 +919,9 @@ def build_cost(B):
     S.row(r, [None, 'ימי אדם – סה"כ עבודה עצמית', None, f"={mdTot}", 'ימי אדם'], [None, None, None, NUM]); r += 1
     S.row(r, [None, 'משך מינימלי בצוות ממוצע', None, f"={mdTot}/{P('crew_size')}/22", 'חודשים'], [None, None, None, NUM], note='ימי אדם / גודל צוות / 22 ימי עבודה בחודש – לבדוק מול "משך העבודה" בקלט'); r += 1
     S.row(r, [None, 'עלות כוללת לקבלן לכל מ"ר יציקה (רצפות ותקרות הבית)', None, f"={cost}/{P('cast_area_m2')}", '₪/מ"ר'], [None, None, None, NIS],
-          note='להשוואה: קבלן שלד בדרום – עבודה בלבד 1,000–1,500 ₪/מ"ר, כולל חומרים 1,500–2,200 ₪/מ"ר (בונים בית) – כולל רווח'); r += 1
+          note='כולל עפר וכלונסאות. להשוואה (כולל רווח): קבלן שלד כולל חומרים 1,500–2,200 ₪/מ"ר (בונים בית), 1,800–2,800 ₪/מ"ר בנוי (מידרג); עבודה בלבד 1,000–1,500 ₪/מ"ר'); r += 1
+    S.row(r, [None, 'אותו דבר בלי עפר וכלונסאות (כמו מחיר שלד למ"ר בשוק)', None, f"=({cost}-J{rows['sub'][0][1:]}-J{rows['sub'][1][1:]})/{P('cast_area_m2')}", '₪/מ"ר'], [None, None, None, NIS],
+          note='קבלן שלד בשוק – כולל חומרים 1,500–2,800 ₪/מ"ר, כולל רווח. העלות כאן – לפני רווח'); r += 1
     S.finish(r)
 
 

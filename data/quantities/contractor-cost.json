@@ -1,0 +1,443 @@
+{
+ "_doc": "עלות קבלן השלד לפני רווח (גיליון \"עלות קבלן\"). נורמות ועלויות ממחקר 13.11.2026 – רובן הערכה (ודאות נמוכה): אין נורמות ישראליות פתוחות (דקל בתשלום) – נורמות בינלאומיות. להחליף בנתוני הקבלן בפועל.",
+ "profitScenarios": [
+  0,
+  5,
+  8,
+  10,
+  12,
+  15,
+  20
+ ],
+ "inputs": [
+  {
+   "title": "נורמות תפוקה (ימי אדם ליחידה; יום עבודה = 9 שעות)",
+   "items": [
+    {
+     "key": "norm_fw_walls",
+     "item": "טפסנות קירות – למ\"ר (0.8 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0889,
+     "source_title": "No Israeli norm found (Dekel is paywalled). Method: RSMeans labor-hours = crew hours / daily output (Wiley excerpt); unverified Scribd table 2.5–2.8 mh/m2 incl. timber fabrication",
+     "source_url": "https://catalogimages.wiley.com/images/db/pdf/9781118025284.excerpt.pdf",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.5–1.2 שעות אדם. הערכה על בסיס נורמות בינלאומיות לטפסות מודולריות/דיקט חוזר; לא נמצא נורמה ישראלית פתוחה (דקל בתשלום). טבלת Scribd הלא מאומתת (2.5 ש\"א/מ\"ר) כוללת ייצור טפסות עץ ולכן גבוהה."
+    },
+    {
+     "key": "norm_fw_columns",
+     "item": "טפסנות עמודים – למ\"ר (1.3 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.1444,
+     "source_title": "Kuwaiti study: column formwork labour unit cost constantly higher than other RC elements (Emerald BEPAM)",
+     "source_url": "https://www.emerald.com/insight/content/doi/10.1108/BEPAM-09-2015-0049/full/html",
+     "source_date": "2016",
+     "confidence": "low",
+     "note": "טווח 0.9–2.0 שעות אדם. עמודים – הרכיב היקר ביותר לטפסנות למ\"ר; הערך הוא הערכה בינלאומית."
+    },
+    {
+     "key": "norm_fw_beams",
+     "item": "טפסנות קורות – למ\"ר (1.2 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.1333,
+     "source_title": "Same basis as slabs; ANN formwork productivity study (geometry effect)",
+     "source_url": "https://salford-repository.worktribe.com/OutputFile/1491257",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.8–1.8 שעות אדם. קורות ושוליים קטנים דורשים יותר עבודה למ\"ר מתקרות; הערכה."
+    },
+    {
+     "key": "norm_fw_slabs",
+     "item": "טפסנות תקרות – למ\"ר (0.7 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0778,
+     "source_title": "Scribd 'Manpower' productivity table (floor slab 2.8 mh/m2, unverified); Kuwaiti/Sri Lankan formwork productivity studies (columns costliest, slabs cheapest)",
+     "source_url": "https://www.scribd.com/document/339269703/Manpower",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.4–1.0 שעות אדם. נורמה בינלאומית לתקרה עם פלטות/דיקט ותמיכות מתכת; בפועל בישראל טפסנים עובדים בקבלנות למ\"ר ולכן הנורמה משמשת רק לבדיקת סבירות."
+    },
+    {
+     "key": "norm_fw_edges",
+     "item": "טפסנות שוליים ולחיים – למ\"ר (כמו קירות) (0.8 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0889,
+     "source_title": "No Israeli norm found (Dekel is paywalled). Method: RSMeans labor-hours = crew hours / daily output (Wiley excerpt); unverified Scribd table 2.5–2.8 mh/m2 incl. timber fabrication",
+     "source_url": "https://catalogimages.wiley.com/images/db/pdf/9781118025284.excerpt.pdf",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.5–1.2 שעות אדם. הערכה על בסיס נורמות בינלאומיות לטפסות מודולריות/דיקט חוזר; לא נמצא נורמה ישראלית פתוחה (דקל בתשלום). טבלת Scribd הלא מאומתת (2.5 ש\"א/מ\"ר) כוללת ייצור טפסות עץ ולכן גבוהה."
+    },
+    {
+     "key": "norm_rebar",
+     "item": "קשירת ברזל – לטון (20 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 2.2222,
+     "source_title": "UTS Australia rebar fixing productivity studies; iseekplant steel fixing table (6–8 mm bars 28–40 hrs/t, unverified)",
+     "source_url": "https://opus.lib.uts.edu.au/handle/10453/34252",
+     "source_date": "2010",
+     "confidence": "low",
+     "note": "טווח 12–30 שעות אדם. בבית פרטי שיעור קטרים קטנים גבוה (8–12 מ\"מ) ולכן נורמה גבוהה יחסית; הנחה: ברזל מגיע חתוך ומכופף."
+    },
+    {
+     "key": "norm_concrete",
+     "item": "יציקה עם משאבה – למ\"ק (0.8 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0889,
+     "source_title": "Crew calculation guide (C-20 crew: 10 men incl. pump operator, 45 m3/day = ~1.78 mh/m3 incl. finishing); production-rates table (pump 30–50 m3/h)",
+     "source_url": "https://bimit-planit.vercel.app/blog/articles/crew-calculation-guide-en.html",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.4–1.8 שעות אדם. ביציקות קטנות של בית פרטי (10–40 מ\"ק) צוות קבוע של 4–6 איש לחצי יום – הנורמה למ\"ק עולה; ללא החלקה."
+    },
+    {
+     "key": "norm_lean",
+     "item": "בטון רזה – למ\"ק (2.0 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.2222,
+     "source_title": "Estimate (no source found); thin layers have high labour per m3",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "טווח 1.0–3.0 שעות אדם. הערכה בלבד: שכבה דקה – עבודה נקבעת לפי שטח (כ-0.1–0.15 ש\"א/מ\"ר) ולכן למ\"ק גבוה."
+    },
+    {
+     "key": "norm_void",
+     "item": "ארגזי הפרדה – למ\"ר (0.1 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0111,
+     "source_title": "Estimate (no source found)",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "טווח 0.05–0.2 שעות אדם. הערכה: פריסת לוחות קרטון/פוליסטירן קלים, כולל חיתוך בשוליים."
+    },
+    {
+     "key": "norm_blocks",
+     "item": "בלוקי איטונג בהדבקה – למ\"ר (0.8 ש\"א ÷ 9 שעות)",
+     "unit": "ימי אדם",
+     "value": 0.0889,
+     "source_title": "AEDO: AAC 20–30% faster than CHB; H+H thin-joint; no absolute norm found",
+     "source_url": "https://aedoconstruction.com/blog/chb-vs-aac-blocks-philippines/",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "טווח 0.5–1.2 שעות אדם. הערכה: בנאי + חצי עוזר כ-12–18 מ\"ר ליום (כולל שורה ראשונה במלט, חיתוכים ופתחים). לא נמצאה נורמה ישראלית/יצרן."
+    },
+    {
+     "key": "norm_lintel",
+     "item": "משקוף / ארגז תריס – הרכבה, זיון ויציקה, ליחידה",
+     "unit": "ימי אדם",
+     "value": 0.5,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "חצי יום אדם ליחידה"
+    }
+   ]
+  },
+  {
+   "title": "עלות עבודה",
+   "items": [
+    {
+     "key": "day_skilled",
+     "item": "עלות מעסיק – בעל מקצוע (טפסן / ברזלן / בנאי)",
+     "unit": "₪/יום",
+     "value": 850,
+     "source_title": "Bizportal: construction wages – experienced formwork/tiler 13–16k NIS gross/month; site hour 40–70 NIS",
+     "source_url": "https://www.bizportal.co.il/career/news/article/20039778",
+     "source_date": "2025/2026",
+     "confidence": "medium",
+     "note": "עובד זר דרך תאגיד: 1,200–1,300 ₪/יום (ביזפורטל). ברוטו 13–16 אלף ÷ 22 יום ≈ 600–730 ש\"ח, ועוד כ-25% עלויות סוציאליות. שכר בבנייה עלה 9.1% ב-2025."
+    },
+    {
+     "key": "day_helper",
+     "item": "עלות מעסיק – פועל עוזר",
+     "unit": "₪/יום",
+     "value": 550,
+     "source_title": "Bizportal (site hour 40–70 NIS); minimum wage 6,247.67 NIS from 04/2025",
+     "source_url": "https://www.bizportal.co.il/career/news/article/20039778",
+     "source_date": "2025/2026",
+     "confidence": "medium",
+     "note": "40–55 ש\"ח לשעה × 8–9 שעות + סוציאליות."
+    },
+    {
+     "key": "crew_skilled_share",
+     "item": "חלק בעלי המקצוע בצוות",
+     "unit": "%",
+     "value": 50,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "צוות טיפוסי: מחצית בעלי מקצוע, מחצית עוזרים"
+    },
+    {
+     "key": "crew_size",
+     "item": "גודל צוות ממוצע באתר",
+     "unit": "עובדים",
+     "value": 6,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "לבקרת משך העבודה"
+    }
+   ]
+  },
+  {
+   "title": "צמ\"ה וכלים",
+   "items": [
+    {
+     "key": "crane_day",
+     "item": "מנוף נייד – יום",
+     "unit": "₪/יום",
+     "value": 4500,
+     "source_title": "d.co.il crane price list: lifting crane up to 25 m 300–1,200 NIS/hour; building materials lift 300–800/hour",
+     "source_url": "https://www.d.co.il/priceList-14625",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "נגזר מתעריף שעתי × 8 שעות + הצבה; מנוף 40–50 טון יקר יותר. מחירונים כוללים מע\"מ ככל הנראה – יש לנכות."
+    },
+    {
+     "key": "crane_days_per_pour",
+     "item": "ימי מנוף ליציקה",
+     "unit": "ימים",
+     "value": 1.0,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "הרמת ברזל, לוחות ותמיכות – יום ליציקה"
+    },
+    {
+     "key": "tools_pct",
+     "item": "כלים, ויברטורים וציוד קטן",
+     "unit": "%",
+     "value": 4,
+     "source_title": "Estimate (common estimating practice; no Israeli source found)",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "הערכה: ויברטורים, מסורים, שמן תבניות, חוטי קשירה, ספייסרים."
+    }
+   ]
+  },
+  {
+   "title": "הוצאות אתר",
+   "items": [
+    {
+     "key": "months",
+     "item": "משך עבודות השלד",
+     "unit": "חודשים",
+     "value": 6,
+     "source_title": "Midrag expert panel Q&A (2 floors + basement ~5 months/floor-pair; 4–5 months); Nadlan Center: basement ~4 months",
+     "source_url": "https://www.nadlancenter.co.il/article/12374",
+     "source_date": "2024/2025",
+     "confidence": "medium",
+     "note": "כלונסאות + מרתף מוסיפים 1.5–3 חודשים לשלד של 2 קומות (4–5 חודשים); מחסור בעובדים מאריך."
+    },
+    {
+     "key": "foreman_month",
+     "item": "מנהל עבודה – 50% משרה",
+     "unit": "₪/חודש",
+     "value": 12000,
+     "source_title": "Kol Zchut: minimum wage for construction work managers 10,000 NIS/month",
+     "source_url": "https://www.kolzchut.org.il/he/%D7%A9%D7%9B%D7%A8_%D7%9E%D7%99%D7%A0%D7%99%D7%9E%D7%95%D7%9D_%D7%9C%D7%9E%D7%A0%D7%94%D7%9C%D7%99_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%91%D7%A2%D7%A0%D7%A3_%D7%94%D7%91%D7%A0%D7%99%D7%99%D7%94",
+     "source_date": "2025",
+     "confidence": "low",
+     "note": "24,000 ₪/חודש משרה מלאה × 50% (באתר פרטי מנהל העבודה מחולק בין אתרים). מינימום 10,000 ש\"ח; שוק בפועל ~16–22 אלף ברוטו + סוציאליות + רכב. באתר פרטי קטן לרוב 30–50% משרה (מנהל משותף לכמה אתרים)."
+    },
+    {
+     "key": "safety_month",
+     "item": "ממונה בטיחות – ביקורים",
+     "unit": "₪/חודש",
+     "value": 2000,
+     "source_title": "OSH Institute guidance: visits at critical stages and at least once per 3 months (no prices found)",
+     "source_url": "https://www.osh.org.il/UploadFiles/08_2026/G171.pdf",
+     "source_date": "2026",
+     "confidence": "low",
+     "note": "מחיר לא נמצא – הערכה ל-2–4 ביקורים בחודש כולל דוח. תיקון תקנות בטיחות בבנייה 2025, תקנה 2א בתוקף מ-16.10.2026."
+    },
+    {
+     "key": "site_cabin_month",
+     "item": "מבנה אתר + שירותים כימיים",
+     "unit": "₪/חודש",
+     "value": 1500,
+     "source_title": "Not found",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "הערכה: שירותים כימיים כולל ריקון ~600–900, מכולת משרד/מחסן ~800–1,500."
+    },
+    {
+     "key": "fence_m",
+     "item": "גדר אתר זמנית",
+     "unit": "₪/מ'",
+     "value": 110,
+     "source_title": "Not found",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "הערכה בלבד – גדר איסכורית 2 מ' בשכירות לתקופת השלד."
+    },
+    {
+     "key": "utilities_month",
+     "item": "מים וחשמל זמני – חיבור + צריכה",
+     "unit": "₪/חודש",
+     "value": 850,
+     "source_title": "Not found",
+     "source_url": "",
+     "source_date": "",
+     "confidence": "low",
+     "note": "5,000 ₪ ל-6 חודשים. הערכה: לוח חשמל זמני + חשמלאי + מונה מים זמני; ללא צריכה."
+    },
+    {
+     "key": "lab_per_pour",
+     "item": "בדיקות קוביות בטון – ליציקה",
+     "unit": "₪/יציקה",
+     "value": 1200,
+     "source_title": "Derived from Isotop 2026 price list (133 NIS/cube) + estimate for crushing and travel",
+     "source_url": "https://www.isotop.co.il/wp-content/uploads/2026/07/מחירון-2026.pdf",
+     "source_date": "07/2026",
+     "confidence": "low",
+     "note": "נגזר: 6×133 + בדיקת לחיצה ונסיעה (הערכה)."
+    },
+    {
+     "key": "surveyor_days",
+     "item": "ביקורי מודד (כלונסאות, צירים, מפלסים)",
+     "unit": "ביקורים",
+     "value": 4,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": ""
+    },
+    {
+     "key": "surveyor_day",
+     "item": "מודד מוסמך – ביקור",
+     "unit": "₪",
+     "value": 2500,
+     "source_title": "Midrag surveyor portal: licensed surveyor 1,500–7,000 NIS depending on job",
+     "source_url": "https://www.midrag.co.il/Content/SectorPortal/144",
+     "source_date": "n.d.",
+     "confidence": "low",
+     "note": "בשלד צפויים 4–6 ביקורים (סימון חפירה, כלונסאות, קירות, קומות, מדידת AS-MADE)."
+    },
+    {
+     "key": "waste_containers",
+     "item": "מכולות פסולת",
+     "unit": "יח'",
+     "value": 6,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "מכולה לחודש"
+    },
+    {
+     "key": "container",
+     "item": "מכולת פסולת 8 מ\"ק",
+     "unit": "₪",
+     "value": 900,
+     "source_title": "Eshkol regional council price list: 8 m3 container 840 NIS up to 5 days; d.co.il 800–950/week; Midrag 1,200–1,500 incl. VAT",
+     "source_url": "https://eshkol.info/uploads/n/1763359876.9581.pdf",
+     "source_date": "11/2025",
+     "confidence": "medium",
+     "note": "מחיר בדרום; חלק מהמקורות כוללים מע\"מ."
+    },
+    {
+     "key": "insurance_pct",
+     "item": "ביטוח עבודות קבלניות",
+     "unit": "%",
+     "value": 0.6,
+     "source_title": "Calcalist: contractor insurance premiums up 350% in 3 years; Green Invoice: price depends on scope/risk (no % given)",
+     "source_url": "https://www.calcalist.co.il/real-estate/article/s1e5i8jq9",
+     "source_date": "2024",
+     "confidence": "low",
+     "note": "אחוז לא נמצא במקורות; הערכה. בפרויקט קטן יש פרמיית מינימום, ולכן שיעור גבוה יחסית."
+    }
+   ]
+  },
+  {
+   "title": "תקורה ורווח",
+   "items": [
+    {
+     "key": "overhead_pct",
+     "item": "תקורת חברה",
+     "unit": "%",
+     "value": 10,
+     "source_title": "Not found as Israeli statistic; Nadlan Center: public construction companies net margin ~2% (Q4/2023–Q3/2024)",
+     "source_url": "https://www.nadlancenter.co.il/article/11544",
+     "source_date": "2025",
+     "confidence": "low",
+     "note": "הערכה מקובלת לקבלן קטן-בינוני; שיעור רווח נקי של חברות ציבוריות ירד ל-2% – רמז שהמרווחים בשוק דחוקים."
+    },
+    {
+     "key": "target_profit_pct",
+     "item": "רווח הוגן – יעד למשא ומתן",
+     "unit": "%",
+     "value": 10,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "רווח קבלני מקובל 8–12% (הערכה)"
+    },
+    {
+     "key": "min_profit_pct",
+     "item": "רצפת רווח",
+     "unit": "%",
+     "value": 5,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": "מתחת לזה – סיכון לאיכות ולעזיבת הקבלן"
+    },
+    {
+     "key": "high_profit_pct",
+     "item": "רווח גבוה – מעליו \"יקר\"",
+     "unit": "%",
+     "value": 18,
+     "source_title": "הערכה",
+     "source_url": "",
+     "source_date": "2026-11",
+     "confidence": "low",
+     "note": ""
+    }
+   ]
+  }
+ ],
+ "sanity": {
+  "price_m2_with_materials": {
+   "group": "D",
+   "key": "skeleton_price_m2_with_materials",
+   "item": "מחיר שלד בית פרטי כולל חומרים",
+   "unit": "ש\"ח למ\"ר בנוי",
+   "value": 2300,
+   "low": 1800,
+   "high": 2800,
+   "source_title": "Midrag tip: skeleton for private house 1,800–2,800 NIS per built m2 (foundations to roof)",
+   "source_url": "https://www.midrag.co.il/Content/Tip/26109",
+   "source_date": "n.d. (c. 2025)",
+   "confidence": "medium",
+   "note": "ייתכן כולל מע\"מ; בית עם מרתף, כלונסאות ובריכה – בצד הגבוה ואף מעליו."
+  },
+  "price_m2_labor": {
+   "group": "D",
+   "key": "skeleton_price_m2_labor_only",
+   "item": "מחיר שלד בית פרטי – עבודה בלבד",
+   "unit": "ש\"ח למ\"ר בנוי",
+   "value": 900,
+   "low": 650,
+   "high": 1200,
+   "source_title": "Not found explicitly; derived (≈35–45% of 1,800–2,800 with materials)",
+   "source_url": "https://www.midrag.co.il/Content/Tip/26109",
+   "source_date": "n.d.",
+   "confidence": "low",
+   "note": "נגזר: חלק העבודה מתוך מחיר כולל חומרים; במרתף ובקירות דיפון – גבוה יותר."
+  }
+ }
+}

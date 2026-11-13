@@ -68,6 +68,7 @@ class Finishes {
       ...P.tops.map(s => ({ ...s, cat: 'top', amount: s.area })),
       ...(P.reveals || []).map(s => ({ ...s, cat: 'reveal', amount: s.area })),
       ...(P.beams || []).map(s => ({ ...s, cat: 'beam', amount: s.area })),
+      ...(P.proposalBeams || []).map(s => ({ ...s, cat: 'beam', amount: 0 })),   // ק76: a proposed beam (owner change) – shown with the change on, not in the quantities
       ...(P.patches || []).map(s => ({ ...s, cat: 'patch', amount: s.area })),   // round 4: the exposed skin nothing else covers (tools/finishes/skin.py)
       ...(P.fillers || []).map(s => ({ ...s, cat: 'filler', amount: 0 })),       // display only: mm slits between pieces (tools/finishes/flatten.py)
     ];
@@ -185,7 +186,8 @@ class Finishes {
     for (const s of this.surf) {
       const ty = this.typeOf(s), fl = s.floor;
       if (this.typeBy[ty]?.drawn === false) continue;   // no plaster there (membrane, cladding, neighbour side, "ללא")
-      const g = groups[ty + '|' + fl] ||= { ty, fl, pts: [], map: [], over: {} };
+      const vk = s.variant ? `|${s.variant.change}:${s.variant.show}` : '';
+      const g = groups[ty + '|' + fl + vk] ||= { ty, fl, variant: s.variant, pts: [], map: [], over: {} };
       // overhead plaster (ceiling, soffit, exposed beam) hangs a few mm under its slab / beam: a horizontal cut just under the
       // slab removed the concrete but left the plaster sheet over the whole room (Avihai 13.11.2026). It is kept as separate
       // pieces that are hidden together with the concrete above them (syncOverhead)
@@ -204,7 +206,8 @@ class Finishes {
         const c = this.mesh(o.pts, o.map, m.material); c.userData.overhead = o; m.add(c); this.overhead.push(c);
       }
       const it = this.add(m, { floor: g.fl, step: 'plaster', layer: 'plaster_' + g.ty }, {
-        name: `${t.label} – ${FLOOR_HE[g.fl]}`, kind: 'plaster', id: 'PL-' + g.ty + '-' + g.fl, pickable: true,
+        name: `${t.label} – ${FLOOR_HE[g.fl]}${g.variant ? ` (הצעה ${g.variant.change})` : ''}`, kind: 'plaster',
+        id: 'PL-' + g.ty + '-' + g.fl + (g.variant ? '-' + g.variant.change : ''), pickable: true, ...(g.variant ? { variant: g.variant, status: 'provisional' } : {}),
         rows: [], source: 'data/finishes/plaster/surfaces.json (נגזר מהגיאומטריה – tools/finishes/derive_finishes.py)', note: this.T.scratchNote,
         onClick: (hit) => this.pick(hit) });
       this.plasterItems.push(it);

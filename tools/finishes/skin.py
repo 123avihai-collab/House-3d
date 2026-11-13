@@ -260,7 +260,13 @@ def soil_and_floor(G):
             ii = np.where(outside)[0]
             d = np.hypot(dxy[None, :, 0] - X[ii, None], dxy[None, :, 1] - Y[ii, None]); j = d.argmin(1)
             g = np.where(d[np.arange(len(ii)), j] < 4, dz[j], -0.15); base[ii] = g
-        return np.minimum(base, T)
+        out = np.minimum(base, T)
+        # in front of an exterior paving zone: the paving finish surface (ק69–ק75) – what is below it is inside the paving build-up
+        PV = G.get('PAVE')
+        if PV is not None:
+            pv = PV.at(X, Y); m = ~np.isnan(pv)
+            if m.any(): out[m] = pv[m]
+        return out
 
     def isfloor(poly, z):
         c = poly.representative_point()
@@ -349,6 +355,23 @@ def make_patches(S, res, G):
     r3 = G['r3']; room_at = G['room_at']; floor_of_z = G['floor_of_z']; g = S.grid
     out = []
 
+    PLOT = G.get('PLOT'); PARCELS = G.get('PARCELS') or []; PV = G.get('PAVE')
+
+    def outside_plot(o, px, py):
+        """a face of a courtyard wall that looks out of the lot: the neighbour side (no plaster) or the street (cladding) –
+        ק73–ק75: the patches at the foot / the end of the walls on the neighbour side had got exterior plaster"""
+        if not o or o.get('kind') != 'perimeter' or PLOT is None or PLOT.contains(Point(px, py)): return None
+        use = next((u for pg, u in PARCELS if pg.contains(Point(px, py))), None)
+        return ('cladding', 'השלמה – חומה לרחוב, צד הרחוב: חיפוי אבן, בלי טיח') if use == 'public' else \
+               ('none', 'השלמה – חומה עם השכן, צד השכן: בלי טיח (ק73–ק75)')
+
+    def riser(o, px, py):
+        """the edge of a ground slab outside, above the paving in front of it: the riser of a step – finished with the paving /
+        stone of the step, no plaster (ק69, ק72)"""
+        if not o or o.get('kind') != 'slab' or not str(o.get('id', '')).startswith('GS') or PV is None: return None
+        if np.isnan(PV.at(px, py))[0]: return None
+        return ('none', 'השלמה – רום מדרגה בחוץ (שפת רצפה מעל הריצוף): בלי טיח – חיפוי המדרגה עם הריצוף (ק69, ק72)')
+
     def typ(px, py, z, down=False):
         rm = room_at((px, py), z)
         if not rm: return 'exterior', None, 'השלמה – פן חשוף מבחוץ'
@@ -374,6 +397,9 @@ def make_patches(S, res, G):
                     o = S.owner(px - nx * 0.005, py - ny * 0.005, zm)
                     ty, rm, why = typ(px + nx * 0.1, py + ny * 0.1, zm)
                     if r.get('soil'): ty, rm, why = 'membrane', None, 'השלמה – קיר מרתף במגע עם הקרקע / המילוי: איטום + יריעת הגנה, בלי טיח'
+                    elif not rm:
+                        alt = outside_plot(o, px + nx * 0.1, py + ny * 0.1) or riser(o, px + nx * 0.1, py + ny * 0.1)
+                        if alt: ty, why = alt
                     a = [r3(A[0] + ux * s0), r3(A[1] + uy * s0)]; b = [r3(A[0] + ux * s1), r3(A[1] + uy * s1)]
                     out.append(dict(kind='patch', vertical=True, part='side', a=a, b=b, normal=[r3(nx), r3(ny)], z0=r3(z0), z1=r3(z1),
                                     length=r3(s1 - s0), area=round((s1 - s0) * (z1 - z0), 6), net=round((s1 - s0) * (z1 - z0), 6),

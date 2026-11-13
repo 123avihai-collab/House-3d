@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>תוכניות קונסטרוקציה חיות – 5187</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <meta name="description" content="תוכנית היסודות K-400 כתוכנית חיה: לוחצים על כלונס, קורה או קיר ומקבלים מידות, מפלסים, סקיצת חתך וחזית וכמויות ברזל.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/plans.css">
+</head>
+<body>
+  <header id="pl-top">
+    <a class="pl-back" href="https://claude.ai/artifact/PAZSdXundfZmojjpG2vKnQ" target="_blank" rel="noopener" title="חזרה למודל התלת-ממדי">מודל 3D</a>
+    <strong class="pl-title">תוכניות קונסטרוקציה</strong>
+    <nav id="pl-sheets" aria-label="גיליון"></nav>
+    <span class="pl-spacer"></span>
+    <label class="pl-search" for="pl-q"><span class="sr">חיפוש</span>
+      <input id="pl-q" type="search" placeholder="חיפוש: 12, B-39…" autocomplete="off" enterkeyhint="search">
+    </label>
+    <select id="pl-color" title="צביעת הכלונסאות" aria-label="צביעת הכלונסאות">
+      <option value="dia">צבע לפי קוטר</option>
+      <option value="head">צבע לפי מפלס ראש</option>
+      <option value="load">צבע לפי עומס</option>
+      <option value="length">צבע לפי אורך</option>
+    </select>
+    <span class="pl-tools">
+      <button id="pl-measure" type="button" title="מדידת מרחק – שתי לחיצות על התוכנית (M)">מדידה</button>
+      <button id="pl-fit" type="button" title="התאמה למסך (F)">התאמה</button>
+      <button id="pl-layers-btn" type="button" aria-expanded="false" aria-controls="pl-layers">שכבות</button>
+    </span>
+  </header>
+  <main id="pl-main">
+    <svg id="pl-svg" role="img" aria-label="תוכנית K-400 אינטראקטיבית"></svg>
+    <div id="pl-layers" class="pl-pop" hidden></div>
+    <div id="pl-legend"></div>
+    <div id="pl-north" title="צפון (רשת ITM)"><i></i><span>צ</span></div>
+    <div id="pl-scale"></div>
+    <div id="pl-tip" hidden></div>
+    <div id="pl-measure-out" hidden></div>
+    <div id="pl-loading">טוען את התוכנית…</div>
+  </main>
+  <aside id="pl-panel" aria-live="polite">
+    <button id="pl-grip" type="button" aria-label="הגדלה / הקטנה של החלון"></button>
+    <div id="pl-card"></div>
+  </aside>
+  <footer id="pl-status">לחיצה על כלונס, קורה או קיר פותחת את כל המידע עליו · גלגלת / צביטה = זום · גרירה = הזזה</footer>
+  <script type="module" src="js/plans/main.js"></script>
+</body>
+</html>

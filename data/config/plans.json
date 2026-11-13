@@ -1,0 +1,32 @@
+{
+ "_doc": "Interactive structural plans (plans.html). Display constants + where to read each sheet. Dimensions come from data/plans/*.json (tools/plans/build_k400.py), never from here.",
+ "sheets": {
+  "K-400": {
+   "title": "K-400 – תכנית יסודות וכלונסאות",
+   "source": "sources/structure/K-400-תכנית יסודות.pdf",
+   "data": "data/plans/k400.json",
+   "background": {"image": "assets/plans/K-400.jpg", "crop_pt": [3040, 40, 1470, 1420], "dpi": 150, "jpegQuality": 72,
+                   "note": "אזור התוכנית בלבד (1:50) מתוך הגיליון; קואורדינטות pt של הגיליון"},
+   "pileTable": {
+    "bbox_pt": [2150, 160, 3100, 1500],
+    "columns": [
+     {"key": "id", "label": "מספר כלונס", "xMin": 2950, "xMax": 3010},
+     {"key": "load", "label": "עומס (טון)", "xMin": 2880, "xMax": 2950},
+     {"key": "minEmbed", "label": "עומק חדירה מינימלי בקרקע טבעית (ס\"מ)", "xMin": 2740, "xMax": 2880},
+     {"key": "volume", "label": "נפח", "xMin": 2640, "xMax": 2740},
+     {"key": "top", "label": "Elevation at Top", "xMin": 2530, "xMax": 2640},
+     {"key": "dia", "label": "Diameter", "xMin": 2440, "xMax": 2530},
+     {"key": "colStarters", "label": "קוצים לעמודים L=250", "xMin": 2360, "xMax": 2440},
+     {"key": "pileRebar", "label": "זיון כלונס", "xMin": 2200, "xMax": 2360}
+    ]
+   }
+  }
+ },
+ "upcoming": ["K-11", "K-21", "K-31", "K-41"],
+ "display": {
+  "pileStroke_pt": 1.6, "beamOpacity": 0.55, "selectHalo_pt": 7, "labelSize_pt": 9,
+  "bgOpacity": 0.55, "minZoom": 0.5, "maxZoom": 40,
+  "colors": {"pile50": "#2f6fd6", "pile60": "#c2410c", "beamK11": "#0e9f6e", "beamK21": "#7c3aed", "beamCeil": "#a855f7", "wall": "#64748b", "cap": "#db2777", "plot": "#e11d48", "sel": "#f59e0b"}
+ },
+ "steelKgPerM": {"_doc": "משקל מוט = d²/162 ק\"ג/מ' – אותה נוסחה של כתב הכמויות (tools/boq/elements.py kgm)"}
+}

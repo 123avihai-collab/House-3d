@@ -1518,11 +1518,10 @@
   "OC-7": {
    "terrain": {
     "zones": [
-     "garden",
      "OC-8"
     ],
     "surfaceRel": -0.5,
-    "source": "גבול הגינה: data/structure/floor-ground.json openZones zone garden; הרצועה מאחורי הבריכה: אותו היקף כמו OC-8 (owner-changes-geometry.json OC-8 slab ringITM); מפלס 280.00 (‎−0.50) – החלטת אביחי 09.11.2026 (\"תדחוף מאושר\"), מתחת לתחתית בטון הרצפות GS1 / GS2 (‎−0.40)",
+    "source": "הרצועה מאחורי הבריכה: אותו היקף כמו OC-8 (owner-changes-geometry.json OC-8 slab ringITM); מפלס 280.00 (‎−0.50) – החלטת אביחי 09.11.2026 (\"תדחוף מאושר\"), מתחת לתחתית בטון הרצפות GS1 / GS2 (‎−0.40) · הגינה הצפונית עברה ל-OC-17 (13.11.2026)",
     "applied": true
    }
   },
@@ -1800,6 +1799,38 @@
     }
    ],
    "show": "original"
+  },
+  "OC-17": {
+   "terrain": {
+    "zones": [
+     "garden"
+    ],
+    "followPaving": {
+     "slab": "GS2",
+     "offset_m": -0.02,
+     "_doc": "ראש המצע = פני הריצוף של GS2 (data/finishes/tiling/exterior.json, המשטח בשיפוע של המרפסת הצמודה, ממשיך אל הגינה) − 2 ס\"מ"
+    },
+    "layers": [
+     {
+      "key": "base",
+      "label": "מצע מהודק",
+      "thickness_m": 0.1,
+      "material": "מצע – סוג לא צוין",
+      "compaction": "מהודק",
+      "layer": "gardenBase"
+     },
+     {
+      "key": "fill",
+      "label": "מילוי אדמה מקומית",
+      "thickness_m": null,
+      "material": "אדמה מקומית (מהחפירה)",
+      "layer": "gardenFill",
+      "_doc": "מפני הקרקע אחרי היישור (פני הפיתוח / קרקע קיימת אחרי חישוף – הנמוך) עד תחתית המצע; עובי משתנה"
+     }
+    ],
+    "applied": true,
+    "source": "גבול הגינה: data/structure/floor-ground.json openZones zone garden; ראש המצע: פני הריצוף GS2 (data/finishes/tiling/exterior.json surface) − 0.02; מצע 10 ס\"מ מהודק מעל מילוי אדמה מקומית – החלטת אביחי 13.11.2026"
+   }
   }
  }
 }

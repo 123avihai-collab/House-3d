@@ -204,6 +204,22 @@
       "roughness": 1.0,
       "envMapIntensity": 0.6,
       "_why": "שולי הריצוף (מצע) – תצוגה בלבד, שכבות המבנה לא כתובות"
+    },
+    "gardenBase": {
+      "texture": "assets/textures/gravel_stones",
+      "size_m": 1.0,
+      "tint": "#cfc6b4",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6,
+      "_doc": "מצע מהודק בגינה (OC-17) – טקסטורת חצץ (Poly Haven gravel_stones, CC0), תצוגה בלבד"
+    },
+    "soilFillLocal": {
+      "texture": "assets/textures/dry_ground_01",
+      "size_m": 4.0,
+      "tint": "#a88f72",
+      "roughness": 1.0,
+      "envMapIntensity": 0.6,
+      "_doc": "מילוי אדמה מקומית (OC-17) – גוון כהה מפני הקרקע, תצוגה בלבד"
     }
   }
 }

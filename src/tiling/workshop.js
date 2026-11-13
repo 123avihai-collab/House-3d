@@ -42,7 +42,7 @@ export class TilingWorkshop {
     this.dirBy = Object.fromEntries(this.C.directions.map(x => [x.id, x]));
     const ex = new Set(this.C.excludeRoomTypes || []);
     this.zones = F.TL.rooms.filter(r => r.layers?.length && r.area > 0.05 && r.parts?.length && !ex.has(r.roomType)).map(r => ({
-      key: r.room, r, floor: r.floor, name: F.rooms[r.room]?.name || r.roomName || 'ללא שם',
+      key: r.room, r, floor: r.floor, name: r.zoneName || F.rooms[r.room]?.name || r.roomName || 'ללא שם',
       // the zone with its doorway strips as one polygon (door-strips.json zones) – a tile across the threshold is one tile
       parts: (data.tilingDoorStrips?.zones?.[r.room] || r.parts).map(p => [p.ringITM, ...(p.holesITM || [])]),
       tileLayer: r.layers.find(l => l.id === 'floorTile'),
@@ -260,7 +260,7 @@ export class TilingWorkshop {
   enter() {
     const app = this.app; if (!app) return;
     const st = app.store.get();
-    app.store.set({ layers: { ...st.layers, floorTile: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
+    app.store.set({ layers: { ...st.layers, floorTile: true, poolTile: true, poolCoping: true }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'tiling', record: false });
     if (this.built) this.rebuild();   // cut pieces marked in this mode
     this.drawOutline();
     app.ui.openTab('tiling', !app.ui.isMobile());
@@ -370,6 +370,7 @@ export class TilingWorkshop {
     const z = this.zoneBy[this.sel];
     if (z) wrap.append(this.zoneEditor(z));
     wrap.append(this.totalsBox());
+    if (this.F.pool) wrap.append(this.F.pool.panel());   // pool tiling + coping (src/tiling/pool.js)
     return wrap;
   }
   zoneEditor(z) {
@@ -475,6 +476,17 @@ export class TilingWorkshop {
     sheet('שכבות רצפה', [['קומה', 'אזור', 'שטח מ"ר', ...this.F.BU.layers.map(l => `${l.short || l.label} (ס"מ)`), ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => `${l.short || l.label} מ"ק`)],
       ...this.zones.map(z => [FLOOR_HE[z.floor], z.name, +z.r.area.toFixed(3), ...this.F.BU.layers.map(l => +((z.r.layers.find(x => x.id === l.id)?.thickness_m || 0) * 100).toFixed(1)),
         ...this.F.BU.layers.filter(l => l.id !== 'floorTile').map(l => +(z.r.area * (z.r.layers.find(x => x.id === l.id)?.thickness_m || 0)).toFixed(3))])]);
+    if (this.F.pool) { const P = this.F.pool, q = P.quantities(), c = P.c;
+      sheet('בריכה', [['פריט', 'כמות', 'יחידה', 'פירוט'],
+        ['רצפת הבריכה (נטו)', +q.floor.toFixed(2), 'מ"ר', `${q.tile.label} · ${P.surfColor('floor').label}`],
+        ['קירות הבריכה', +q.walls.toFixed(2), 'מ"ר', `${P.surfColor('walls').label} · גובה ${q.wallH.toFixed(2)} מ'`],
+        ['מדרגות ומשטח רביצה', +q.steps.toFixed(2), 'מ"ר', P.surfColor('steps').label],
+        ['מתוכם פס בשפת המדרגות', +q.edge_m.toFixed(2), 'מ"א', c.stepEdge ? P.colBy[c.stepEdgeColor]?.label : 'ללא'],
+        ['סה"כ ריצוף בריכה', +q.total.toFixed(2), 'מ"ר', ''], ['להזמנה', q.units, q.unitLabel, `${q.order_m2.toFixed(2)} מ"ר, רזרבה ${c.spare_pct}%`],
+        ['דבק לבריכות', +q.adhesive_kg.toFixed(1), 'ק"ג', ''], ['רובה אפוקסי', +q.epoxy_kg.toFixed(2), 'ק"ג', ''],
+        ['קופינג', +q.coping.len_m.toFixed(2), 'מ"א', `${q.coping.mat.label} · ${Math.round(q.coping.width_m * 100)}×${Math.round(c.coping.thick_m * 100)} ס"מ · ${q.coping.runs.map(r => `${r.k}×${(r.piece_m * 100).toFixed(1)}`).join(' / ')} ס"מ`],
+        ['קופינג – יחידות להזמנה', q.coping.order, 'יח\'', `${q.coping.pieces} בפריסה`], ['דבק לקופינג', +q.coping.mortar_kg.toFixed(1), 'ק"ג', ''],
+        [], [P.chosen() ? 'בחירת אביחי' : 'ברירת מחדל – טרם נבחר'], ['מידות אריח, אריזה, חתך קופינג ומקדמי צריכה – זמניים (data/finishes/pool/catalog.json, open-issues #194)']]); }
     const name = 'tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { TilingWorkshop } from '../tiling/workshop.js';
+import { PoolFinish } from '../tiling/pool.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
 // exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
@@ -14,7 +15,7 @@ import { TilingWorkshop } from '../tiling/workshop.js';
 const LS = 'house3d.plaster';
 const FLOOR_HE = { unit: 'יחידת דיור', ground: 'קרקע', first: "קומה א'", roof: 'גג', site: 'מגרש' };
 const FACADE_HE = { N: 'צפון', E: 'מזרח', S: 'דרום', W: 'מערב' };
-const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', unknown: 'לא מסווג' };
+const TYPE_ROOM_HE = { dry: 'יבש', wet: 'רטוב', kitchen: 'מטבח', mamad: 'ממ"ד', basement: 'מרתף', stairs: 'חדר מדרגות', court: 'חצר אנגלית', outdoor: 'חוץ', balcony: 'מרפסת', unknown: 'לא מסווג' };
 const CAT_HE = { wall: 'פני קיר', ceiling: 'תקרה', top: 'ראש קיר / מעקה', reveal: 'גליף (צדי פתח / משקוף)', beam: 'קורה גלויה', patch: 'השלמה (אדן / שפה / קצה / תחתית)', filler: 'מילוי תצוגה (סדק מ"מ, לא בכמויות)' };
 const f2 = (v) => (Math.round(v * 100) / 100).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const hash = (s) => { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return 'p' + (x >>> 0).toString(36); };
@@ -42,6 +43,7 @@ export function buildFinishes(ctx) {
   }
   const F = new Finishes(ctx, P, T, TL, R, D);
   if (data.tilingCatalog) F.tiling = new TilingWorkshop(F);   // tiling workshop (src/tiling): the tile layer of the floor build-up
+  if (data.poolSurfaces && data.poolCatalog) F.pool = new PoolFinish(F);   // pool tiling + coping (src/tiling/pool.js)
   F.build();
   return F;
 }
@@ -150,6 +152,7 @@ class Finishes {
     registry.defer([...plasterLayers], () => this.buildPlaster());
     registry.defer(['wetProofing'], () => this.buildWaterproofing());
     registry.defer(this.BU.layers.map(l => l.id), () => this.buildFloors());
+    if (this.pool) registry.defer(['poolTile', 'poolCoping'], () => this.pool.build3D());
     registry.defer((this.CL?.kinds || []).map(k => k.id), () => this.buildCladding());
     registry.defer(['roomLabels'], () => this.buildLabels());
     if (this.ctx.data.droppedCeiling) registry.defer(['droppedCeiling'], () => this.buildDropped());
@@ -654,7 +657,7 @@ class Finishes {
     sheet('קורות', [['קורה', 'קומה', 'תחתית', 'ראש', 'פרגולה', 'שטח', 'סוג'], ...(this.P.beams || []).map(b => [b.beam, FLOOR_HE[b.floor], b.bottom, b.top, b.pergola ? 'כן' : '', b.area, tl(this.typeOf(b))])]);
     sheet('איטום', [['קומה', 'חדר', 'רכיב', 'כלל', 'מגובה', 'עד גובה', 'שטח'], ...this.wpAll().map(w => [FLOOR_HE[w.floor], this.rooms[w.room]?.name || w.room, w.owner || 'רצפה', w.rule, w.z0 ?? w.z, w.z1 ?? '', w.area])]);
     sheet('רצפות', [['קומה', 'חדר', 'סוג חדר', 'שטח מ"ר', 'פנלים מ"א', 'פני בטון', 'פני ריצוף', ...this.BU.layers.map(l => l.label + " (מ')"), 'סוג אריח'],
-      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], this.rooms[r.room]?.name || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), this.tiling?.choice[r.room] ? `${this.tiling.sizeOf(this.tiling.choice[r.room]).label} ${this.tiling.finBy[this.tiling.choice[r.room].finish]?.label || ''}` : 'טרם הוחלט'])]);
+      ...this.TL.rooms.map(r => [FLOOR_HE[r.floor], r.zoneName || this.rooms[r.room]?.name || r.roomName || r.room, TYPE_ROOM_HE[r.roomType], r.area, r.skirting_m, r.slabTop ?? '', r.finishRel ?? '', ...this.BU.layers.map(l => (r.layers || []).find(x => x.id === l.id)?.thickness_m ?? ''), this.tiling?.choice[r.room] ? `${this.tiling.sizeOf(this.tiling.choice[r.room]).label} ${this.tiling.finBy[this.tiling.choice[r.room].finish]?.label || ''}` : 'טרם הוחלט'])]);
     const name = 'plaster-tiling-5187.xlsx';
     const buf = X.write(wb, { type: 'array', bookType: 'xlsx' });
     const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -663,7 +666,7 @@ class Finishes {
     if (dl) { try { await dl.save({ filename: name, data: blob }); } catch (e) { this.app.ui.toast(e?.code === 'declined' ? 'הייצוא בוטל' : 'הייצוא נכשל'); } return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); app.registry.onChange(() => this.syncOverhead());
+  attach(app) { this.app = app; this.connect(); this.tiling?.connect(app); this.pool?.connect(app); app.registry.onChange(() => this.syncOverhead());
     let last = JSON.stringify(app.store.get().dropCeiling || {});
     app.store.on((st) => { const k = JSON.stringify(st.dropCeiling || {}); if (k !== last) { last = k; this.rebuildDropped(); } }); }
 }

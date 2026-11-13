@@ -1,0 +1,58 @@
+{
+ "_doc": "סדנת ריצוף – בריכה וקופינג (src/tiling/pool.js): אפשרויות בחירה לאביחי – לא מידות מהתוכניות. אריח לבריכה (רצפה, קירות, מדרגות, משטח רביצה) וקופינג על ראש קירות הבריכה. מידות, אריזה ומקדמי צריכה – מידות מסחריות מקובלות, זמני עד בחירת מוצר / ספק (open-issues #194). הבחירה נשמרת במסד הארטיפקט (collection \"tiling\", מסמך kind=\"pool\") ונרשמת ב-data/finishes/pool/layout.json.",
+ "source": "קטלוג מידות סטנדרטיות לריצוף בריכות (פסיפס זכוכית / פורצלן) וקופינג – זמני",
+ "status": "provisional",
+ "tiles": [
+  { "id": "mosaic25", "label": "פסיפס זכוכית 2.5×2.5", "w_m": 0.025, "l_m": 0.025, "thick_m": 0.004, "joint_mm": 2, "sheet_m": 0.316, "unit": "sheet", "unit_m2": 0.1, "status": "provisional", "_unit": "רשת 31.6×31.6 (12×12 אבנים) ≈ 0.1 מ\"ר" },
+  { "id": "mosaic50", "label": "פסיפס זכוכית 5×5", "w_m": 0.048, "l_m": 0.048, "thick_m": 0.004, "joint_mm": 2, "sheet_m": 0.316, "unit": "sheet", "unit_m2": 0.1, "status": "provisional" },
+  { "id": "porc1224", "label": "פורצלן 12.5×25 (לבריכה)", "w_m": 0.125, "l_m": 0.25, "thick_m": 0.008, "joint_mm": 2, "unit": "box", "unit_m2": 1.0, "status": "provisional" },
+  { "id": "porc3060", "label": "פורצלן 30×60", "w_m": 0.3, "l_m": 0.6, "thick_m": 0.009, "joint_mm": 2, "unit": "box", "unit_m2": 1.08, "status": "provisional" },
+  { "id": "porc60120", "label": "פורצלן 60×120", "w_m": 0.6, "l_m": 1.2, "thick_m": 0.009, "joint_mm": 2, "unit": "box", "unit_m2": 1.44, "status": "provisional" }
+ ],
+ "colors": [
+  { "id": "white", "label": "לבן", "color": "#e9eef0", "vary": 0.03, "grout": "#f2f2ef" },
+  { "id": "sky", "label": "תכלת בהיר", "color": "#a9d6e6", "vary": 0.07, "grout": "#eef1f0" },
+  { "id": "turquoise", "label": "טורקיז", "color": "#4fb3c4", "vary": 0.09, "grout": "#e6ecea" },
+  { "id": "ocean", "label": "כחול ים", "color": "#2f6f9f", "vary": 0.09, "grout": "#c9d3d6" },
+  { "id": "sand", "label": "חול / בז'", "color": "#d8cbb2", "vary": 0.05, "grout": "#e4dccb" },
+  { "id": "grey", "label": "אפור", "color": "#9aa3a6", "vary": 0.05, "grout": "#c7cbcb" },
+  { "id": "anthracite", "label": "אנתרציט (מים כהים)", "color": "#3b4246", "vary": 0.05, "grout": "#5a6064" }
+ ],
+ "surfaces": [
+  { "id": "floor", "label": "רצפת הבריכה" },
+  { "id": "walls", "label": "קירות הבריכה" },
+  { "id": "steps", "label": "מדרגות ומשטח רביצה" }
+ ],
+ "coping": {
+  "materials": [
+   { "id": "limestone", "label": "אבן גיר בהירה (מסותתת עדין)", "color": "#ddd4c2", "vary": 0.05, "roughness": 0.8, "texture": "assets/textures/concrete_floor_01", "texSize_m": 0.9 },
+   { "id": "travertine", "label": "טרוורטין", "color": "#d6c3a3", "vary": 0.07, "roughness": 0.75, "texture": "assets/textures/concrete_floor_01", "texSize_m": 0.7 },
+   { "id": "porcWhite", "label": "פורצלן קופינג לבן-אבן", "color": "#e6e2da", "vary": 0.02, "roughness": 0.6 },
+   { "id": "porcGrey", "label": "פורצלן קופינג אפור", "color": "#a9a9a5", "vary": 0.02, "roughness": 0.6 },
+   { "id": "basalt", "label": "בזלת / אנתרציט", "color": "#4a4c4e", "vary": 0.04, "roughness": 0.7, "texture": "assets/textures/concrete_floor_01", "texSize_m": 0.9 }
+  ],
+  "lengths_m": [0.5, 0.6, 1.0, 1.2],
+  "thicknesses_m": [0.02, 0.03, 0.05],
+  "overhangs_m": [0, 0.02, 0.03, 0.05],
+  "joint_mm": [3, 5],
+  "edges": [ { "id": "bull", "label": "מעוגל (בולנוז)" }, { "id": "square", "label": "ישר" } ],
+  "_doc": "רוחב הקופינג = עובי קיר הבריכה (20 ס\"מ, k-21) + בליטה לתוך הבריכה. ראש = 280.48 (המשטח המרוצף). חלוקה שווה לכל צלע; הצלעות הארוכות עוברות עד הפינות. מעוגל – מראה בלבד."
+ },
+ "defaults": {
+  "tile": "mosaic25", "color": "sky", "wallColor": "", "stepColor": "", "stepEdge": true, "stepEdgeColor": "ocean", "stepEdgeWidth_m": 0.05,
+  "coping": { "material": "limestone", "length_m": 0.6, "thick_m": 0.03, "overhang_m": 0.02, "joint_mm": 3, "edge": "bull" },
+  "spare_pct": 10
+ },
+ "_defaults": "ערכי פתיחה – אביחי משנה בסדנה. stepEdge = פס בצבע מנוגד בשפת כל מדרגה (בטיחות, מקובל בבריכות). wallColor / stepColor ריקים = כמו הרצפה.",
+ "consumption": {
+  "status": "provisional",
+  "adhesive_kg_m2": { "mosaic": 3.5, "tile": 5.0 },
+  "_adhesive": "דבק צמנטי C2TE S1 לבריכות – ק\"ג/מ\"ר. זמני.",
+  "adhesiveBag_kg": 25,
+  "epoxy_kg_m2": { "mosaic25": 1.6, "mosaic50": 0.9, "porc1224": 0.6, "porc3060": 0.3, "porc60120": 0.2 },
+  "_epoxy": "רובה אפוקסי – ק\"ג/מ\"ר לפי מידת האריח (פסיפס – הרבה פוגות). זמני.",
+  "epoxyPack_kg": 5,
+  "copingMortar_kg_m": 6,
+  "_copingMortar": "דבק / טיט להדבקת קופינג – ק\"ג למ\"א. זמני."
+ }
+}

@@ -29,7 +29,7 @@
 - השלב בסרגל: פיתוח.
 - כרטיס לכל שכבה, עם גבהים, עובי, נפח ושטח.
 
-**ערכים פתוחים (#206):** סוג המצע ודרגת ההידוק לא צוינו. מה יונח על המצע.
+**ערכים פתוחים (#207):** סוג המצע ודרגת ההידוק לא צוינו. מה יונח על המצע.
 
 - **נתונים:** `data/changes/owner-changes-geometry.json` (OC-17: followPaving, layers), `data/changes/owner-changes.json`
 - **קוד:** `js/geometry/excavation.js` (buildLayers)

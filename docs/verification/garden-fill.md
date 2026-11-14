@@ -46,3 +46,4 @@
 - **נתונים:** `data/changes/owner-changes-geometry.json` (OC-17: zones, followPaving, layers), `data/changes/owner-changes.json`
 - **כלי:** `python3 tools/derive_front_garden.py`
 - **קוד:** `js/geometry/excavation.js` (buildLayers)
+- **תצוגה (14.11.2026):** שלוש שכבות הגינון שייכות לקומה "מגרש וסביבה" (לא "קרקע"). הסתרת הקומה, השקיפות שלה ו"רק קומה זו" חלות גם עליהן. בלשונית קומות ← מגרש וסביבה ← "שטחי גינון – קדמי ואחורי" יש להן מתג ושקיפות משלהן. אדמת המגרש בלבד מוסתרת דרך "אדמת המגרש (בלי שטחי הגינון)".

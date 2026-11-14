@@ -290,6 +290,11 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       const op = (layer) => { let v = null; a.registry.items.find(i => i.tags.layer === layer && i.object.visible)?.object.traverse(o => { if (o.isMesh && v == null) v = (Array.isArray(o.material) ? o.material[0] : o.material).opacity; }); return v; };
       const g = op('gardenTurf'), t = op('topoPlanned');
       a.store.set({ partOpacity: {} });
+      // the gardens belong to "מגרש וסביבה": hiding the floor hides them (Avihai 14.11.2026)
+      const st = a.store.get(); a.store.set({ floors: { ...st.floors, site: { ...st.floors.site, visible: false } } });
+      const left = a.registry.items.filter(i => /^garden/.test(i.tags.layer) && i.object.visible).length;
+      a.store.set({ floors: st.floors });
+      if (left) return `${left} garden parts visible with the site floor hidden`;
       return g != null && g < 0.5 && (t == null || t > 0.99) ? 'ok' : `turf ${g} topo ${t}`;
     });
     if (info.siteParts !== 'ok') errors.push('site parts: ' + info.siteParts);

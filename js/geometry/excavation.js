@@ -373,11 +373,12 @@ const exMeta = {
     for (const [E, N] of z.ring) { tMin = Math.min(tMin, topF(E, N)); tMax = Math.max(tMax, topF(E, N)); }
     const meta = { ...fillMeta, role: 'plot', area, status: 'owner-change', note: c.description, source: [A.zoneSource, A.g.terrain.source].filter(Boolean).join(' · '), ocId: A.id };
     const add = (fn, mat, L, name, rows) => {
+      // floor 'ground' (Avihai 14.11.2026): the gardens go with the yard paving – hiding the lot terrain (floor 'site') keeps them
       const m = regionMesh(z.ring, fn, coords, materials.get(mat), null, T, zCtrl);
       const gz = new THREE.Group(); gz.add(m);
       const pts = z.ring.concat([z.ring[0]]).map(([E, N]) => coords.toLocal(E, N, fn(E, N) + 0.02));
       gz.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: ocColor })));
-      registry.add(gz, { floor: 'site', system: 'site', stage: 'finishes', step: 'development', layer: L.layer }, { ...meta, name, rows, hMax: m.userData.hMax, hMin: m.userData.hMin });
+      registry.add(gz, { floor: 'ground', system: 'site', stage: 'finishes', step: 'development', layer: L.layer }, { ...meta, name, rows, hMax: m.userData.hMax, hMin: m.userData.hMin });
       scene.add(gz);
     };
     const f3 = (h) => `${h.toFixed(3)} (${(h - coords.H0 < 0 ? '−' : '+') + Math.abs(h - coords.H0).toFixed(3)})`;

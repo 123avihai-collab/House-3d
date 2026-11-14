@@ -2,8 +2,8 @@
  "_doc": "Layer tree for the layers/infrastructure panel. 'implemented': false = placeholder (shown as 'בקרוב'). Each layer id is referenced by geometry builders through component tags.",
  "groups": [
   {
-   "id": "site",
-   "label": "מגרש וטופוגרפיה",
+   "id": "terrainStreet",
+   "label": "קרקע, מדרכה וכביש",
    "system": "site",
    "implemented": true,
    "layers": [
@@ -18,6 +18,39 @@
      "visible": true
     },
     {
+     "id": "existingOverlay",
+     "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
+     "visible": false
+    },
+    {
+     "id": "contours",
+     "label": "קווי גובה מתוכננים (רחוב)",
+     "visible": false
+    },
+    {
+     "id": "frontStreet",
+     "label": "רחוב בחזית – ריצוף, תעלה, איים, אבן גן",
+     "visible": true
+    },
+    {
+     "id": "frontStreetProfile",
+     "label": "קו הרחוב לפי חזית החומה (השוואה)",
+     "visible": true
+    },
+    {
+     "id": "street",
+     "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
+     "visible": false
+    }
+   ]
+  },
+  {
+   "id": "site",
+   "label": "מגרש וטופוגרפיה",
+   "system": "site",
+   "implemented": true,
+   "layers": [
+    {
      "id": "excavation",
      "label": "חפירה ליחידת הדיור (מרתף) ותעלות",
      "visible": true
@@ -31,11 +64,6 @@
      "id": "backfill",
      "label": "מילוי חוזר ומצעים (מצע ג')",
      "visible": true
-    },
-    {
-     "id": "existingOverlay",
-     "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
-     "visible": false
     },
     {
      "id": "surveyPoints2025",
@@ -63,23 +91,8 @@
      "visible": true
     },
     {
-     "id": "contours",
-     "label": "קווי גובה מתוכננים (רחוב)",
-     "visible": false
-    },
-    {
      "id": "pavedEntries",
      "label": "משטחי כניסה מתוכננים",
-     "visible": true
-    },
-    {
-     "id": "frontStreet",
-     "label": "רחוב בחזית – ריצוף, תעלה, איים, אבן גן",
-     "visible": true
-    },
-    {
-     "id": "frontStreetProfile",
-     "label": "קו הרחוב לפי חזית החומה (השוואה)",
      "visible": true
     },
     {
@@ -126,11 +139,6 @@
    "system": "environment",
    "implemented": true,
    "layers": [
-    {
-     "id": "street",
-     "label": "רחובות: רחוב משולב, תעלה, איים, אבני גן",
-     "visible": false
-    },
     {
      "id": "neighborLots",
      "label": "מגרשי שכנים (פני קרקע סופיים)",

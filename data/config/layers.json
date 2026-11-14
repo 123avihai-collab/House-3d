@@ -33,21 +33,6 @@
      "visible": true
     },
     {
-     "id": "gardenFill",
-     "label": "גינות: מילוי אדמה מקומית (OC-17)",
-     "visible": true
-    },
-    {
-     "id": "gardenBase",
-     "label": "גינות: מצע מהודק 10 ס\"מ (OC-17)",
-     "visible": true
-    },
-    {
-     "id": "gardenTurf",
-     "label": "גינות: דשא סינטטי 3 ס\"מ (OC-17)",
-     "visible": true
-    },
-    {
      "id": "existingOverlay",
      "label": "שכבת השוואה: קרקע קיימת 2025 (שקופה)",
      "visible": false
@@ -106,6 +91,32 @@
      "id": "electricCabinet",
      "label": "ארון חשמל (פילר)",
      "visible": true
+    }
+   ]
+  },
+  {
+   "id": "gardening",
+   "label": "גינון",
+   "system": "site",
+   "implemented": true,
+   "layers": [
+    {
+     "id": "gardenTurf",
+     "label": "דשא סינטטי 3 ס\"מ – גינה צפונית + גינה בחזית (OC-17)",
+     "visible": true,
+     "onAtOpen": true
+    },
+    {
+     "id": "gardenBase",
+     "label": "מצע מהודק 10 ס\"מ – שתי הגינות (OC-17)",
+     "visible": true,
+     "onAtOpen": true
+    },
+    {
+     "id": "gardenFill",
+     "label": "מילוי אדמה מקומית – שתי הגינות (OC-17)",
+     "visible": true,
+     "onAtOpen": true
     }
    ]
   },
@@ -676,5 +687,6 @@
     }
    ]
   }
- ]
+ ],
+ "_onAtOpen": "onAtOpen: נדלקת בכל פתיחה של המודל, גם אם במבט השמור היא כבויה / מוסתרת (החלטת אביחי 14.11.2026 – הגינון). שקיפות הקומות מתאפסת בכל פתיחה (js/tools/prefs.js)"
 }

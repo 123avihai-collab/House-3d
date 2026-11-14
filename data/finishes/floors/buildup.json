@@ -17,7 +17,7 @@
    "id": "floorScreed",
    "label": "טיט / מדה",
    "thickness_m": 0.04,
-   "color": "#a3a39e",
+   "color": "#b3a68c",
    "status": "provisional",
    "short": "טיט / מדה"
   },
@@ -25,7 +25,7 @@
    "id": "floorAdhesive",
    "label": "דבק לאריחים",
    "thickness_m": 0.005,
-   "color": "#7d7d78",
+   "color": "#5e7c8f",
    "status": "provisional",
    "short": "דבק"
   },

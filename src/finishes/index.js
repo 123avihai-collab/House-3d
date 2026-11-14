@@ -83,6 +83,7 @@ class Finishes {
     try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); this.live = l.live || {}; this.prices = l.prices || {}; if (l.wp) this.wpH = { ...this.wpH, ...l.wp }; } catch {}
     this.state = 'local';
     this.mats = {};
+    try { this.explode = localStorage.getItem('house3d.tilingExplode') === '1'; } catch { this.explode = false; }
   }
   typeOf(s) { return this.live[s.key] ?? s.type; }
   overridden(s) { return this.live[s.key] != null ? this.live[s.key] !== s.defaultType : s.overridden; }
@@ -401,7 +402,7 @@ class Finishes {
       // top / bottom faces from plan, sides along the edge – so the layer is recognisable in a section / interior view
       const tex = d.material ? this.ctx.materials.get(d.material) : null; if (tex) tex.side = THREE.DoubleSide;
       // no polygon offset on the floor layers: stacked 0.5–4 cm apart, an offset made the lower layer (adhesive / screed) win over the tile from a distance
-      const mat = tex || (d.color ? this.mat(d.color, { polygonOffset: false }) : this.mat('#ffffff', { transparent: true, opacity: 0.12, depthWrite: false, polygonOffset: false }));
+      const mat = tex || (d.color ? this.mat(d.color, { polygonOffset: false }) : this.mat(this.D.tilePlaceholderColor || '#ffffff', { transparent: true, opacity: this.D.tilePlaceholderOpacity ?? 0.12, depthWrite: false, polygonOffset: false }));
       const m = this.mesh(g.pts, g.map, mat);
       if (tex) {
         const P = m.geometry.attributes.position.array, N = m.geometry.attributes.normal.array, uv = new Float32Array(P.length / 3 * 2);
@@ -463,7 +464,24 @@ class Finishes {
     }
     this.tiling?.build3D();
     this.floorItems = this.items.slice(n0);
+    this.applyExplode();
   }
+  // "הרחקת שכבות" (Avihai 14.11.2026 – the 3–10 mm layers could not be told apart): display only – every floor layer is lifted
+  // by its index × display.json finishes.explodeGap_m above the layer under it, so each one and its thickness is seen.
+  // Interior: fill → screed → adhesive → tile; exterior: slope fill → waterproofing → adhesive → tile. The tiles of a hatch
+  // lid stay with the lid (they rotate with it – src/tiling/hatches.js).
+  applyExplode() {
+    const order = { floorFill: 0, floorScreed: 1, floorAdhesive: 2, floorTile: 3, extFill: 0, extProofing: 1, extAdhesive: 2, extTile: 3 };
+    const gap = this.explode ? (this.D.explodeGap_m ?? 0.12) : 0;
+    const lids = Object.values(this.hatches?.lids || {});
+    for (const it of this.items) {
+      const i = order[it.tags.layer]; if (i == null || it.tags.step !== 'tiling') continue;
+      if (lids.some(L => L.objs.has(it.object))) continue;
+      it.object.position.y = i * gap; it.object.updateMatrixWorld(true);
+    }
+    this.app?.viewer?.invalidate();
+  }
+  setExplode(on) { this.explode = !!on; try { localStorage.setItem('house3d.tilingExplode', on ? '1' : ''); } catch {} this.applyExplode(); this.app?.ui.refreshPanel?.('layers'); }
   // the floor layers again (a tile chosen / changed in the workshop): placeholder + tiles
   rebuildFloors() {
     if (!this.floorItems) return;
@@ -631,8 +649,23 @@ class Finishes {
     const app = this.app;
     const wrap = h('div', { class: 'finishes ctl' });
     if (groupId === 'plaster') wrap.append(h('p', { class: 'muted' }, 'טיח צמנטי באפור אחד – על כל פני הקירות (בלוק ובטון, פנים וחוץ), קורות ועמודים גלויים, גליפים ותקרות; בלי טיח על רצפות. ' + this.T.scratchNote + '. דריסה: לחיצה על משטח במצב "מידות".'));
-    if (groupId === 'tiling') wrap.append(h('p', { class: 'muted' }, 'מעל היציקה: מילוי סומסום וחול → טיט / מדה → דבק → אריח. האריח נבחר לכל אזור בסדנת הריצוף (מקום שמור באזור שלא נבחר). העוביים זמניים – ' + (this.BU.status === 'provisional' ? 'open-issues #163' : '') + '.'),
-      this.tiling ? h('div', { class: 'btns' }, h('button', { class: 'small primary', onclick: () => app.store.set({ mode: 'tiling' }, { label: 'mode' }) }, '▦ סדנת ריצוף')) : null);
+    if (groupId === 'tilingInterior' || groupId === 'tilingExterior') {
+      const ext = groupId === 'tilingExterior', ids = ext ? ['extFill', 'extProofing', 'extAdhesive', 'extTile'] : ['floorFill', 'floorScreed', 'floorAdhesive', 'floorTile'];
+      const defs = Object.fromEntries([...this.BU.layers, ...this.EXL].map(l => [l.id, l]));
+      const thk = (id) => { const l = defs[id]; if (l?.thickness_m != null) return `${f2(l.thickness_m * 100)} ס"מ`;
+        const rs = ext ? (this.EX?.rooms || []).map(r => r.layers.find(x => x.id === id)).filter(Boolean) : this.TL.rooms.map(r => r.layers?.find(x => x.id === id)).filter(Boolean);
+        if (!rs.length) return ''; const mn = Math.min(...rs.map(x => x.min_m ?? x.thickness_m)), mx = Math.max(...rs.map(x => x.max_m ?? x.thickness_m));
+        return mn === mx ? `${f2(mn * 100)} ס"מ` : `${f2(mn * 100)} עד ${f2(mx * 100)} ס"מ`; };
+      const lay = (on) => { const st = app.store.get(); app.store.set({ layers: { ...st.layers, ...Object.fromEntries(ids.map(i => [i, on])) }, stageIndex: app.data.tags.sequence.length - 1 }, { label: 'layers' }); };
+      wrap.append(h('p', { class: 'muted' }, (ext ? 'מעל רצפת הבטון החיצונית: בטון שיפועים → איטום צמנטי → דבק → אריח חוץ. ' : 'מעל היציקה: מילוי סומסום וחול → טיט / מדה → דבק → אריח. ')
+          + 'האריח נבחר לכל אזור בסדנת הריצוף (מקום שמור באזור שלא נבחר). העוביים זמניים – ' + (ext ? 'open-issues #170, #200' : 'open-issues #163') + '.'),
+        h('table', { class: 'kv' }, ids.map(id => h('tr', {}, h('td', {}, h('span', { class: 'sw', style: `display:inline-block;width:12px;height:12px;border:1px solid #888;margin-inline-end:6px;background:${defs[id]?.color || this.D.tilePlaceholderColor || '#fff'}` }), defs[id]?.label || id), h('td', {}, thk(id))))),
+        h('div', { class: 'btns' },
+          h('button', { class: 'small' + (this.explode ? ' on' : ''), 'data-act': 'explode', title: 'תצוגה בלבד: כל שכבה מוגבהת מעל השכבה שמתחתיה', onclick: () => { if (!this.explode) lay(true); this.setExplode(!this.explode); } }, this.explode ? '↧ להחזיר את השכבות למקום' : '↥ הרחקת שכבות (לראות כל שכבה)'),
+          h('button', { class: 'small', onclick: () => lay(true) }, 'כל שכבות ה' + (ext ? 'חוץ' : 'פנים') + ' דלוקות'),
+          this.tiling ? h('button', { class: 'small primary', onclick: () => app.store.set({ mode: 'tiling' }, { label: 'mode' }) }, '▦ סדנת ריצוף') : null),
+        this.explode ? h('div', { class: 'warn' }, `⚠ הרחקת שכבות פעילה – תצוגה בלבד: כל שכבה מוגבהת ${Math.round((this.D.explodeGap_m ?? 0.12) * 100)} ס"מ מעל השכבה שמתחתיה (פנים וחוץ). המיקום האמיתי – בכיבוי.`) : null);
+    }
     if (groupId === 'waterproofingGroup') {   // the wet-room waterproofing heights (defaults – provisional)
       const inp = (k, unit, step) => h('input', { type: 'number', min: 0, step, class: 'price wp-h', 'data-k': k,
         value: unit === 'cm' ? Math.round(this.wpH[k] * 100) : this.wpH[k], onchange: (e) => this.setWp({ [k]: e.target.value === '' ? null : unit === 'cm' ? +e.target.value / 100 : +e.target.value }) });

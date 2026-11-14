@@ -346,7 +346,7 @@ export class UI {
         h('div', { class: 'ocseg' }, h('button', { class: s.proposals ? '' : 'on', onclick: () => app.proposals.setMode(false) }, 'מצב תוכנית'),
           h('button', { class: s.proposals ? 'on' : '', onclick: () => app.proposals.setMode(true) }, 'מצב הצעות')),
         h('button', { class: 'small', onclick: () => this.openTab('notes') }, 'רשימת השינויים')));
-      if (['plaster', 'tiling', 'waterproofingGroup'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
+      if (['plaster', 'tilingInterior', 'tilingExterior', 'waterproofingGroup'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
       for (const l of L) {
         const on = s.layers[l.id] !== false; const lblOff = !!(s.labelsOff || {})[l.id]; const fresh = P?.isNew(l.id);
         box.append(h('div', { class: 'row lrow' + (on ? ' on' : '') },

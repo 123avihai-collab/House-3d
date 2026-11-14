@@ -270,7 +270,12 @@
   "interiorCutAbove_m": 1.3,
   "provisionalHatch": "#e53935",
   "droppedCeilingColor": "#f3f1ec",
-  "droppedCeilingEdge": "#ff9800"
+  "droppedCeilingEdge": "#ff9800",
+  "tilePlaceholderColor": "#ece6da",
+  "tilePlaceholderOpacity": 0.55,
+  "_tilePlaceholder": "אריח שלא נבחר בסדנה (מקום שמור) – צבע ושקיפות; היה כמעט שקוף ולא נראה (אביחי 14.11.2026)",
+  "explodeGap_m": 0.12,
+  "_explodeGap": "הרחקת שכבות הריצוף (תצוגה בלבד): כל שכבה מוגבהת במרווח הזה מעל השכבה שמתחתיה, כדי לראות כל שכבה ועוביה. לא מידה – המיקום האמיתי בכיבוי ההרחקה"
  },
  "tiling": {
   "_doc": "תצוגת סדנת הריצוף (src/tiling) – קבועי תצוגה בלבד.",

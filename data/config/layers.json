@@ -452,27 +452,65 @@
   {
    "system": "finishes",
    "implemented": true,
-   "id": "tiling",
-   "label": "שכבות רצפה",
+   "id": "tilingInterior",
+   "label": "ריצוף פנים",
    "layers": [
     {
      "id": "floorFill",
-     "label": "רצפה: מילוי סומסום וחול",
+     "label": "מילוי סומסום וחול",
      "visible": false
     },
     {
      "id": "floorScreed",
-     "label": "רצפה: טיט / מדה",
+     "label": "טיט / מדה",
      "visible": false
     },
     {
      "id": "floorAdhesive",
-     "label": "רצפה: דבק לאריחים",
+     "label": "דבק לאריחים",
      "visible": false
     },
     {
      "id": "floorTile",
-     "label": "רצפה: אריחים (סדנת ריצוף)",
+     "label": "אריחים (סדנת ריצוף)",
+     "visible": false
+    },
+    {
+     "id": "roomLabels",
+     "label": "שמות חדרים",
+     "visible": false
+    }
+   ]
+  },
+  {
+   "system": "finishes",
+   "implemented": true,
+   "id": "tilingExterior",
+   "label": "ריצוף חוץ",
+   "layers": [
+    {
+     "id": "extFill",
+     "label": "בטון שיפועים (עובי משתנה)",
+     "visible": false
+    },
+    {
+     "id": "extProofing",
+     "label": "איטום צמנטי",
+     "visible": false
+    },
+    {
+     "id": "extAdhesive",
+     "label": "דבק",
+     "visible": false
+    },
+    {
+     "id": "extTile",
+     "label": "אריחים (סדנת ריצוף)",
+     "visible": false
+    },
+    {
+     "id": "poolHatches",
+     "label": "מכסי חדר המכונות (נפתחים בלחיצה)",
      "visible": false
     },
     {
@@ -483,36 +521,6 @@
     {
      "id": "poolCoping",
      "label": "בריכה: קופינג",
-     "visible": false
-    },
-    {
-     "id": "extFill",
-     "label": "ריצוף חוץ: בטון שיפועים (משתנה)",
-     "visible": false
-    },
-    {
-     "id": "extProofing",
-     "label": "ריצוף חוץ: איטום צמנטי",
-     "visible": false
-    },
-    {
-     "id": "extAdhesive",
-     "label": "ריצוף חוץ: דבק",
-     "visible": false
-    },
-    {
-     "id": "extTile",
-     "label": "ריצוף חוץ: אריחים (סדנת ריצוף)",
-     "visible": false
-    },
-    {
-     "id": "poolHatches",
-     "label": "ריצוף חוץ: מכסי חדר המכונות (נפתחים בלחיצה)",
-     "visible": false
-    },
-    {
-     "id": "roomLabels",
-     "label": "שמות חדרים",
      "visible": false
     }
    ]

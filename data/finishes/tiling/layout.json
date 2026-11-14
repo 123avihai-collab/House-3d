@@ -142,6 +142,20 @@
    "grout": "grey",
    "product": "",
    "grid": "ext"
+  },
+  "ext:STP1": {
+   "size": "60x120",
+   "finish": "outdoorGrey",
+   "pattern": "grid",
+   "direction": "across",
+   "origin": "center",
+   "joint_mm": 3,
+   "du_cm": -50.1,
+   "dv_cm": -2.5,
+   "spare_pct": 5,
+   "grout": "grey",
+   "product": "",
+   "grid": "ext"
   }
  }
 }

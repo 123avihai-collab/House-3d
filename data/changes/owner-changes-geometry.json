@@ -1719,12 +1719,12 @@
        576243.829
       ]
      ],
-     "bottomRel": -0.03,
+     "bottomRel": -0.26,
      "topRel": 1.76,
      "onSlab": null,
      "label": "עמוד מסתור כביסה",
      "thickness_m": 0.2,
-     "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: ראש GS5 – זמני, אין יסוד בתוכניות"
+     "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: על בטון GS5 (‎−0.26, data/structure/floor-ground.json) – זמני, אין יסוד בתוכניות; הריצוף GS5 מכסה את הרגל"
     },
     {
      "id": "LS-S",
@@ -1746,12 +1746,12 @@
        576241.885
       ]
      ],
-     "bottomRel": -0.03,
+     "bottomRel": -0.26,
      "topRel": 1.76,
      "onSlab": null,
      "label": "עמוד מסתור כביסה",
      "thickness_m": 0.2,
-     "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: ראש GS5 – זמני, אין יסוד בתוכניות"
+     "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: על בטון GS5 (‎−0.26, data/structure/floor-ground.json) – זמני, אין יסוד בתוכניות; הריצוף GS5 מכסה את הרגל"
     }
    ],
    "show": "original"

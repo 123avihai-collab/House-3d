@@ -55,6 +55,7 @@ js/
     terrain.js             משטחי קרקע: מגרש (מתוכנן/קיים), שכנים, מדרכה, כביש, משטח ייחוס
     site.js                גבול מגרש, נקודות, קווי בניין, קווי גובה, תוויות, חץ צפון, רשת ITM
     frontStreet.js         הרחוב בחזית המגרש (רחוב משולב 960): ריצוף לפי החתך, נתיב, תעלה, איים, אבן גן; קו הרחוב של חזית החומה להשוואה
+    gateApron.js           כניסת החניה בתוך המגרש – אבן משתלבת "מלבן" אפור גרפיט 15/30/7 (נספח 003 פרט 10) בין GS3 לקו המגרש; נתונים: python3 tools/derive_gate_apron.py → data/site/gate-apron.json (אחרי derive_exterior.py), [אימות](docs/verification/gate-apron.md)
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח; הגינות – צפונית ובחזית (OC-17): מילוי אדמה מקומית + מצע מהודק 10 ס"מ עד 2 ס"מ מתחת לריצוף הצמוד (GS2 / GS4) + דשא סינטטי 3 ס"מ – קבוצת שכבות "גינון" (gardenTurf / gardenBase / gardenFill; onAtOpen – דלוקות בכל פתיחה, ושקיפות הקומות מתאפסת בכל פתיחה, js/tools/prefs.js); היקף הגינה בחזית: python3 tools/derive_front_garden.py, [אימות](docs/verification/garden-fill.md)
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
     foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)

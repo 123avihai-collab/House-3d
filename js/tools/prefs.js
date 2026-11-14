@@ -78,6 +78,17 @@ export class Prefs {
     p.healed2 = true;
     if (p.last?.layers && p.last.layers.contours !== false) p.last.layers.contours = false;
   }
+  // at every open (Avihai 14.11.2026): layers marked onAtOpen in data/config/layers.json (the gardening) are ON even when the saved
+  // view has them off / in "מוסתרות" / removed, and every floor is opaque again (the opacity slider is not restored)
+  atOpen(p) {
+    const ids = this.app.data.layers.groups.flatMap(g => g.layers.filter(l => l.onAtOpen).map(l => l.id));
+    p.binned = (p.binned || []).filter(id => !ids.includes(id)); p.dropped = (p.dropped || []).filter(id => !ids.includes(id));
+    for (const id of ids) { if (p.seen && !p.seen.includes(id)) p.seen.push(id); this.fresh?.delete(id); }
+    const s = this.app.store.get();
+    const floors = Object.fromEntries(Object.entries(s.floors).map(([k, f]) => [k, { ...f, opacity: 1 }]));
+    this.app.store.set({ layers: { ...s.layers, ...Object.fromEntries(ids.map(id => [id, true])) }, floors }, { record: false });
+    if (p === this.p) this.writeLocal();
+  }
   restore(p) {
     this.heal(p); this.heal2(p);
     const start = p.start && p.presets.find(x => x.id === p.start);
@@ -85,6 +96,7 @@ export class Prefs {
     // layers moved to "מוסתרות" / removed from the model stay off even with no saved view
     const L = this.app.store.get().layers, off = [...(p.binned || []), ...(p.dropped || [])].filter(id => L[id] !== false);
     if (off.length) this.app.store.set({ layers: { ...L, ...Object.fromEntries(off.map(id => [id, false])) } }, { record: false });
+    this.atOpen(p);
   }
   async connect() {
     const use = window.claude?.use; if (!use) return;

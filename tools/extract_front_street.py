@@ -281,6 +281,12 @@ out = {
                 'crossSlopeDWG': slopes, 'crossSlopeDWGFar': far_slopes},
     'outline': rings(strip)[0],
     'outlineArea_m2': r3(strip.area),
+    # owner decision (Avihai 14.11.2026): the street follows the architect's line (front-wall elevation) on the lot line;
+    # the correction (elevation − DWG) fades linearly to 0 at the far lot line, so the opposite side stays on the DWG levels
+    'ownerLevels': {'status': 'owner', 'decision': 'החלטת אביחי 14.11.2026: הרחוב לפי קו הרחוב בחזית החומה הקדמית (אדריכל). לבדיקה מול האדריכל – open-issues FS1',
+                    'taper': 'התיקון (חזית − DWG) מלא בקו המגרש ויורד ליניארית ל-0 בקו המגרשים שממול',
+                    'taperWidth_m': r3(W),
+                    'points': [{'s': p['s'], 'delta': p['diff']} for p in profile if p['diff'] is not None]},
     'zones': zones,
     'gutter': gutter,
     'islands': isl_out,

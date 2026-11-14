@@ -425,7 +425,7 @@ class Finishes {
         name: `${d.label} – ${g.outdoor ? 'חוץ' : FLOOR_HE[g.fl]}${g.variant ? ` (${rs[0]?.roomName || 'הצעה ' + g.variant.change})` : ''}`, kind: 'floorLayer',
         id: g.l.id + '-' + g.fl + (g.variant ? '-' + g.variant.change : ''), ...(g.variant ? { variant: g.variant, status: 'provisional' } : {}),
         rows: [['שכבה', d.label], ...(g.variant ? [['הצעה', `${g.variant.change} – לא בכמויות; ${rs[0]?.source || ''}`]] : []), ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
-          ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
+          ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor || /^ext/.test(g.l.id) ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
           ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200)'],
             ...rs.filter(r => r.change).map(r => [`🔴 ${r.change}`, `${r.roomName} (${r.slab}): ${r.changeReason}`]),
             ...rs.filter(r => !r.check.ok).map(r => ['⛔ סתירה', `${r.roomName} (${r.slab}): בטון השיפועים ${f2(r.check.fillMin_m * 100)} ס"מ – פני הריצוף בהיתר נמוכים מפני הבטון + השכבות (open-issues #201)`])] : [])],

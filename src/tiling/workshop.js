@@ -59,7 +59,7 @@ export class TilingWorkshop {
     // followers: the floor on an owner-change element (OC-13 walkway – surfaces.json proposalRooms, Avihai 14.11.2026) – not a zone
     // of its own: the tile, joint and grid of the zone it opens from (follow), laid on that zone's frame so the joints continue
     this.followers = (F.TL.proposalRooms || []).filter(r => r.follow && r.parts?.length && r.layers?.length).map(r => {
-      const tileLayer = r.layers.find(l => l.id === 'floorTile');
+      const tileLayer = r.layers.find(l => l.id === 'floorTile' || l.id === 'extTile');
       return { key: r.room, r, floor: r.floor, follow: r.follow, name: r.zoneName || r.roomName, parts: r.parts.map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer, zTop: () => tileLayer.z1 };
     });
     this.choice = { ...(data.tilingLayout?.rooms || {}) };
@@ -269,10 +269,10 @@ export class TilingWorkshop {
       const m = new THREE.Mesh(g, this.matOf(fin)); m.receiveShadow = true; m.userData.keep = true; m.userData.faceMap = map;
       const grp = new THREE.Group(); grp.add(m);
       const q = lay.q, sz = lay.size;
-      const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: z.r.outdoor ? 'extTile' : 'floorTile' }, {
+      const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: z.r.outdoor || z.tileLayer?.id === 'extTile' ? 'extTile' : 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,
         ...(z.r.variant ? { variant: z.r.variant, status: 'provisional' } : {}),
-        rows: [...(z.follow ? [['המשך', `הריצוף של ${this.zoneBy[z.follow]?.name || z.follow} – אותו אריח, אותה רשת, הפוגות ממשיכות (הצעה ${z.r.variant?.change}, לא בכמויות)`]] : []),['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
+        rows: [...(z.follow ? [['המשך', `${z.r.grid ? `ריצוף החוץ (רשת משותפת – ${this.C.gridGroups?.[z.r.grid]?.label || z.r.grid})` : `הריצוף של ${this.zoneBy[z.follow]?.name || z.follow}`} – אותו אריח, אותה רשת, הפוגות ממשיכות (הצעה ${z.r.variant?.change}, לא בכמויות)`]] : []),['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
           ['שטח', `${f2(q.area_m2)} מ"ר`], ['אריחים', `${q.full} שלמים + ${q.cut} חתוכים${q.slivers ? ` (${q.slivers} צרים מ-5 ס"מ!)` : ''}`],
           ['להזמנה', `${q.order} אריחים = ${q.boxes} קרטונים (${f2(q.order_m2)} מ"ר, כולל ${c.spare_pct}% רזרבה ופנלים)`]],
         source: 'src/tiling (סדנת ריצוף) – data/finishes/tiling/catalog.json; אזור: data/finishes/tiling/surfaces.json', note: 'מקדמי צריכה – זמניים (open-issues #178)',

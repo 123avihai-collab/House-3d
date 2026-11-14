@@ -11670,6 +11670,10 @@
    "key": "ground|BK-G37|out|N#1",
    "type": "exterior",
    "overridden": false,
+   "ext": [
+    0.006,
+    0.0
+   ],
    "shift": 0.001
   },
   {
@@ -44358,8 +44362,44 @@
       -0.374
      ],
      "z0": -0.35,
-     "z1": -0.26,
-     "area": 0.007,
+     "z1": 0.0,
+     "area": 0.026,
+     "room": null
+    },
+    {
+     "a": [
+      179590.015,
+      576242.627
+     ],
+     "b": [
+      179589.987,
+      576242.557
+     ],
+     "normal": [
+      0.928,
+      -0.374
+     ],
+     "z0": -0.15,
+     "z1": 0.0,
+     "area": 0.011,
+     "room": null
+    },
+    {
+     "a": [
+      179589.987,
+      576242.557
+     ],
+     "b": [
+      179589.931,
+      576242.418
+     ],
+     "normal": [
+      0.928,
+      -0.373
+     ],
+     "z0": -0.15,
+     "z1": 0.0,
+     "area": 0.023,
      "room": null
     },
     {
@@ -44407,8 +44447,8 @@
      "room": null
     }
    ],
-   "area": 1.696,
-   "net": 1.696,
+   "area": 1.749,
+   "net": 1.749,
    "scaffold": false,
    "scaffoldArea": 0,
    "defaultType": "exterior",
@@ -59294,6 +59334,80 @@
    "vertical": true,
    "part": "side",
    "a": [
+    179590.185,
+    576242.46
+   ],
+   "b": [
+    179590.17,
+    576242.423
+   ],
+   "normal": [
+    -0.927,
+    0.374
+   ],
+   "z0": -0.65,
+   "z1": -0.5,
+   "length": 0.04,
+   "area": 0.005962,
+   "net": 0.005962,
+   "owner": "B-43",
+   "ownerKind": "beam",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "defaultType": "exterior",
+   "typeReason": "השלמה – פן חשוף מבחוץ",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-43 (20/50; O.K=-0.15)",
+   "key": "ground|patch|B-43|side#3",
+   "type": "exterior",
+   "overridden": false
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
+    179590.2,
+    576242.497
+   ],
+   "b": [
+    179590.192,
+    576242.478
+   ],
+   "normal": [
+    -0.927,
+    0.374
+   ],
+   "z0": -0.65,
+   "z1": -0.519,
+   "length": 0.02,
+   "area": 0.002608,
+   "net": 0.002608,
+   "owner": "B-43",
+   "ownerKind": "beam",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "defaultType": "exterior",
+   "typeReason": "השלמה – פן חשוף מבחוץ",
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "source": "sources/structure/K-21-תוכנית קרקע- גיאומטריה.pdf תווית B-43 (20/50; O.K=-0.15)",
+   "key": "ground|patch|B-43|side#4",
+   "type": "exterior",
+   "overridden": false,
+   "ext": [
+    0.0,
+    0.019
+   ]
+  },
+  {
+   "kind": "patch",
+   "vertical": true,
+   "part": "side",
+   "a": [
     179591.317,
     576246.31
    ],
@@ -61135,11 +61249,11 @@
     -0.927,
     0.374
    ],
-   "z0": -0.03,
+   "z0": -0.15,
    "z1": 3.45,
    "length": 0.019,
-   "area": 0.064477,
-   "net": 0.064477,
+   "area": 0.066701,
+   "net": 0.066701,
    "owner": "BK-G37",
    "ownerKind": "block",
    "floor": "ground",
@@ -61153,7 +61267,10 @@
    "key": "ground|patch|BK-G37|side#1",
    "type": "exterior",
    "overridden": false,
-   "hidden": true
+   "ext": [
+    0.0,
+    0.007
+   ]
   },
   {
    "kind": "patch",
@@ -74377,40 +74494,12 @@
    "z": -0.65,
    "ringITM": [
     [
-     179589.987,
-     576242.422
+     179590.187,
+     576242.477
     ],
     [
-     179589.987,
-     576242.402
-    ],
-    [
-     179590.027,
-     576242.402
-    ],
-    [
-     179590.027,
-     576242.382
-    ],
-    [
-     179590.087,
-     576242.382
-    ],
-    [
-     179590.087,
-     576242.362
-    ],
-    [
-     179590.127,
-     576242.362
-    ],
-    [
-     179590.127,
-     576242.342
-    ],
-    [
-     179590.137,
-     576242.342
+     179590.187,
+     576242.465
     ],
     [
      179589.843,
@@ -74421,13 +74510,13 @@
      576241.687
     ],
     [
-     179589.954,
-     576242.422
+     179590.005,
+     576242.55
     ]
    ],
    "holesITM": [],
-   "area": 0.158945,
-   "net": 0.158945,
+   "area": 0.186082,
+   "net": 0.186082,
    "owner": "B-43",
    "ownerKind": "beam",
    "floor": "unit",
@@ -96798,6 +96887,36 @@
    "kind": "filler",
    "vertical": true,
    "a": [
+    179590.2047,
+    576242.509
+   ],
+   "b": [
+    179590.191,
+    576242.475
+   ],
+   "normal": [
+    -0.9271,
+    0.3749
+   ],
+   "z0": -0.67,
+   "z1": -0.65,
+   "length": 0.037,
+   "area": 0,
+   "net": 0,
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "type": "exterior",
+   "defaultType": "exterior",
+   "overridden": false,
+   "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
+   "source": "tools/finishes/flatten.py fillers()",
+   "key": "ground|fill#6"
+  },
+  {
+   "kind": "filler",
+   "vertical": true,
+   "a": [
     179595.0684,
     576235.9889
    ],
@@ -96822,7 +96941,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#6"
+   "key": "unit|fill#7"
   },
   {
    "kind": "filler",
@@ -96852,7 +96971,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#7"
+   "key": "ground|fill#8"
   },
   {
    "kind": "filler",
@@ -96882,7 +97001,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#8"
+   "key": "unit|fill#9"
   },
   {
    "kind": "filler",
@@ -96912,7 +97031,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#9"
+   "key": "unit|fill#10"
   },
   {
    "kind": "filler",
@@ -96942,7 +97061,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#10"
+   "key": "ground|fill#11"
   },
   {
    "kind": "filler",
@@ -96972,7 +97091,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#11"
+   "key": "unit|fill#12"
   },
   {
    "kind": "filler",
@@ -97002,7 +97121,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#12"
+   "key": "ground|fill#13"
   },
   {
    "kind": "filler",
@@ -97032,7 +97151,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#13"
+   "key": "unit|fill#14"
   },
   {
    "kind": "filler",
@@ -97062,7 +97181,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#14"
+   "key": "unit|fill#15"
   },
   {
    "kind": "filler",
@@ -97092,7 +97211,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#15"
+   "key": "unit|fill#16"
   },
   {
    "kind": "filler",
@@ -97122,7 +97241,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#16"
+   "key": "unit|fill#17"
   },
   {
    "kind": "filler",
@@ -97152,7 +97271,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#17"
+   "key": "unit|fill#18"
   },
   {
    "kind": "filler",
@@ -97182,7 +97301,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#18"
+   "key": "unit|fill#19"
   },
   {
    "kind": "filler",
@@ -97212,7 +97331,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#19"
+   "key": "unit|fill#20"
   },
   {
    "kind": "filler",
@@ -97242,7 +97361,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#20"
+   "key": "first|fill#21"
   },
   {
    "kind": "filler",
@@ -97272,7 +97391,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#21"
+   "key": "unit|fill#22"
   },
   {
    "kind": "filler",
@@ -97302,7 +97421,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#22"
+   "key": "unit|fill#23"
   },
   {
    "kind": "filler",
@@ -97332,7 +97451,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#23"
+   "key": "unit|fill#24"
   },
   {
    "kind": "filler",
@@ -97362,7 +97481,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#24"
+   "key": "unit|fill#25"
   },
   {
    "kind": "filler",
@@ -97392,7 +97511,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#25"
+   "key": "site|fill#26"
   },
   {
    "kind": "filler",
@@ -97422,7 +97541,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#26"
+   "key": "site|fill#27"
   },
   {
    "kind": "filler",
@@ -97452,7 +97571,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#27"
+   "key": "site|fill#28"
   },
   {
    "kind": "filler",
@@ -97482,7 +97601,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#28"
+   "key": "ground|fill#29"
   },
   {
    "kind": "filler",
@@ -97512,7 +97631,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#29"
+   "key": "ground|fill#30"
   },
   {
    "kind": "filler",
@@ -97542,7 +97661,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#30"
+   "key": "unit|fill#31"
   },
   {
    "kind": "filler",
@@ -97572,7 +97691,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#31"
+   "key": "ground|fill#32"
   },
   {
    "kind": "filler",
@@ -97602,7 +97721,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#32"
+   "key": "ground|fill#33"
   },
   {
    "kind": "filler",
@@ -97632,7 +97751,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#33"
+   "key": "ground|fill#34"
   },
   {
    "kind": "filler",
@@ -97662,7 +97781,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#34"
+   "key": "unit|fill#35"
   },
   {
    "kind": "filler",
@@ -97692,7 +97811,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#35"
+   "key": "unit|fill#36"
   },
   {
    "kind": "filler",
@@ -97722,7 +97841,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#36"
+   "key": "ground|fill#37"
   },
   {
    "kind": "filler",
@@ -97752,7 +97871,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#37"
+   "key": "ground|fill#38"
   },
   {
    "kind": "filler",
@@ -97782,7 +97901,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#38"
+   "key": "ground|fill#39"
   },
   {
    "kind": "filler",
@@ -97812,7 +97931,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#39"
+   "key": "unit|fill#40"
   },
   {
    "kind": "filler",
@@ -97842,7 +97961,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#40"
+   "key": "ground|fill#41"
   },
   {
    "kind": "filler",
@@ -97872,7 +97991,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#41"
+   "key": "ground|fill#42"
   },
   {
    "kind": "filler",
@@ -97902,7 +98021,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#42"
+   "key": "unit|fill#43"
   },
   {
    "kind": "filler",
@@ -97932,7 +98051,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#43"
+   "key": "unit|fill#44"
   },
   {
    "kind": "filler",
@@ -97962,7 +98081,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#44"
+   "key": "ground|fill#45"
   },
   {
    "kind": "filler",
@@ -97992,7 +98111,97 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#45"
+   "key": "ground|fill#46"
+  },
+  {
+   "kind": "filler",
+   "vertical": true,
+   "a": [
+    179590.2073,
+    576242.5151
+   ],
+   "b": [
+    179590.1998,
+    576242.4967
+   ],
+   "normal": [
+    -0.9273,
+    0.3744
+   ],
+   "z0": -0.65,
+   "z1": -0.5,
+   "length": 0.02,
+   "area": 0,
+   "net": 0,
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "type": "exterior",
+   "defaultType": "exterior",
+   "overridden": false,
+   "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
+   "source": "tools/finishes/flatten.py fillers()",
+   "key": "ground|fill#47"
+  },
+  {
+   "kind": "filler",
+   "vertical": true,
+   "a": [
+    179590.1998,
+    576242.4967
+   ],
+   "b": [
+    179590.1849,
+    576242.4598
+   ],
+   "normal": [
+    -0.9273,
+    0.3744
+   ],
+   "z0": -0.519,
+   "z1": -0.5,
+   "length": 0.04,
+   "area": 0,
+   "net": 0,
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "type": "exterior",
+   "defaultType": "exterior",
+   "overridden": false,
+   "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
+   "source": "tools/finishes/flatten.py fillers()",
+   "key": "ground|fill#48"
+  },
+  {
+   "kind": "filler",
+   "vertical": true,
+   "a": [
+    179590.1701,
+    576242.423
+   ],
+   "b": [
+    179590.1626,
+    576242.4045
+   ],
+   "normal": [
+    -0.9273,
+    0.3744
+   ],
+   "z0": -0.65,
+   "z1": -0.5,
+   "length": 0.02,
+   "area": 0,
+   "net": 0,
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "type": "exterior",
+   "defaultType": "exterior",
+   "overridden": false,
+   "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
+   "source": "tools/finishes/flatten.py fillers()",
+   "key": "ground|fill#49"
   },
   {
    "kind": "filler",
@@ -98022,7 +98231,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#46"
+   "key": "ground|fill#50"
   },
   {
    "kind": "filler",
@@ -98052,7 +98261,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#47"
+   "key": "ground|fill#51"
   },
   {
    "kind": "filler",
@@ -98082,7 +98291,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#48"
+   "key": "ground|fill#52"
   },
   {
    "kind": "filler",
@@ -98112,7 +98321,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#49"
+   "key": "ground|fill#53"
   },
   {
    "kind": "filler",
@@ -98142,7 +98351,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#50"
+   "key": "ground|fill#54"
   },
   {
    "kind": "filler",
@@ -98172,7 +98381,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#51"
+   "key": "ground|fill#55"
   },
   {
    "kind": "filler",
@@ -98202,7 +98411,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#52"
+   "key": "site|fill#56"
   },
   {
    "kind": "filler",
@@ -98232,7 +98441,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#53"
+   "key": "unit|fill#57"
   },
   {
    "kind": "filler",
@@ -98262,7 +98471,37 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#54"
+   "key": "unit|fill#58"
+  },
+  {
+   "kind": "filler",
+   "vertical": true,
+   "a": [
+    179590.1922,
+    576242.4778
+   ],
+   "b": [
+    179590.1623,
+    576242.4038
+   ],
+   "normal": [
+    -0.9273,
+    0.3744
+   ],
+   "z0": -0.5,
+   "z1": -0.48,
+   "length": 0.08,
+   "area": 0,
+   "net": 0,
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "type": "exterior",
+   "defaultType": "exterior",
+   "overridden": false,
+   "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
+   "source": "tools/finishes/flatten.py fillers()",
+   "key": "ground|fill#59"
   },
   {
    "kind": "filler",
@@ -98292,7 +98531,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#55"
+   "key": "site|fill#60"
   },
   {
    "kind": "filler",
@@ -98322,7 +98561,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#56"
+   "key": "roof|fill#61"
   },
   {
    "kind": "filler",
@@ -98352,7 +98591,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#57"
+   "key": "site|fill#62"
   },
   {
    "kind": "filler",
@@ -98382,7 +98621,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#58"
+   "key": "site|fill#63"
   },
   {
    "kind": "filler",
@@ -98412,7 +98651,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#59"
+   "key": "roof|fill#64"
   },
   {
    "kind": "filler",
@@ -98442,7 +98681,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#60"
+   "key": "roof|fill#65"
   },
   {
    "kind": "filler",
@@ -98472,7 +98711,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#61"
+   "key": "roof|fill#66"
   },
   {
    "kind": "filler",
@@ -98502,7 +98741,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#62"
+   "key": "unit|fill#67"
   },
   {
    "kind": "filler",
@@ -98532,7 +98771,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#63"
+   "key": "unit|fill#68"
   },
   {
    "kind": "filler",
@@ -98562,7 +98801,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#64"
+   "key": "unit|fill#69"
   },
   {
    "kind": "filler",
@@ -98592,7 +98831,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#65"
+   "key": "ground|fill#70"
   },
   {
    "kind": "filler",
@@ -98622,7 +98861,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#66"
+   "key": "unit|fill#71"
   },
   {
    "kind": "filler",
@@ -98652,7 +98891,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#67"
+   "key": "ground|fill#72"
   },
   {
    "kind": "filler",
@@ -98682,7 +98921,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#68"
+   "key": "unit|fill#73"
   },
   {
    "kind": "filler",
@@ -98712,7 +98951,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#69"
+   "key": "unit|fill#74"
   },
   {
    "kind": "filler",
@@ -98742,7 +98981,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#70"
+   "key": "roof|fill#75"
   },
   {
    "kind": "filler",
@@ -98772,7 +99011,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#71"
+   "key": "ground|fill#76"
   },
   {
    "kind": "filler",
@@ -98802,7 +99041,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#72"
+   "key": "site|fill#77"
   },
   {
    "kind": "filler",
@@ -98832,7 +99071,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#73"
+   "key": "site|fill#78"
   },
   {
    "kind": "filler",
@@ -98862,7 +99101,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#74"
+   "key": "site|fill#79"
   },
   {
    "kind": "filler",
@@ -98892,7 +99131,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#75"
+   "key": "site|fill#80"
   },
   {
    "kind": "filler",
@@ -98922,7 +99161,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#76"
+   "key": "site|fill#81"
   },
   {
    "kind": "filler",
@@ -98952,7 +99191,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#77"
+   "key": "ground|fill#82"
   },
   {
    "kind": "filler",
@@ -98982,7 +99221,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#78"
+   "key": "ground|fill#83"
   },
   {
    "kind": "filler",
@@ -99012,7 +99251,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#79"
+   "key": "ground|fill#84"
   },
   {
    "kind": "filler",
@@ -99042,7 +99281,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#80"
+   "key": "unit|fill#85"
   },
   {
    "kind": "filler",
@@ -99072,7 +99311,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#81"
+   "key": "unit|fill#86"
   },
   {
    "kind": "filler",
@@ -99102,7 +99341,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#82"
+   "key": "unit|fill#87"
   },
   {
    "kind": "filler",
@@ -99132,7 +99371,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#83"
+   "key": "unit|fill#88"
   },
   {
    "kind": "filler",
@@ -99162,7 +99401,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#84"
+   "key": "unit|fill#89"
   },
   {
    "kind": "filler",
@@ -99192,7 +99431,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#85"
+   "key": "roof|fill#90"
   },
   {
    "kind": "filler",
@@ -99222,7 +99461,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#86"
+   "key": "ground|fill#91"
   },
   {
    "kind": "filler",
@@ -99252,7 +99491,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#87"
+   "key": "ground|fill#92"
   },
   {
    "kind": "filler",
@@ -99282,7 +99521,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#88"
+   "key": "ground|fill#93"
   },
   {
    "kind": "filler",
@@ -99312,7 +99551,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#89"
+   "key": "ground|fill#94"
   },
   {
    "kind": "filler",
@@ -99342,7 +99581,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#90"
+   "key": "ground|fill#95"
   },
   {
    "kind": "filler",
@@ -99372,7 +99611,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#91"
+   "key": "ground|fill#96"
   },
   {
    "kind": "filler",
@@ -99402,7 +99641,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#92"
+   "key": "unit|fill#97"
   },
   {
    "kind": "filler",
@@ -99432,7 +99671,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#93"
+   "key": "ground|fill#98"
   },
   {
    "kind": "filler",
@@ -99462,7 +99701,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#94"
+   "key": "ground|fill#99"
   },
   {
    "kind": "filler",
@@ -99492,7 +99731,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#95"
+   "key": "first|fill#100"
   },
   {
    "kind": "filler",
@@ -99522,7 +99761,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#96"
+   "key": "first|fill#101"
   },
   {
    "kind": "filler",
@@ -99552,7 +99791,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#97"
+   "key": "ground|fill#102"
   },
   {
    "kind": "filler",
@@ -99582,7 +99821,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#98"
+   "key": "unit|fill#103"
   },
   {
    "kind": "filler",
@@ -99612,7 +99851,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#99"
+   "key": "ground|fill#104"
   },
   {
    "kind": "filler",
@@ -99642,7 +99881,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#100"
+   "key": "ground|fill#105"
   },
   {
    "kind": "filler",
@@ -99672,7 +99911,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#101"
+   "key": "unit|fill#106"
   },
   {
    "kind": "filler",
@@ -99702,7 +99941,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#102"
+   "key": "unit|fill#107"
   },
   {
    "kind": "filler",
@@ -99732,7 +99971,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#103"
+   "key": "unit|fill#108"
   },
   {
    "kind": "filler",
@@ -99762,7 +100001,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#104"
+   "key": "ground|fill#109"
   },
   {
    "kind": "filler",
@@ -99792,7 +100031,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#105"
+   "key": "ground|fill#110"
   },
   {
    "kind": "filler",
@@ -99822,7 +100061,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#106"
+   "key": "ground|fill#111"
   },
   {
    "kind": "filler",
@@ -99852,7 +100091,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#107"
+   "key": "ground|fill#112"
   },
   {
    "kind": "filler",
@@ -99882,7 +100121,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "site|fill#108"
+   "key": "site|fill#113"
   },
   {
    "kind": "filler",
@@ -99912,7 +100151,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#109"
+   "key": "unit|fill#114"
   },
   {
    "kind": "filler",
@@ -99942,7 +100181,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#110"
+   "key": "unit|fill#115"
   },
   {
    "kind": "filler",
@@ -99972,7 +100211,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#111"
+   "key": "unit|fill#116"
   },
   {
    "kind": "filler",
@@ -100002,7 +100241,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "unit|fill#112"
+   "key": "unit|fill#117"
   },
   {
    "kind": "filler",
@@ -100032,7 +100271,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#113"
+   "key": "first|fill#118"
   },
   {
    "kind": "filler",
@@ -100062,7 +100301,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#114"
+   "key": "ground|fill#119"
   },
   {
    "kind": "filler",
@@ -100092,7 +100331,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#115"
+   "key": "ground|fill#120"
   },
   {
    "kind": "filler",
@@ -100122,7 +100361,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#116"
+   "key": "first|fill#121"
   },
   {
    "kind": "filler",
@@ -100152,7 +100391,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#117"
+   "key": "first|fill#122"
   },
   {
    "kind": "filler",
@@ -100182,7 +100421,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#118"
+   "key": "first|fill#123"
   },
   {
    "kind": "filler",
@@ -100212,7 +100451,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#119"
+   "key": "ground|fill#124"
   },
   {
    "kind": "filler",
@@ -100242,7 +100481,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#120"
+   "key": "first|fill#125"
   },
   {
    "kind": "filler",
@@ -100272,7 +100511,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#121"
+   "key": "ground|fill#126"
   },
   {
    "kind": "filler",
@@ -100302,7 +100541,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#122"
+   "key": "first|fill#127"
   },
   {
    "kind": "filler",
@@ -100332,7 +100571,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#123"
+   "key": "ground|fill#128"
   },
   {
    "kind": "filler",
@@ -100362,7 +100601,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "ground|fill#124"
+   "key": "ground|fill#129"
   },
   {
    "kind": "filler",
@@ -100392,7 +100631,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#125"
+   "key": "first|fill#130"
   },
   {
    "kind": "filler",
@@ -100422,7 +100661,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#126"
+   "key": "first|fill#131"
   },
   {
    "kind": "filler",
@@ -100452,7 +100691,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#127"
+   "key": "first|fill#132"
   },
   {
    "kind": "filler",
@@ -100482,7 +100721,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "first|fill#128"
+   "key": "first|fill#133"
   },
   {
    "kind": "filler",
@@ -100512,7 +100751,7 @@
    "overridden": false,
    "typeReason": "מילוי תצוגה – סדק של מ\"מ בין שני משטחים (לא בכמויות)",
    "source": "tools/finishes/flatten.py fillers()",
-   "key": "roof|fill#129"
+   "key": "roof|fill#134"
   }
  ],
  "waterproofing": [
@@ -102046,7 +102285,7 @@
  ],
  "totals": {
   "unit|exterior": {
-   "net": 77.147,
+   "net": 77.174,
    "scaffold": 0.0
   },
   "unit|interior": {
@@ -102066,7 +102305,7 @@
    "scaffold": 0.0
   },
   "ground|exterior": {
-   "net": 233.118,
+   "net": 233.128,
    "scaffold": 44.01
   },
   "first|interior": {

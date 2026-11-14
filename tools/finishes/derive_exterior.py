@@ -106,7 +106,7 @@ def concrete_tops():
     BL = J('data/architecture/blocks.json')['walls']
     block = [LineString([w['axisITM'][0], w['axisITM'][-1]]).buffer(w['thickness_m'] / 2, cap_style=2, join_style=2) for w in BL if w['floor'] == 'ground' and w.get('axisITM')]
     rooms = [Polygon(r['ringITM']) for r in J('data/architecture/rooms.json')['rooms'] if r['floor'] == 'ground' and len(r['ringITM']) > 2]
-    taken = unary_union([SL[k] for k in SL if k in BU['slabs']] + [Polygon(w['footprintITM'], w.get('holesITM') or []) for w in GF['walls']]
+    taken = unary_union([SL[k] for k in SL if k in BU['slabs']] + [Polygon(w['footprintITM'], w.get('holesITM') or []) for w in GF['walls'] + GF['columns'] if w.get('footprintITM')]
                         + [Polygon(w['ringITM']) for w in J('data/structure/perimeter.json')['walls']]
                         + [Polygon(z['footprintITM']) for z in GF['openZones']] + block + rooms)
     out = []

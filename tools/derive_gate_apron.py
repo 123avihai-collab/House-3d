@@ -132,7 +132,7 @@ out = {
     'material': 'envDriveway', 'paver': {'name': 'אבן משתלבת "מלבן" אפור גרפיט 15/30/7', 'thickness_m': 0.07, 'status': 'source',
                                           'source': 'נספח פרטי פיתוח 003, פרט 10 – "ריצוף בכניסות לחניות, מגרשי בנה ביתך": בתוך המגרש "מלבן" אפור גרפיט 15/30/7; בקו המגרש אבן גן "רמות" (docs/sources-inventory/neighborhood.md ש4)'},
     'layers': [{'id': 'paver', 'label': 'אבן משתלבת 7 ס"מ', 'thickness_m': 0.07, 'status': 'source'},
-               {'id': 'sand', 'label': 'מצע חול', 'thickness_m': None, 'status': 'provisional', '_doc': 'אין פרט שכבות בנספח (פרט 10 הוא תוכנית) – open-issues #217'},
+               {'id': 'sand', 'label': 'מצע חול', 'thickness_m': None, 'status': 'provisional', '_doc': 'אין פרט שכבות בנספח (פרט 10 הוא תוכנית) – open-issues #218'},
                {'id': 'base', 'label': 'מצע מהודק', 'thickness_m': None, 'status': 'provisional'}],
     'status': 'provisional',
 }

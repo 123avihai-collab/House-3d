@@ -99,7 +99,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       const tl = z.r.layers.find(l => l.id === 'extTile'), st = z.r.layers.reduce((a2, l) => a2 + (l.dz0 != null ? l.thickness_m : 0), 0);
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
     }
-    r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile').length;
+    r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile' && !i.meta.variant).length;   // a follower (OC-13 walkway on the exterior grid) – checked apart
     // step fronts (exterior.json risers): built, cut where the tile joints of the higher zone cross the edge (all zones tiled here)
     r.risers = { want: (a.modules.finishes.EX?.risers || []).length, items: a.registry.items.filter(i => i.meta.kind === 'riserTiles').length, ...(a.modules.finishes.riserStats || {}) };
     // tiled outdoor stairs (exterior.json stairs): one item per stair, a piece on every tread and riser, the finish on the source levels

@@ -1301,12 +1301,23 @@ for cid, g in OCG.items():
             for zz, gp in zip(PAVE.zones, PAVE.polys):
                 if gp.distance(R) < 0.05 and zz.get('finishMax') is not None:
                     occ.append(dict(kind='floor', P=prep(gp), poly=gp, bottom=min([zz['slabTop']] + [q['slabTop'] for q in zz.get('slabParts') or []]), top=zz['finishMax'], id=zz['room']))
-            floor_ = dict(room=f"{T0['room']}#{e['id']}", follow=T0['room'], floor=T0['floor'], roomName=f"{e['label']} ({cid})", zoneName=f"{e['label']} ({cid})",
+            # the build-up: the room's own (default), or the exterior paving one (Avihai 14.11.2026 – the walkway is outside):
+            # fixed layers from the finish down, the slope fill takes the rest (flat here – no slope in the sources)
+            if rule.get('buildUp') == 'exterior':
+                XB = J('data/finishes/floors/exterior-buildup.json')['layers']; zc = z1; lays = []
+                for l in reversed(XB):
+                    th = l['thickness_m'] if l['thickness_m'] is not None else (zc - tz)
+                    lays.insert(0, dict(id=l['id'], z0=r3(zc - th), z1=r3(zc), thickness_m=r3(th), status=l['status'])); zc -= th
+                follow = J('data/finishes/tiling/catalog.json')['gridGroups'][rule['grid']]['master']
+            else:
+                lays, follow = [dict(l) for l in T0['layers']], T0['room']
+            floor_ = dict(room=f"{T0['room']}#{e['id']}", follow=follow, grid=rule.get('grid'), floor=T0['floor'], roomName=f"{e['label']} ({cid})", zoneName=f"{e['label']} ({cid})",
                           roomType=T0['roomType'], area=r3(F_.area), void_m2=0, slabTop=tz, finishRel=z1, buildUp_m=r3(z1 - tz), skirting_m=0, wallTiling=None,
                           parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(F_.exterior.coords)[:-1]], holesITM=[])],
                           ringITM=[[r3(x), r3(y)] for x, y in list(F_.exterior.coords)[:-1]],
-                          layers=[dict(l) for l in T0['layers']], tileType=None, status='provisional', variant=var, proposal=True,
-                          source=f"{e['source']}; שכבות ומפלסים כמו {T0['roomName'] or T0['room']} ({T0['room']}) – data/finishes/tiling/surfaces.json; הריצוף על רשת האזור (הפוגות ממשיכות) – הנחיית אביחי 14.11.2026")
+                          layers=lays, tileType=None, status='provisional', variant=var, proposal=True,
+                          source=f"{e['source']}; פני הריצוף כמו {T0['roomName'] or T0['room']} ({T0['room']}, סף G08) – data/finishes/tiling/surfaces.json; "
+                                 + ("שכבות ריצוף החוץ (data/finishes/floors/exterior-buildup.json), הריצוף על הרשת המשותפת של ריצוף החוץ – הנחיית אביחי 14.11.2026" if rule.get('buildUp') == 'exterior' else "שכבות החדר, הריצוף על רשת האזור (הפוגות ממשיכות) – הנחיית אביחי 14.11.2026"))
             if abs(T0['slabTop'] - tz) > 0.005: raise SystemExit(f"{e['id']}: walkway top {tz} != slab of {T0['room']} {T0['slabTop']}")
             PROPOSAL_ROOMS.append(floor_)
         sides = free_sides(R, z0, z1, occ)

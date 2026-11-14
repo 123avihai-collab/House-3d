@@ -284,6 +284,18 @@ export class UI {
     const colors = Object.fromEntries(app.data.tags.systems.map(x => [x.id, x.color]));
     const setLayers = (patch, label = 'layers') => app.store.set({ layers: { ...app.store.get().layers, ...patch } }, { label });
     const hidden = (id) => !!P?.hidden(id);
+    // a layer that is on but shows nothing (Avihai 14.11.2026 – "דלוק ולא רואים"): why – its floor hidden, the construction
+    // step slider before its step, or a system filter – and the patch that brings it back
+    const blocked = (id, st = app.store.get()) => {
+      const its = app.registry.items.filter(i => i.tags.layer === id); if (!its.length || its.some(i => i.object.visible)) return null;
+      const why = [], patch = {};
+      const fl = [...new Set(its.map(i => i.tags.floor))].filter(f => st.floors[f] && st.floors[f].visible === false);
+      if (fl.length) { why.push('הקומה ' + fl.map(f => `"${app.data.tags.floors.find(x => x.id === f)?.label || f}"`).join(', ') + ' מוסתרת'); patch.floors = { ...st.floors, ...Object.fromEntries(fl.map(f => [f, { ...st.floors[f], visible: true }])) }; }
+      const from = Math.min(...its.map(i => app.registry.range(i.tags)[0]));
+      if (st.stageIndex < from) { why.push(`סרגל השלבים לפני שלב "${app.data.tags.sequence[from]?.label || ''}"`); patch.stageIndex = app.data.tags.sequence.length - 1; }
+      if (st.systemFilter && !its.some(i => st.systemFilter.includes(i.tags.system))) { why.push('מסנן מערכות פעיל'); patch.systemFilter = null; }
+      return why.length ? { why, patch } : null;
+    };
     const implLayers = (g) => g.implemented ? g.layers.filter(l => l.implemented !== false && !hidden(l.id)) : [];
     const groups = app.data.layers.groups.filter(g => implLayers(g).length);
     const waiting = app.data.layers.groups.filter(g => !implLayers(g).length && !g.layers.every(l => hidden(l.id)));
@@ -347,10 +359,12 @@ export class UI {
           h('button', { class: s.proposals ? 'on' : '', onclick: () => app.proposals.setMode(true) }, 'מצב הצעות')),
         h('button', { class: 'small', onclick: () => this.openTab('notes') }, 'רשימת השינויים')));
       if (['plaster', 'tilingInterior', 'tilingExterior', 'waterproofingGroup'].includes(g.id) && app.modules?.finishes?.controls) box.append(app.modules.finishes.controls(g.id));
+      const blk = {};
       for (const l of L) {
         const on = s.layers[l.id] !== false; const lblOff = !!(s.labelsOff || {})[l.id]; const fresh = P?.isNew(l.id);
         box.append(h('div', { class: 'row lrow' + (on ? ' on' : '') },
-          h('label', {}, h('input', { type: 'checkbox', checked: on, onchange: (e) => { P?.markSeen(l.id); setLayers({ [l.id]: e.target.checked }, 'layer'); } }), l.label,
+          h('label', {}, h('input', { type: 'checkbox', checked: on, onchange: (e) => { P?.markSeen(l.id); setLayers({ [l.id]: e.target.checked }, 'layer');
+            if (e.target.checked) { const b = blocked(l.id); if (b) { app.store.set(b.patch, { label: 'layer' }); this.toast(`"${l.label}" לא נראתה (${b.why.join('; ')}) – תוקן`); this.refreshPanel('layers'); } } } }), l.label,
             fresh ? h('b', { class: 'newtag', title: 'שכבה שנוספה אחרי התצוגה השמורה – כבויה עד שתסמן' }, 'חדש') : ''),
           h('button', { class: 'tagbtn' + (lblOff ? ' off' : ''), title: lblOff ? 'הצג תוויות וקווי סימון' : 'הסתר תוויות וקווי סימון (הרכיבים נשארים)',
             onclick: () => app.store.set({ labelsOff: { ...(s.labelsOff || {}), [l.id]: !lblOff } }, { label: 'labels' }) }, '🏷'),
@@ -358,7 +372,13 @@ export class UI {
             h('div', { class: 'lmenu' },
               h('button', { class: 'small', onclick: () => { P.bin(l.id); this.toast(`"${l.label}" הועברה ל"מוסתרות"`); this.refreshPanel('layers'); } }, 'העבר ל"מוסתרות"'),
               h('button', { class: 'small x', onclick: async () => { if (await askConfirm(`להסיר את "${l.label}" מהמודל שלך? (הנתונים לא נמחקים – אפשר להחזיר ב"תצוגה ← הגדרות")`, { ok: 'הסר', danger: true })) { P.drop(l.id); this.refreshPanel('layers'); } } }, 'הסר מהמודל'))) : ''));
+        const bl = on ? blocked(l.id, s) : null;
+        if (bl) { const k = bl.why.join('; '), e = (blk[k] ||= { why: k, patch: {}, names: [] }); e.names.push(l.label); Object.assign(e.patch, bl.patch); }
       }
+      // one note per reason, above the list (not one per row)
+      const notes = Object.values(blk).map(e => h('div', { class: 'warn lblocked' }, `⚠ ${e.names.length === 1 ? `"${e.names[0]}" דלוקה` : `${e.names.length} שכבות דלוקות`} אבל לא נראות: ${e.why}. `,
+        h('button', { class: 'small primary', onclick: () => { app.store.set(e.patch, { label: 'layer' }); this.refreshPanel('layers'); } }, 'להציג')));
+      if (notes.length) { const first = box.querySelector('.lrow'); notes.forEach(n => first ? box.insertBefore(n, first) : box.append(n)); }
       if (L.some(l => P?.isNew(l.id))) box.append(h('button', { class: 'small', onclick: () => { P.markSeen(L.map(l => l.id)); this.refreshPanel('layers'); } }, 'סמן כנקרא (בלי "חדש")'));
     }
     wrap.append(box);

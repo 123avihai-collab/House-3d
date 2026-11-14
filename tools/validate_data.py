@@ -141,6 +141,7 @@ if 'frontStreet' in D:
     for z in F['zones']:
         if 'source' not in z: errors.append(f'frontStreet zone {z["id"]} without source')
         if z['heights'] == 'derived' and z.get('heightStatus') != 'provisional': errors.append(f'frontStreet zone {z["id"]} derived heights not provisional')
+    if F.get('ownerLevels') and F['ownerLevels'].get('status') != 'owner': errors.append('frontStreet ownerLevels without owner status')
     if F['edgeStone'].get('status') != 'provisional': errors.append('frontStreet edge stone reveal is not in the sources – must stay provisional')
     if abs(F['section']['measuredWidth_m'] - F['section']['total_m']) > 0.05: errors.append('frontStreet width differs from the typical section')
     if abs(F['elevation']['chainOrigin']['endCheck']['deviation_m']) > 0.05: errors.append('frontStreet elevation chain does not close on corner 2420')

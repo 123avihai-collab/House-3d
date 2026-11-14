@@ -24,13 +24,29 @@ export function buildFrontStreet(ctx) {
   const dCtrl = (data.envStreets?.derivedHeightControl?.points || []).map(p => ({ x: p.E, y: p.N, z: p.z })).concat(ctrl);
   const dInterp = makeInterpolator(dCtrl);
   const frame = data.envStreets.frameITM, inFrame = (E, N) => pin(E, N, frame);
-  const hAt = (E, N) => (inFrame(E, N) ? interp(E, N) : dInterp(E, N));
+  // owner decision (F.ownerLevels): + (architect line − DWG) on the lot line, fading linearly to 0 at the far lot line
+  const OL = F.ownerLevels, fl0 = F.frontLine.points, sOff = F.frontLine.s2457_on_line;
+  const flCum = [0]; for (let i = 1; i < fl0.length; i++) flCum.push(flCum[i - 1] + Math.hypot(fl0[i][0] - fl0[i - 1][0], fl0[i][1] - fl0[i - 1][1]));
+  const project = (E, N) => {   // -> [s from 2457, distance toward the street]
+    let best = null;
+    for (let i = 0; i < fl0.length - 1; i++) {
+      const [ax, ay] = fl0[i], [bx, by] = fl0[i + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+      const t = Math.max(0, Math.min(1, ((E - ax) * dx + (N - ay) * dy) / L2)), px = ax + dx * t, py = ay + dy * t, d2 = (E - px) ** 2 + (N - py) ** 2;
+      if (!best || d2 < best.d2) { const L = Math.sqrt(L2); best = { d2, s: flCum[i] + t * L - sOff, side: ((E - ax) * dy - (N - ay) * dx) / L }; }
+    }
+    return [best.s, Math.max(0, best.side)];
+  };
+  const deltaAt = (s) => { const P = OL.points; if (s <= P[0].s) return P[0].delta; if (s >= P[P.length - 1].s) return P[P.length - 1].delta;
+    let i = 1; while (P[i].s < s) i++; const f = (s - P[i - 1].s) / (P[i].s - P[i - 1].s); return P[i - 1].delta + (P[i].delta - P[i - 1].delta) * f; };
+  const lift = (f) => !OL ? f : (E, N) => { const [s, d] = project(E, N); return f(E, N) + deltaAt(s) * Math.max(0, 1 - d / OL.taperWidth_m); };
+  const interpO = lift(interp), dInterpO = lift(dInterp);
+  const hAt = (E, N) => (inFrame(E, N) ? interpO(E, N) : dInterpO(E, N));
   const X = (E) => E - coords.E0, Z = (N) => -(N - coords.N0), Y = (H) => H - coords.H0;
   // pavers laid along the street: rotate the metre UVs by the street direction
   const ang = -F.displayAngle_deg * Math.PI / 180, ca = Math.cos(ang), sa = Math.sin(ang);
   const alongStreet = (g) => { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) { const u = uv.getX(i), v = uv.getY(i); uv.setXY(i, u * ca - v * sa, u * sa + v * ca); } return g; };
   const top = (ring, f, lift = 0) => { const g = regionMesh(ring, f, coords, materials.get('envFsWalk'), null, T, []).children[0].geometry; g.translate(0, lift, 0); return alongStreet(g); };
-  const fn = (hs) => (hs === 'derived' ? dInterp : interp);
+  const fn = (hs) => (hs === 'derived' ? dInterpO : interpO);
   const add = (geos, mat, layer, meta, cast = false) => {
     const gs = geos.filter(Boolean); if (!gs.length) return null;
     const m = new THREE.Mesh(mergeGeometries(gs, false), mat); m.receiveShadow = true; m.castShadow = cast;
@@ -52,11 +68,12 @@ export function buildFrontStreet(ctx) {
     const geos = zs.map(z => top(z.ring, fn(hs), D.paveLift_m));
     const labels = [...new Set(zs.map(z => z.label))];
     add(geos, materials.get(mat), 'frontStreet', {
-      name: `רחוב בחזית – ${labels.join(' / ')}${hs === 'derived' ? ' (גובה משוער)' : ''}`, kind: 'street', role: 'frontStreet', provisional: hs === 'derived',
+      name: `רחוב בחזית – ${labels.join(' / ')}${hs === 'derived' ? ' (גובה משוער)' : ''}`, kind: 'street', role: 'frontStreet', provisional: hs === 'derived' || !!OL,
       rows: [...zs.map(z => [z.label, `${z.from_m.toFixed(2)}–${z.to_m.toFixed(2)} מ' מקו המגרש · ${z.area_m2.toFixed(1)} מ"ר`]),
-        ['גבהים', hs === 'derived' ? 'משוער – מחוץ למסגרת המפה למשתכן (אינטרפולציה מקצות המגרשים, docs/open-issues.md E1)' : 'המפה למשתכן – קווי גובה מתוכננים + "גובה מתוכנן מדרכה"'],
+        ['גבהים', (hs === 'derived' ? 'בסיס משוער – מחוץ למסגרת המפה למשתכן (E1)' : 'בסיס: המפה למשתכן – קווי גובה מתוכננים + "גובה מתוכנן מדרכה"') + (OL ? `; מוגבה לפי קו האדריכל בחזית (עד ${Math.round(Math.max(...OL.points.map(p => p.delta)) * 100)} ס"מ בקו המגרש, יורד ל-0 בצד הנגדי)` : '')],
+        ...(OL ? [['החלטה', OL.decision]] : []),
         ['ריצוף', mat === 'envFsLane' ? 'אבן משתלבת "מלבן" שחור 20/8/10 (נספח 003 פרט 14)' : F.materials.street], ...secRows],
-      note: hs === 'derived' ? 'גובה משוער – מסומן זמני' : null, source: zs[0].source,
+      note: [hs === 'derived' ? 'גובה משוער – מסומן זמני' : null, OL ? 'מפלס לפי קו האדריכל – לבדיקה מול האדריכל (FS1)' : null].filter(Boolean).join(' · ') || null, source: zs[0].source,
     });
   }
   // ---------------- drainage channel ----------------
@@ -117,7 +134,7 @@ export function buildFrontStreet(ctx) {
       `חזית החומה הקדמית: ${m.label}${m.note ? ` – ${m.note}` : ''}\nשרשרת ${m.chain.toFixed(2)} מ' (s=${m.s.toFixed(2)} מ' מ-2457)${cmp}`));
   }
   registry.add(pg, tags('frontStreetProfile'), {
-    name: 'קו הרחוב לפי חזית החומה הקדמית (להשוואה)', kind: 'lines', provisional: true,
+    name: OL ? 'קו הרחוב לפי חזית החומה הקדמית (הרחוב בנוי לפיו)' : 'קו הרחוב לפי חזית החומה הקדמית (להשוואה)', kind: 'lines', provisional: true,
     rows: [['קנ"מ', F.elevation.scaleCheck], ['ראשית השרשרת', `${F.elevation.chainOrigin.rule}; סוף השרשרת מול 2420: ${(F.elevation.chainOrigin.endCheck.deviation_m * 100).toFixed(1)} ס"מ`],
       ['מול המפה למשתכן', `סטייה מרבית ${(F.profile.maxDiff_m * 100).toFixed(0)} ס"מ, ממוצעת ${(F.profile.meanDiff_m * 100).toFixed(0)} ס"מ (החזית גבוהה יותר באמצע) – docs/open-issues.md FS1`],
       ...F.elevation.levelMarks.map(m => [m.label, m.kind === 'lotFront' ? 'רצפת החניה / מפלס המגרש בחזית' : `המפה למשתכן ${m.dwg.toFixed(2)} (${m.diff >= 0 ? '+' : ''}${(m.diff * 100).toFixed(0)} ס"מ)`])],

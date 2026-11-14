@@ -4,6 +4,7 @@ import { TilingWorkshop } from '../tiling/workshop.js';
 import { surfaceZ, gridPieces } from '../tiling/layout.js';
 import { Hatches } from '../tiling/hatches.js';
 import { PoolFinish } from '../tiling/pool.js';
+import { buildStoneCladding } from './stone.js';
 
 // Finishes layer (separate module): cement plaster (one light grey – the plaster stage, not the finish), reveals and
 // exposed beams, waterproofing of the wet rooms, the floor build-up (fill / screed / adhesive / tile placeholder),
@@ -554,6 +555,10 @@ class Finishes {
   buildCladding() {
     for (const k of this.CL?.kinds || []) {
       const it = this.CL.items.filter(x => x.kind === k.id); if (!it.length) continue;
+      if (k.id === 'claddingStone' && this.ctx.data.claddingStone) {   // real stones (src/finishes/stone.js, data/finishes/cladding/stone.json)
+        for (const [m, meta] of buildStoneCladding(this, it)) this.add(m, { floor: 'site', step: 'cladding', layer: k.id }, meta);
+        continue;
+      }
       const pts = [], map = [];
       for (const x of it) { const t = this.wallTris(x, this.D.offset_m * 2, x.z0, x.z1, []); for (const p of t) pts.push(p); for (let i = 0; i < t.length; i += 3) map.push('clad:' + x.owner); }
       const m = this.mesh(pts, map, this.mat(k.color || '#b9ad9a'));

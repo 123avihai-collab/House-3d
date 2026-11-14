@@ -72,6 +72,7 @@ class Finishes {
       ...(P.reveals || []).map(s => ({ ...s, cat: 'reveal', amount: s.area })),
       ...(P.beams || []).map(s => ({ ...s, cat: 'beam', amount: s.area })),
       ...(P.proposalBeams || []).map(s => ({ ...s, cat: 'beam', amount: 0 })),   // ק76: a proposed beam (owner change) – shown with the change on, not in the quantities
+      ...(P.proposalElements || []).map(s => ({ ...s, cat: 'beam', amount: 0 })),   // OC-12 fins / OC-13 walkway (14.11.2026): exterior plaster, with the proposal only
       ...(P.patches || []).map(s => ({ ...s, cat: 'patch', amount: s.area })),   // round 4: the exposed skin nothing else covers (tools/finishes/skin.py)
       ...(P.fillers || []).map(s => ({ ...s, cat: 'filler', amount: 0 })),       // display only: mm slits between pieces (tools/finishes/flatten.py)
     ];
@@ -223,6 +224,7 @@ class Finishes {
   overheadOf(s) {
     if (s.cat === 'ceiling') return { key: 'z' + s.z.toFixed(3), z: s.z };
     if (s.cat === 'patch' && !s.vertical && !s.up && s.part === 'soffit') return { key: 'z' + s.z.toFixed(3), z: s.z };
+    if (s.cat === 'beam' && s.element) return null;   // an owner-change element (OC-12 / OC-13): its own concrete, shown with it
     if (s.cat === 'beam') return { key: 'b' + s.beam + '@' + s.bottom.toFixed(3), beam: s.beam, bottom: s.bottom, top: s.top, z: s.bottom };
     return null;
   }
@@ -377,10 +379,12 @@ class Finishes {
   buildFloors() {
     const byLayer = {}; const n0 = this.items.length;
     const step = this.ctx.data.display.tiling?.exteriorGrid_m ?? 0.5;
-    for (const r of [...this.TL.rooms, ...(this.EX?.rooms || [])]) for (const l of r.layers || []) for (const p of r.parts) {
+    // + the floor on an owner-change element (OC-13 walkway – surfaces.json proposalRooms): its own items, shown with the proposal
+    for (const r of [...this.TL.rooms, ...(this.EX?.rooms || []), ...(this.TL.proposalRooms || [])]) for (const l of r.layers || []) for (const p of r.parts) {
       if (r.hatch) continue;   // a hatch lid: its tray is drawn by src/tiling/hatches.js, its tiles by the workshop
       if ((l.id === 'floorTile' || l.id === 'extTile') && this.tiling?.has(r.room)) continue;   // tiles chosen in the workshop – drawn by src/tiling instead of the placeholder
-      const g = byLayer[l.id + '|' + r.floor] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set(), outdoor: !!r.outdoor };
+      const vk = r.variant ? `|${r.variant.change}:${r.variant.show}` : '';
+      const g = byLayer[l.id + '|' + r.floor + vk] ||= { l, fl: r.floor, pts: [], map: [], rooms: new Set(), outdoor: !!r.outdoor, variant: r.variant };
       const z0 = this.layerZ(r, l, 'z0'), z1 = this.layerZ(r, l, 'z1');
       const at = (z, E, N) => typeof z === 'function' ? z(E, N) : z;
       const tris = (z) => r.zAt ? this.slopedTris(p.ringITM, p.holesITM, z) : this.ringTris(p.ringITM, p.holesITM, z);
@@ -414,13 +418,14 @@ class Finishes {
       }
       const grp = new THREE.Group(); grp.add(m);
       if (!d.color) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry, 30), new THREE.LineBasicMaterial({ color: '#90a4ae' })); e.userData.keep = true; grp.add(e); }
-      const rs = [...this.TL.rooms, ...(this.EX?.rooms || [])].filter(r => g.rooms.has(r.room)), area = rs.reduce((a, r) => a + r.area, 0);
+      const rs = [...this.TL.rooms, ...(this.EX?.rooms || []), ...(this.TL.proposalRooms || [])].filter(r => g.rooms.has(r.room) && !!r.variant === !!g.variant), area = rs.reduce((a, r) => a + r.area, 0);
       const ls = rs.map(r => r.layers.find(x => x.id === g.l.id)), vol = rs.reduce((a, r, i) => a + r.area * ls[i].thickness_m, 0);
       const thick = g.outdoor && d.thickness_m == null ? `${f2(Math.min(...ls.map(x => x.min_m)) * 100)}–${f2(Math.max(...ls.map(x => x.max_m)) * 100)} ס"מ, ממוצע ${f2(vol / area * 100)} (משתנה לאורך השיפוע – זמני)`
         : `${f2(g.l.thickness_m * 100)} ס"מ (${d.status === 'placeholder' ? 'מקום שמור' : 'זמני'})`;
       this.add(grp, { floor: g.fl, step: 'tiling', layer: g.l.id }, {
-        name: `${d.label} – ${g.outdoor ? 'חוץ' : FLOOR_HE[g.fl]}`, kind: 'floorLayer', id: g.l.id + '-' + g.fl,
-        rows: [['שכבה', d.label], ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
+        name: `${d.label} – ${g.outdoor ? 'חוץ' : FLOOR_HE[g.fl]}${g.variant ? ` (${rs[0]?.roomName || 'הצעה ' + g.variant.change})` : ''}`, kind: 'floorLayer',
+        id: g.l.id + '-' + g.fl + (g.variant ? '-' + g.variant.change : ''), ...(g.variant ? { variant: g.variant, status: 'provisional' } : {}),
+        rows: [['שכבה', d.label], ...(g.variant ? [['הצעה', `${g.variant.change} – לא בכמויות; ${rs[0]?.source || ''}`]] : []), ['שטח', `${f2(area)} מ"ר`], ['עובי', thick],
           ['נפח', `${f2(vol)} מ"ק`], ['סדר', g.outdoor ? 'רצפת בטון → בטון שיפועים → איטום → דבק → אריח חוץ' : 'יציקה → סומסום → טיט / מדה → דבק → אריח'],
           ...(g.outdoor ? [['אזורים', rs.map(r => `${r.roomName} (${r.slab})`).join(' · ')], ['מצב', '⚠ זמני – אין פרט ריצוף / איטום חוץ במקורות (open-issues #170, #200)'],
             ...rs.filter(r => r.change).map(r => [`🔴 ${r.change}`, `${r.roomName} (${r.slab}): ${r.changeReason}`]),

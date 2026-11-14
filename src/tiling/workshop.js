@@ -56,6 +56,12 @@ export class TilingWorkshop {
         zTop: r.zAt ? (E, N) => r.zAt(E, N) + tileLayer.dz1 : () => tileLayer.z1 };   // top of the tile at (E, N)
     });
     this.zoneBy = Object.fromEntries(this.zones.map(z => [z.key, z]));
+    // followers: the floor on an owner-change element (OC-13 walkway – surfaces.json proposalRooms, Avihai 14.11.2026) – not a zone
+    // of its own: the tile, joint and grid of the zone it opens from (follow), laid on that zone's frame so the joints continue
+    this.followers = (F.TL.proposalRooms || []).filter(r => r.follow && r.parts?.length && r.layers?.length).map(r => {
+      const tileLayer = r.layers.find(l => l.id === 'floorTile');
+      return { key: r.room, r, floor: r.floor, follow: r.follow, name: r.zoneName || r.roomName, parts: r.parts.map(p => [p.ringITM, ...(p.holesITM || [])]), tileLayer, zTop: () => tileLayer.z1 };
+    });
     this.choice = { ...(data.tilingLayout?.rooms || {}) };
     try { const l = JSON.parse(localStorage.getItem(LS) || '{}'); if (l.choice) this.choice = { ...this.choice, ...l.choice }; this.sel = l.sel; this.showCuts = l.showCuts ?? true; this.showGrid = !!l.showGrid; } catch { this.showCuts = true; }
     // "הצג חלוקה": every joint in one strong colour, wide enough to read at any distance (one shared uniform – no rebuild)
@@ -66,7 +72,19 @@ export class TilingWorkshop {
     this.outline = new THREE.Group(); this.outline.visible = false; F.ctx.scene.add(this.outline);
   }
   saveLocal() { try { localStorage.setItem(LS, JSON.stringify({ choice: this.choice, sel: this.sel, showCuts: this.showCuts, showGrid: this.showGrid })); } catch {} }
-  has(key) { return !!this.choice[key]; }
+  has(key) { const f = this.followers?.find(z => z.key === key); return !!this.choice[f ? f.follow : key]; }
+  // a follower on its leader's grid: the leader's frame and tile start (the joints continue across the threshold)
+  followLayout(z) {
+    const c = this.choice[z.follow], lead = c && this.layout(z.follow); if (!lead) return null;
+    const ck = z.key + JSON.stringify(c); if (this.cache.has(ck)) return this.cache.get(ck);
+    const [su, sv] = lead.start, size = lead.size, o = { ...c, origin: 'fixed', du_cm: (su + size.l_m / 2) * 100, dv_cm: (sv + size.w_m / 2) * 100 };
+    const parts = z.parts.map(p => layoutZone(p, { l_m: size.l_m, w_m: size.w_m }, o, lead.pat, lead.dir, this.C.cuts, lead.frame));
+    const lay = { frame: lead.frame, pieces: parts.flatMap(p => p.pieces), tile: parts[0].tile, start: parts[0].start, size, pat: lead.pat, dir: lead.dir,
+      stats: parts.reduce((a, p) => { for (const k of ['pieces', 'full', 'cut', 'slivers', 'narrow', 'tileArea_m2', 'zoneArea_m2', 'score']) a[k] = (a[k] || 0) + p.stats[k]; return a; }, {}) };
+    lay.q = quantities(lay, size, c, this.C.consumption, 0);
+    this.cache.set(ck, lay);
+    return lay;
+  }
 
   // ---------------------------------------------------------------- persistence (artifact db, else this browser)
   async connect(app) {
@@ -202,9 +220,9 @@ export class TilingWorkshop {
     const F = this.F, V = (E, N, z) => F.V(E, N, z);
     const cutCol = { 1: new THREE.Color(this.D.narrowColor || '#ffa726'), 2: new THREE.Color(this.D.sliverColor || '#e53935') };
     const mark = this.showCuts && this.app?.store.get().mode === 'tiling';
-    for (const z of this.zones) {
-      const c = this.choice[z.key]; if (!c) continue;
-      const lay = this.layout(z.key); const fin = this.finBy[c.finish] || this.C.finishes[0];
+    for (const z of [...this.zones, ...this.followers]) {
+      const c = this.choice[z.follow || z.key]; if (!c) continue;
+      const lay = z.follow ? this.followLayout(z) : this.layout(z.key); if (!lay) continue; const fin = this.finBy[c.finish] || this.C.finishes[0];
       const pos = [], col = [], uv = [], map = [], txy = [], tj = [], gc = [];
       const L = lay.tile.L, Wd = lay.tile.W, jh = lay.tile.j / 2, grain = !!fin.grainAlongLength, faces = fin.faceTexture ? (fin.faces || 1) : 0;
       const base = new THREE.Color(fin.color), tmp = new THREE.Color(), gr = this.groutOf(c, fin), grc = new THREE.Color(gr.color);
@@ -253,11 +271,12 @@ export class TilingWorkshop {
       const q = lay.q, sz = lay.size;
       const it = F.add(grp, { floor: z.floor, step: 'tiling', layer: z.r.outdoor ? 'extTile' : 'floorTile' }, {
         name: `ריצוף ${sz.label} ${fin.label} – ${z.name}`, kind: 'tiles', id: 'TL-' + hash(z.key), pickable: true,
-        rows: [['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
+        ...(z.r.variant ? { variant: z.r.variant, status: 'provisional' } : {}),
+        rows: [...(z.follow ? [['המשך', `הריצוף של ${this.zoneBy[z.follow]?.name || z.follow} – אותו אריח, אותה רשת, הפוגות ממשיכות (הצעה ${z.r.variant?.change}, לא בכמויות)`]] : []),['אזור', `${z.name} (${FLOOR_HE[z.floor]})`], ['אריח', `${sz.label} ס"מ · ${fin.label} · ${lay.pat.label} · ${lay.dir.label}`], ['פוגה / רובה', `${c.joint_mm} מ"מ · רובה ${gr.label}`],
           ['שטח', `${f2(q.area_m2)} מ"ר`], ['אריחים', `${q.full} שלמים + ${q.cut} חתוכים${q.slivers ? ` (${q.slivers} צרים מ-5 ס"מ!)` : ''}`],
           ['להזמנה', `${q.order} אריחים = ${q.boxes} קרטונים (${f2(q.order_m2)} מ"ר, כולל ${c.spare_pct}% רזרבה ופנלים)`]],
         source: 'src/tiling (סדנת ריצוף) – data/finishes/tiling/catalog.json; אזור: data/finishes/tiling/surfaces.json', note: 'מקדמי צריכה – זמניים (open-issues #178)',
-        onClick: () => { if (z.r.hatch && this.F.hatches) { this.F.hatches.toggle(z.r.hatch); return; } this.select(z.key); this.app?.ui.openTab('tiling'); } });   // a lid's tiles: open / close it
+        onClick: () => { if (z.r.hatch && this.F.hatches) { this.F.hatches.toggle(z.r.hatch); return; } this.select(z.follow || z.key); this.app?.ui.openTab('tiling'); } });   // a lid's tiles: open / close it
       this.items.push(it);
       if (z.r.hatch) this.F.hatches?.attach(z.r.hatch, grp);   // a hatch lid: the tiles open with it (src/tiling/hatches.js)
     }

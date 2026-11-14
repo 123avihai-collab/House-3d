@@ -51,7 +51,14 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     }
     W.rebuild(); W.refresh();
     r.out = out;
-    r.tileItems = a.registry.items.filter(i => i.meta.kind === 'tiles').length;
+    // followers (OC-13 walkway – the floor of the room it opens from): own tile item, shown only with the proposal (plan mode – hidden),
+    // laid on the leader's frame from the leader's start – the joints continue (start difference = whole tile modules)
+    r.followers = W.followers.map(f => { const L = W.followLayout(f), M = W.layout(f.follow); if (!L || !M) return { key: f.key, none: true };
+      const mu = M.tile.L + M.tile.j, mv = M.tile.W + M.tile.j, du = (L.start[0] - M.start[0]) / mu, dv = (L.start[1] - M.start[1]) / mv;
+      return { key: f.key, sameFrame: L.frame === M.frame, grid: Math.abs(du - Math.round(du)) < 1e-6 && Math.abs(dv - Math.round(dv)) < 1e-6, pieces: L.pieces.length,
+        item: a.registry.items.some(i => i.meta.kind === 'tiles' && i.meta.variant?.change && i.meta.name.includes(f.name)) }; });
+    const nf = r.followers.filter(f => !f.none).length;
+    r.tileItems = a.registry.items.filter(i => i.meta.kind === 'tiles').length - nf;
     r.visibleTiles = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.object.visible).length;
     r.placeholder1 = a.registry.items.filter(i => i.meta.kind === 'floorLayer' && i.tags.layer === 'floorTile').length;
     r.panelRows = document.querySelectorAll('#panel .tiling tr.zone-row').length;
@@ -128,6 +135,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   }
   if (info.tab !== 'tiling' || !info.tileOn || info.tileItems !== info.zones || info.visibleTiles !== info.zones || info.placeholder1 >= info.placeholder0 && info.placeholder0 > 0 && info.zones > 0 && info.placeholder1 !== 0 || !info.plan || info.panelRows !== info.zones)
     fail(name, 'workshop check failed', { ...info, out: undefined });
+  if (info.followers.some(f => !f.none && (!f.sameFrame || !f.grid || !f.pieces || !f.item))) fail(name, 'follower (OC-13 walkway) tiles not on the leader grid', info.followers);
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
   if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.risers || !info.risers.want || !info.risers.items || !(info.risers.pieces > info.risers.want) || !(info.risers.area > 0) || !info.stairs?.length || info.stairs.some(s => !s.item || s.n !== s.want || Math.abs(s.top - s.srcTop) > 1e-6) || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001 || !info.hatch.button || info.hatch.byButton !== 1 || info.hatch.closedAgain !== 0) fail(name, 'exterior paving check failed', info.ext);
@@ -175,7 +183,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, hatch: info.hatch, stairs: info.stairs, risers: info.risers, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, followers: info.followers, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, hatch: info.hatch, stairs: info.stairs, risers: info.risers, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

@@ -1229,6 +1229,104 @@ for D in (GF, FF, RF):
                                    source=f"js/geometry/proposals.js – מתאר {w['id']} ({w['source']}), עומק כמו {fb['id']} (זמני)", status='provisional'))
 print('proposal beams (ק76):', [(b['beam'], b['area'], len(b['sides']), [f['part'] for f in b['flats']]) for b in PROPOSAL_BEAMS])
 
+
+# ---------------------------------------------------------------- OC-12 / OC-13 (Avihai 14.11.2026): the elements built from the
+# architectural plan for the architect's / engineer's check (owner-changes-geometry.json changes[id].elements) – shown as built,
+# with exterior plaster on every free face; the walkway (OC-13) also carries the floor of the room it opens from (fill / screed /
+# adhesive / tile – the same levels), its tiles on that room's grid (one frame – the joints continue). Only with the change
+# shown (variant = the element's own); not in the quantities (a proposal).
+OCG = J('data/changes/owner-changes-geometry.json')['changes']
+PERIM_OCC = [dict(kind='wall', P=prep(poly(w['ringITM'])), poly=poly(w['ringITM']), bottom=w['bottomRel'], top=w['topRel'], id=w['id'])
+             for w in J('data/structure/perimeter.json')['walls'] if w.get('ringITM')]
+PF = CFG['proposalFinishes']
+
+
+def free_sides(R, bz, tz, occ):
+    """the faces of R between bz and tz that look at air: each edge sampled every 5 cm, 2 cm outside; the heights the
+    neighbours (occ) fill are taken out – same rule as the cantilever beams above"""
+    sides = []
+    ring = list(R.exterior.coords)
+    for A, B in zip(ring, ring[1:]):
+        L = math.dist(A, B)
+        if L < 0.03: continue
+        ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L; nx, ny = unit_normal(A, B, True)
+        if R.contains(Point((A[0] + B[0]) / 2 + nx * 0.01, (A[1] + B[1]) / 2 + ny * 0.01)): nx, ny = -nx, -ny
+        n = max(1, int(L / 0.05)); ds = L / n; run = None; out_ = []
+        for j in range(n):
+            q = Point(A[0] + ux * (j + 0.5) * ds + nx * 0.02, A[1] + uy * (j + 0.5) * ds + ny * 0.02)
+            iv = [[bz, tz]]
+            for o in occ:
+                if not o['P'].contains(q): continue
+                nv = []
+                for lo, hi in iv:
+                    if o['bottom'] > lo: nv.append([lo, min(hi, o['bottom'])])
+                    if o['top'] < hi: nv.append([max(lo, o['top']), hi])
+                iv = [v for v in nv if v[1] - v[0] > 0.02]
+            key_ = tuple((r3(lo), r3(hi)) for lo, hi in iv)
+            if run and run[2] == key_: run[1] = (j + 1) * ds
+            else:
+                if run and run[2]: out_.append(run)
+                run = [j * ds, (j + 1) * ds, key_]
+        if run and run[2]: out_.append(run)
+        for s0, s1, ivs in out_:
+            for lo, hi in ivs:
+                sides.append(dict(a=[r3(A[0] + ux * s0), r3(A[1] + uy * s0)], b=[r3(A[0] + ux * s1), r3(A[1] + uy * s1)], normal=[r3(nx), r3(ny)],
+                                  z0=lo, z1=hi, area=r3((s1 - s0) * (hi - lo)), room=None))
+    return sides
+
+
+PROPOSAL_ELEMS, PROPOSAL_ROOMS = [], []
+for cid, g in OCG.items():
+    for e in g.get('elements') or []:
+        rule = PF['elements'].get(e['id'])
+        if not rule: continue
+        R = poly(e['ringITM']); bz, tz = e['bottomRel'], e['topRel']
+        var = dict(change=cid, show=g.get('show', 'original'))
+        occ = [o for o in OCC + PERIM_OCC if o['top'] > bz + 0.005 and o['bottom'] < tz + 0.2 and o['poly'].distance(R) < 0.05 and o['poly'].intersection(R).area < 0.5 * R.area]
+        occ += [dict(P=x['P'], poly=x['R'], bottom=x['bottomRel'], top=x['topRel'], id=x['id']) for x in BEAM_LIST if x['topRel'] > bz + 0.005 and x['bottomRel'] < tz + 0.2 and x['R'].distance(R) < 0.05]
+        flats, z0, z1, floor_ = [], bz, tz, None
+        if rule.get('from') == 'paving':   # a fin standing on the paved slab: plaster from the finished paving up (the paving covers the foot)
+            zs = PAVE.at([x for x, _ in e['ringITM']], [y for _, y in e['ringITM']])
+            z0 = r3(min(float(v) for v in zs if v == v))
+        if rule.get('floorOf'):   # the walkway: the floor of the room it opens from, on its top
+            T0 = next(t for t in TILES if t['room'] == rule['floorOf'])
+            z1 = T0['finishRel']
+            # the part of the walkway outside that room's floor and its door strips (door-strips.json – owned by the room)
+            ds = [poly(x['ringITM']) for x in J('data/finishes/tiling/door-strips.json')['strips'] if x['room'] == T0['room']]
+            own = unary_union([poly(p_['ringITM'], p_['holesITM']) for p_ in T0['parts']] + ds)
+            F_ = clean(R.difference(own.buffer(0.001, join_style=2)))
+            F_ = max(getattr(F_, 'geoms', [F_]), key=lambda q: q.area)
+            occ.append(dict(kind='floor', P=prep(own.buffer(0.002, join_style=2)), poly=own, bottom=tz, top=z1, id=T0['room']))
+            # the paving next to it (exterior zones on the same slab level) – its build-up closes that edge, no plaster there
+            for zz, gp in zip(PAVE.zones, PAVE.polys):
+                if gp.distance(R) < 0.05 and zz.get('finishMax') is not None:
+                    occ.append(dict(kind='floor', P=prep(gp), poly=gp, bottom=min([zz['slabTop']] + [q['slabTop'] for q in zz.get('slabParts') or []]), top=zz['finishMax'], id=zz['room']))
+            floor_ = dict(room=f"{T0['room']}#{e['id']}", follow=T0['room'], floor=T0['floor'], roomName=f"{e['label']} ({cid})", zoneName=f"{e['label']} ({cid})",
+                          roomType=T0['roomType'], area=r3(F_.area), void_m2=0, slabTop=tz, finishRel=z1, buildUp_m=r3(z1 - tz), skirting_m=0, wallTiling=None,
+                          parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(F_.exterior.coords)[:-1]], holesITM=[])],
+                          ringITM=[[r3(x), r3(y)] for x, y in list(F_.exterior.coords)[:-1]],
+                          layers=[dict(l) for l in T0['layers']], tileType=None, status='provisional', variant=var, proposal=True,
+                          source=f"{e['source']}; שכבות ומפלסים כמו {T0['roomName'] or T0['room']} ({T0['room']}) – data/finishes/tiling/surfaces.json; הריצוף על רשת האזור (הפוגות ממשיכות) – הנחיית אביחי 14.11.2026")
+            if abs(T0['slabTop'] - tz) > 0.005: raise SystemExit(f"{e['id']}: walkway top {tz} != slab of {T0['room']} {T0['slabTop']}")
+            PROPOSAL_ROOMS.append(floor_)
+        sides = free_sides(R, z0, z1, occ)
+        if rule.get('top', True):
+            flats.append(dict(part='top', z=r3(tz), ringITM=[[r3(x), r3(y)] for x, y in list(R.exterior.coords)[:-1]], area=r3(R.area), room=None))
+        if rule.get('soffit'):
+            under = [o['poly'] for o in OCC + PERIM_OCC if abs(o['top'] - bz) < 0.03]
+            q = R.difference(unary_union(under)) if under else R
+            for q in getattr(q, 'geoms', [q]):
+                if q.geom_type == 'Polygon' and q.area > 0.01:
+                    flats.append(dict(part='soffit', z=r3(bz), ringITM=[[r3(x), r3(y)] for x, y in list(clean(q).exterior.coords)[:-1]], area=r3(q.area), room=None))
+        area = r3(sum(x['area'] for x in sides) + sum(x['area'] for x in flats))
+        PROPOSAL_ELEMS.append(dict(kind='beam', beam=e['id'], element=e['id'], floor='ground', room=None, roomType='outdoor', width=e.get('thickness_m'),
+                                   bottom=r3(z0), top=r3(z1), pergola=False, sides=sides, flats=flats, area=area, net=area, scaffold=False, scaffoldArea=0,
+                                   defaultType=rule['type'], type=rule['type'], overridden=False, key=f"ground|element|{cid}|{e['id']}",
+                                   variant=var, proposal=True, typeReason=f"{e['label']} ({cid}) – {rule['reason']}; רק במצב ההצעה, לא בכמויות",
+                                   source=f"{e['source']}; טיח: הנחיית אביחי 14.11.2026 – data/finishes/config.json proposalFinishes", status='provisional'))
+print('proposal elements (OC-12 / OC-13):', [(x['element'], x['area'], len(x['sides']), [f['part'] for f in x['flats']]) for x in PROPOSAL_ELEMS],
+      [(r['room'], r['area']) for r in PROPOSAL_ROOMS])
+
 for r in ROOMS: r.pop('poly', None)
 meta = dict(source='tools/finishes/derive_finishes.py – נגזר מגיאומטריית המודל (ראו _doc)', generated='derived')
 dump('data/architecture/rooms.json', dict(_doc='חדרים – נגזרים מהחללים הסגורים בין פני הקירות בכל קומה (tools/finishes/derive_finishes.py). '
@@ -1238,9 +1336,9 @@ dump('data/finishes/plaster/surfaces.json', dict(_doc='משטחי טיח – נ�
      'kind: wall (פני קיר: a→b ב-ITM, z0..z1 יחסי, normal = הצד שאליו הפנים פונים), ceiling (תחתית תקרה), top (ראש קיר / מעקה), reveal (גליפים: צדי הפתח והמשקוף), beam (קורה גלויה: דפנות, תחתית, ראש). '
      'patch (השלמה – פן חשוף של השלד שאף משטח אחר לא מכסה: אדן, שפת רצפה במדרגה, גומחה, קצה קיר, תחתית מבחוץ; vertical: a→b + z0..z1, אחרת ringITM ב-z, up = פונה למעלה). net = ברוטו פחות פתחים. '
      'מישור אחד (tools/finishes/flatten.py): shift = הטיח מוקדם למישור המשטח (עובי משתנה, מ\'), ext = הארכה בפינה [בקצה a, בקצה b], hidden = פן מדרגה בתוך הטיח המעובה (בכמויות, לא מצויר); fillers – מילוי תצוגה של סדקי מ"מ (לא בכמויות). meshV_m / meshH_m – רשת במפגש בלוק-בטון (אנכי / לאורך ראש הקיר); beads_m – פינות בולטות.',
-     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, proposalBeams=PROPOSAL_BEAMS, patches=PATCHES, fillers=FILLERS, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
+     **meta, walls=FACES, ceilings=CEILS, tops=TOPS, reveals=REVS, beams=BEAMSURF, proposalBeams=PROPOSAL_BEAMS, proposalElements=PROPOSAL_ELEMS, patches=PATCHES, fillers=FILLERS, waterproofing=WPROOF, totals=TOT, scratchNote=TYPES['scratchNote']))
 dump('data/finishes/tiling/surfaces.json', dict(_doc='רצפות – שטח לכל חדר (החלק שמעל רצפת הקומה), פני ריצוף, פנלים (היקף פחות דלתות), ושכבות הרצפה: סומסום / טיט-מדה / דבק / אריח '
-     '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES))
+     '(data/finishes/floors/buildup.json – חלוקת עובי זמנית). סוג אריח וגובה חיפוי קירות – טרם הוחלטו.', **meta, buildUp=BU, rooms=TILES, proposalRooms=PROPOSAL_ROOMS))
 dump('data/finishes/cladding/surfaces.json', dict(_doc='חיפויי חוץ – נגזר: משטחים ידועים (כרגע: צד הרחוב של החומה לרחוב – אבן). אזורי האדריכל – data/finishes/cladding/zones.json.',
      **meta, kinds=J('data/finishes/cladding/zones.json')['kinds'], items=CLAD))
 print(len(ROOMS), 'rooms', len(FACES), 'walls', len(CEILS), 'ceilings', len(TOPS), 'tops', len(REVS), 'reveals', len(BEAMSURF), 'beams', len(PATCHES), 'patches', r3(sum(p_['area'] for p_ in PATCHES)), 'm2 patches', len(WPROOF), 'waterproofing', len(CLAD), 'cladding', len(GAPS), 'gaps')

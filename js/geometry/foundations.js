@@ -349,11 +349,7 @@ export function buildPool(ctx) {
   for (const w of P.wallsITM) wg.add(prism(w, poolBottom, P.deck));
   for (const w of T.wallsITM) wg.add(prism(w, T.slabUnderside, T.top));
   for (const w of T.underGutterWallsITM || []) wg.add(prism(w, T.slabUnderside, T.underGutterWallsTop));   // under the gutter – stop at its underside
-  if (PL.channel) {
-    for (const w of PL.channel.wallsITM) wg.add(prism(w, PL.channel.bottom, PL.channel.top));
-    if (PL.channel.floor != null) wg.add(prism(PL.channel.outerITM, PL.channel.bottom, PL.channel.floor));   // channel floor slab (section B)
-    wg.add(lbl('תעלת כיסוי הבריכה', PL.channel.outerITM, PL.channel.top + 0.4));
-  }
+  if (PL.channel) buildPoolChannel(ctx, prism, lbl);
   // entry steps + lounge platform at the west end (solid concrete on the pool floor)
   for (const st of P.steps || []) wg.add(prism(st.ringITM, P.floorFinish, st.top));
   if (P.platform) { wg.add(prism(P.platform.ringITM, P.floorFinish, P.platform.top)); wg.add(lbl(`משטח רביצה ${P.platform.top.toFixed(2)}`, P.platform.ringITM, P.platform.top + 0.3)); }
@@ -371,4 +367,50 @@ export function buildPool(ctx) {
     note: `${P.note} ${P.stepsNote || ''} ${G?.note || ''} ${T.note} ${T.joinedToPool || ''} ${PL.channel?.note || ''}`, source: `${P.source}; ${T.source}` });
   scene.add(wg);
   return { poolArea_m2: P.area_m2, tankArea_m2: T.area_m2 };
+}
+
+// Pool-cover pit (data/structure/pool.json channel). An owner change with a poolChannel block (owner-changes.json, OC-18 –
+// deeper pit) gives two variants: 'original' = as the plans (concrete + red outline of the pit void), 'changed' = the
+// deepened pit in red, with its floor drain and the line to the balance tank. No dimensions here – all from the data.
+function buildPoolChannel(ctx, prism, lbl) {
+  const { data, coords, registry, scene, display } = ctx;
+  const C = data.pool.channel, D = display.framing;
+  const oc = (data.ownerChanges?.changes || []).find(c => c.poolChannel);
+  const H0 = coords.H0;
+  const tags = { floor: 'unit', system: 'structure', stage: 'walls', layer: 'pool' };
+  const rowsOf = (floor, bottom) => [['מידות פנים', `${Math.round(C.innerWidth_m * 100)} × ${Math.round(C.innerLength_m * 100)} ס"מ (k-21)`], ['רצפת הפיר', coords.fmtH(floor)], ['תחתית', coords.fmtH(bottom)], ['ראש (סיפון)', coords.fmtH(C.top)], ['עומק מהסיפון', `${Math.round((C.top - floor) * 100)} ס"מ`]];
+  const pit = (floor, bottom) => { const g = new THREE.Group();
+    for (const w of C.wallsITM) g.add(prism(w, bottom, C.top));
+    g.add(prism(C.outerITM, bottom, floor)); return g; };
+  // as the plans
+  const g0 = pit(C.floor, C.bottom);
+  g0.add(lbl(`פיר כיסוי הבריכה · רצפה ${C.floor.toFixed(2)}`, C.outerITM, C.top + 0.4));
+  if (oc) {   // red outline of the pit void (inside the walls) (shown in proposals mode only – js/tools/proposals.js)
+    const v = (C.innerITM || C.outerITM).map(([E, N]) => { const [x, z] = coords.xz(E, N); return new THREE.Vector2(x, -z); });
+    const inner = new THREE.Shape(v); const geo = new THREE.ExtrudeGeometry(inner, { depth: C.top - C.floor, bevelEnabled: false });
+    geo.rotateX(-Math.PI / 2); geo.translate(0, C.floor - H0, 0);
+    g0.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: D.ownerChangeColor })));
+  }
+  registry.add(g0, tags, { id: 'pool-cover-pit', name: `פיר כיסוי הבריכה${oc ? ` – לפי התוכניות (${oc.id})` : ''}`, status: C.status,
+    ...(oc ? { variant: { change: oc.id, show: 'original' } } : {}), rows: rowsOf(C.floor, C.bottom), note: C.note, source: C.source });
+  scene.add(g0);
+  if (!oc) return;
+  // with the change: the deepened pit, in red
+  const X = oc.poolChannel, floor = C.top - X.lidThickness_m - X.clearUnderLid_m, bottom = floor - X.slabThickness_m;
+  const red = new THREE.MeshStandardMaterial({ color: D.ownerChangeColor, roughness: 0.6, transparent: true, opacity: 0.75, depthWrite: false });
+  const g1 = pit(floor, bottom);
+  g1.traverse(o => { if (o.isMesh) { o.material = red; o.renderOrder = 3; } if (o.isLineSegments) o.material = new THREE.LineBasicMaterial({ color: D.ownerChangeColor }); });
+  const tag = (text, pos) => { const d = document.createElement('div'); d.className = 'lbl oc-tag'; d.textContent = text; const o = new CSS2DObject(d); o.position.copy(pos); return o; };
+  const c = C.outerITM.reduce((a, p) => [a[0] + p[0] / C.outerITM.length, a[1] + p[1] / C.outerITM.length], [0, 0]);
+  g1.add(tag(`${oc.id} · פיר מועמק · רצפה ${floor.toFixed(2)} (${Math.round((C.top - floor) * 100)} מתחת לסיפון) · ${Math.round(X.clearUnderLid_m * 100)} נטו מתחת למכסה`, coords.toLocal(c[0], c[1], C.top + 0.45)));
+  if (X.drain) {   // floor drain + line to the balance tank (schematic)
+    const a = coords.toLocal(X.drain.pointITM[0], X.drain.pointITM[1], floor), b = coords.toLocal(X.drain.toTankITM[0], X.drain.toTankITM[1], floor);
+    const dm = new THREE.Mesh(new THREE.CylinderGeometry(D.ownerDrainRadius_m, D.ownerDrainRadius_m, 0.01, 16), red); dm.position.copy(a).add(new THREE.Vector3(0, 0.006, 0));
+    g1.add(dm, new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), new THREE.LineBasicMaterial({ color: D.ownerChangeColor })));
+    g1.add(tag(`${oc.id} · ניקוז לבור האיזון (סכמטי)`, a.clone().add(new THREE.Vector3(0, 0.25, 0))));
+  }
+  registry.add(g1, tags, { id: `pool-cover-pit~${oc.id}`, name: `פיר כיסוי הבריכה – ${oc.id} (עם השינוי)`, status: 'owner-change', variant: { change: oc.id, show: 'changed' },
+    rows: [...rowsOf(floor, bottom), ['נטו מתחת למכסה', `${Math.round(X.clearUnderLid_m * 100)} ס"מ (מכסה ${Math.round(X.lidThickness_m * 100)} ס"מ)`], ['לפי התכנית', `${coords.fmtH(C.floor)} · העמקה ${Math.round((C.floor - floor) * 100)} ס"מ`]],
+    note: oc.description, source: oc.source });
+  scene.add(g1);
 }

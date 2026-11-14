@@ -132,6 +132,7 @@
   "labelLift_m": 0.3,
   "provisionalEdgeColor": "#ff9800",
   "ownerChangeColor": "#e53935",
+  "ownerDrainRadius_m": 0.05,
   "ownerChangeZoneOpacity": 0.18,
   "ownerChangeRemovedColor": "#e53935",
   "ownerChangeRemovedOpacity": 0.35,

@@ -58,7 +58,7 @@ js/
     gateApron.js           כניסת החניה בתוך המגרש – אבן משתלבת "מלבן" אפור גרפיט 15/30/7 (נספח 003 פרט 10) בין GS3 לקו המגרש; נתונים: python3 tools/derive_gate_apron.py → data/site/gate-apron.json (אחרי derive_exterior.py), [אימות](docs/verification/gate-apron.md)
     excavation.js          בור החפירה ליחידת הדיור: תחתית, דפנות 1:2, חיתוך בגבול המגרש, דיפון, נפח; הגינות – צפונית ובחזית (OC-17): מילוי אדמה מקומית + מצע מהודק 10 ס"מ עד 2 ס"מ מתחת לריצוף הצמוד (GS2 / GS4) + דשא סינטטי 3 ס"מ – קבוצת שכבות "גינון" (gardenTurf / gardenBase / gardenFill; onAtOpen – דלוקות בכל פתיחה, ושקיפות הקומות מתאפסת בכל פתיחה, js/tools/prefs.js); היקף הגינה בחזית: python3 tools/derive_front_garden.py, [אימות](docs/verification/garden-fill.md)
     piles.js               כלונסאות K-400 (גלילי בטון, תווית לכל כלונס, סימון עומס חריג, שיקוף בשלב כלונסאות)
-    foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json)
+    foundations.js         קירות מרתף, רצפות מרתף, קורות יסוד (framing.json), בריכה (pool.json); פיר כיסוי הבריכה – לפי התוכנית (רצפה 280.10) / OC-18 מועמק ל-280.02 (46 מתחת לסיפון) באדום + ניקוז לבור האיזון ([אימות](docs/verification/pool-cover-pit.md))
     floors.js              שלד קומה: רצפה, קירות ועמודים שעולים ממנה, תקרה וקורות (floor-<קומה>.json)
     starters.js            קוצים + סימון קירות/עמודים על כל יציקת רצפה/תקרה (rebar.json, פרטי K-23/33/43)
     props.js               תמיכות תקרת הגג וקורות ההיקף – המחשה, עד אחרי יציקת חומת הגג (K-43 הערה 12)

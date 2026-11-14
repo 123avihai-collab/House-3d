@@ -23,7 +23,7 @@ POOL_SLAB_TOP, POOL_SLAB_BOT_E, POOL_SLAB_BOT_W = 279.03, 278.83, 279.03   # 20 
 POOL_WALL_BOTTOM = 278.13 # section A draws both pool walls down to 278.13 – conflicts with K-400 pile heads 279.30/279.00 (open-issues); model: south wall (shared with the machine room) only
 DECK_SLAB_TOP = 280.33    # deck slab top (finish 280.48)
 GUTTER_W, LIP_W, GUTTER_FLOOR, GUTTER_BOT = 0.25, 0.20, 280.13, 280.05   # overflow gutter (תעלת גלישה): width K-400 (0.247) / section A (0.24-0.25); levels section A
-CHANNEL_FLOOR, CHANNEL_BOTTOM = 280.05, 279.90               # cover-shutter pit (section B), slab 15 cm
+CHANNEL_FLOOR, CHANNEL_BOTTOM = 280.10, 279.90               # cover-shutter pit (section B, re-measured 14.11.2026: floor 38 cm below the 280.48 deck, clear 0.34 under the drawn lid line), slab 20 cm
 PLAN = 'sources/structure/pool-walls/בריכה מבט על קמה קנמ 1-10.pdf'
 PT = 56.6929   # pt/m at 1:50 – verified: west zone 317.0→413.3 pt = 1.699 m vs written "170"; treads 16.05 pt = 0.283 m vs "28"
 # pool plan (1:50): west wall inner face x=317.0 pt; riser lines (x) and the N-S split; section B (deck marker tip y=478.6 = 280.48): tread tops
@@ -73,6 +73,10 @@ def main():
     # overflow gutter ring: K-400 – gutter 14.0 pt = 0.25 m + outer lip wall 11.4 pt = 0.20 m (outer ring 25.5 pt = 0.45 m from the pool, all sides)
     gut_in = pool_outer.buffer(GUTTER_W, join_style=2); gut = pool_outer.buffer(GUTTER_W + LIP_W, join_style=2)
     gutter_floor = gut.difference(pool_outer).buffer(0); lip = gut.difference(gut_in).buffer(0)
+    ch_inner = ch_outer.difference(unary_union(ch_walls + [gut]).buffer(0.002)).buffer(0)   # the pit void (inside its walls; the west wall is the gutter's outer lip)
+    ch_inner = max(getattr(ch_inner, 'geoms', [ch_inner]), key=lambda g: g.area).minimum_rotated_rectangle
+    _ce = list(ch_inner.exterior.coords)[:4]; import math as _m
+    ch_in_sides = sorted(_m.dist(_ce[k], _ce[(k + 1) % 4]) for k in range(2))
     # machine room (K-400): box from the gutter lip to its south wall; the k-21 walls start at the lip's outer face (0.45 m),
     # the lip itself is its north wall, and its side walls run through under the gutter to the pool wall.
     u0, u1, v0, v1 = lb(unary_union(tank_walls).minimum_rotated_rectangle)
@@ -121,8 +125,9 @@ def main():
                    'note': 'תעלת גלישה סביב הבריכה: רוחב 25 ס"מ + שפה חיצונית 20 ס"מ (K-400: טבעת 45 ס"מ סביב הבריכה; חתך א). רצפת התעלה 280.13–280.05, ראש השפה 280.33. במזרח השפה היא הקיר המערבי של תעלת הכיסוי; בדרום – הקיר הצפוני של חדר המכונות.',
                    'source': f'{F.K400}; {SEC}'},
         'channel': {'outerITM': ring(ch_outer), 'area_m2': r3(ch_outer.area), 'wallsITM': [ring(q) for q in ch_walls], 'top': DECK,
+                    'innerITM': ring(ch_inner), 'innerWidth_m': r3(ch_in_sides[0]), 'innerLength_m': r3(ch_in_sides[1]),
                     'floor': CHANNEL_FLOOR, 'bottom': CHANNEL_BOTTOM, 'status': 'source',
-                    'note': 'תעלת תריס כיסוי הבריכה (בצד המזרחי, מעבר לתעלת הגלישה; K-400/K-21). רוחב פנים 45 ס"מ, רצפה 280.05, תחתית 279.90 – נמדדו בחתך ב (קנ"מ 1:50 מאומת).',
+                    'note': 'פיר תריס כיסוי הבריכה (בצד המזרחי, מעבר לתעלת הגלישה; K-400/K-21). פנים 45 × 487 ס"מ (k-21). רצפה 280.10 (38 מתחת לסיפון 280.48), תחתית 279.90 – נמדדו בחתך ב (קנ"מ 1:50 אומת מול 279.30 / 280.48, סטייה 0.5%; מדידה חוזרת 14.11.2026 – קודם 280.05). בחתך משורטט קו מכסה בעובי ~4.5 ס"מ: גובה נטו מתחתיו ~34 ס"מ. הצעת העמקה – OC-18.',
                     'source': f'{F.K21} (IfcWall); tools/pool-pieces.json; {F.K400}'},
         'tank': {'outerITM': ring(tank_outer), 'pitITM': ring(tank_pit), 'underGutterWallsITM': [ring(q) for q in under_gutter], 'underGutterWallsTop': GUTTER_BOT, 'area_m2': r3(tank_outer.area), 'wallsITM': [ring(q) for q in tank_walls],
                  'top': DECK_SLAB_TOP, 'floorFinish': TANK_FLOOR, 'slabThickness_m': TANK_SLAB, 'slabUnderside': r3(TANK_FLOOR - TANK_SLAB),

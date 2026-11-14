@@ -299,9 +299,82 @@ def main():
                               spots=[], dropped=[], layers=lay, fillVolume_m3=r3(land.area * lay[0]['thickness_m']), tileType=None, status='provisional', slabStatus=bs.get('status', 'source'),
                               check=dict(minFill_m=BU['minFill_m'], ok=lay[0]['thickness_m'] >= 0, fillMin_m=lay[0]['thickness_m'], fillMax_m=lay[0]['thickness_m']),
                               source=f"{L['_doc']} שכבות – data/finishes/floors/buildup.json"))
+    # ---- step treads: exterior concrete tops left in no zone (a strip of the house slab GS1 outside the walls – Avihai 14.11:
+    # "the cladding over the beam is missing") – adhesive + tile directly on the concrete, in the shared joint grid
+    ST = BU.get('steps', {})
+    if ST:
+        from shapely.geometry import LineString
+        TL = J('data/finishes/tiling/surfaces.json'); DSJ = J('data/finishes/tiling/door-strips.json'); BL = J('data/architecture/blocks.json')
+        zpoly = unary_union([Polygon(q['ringITM'], q.get('holesITM') or []).buffer(0) for z_ in zones for q in z_['parts']] + [Polygon(d_['ringITM']) for d_ in DSJ['strips']])
+        rooms_ = unary_union([Polygon(q['ringITM'], q.get('holesITM') or []).buffer(0) for r_ in TL['rooms'] if r_['floor'] == 'ground' for q in r_['parts']])
+        built = unary_union([Polygon(w['footprintITM'], w.get('holesITM') or []).buffer(0) for w in GF['walls']]
+                            + [Polygon(c['footprintITM']).buffer(0) for c in GF.get('columns', []) if 'footprintITM' in c]
+                            + [LineString(w['axisITM']).buffer(w['thickness_m'] / 2, cap_style=2) for w in BL['walls'] if w['floor'] == 'ground']).buffer(ST['wallClear_m'], join_style=2)
+        tt = {l['id']: l['thickness_m'] for l in BU['layers']}
+        k = 0
+        for sl in GF['slab']:
+            if sl['id'] not in ST['slabs']: continue
+            P0 = Polygon(sl['footprintITM'], sl.get('holesITM') or []).buffer(0)
+            rest = P0.difference(zpoly).difference(rooms_).difference(built).buffer(-0.02, join_style=2).buffer(0.02, join_style=2)
+            for g in getattr(rest, 'geoms', [rest]):
+                if g.area < ST['minArea_m2'] or g.distance(zpoly) > 0.01: continue
+                k += 1; top = sl['topRel']; zc = top; lay = []
+                for lid in ('extAdhesive', 'extTile'):
+                    lay.append(dict(id=lid, z0=r3(zc), z1=r3(zc + tt[lid]), thickness_m=tt[lid], status='provisional')); zc += tt[lid]
+                fin = r3(zc)
+                zones.append(dict(room=f'ext:STP{k}', floor='ground', outdoor=True, step=True, roomName=f'מדרגה – ראש {sl["id"]} מחוץ לקירות ({k})', roomType='paving', slab=sl['id'],
+                                  area=r3(g.area), void_m2=0.0, slabTop=top, finishRel=fin, finishMin=fin, finishMax=fin, buildUp_m=r3(fin - top), skirting_m=0, wallTiling=None,
+                                  parts=[dict(ringITM=[[r3(x), r3(y)] for x, y in list(g.exterior.coords)[:-1]], holesITM=[])], surface=None, planeSlope_pct=0, planeFallAzimuth_deg=None,
+                                  spots=[], dropped=[], layers=lay, fillVolume_m3=0.0, tileType=None, status='provisional', slabStatus=sl['status'],
+                                  check=dict(minFill_m=BU['minFill_m'], ok=True, fillMin_m=0.0, fillMax_m=0.0),
+                                  source=f"ראש הבטון של {sl['id']} (data/structure/floor-ground.json, {top:+.2f}) מחוץ לקירות ולאזורי הריצוף – דבק + אריח ישר על הבטון (בקשת אביחי 14.11.2026)"))
+    # ---- step fronts (risers): every edge between two paved zones with a level step – cladding from the lower finish to the
+    # higher one, on the face of the higher zone (in front of it, over the lower paving); the joints follow the shared grid (JS)
+    risers = []
+    RS = BU.get('risers')
+    if RS:
+        def zfun(z_):
+            S_ = z_.get('surface')
+            if S_ is None: return lambda E, N: z_['finishRel']
+            res = S_.get('res') or []; kp = S_.get('power', 2)
+            def f_(E, N):
+                pz = S_['z'] + S_['gE'] * (E - S_['E']) + S_['gN'] * (N - S_['N']); sw = sr = 0.0
+                for e, n, r in res:
+                    d2 = (E - e) ** 2 + (N - n) ** 2
+                    if d2 < 1e-12: sw, sr = 1.0, r; break
+                    w = d2 ** (-kp / 2); sw += w; sr += w * r
+                v = pz + (sr / sw if sw else 0.0)
+                return max(v, S_['minZ']) if S_.get('minZ') is not None else v
+            return f_
+        cand = [z_ for z_ in zones if z_['floor'] == 'ground' and not z_.get('hatch')]
+        polys = {z_['room']: unary_union([Polygon(q['ringITM'], q.get('holesITM') or []).buffer(0) for q in z_['parts']]) for z_ in cand}
+        fz = {z_['room']: zfun(z_) for z_ in cand}
+        st_ = RS['sample_m']
+        for i, A in enumerate(cand):
+            for B in cand[i + 1:]:
+                pa, pb = polys[A['room']], polys[B['room']]
+                if pa.distance(pb) > RS['touch_m']: continue
+                line = pa.boundary.intersection(pb.buffer(RS['touch_m']))
+                for seg in getattr(line, 'geoms', [line]):
+                    if seg.geom_type != 'LineString' or seg.length < RS['minLength_m']: continue
+                    n_ = max(2, int(seg.length / st_) + 1)
+                    pts = [seg.interpolate(t_ / (n_ - 1), normalized=True) for t_ in range(n_)]
+                    za = [fz[A['room']](p_.x, p_.y) for p_ in pts]; zb = [fz[B['room']](p_.x, p_.y) for p_ in pts]
+                    d_ = [x - y for x, y in zip(za, zb)]
+                    if max(abs(x) for x in d_) < RS['minStep_m']: continue
+                    hi, lo = (A, B) if sum(d_) > 0 else (B, A)
+                    zh, zl = (za, zb) if hi is A else (zb, za)
+                    # the face normal: toward the lower zone
+                    m_ = pts[len(pts) // 2]; a0, a1 = pts[0], pts[-1]
+                    tx, ty = a1.x - a0.x, a1.y - a0.y; L_ = (tx * tx + ty * ty) ** 0.5; nx, ny = ty / L_, -tx / L_
+                    if polys[lo['room']].distance(Point(m_.x + nx * 0.05, m_.y + ny * 0.05)) > polys[lo['room']].distance(Point(m_.x - nx * 0.05, m_.y - ny * 0.05)): nx, ny = -nx, -ny
+                    risers.append(dict(hi=hi['room'], lo=lo['room'], normal=[round(nx, 6), round(ny, 6)], length_m=r3(seg.length),
+                                       pts=[[r3(p_.x), r3(p_.y), r3(l_), r3(h_)] for p_, l_, h_ in zip(pts, zl, zh)],
+                                       maxStep_m=r3(max(h_ - l_ for l_, h_ in zip(zl, zh))), status='provisional',
+                                       source=f"קצה {hi['room']} מול {lo['room']} – פני הריצוף משני הצדדים (exterior.json); חיפוי: דבק + אריח"))
     out = dict(_doc='ריצוף חוץ – אזור לכל רצפת בטון חיצונית בקומת הקרקע: פני ריצוף במישור בשיפוע (מגבהי הפיתוח), שכבות: בטון שיפועים (משתנה) → איטום → דבק → אריח. נוצר ע"י tools/finishes/derive_exterior.py – לא לערוך ידנית.',
                source='data/structure/floor-ground.json; data/site/development-heights.json; data/finishes/floors/exterior-buildup.json',
-               status='provisional', buildUp=BU, rooms=zones, stairs=stairs)
+               status='provisional', buildUp=BU, rooms=zones, stairs=stairs, risers=risers)
     json.dump(out, open(os.path.join(ROOT, 'data/finishes/tiling/exterior.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('slab  area   concrete  finish(min..max)  plane%  fill min..max  spots/dropped')
     for c in checks: print(f'{c[0]:5} {c[1]:6.2f} {c[2]:+.3f}  {c[3]:+.3f}..{c[4]:+.3f}  {c[5]:5.2f}  {c[6]:.3f}..{c[7]:.3f}  {c[8]}/{c[9]}')

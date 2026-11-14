@@ -436,7 +436,7 @@
   "gutterLift_m": 0.008,
   "islandLift_m": 0.006,
   "edgeAbovePave_m": 0.003,
-  "profileLift_m": 0.0,
+  "profileLift_m": 0.03,
   "profileColor": "#ff7043",
   "profileWidth_px": 2.4,
   "labelLift_m": 0.45

@@ -453,6 +453,59 @@ class Finishes {
           ['מפלסים', 'הגמר לפי המקור (‎−2.62 ← 280.31); הבטון זז פנימה בעובי האריח + הדבק'], ['מצב', '⚠ זמני – פרט מדרגה (אף / פנל צד) לא במקורות (open-issues #215)']],
         source: S.source, note: 'הרום העליון = קצה הגרם מול רצפת השביל: האריח שלו בצד המדרגות.' });
     }
+    // step fronts (exterior.json risers): cladding on the face of the higher zone, from the lower finish up to the higher one,
+    // tile + adhesive thick, cut where the joint lines of the higher zone's tiles cross the edge (the joints run down the step)
+    if (this.EX?.risers?.length) {
+      const W = this.tiling, t = this.EXL.filter(l => l.id === 'extAdhesive' || l.id === 'extTile').reduce((a, l) => a + l.thickness_m, 0);
+      const byMat = {}; let area = 0, pieces = 0;
+      for (const R of this.EX.risers) {
+        const c = W?.choice[R.hi] || W?.C.outdoorDefaults || {}, fin = W?.finBy[c.finish] || { color: '#a9a8a3' };
+        const lay = W?.choice[R.hi] ? W.layout(R.hi) : null;
+        // tile id at a point just inside the higher zone (same rule as the layout: rows of mv, row shift, columns of mu)
+        const idAt = (E, N) => { if (!lay) return null; const [u, v] = lay.frame.toLocal([E, N]); const L = lay.tile.L + lay.tile.j, Wd = lay.tile.W + lay.tile.j;
+          const jj = Math.floor((v - lay.start[1]) / Wd), rs = ((((jj * (lay.pat.rowShift || 0)) % 1) + 1) % 1), ii = Math.floor((u - lay.start[0] - rs * L) / L); return ii + ':' + jj; };
+        const P = R.pts, n = R.normal, inside = 0.01;
+        const g = byMat[fin.color + '|' + (W?.groutOf(c, fin)?.color || '#9b9891')] ||= { fin, grout: W?.groutOf(c, fin)?.color || '#9b9891', pts: [], map: [], lines: [] };
+        // cut stations: the sample points + where the tile id changes (bisected to 1 mm)
+        let cuts = [0], prev = idAt(P[0][0] - n[0] * inside, P[0][1] - n[1] * inside);
+        const at = (k, f) => P[k].map((v, i) => v + (P[k + 1][i] - v) * f);
+        for (let k = 0; k < P.length - 1; k++) {
+          const nid = idAt(P[k + 1][0] - n[0] * inside, P[k + 1][1] - n[1] * inside);
+          if (lay && nid !== prev) { let a0 = 0, a1 = 1; for (let it = 0; it < 12; it++) { const m = (a0 + a1) / 2, q = at(k, m); (idAt(q[0] - n[0] * inside, q[1] - n[1] * inside) === prev ? (a0 = m) : (a1 = m)); } cuts.push(k + (a0 + a1) / 2); prev = nid; }
+        }
+        cuts.push(P.length - 1); if (!lay) { cuts = [0]; let acc = 0; const Lt = (W?.sizeOf(c)?.l_m || 1.2); for (let k = 1; k < P.length; k++) { acc += Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]); if (acc >= Lt) { cuts.push(k); acc = 0; } } cuts.push(P.length - 1); }
+        const pt = (x) => { const k = Math.min(P.length - 2, Math.floor(x)), f = x - k; return at(k, f); };
+        for (let c0 = 0; c0 < cuts.length - 1; c0++) {
+          const xs = [cuts[c0]]; for (let k = Math.ceil(cuts[c0] + 1e-9); k < cuts[c0 + 1]; k++) xs.push(k); xs.push(cuts[c0 + 1]);
+          if (xs.length < 2 || cuts[c0 + 1] - cuts[c0] < 1e-6) continue;
+          pieces++;
+          for (let q = 0; q < xs.length - 1; q++) {
+            const A = pt(xs[q]), B = pt(xs[q + 1]), lo = (a) => a[2], hi = (a) => a[3];
+            if (hi(A) - lo(A) < 0.005 && hi(B) - lo(B) < 0.005) continue;
+            const Ao = [A[0] + n[0] * t, A[1] + n[1] * t], Bo = [B[0] + n[0] * t, B[1] + n[1] * t];
+            for (const tri of [...this.quadTris([[Ao[0], Ao[1], lo(A)], [Bo[0], Bo[1], lo(B)], [Bo[0], Bo[1], hi(B)], [Ao[0], Ao[1], hi(A)]]),   // the face
+              ...this.quadTris([[A[0], A[1], hi(A)], [B[0], B[1], hi(B)], [Bo[0], Bo[1], hi(B)], [Ao[0], Ao[1], hi(A)]])]) g.pts.push(tri);       // the top edge
+            area += Math.hypot(B[0] - A[0], B[1] - A[1]) * ((hi(A) - lo(A)) + (hi(B) - lo(B))) / 2;
+          }
+          for (let i = 0; i < 6; i++) g.map.push('riser:' + R.hi);
+          // the joints: the vertical edges of the piece + the top line
+          const A = pt(cuts[c0]), B = pt(cuts[c0 + 1]), o = (a) => this.V(a[0] + n[0] * (t + 0.0005), a[1] + n[1] * (t + 0.0005), 0);
+          for (const a of [A, B]) { const v0 = this.V(a[0] + n[0] * (t + 0.0005), a[1] + n[1] * (t + 0.0005), a[2]), v1 = this.V(a[0] + n[0] * (t + 0.0005), a[1] + n[1] * (t + 0.0005), a[3]); g.lines.push(...v0, ...v1); }
+        }
+      }
+      for (const g of Object.values(byMat)) {
+        const map = []; for (let i = 0; i < g.pts.length / 3; i++) map.push('riser');
+        const m = this.mesh(g.pts, map, new THREE.MeshStandardMaterial({ color: g.fin.color, roughness: g.fin.roughness ?? 0.85, metalness: 0 }));
+        const grp = new THREE.Group(); grp.add(m);
+        const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.Float32BufferAttribute(g.lines, 3));
+        const ln = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: new THREE.Color(g.grout).multiplyScalar(this.ctx.data.display.tiling?.riserJointShade ?? 0.75) })); ln.userData.keep = true; grp.add(ln);
+        this.add(grp, { floor: 'ground', step: 'tiling', layer: 'extTile' }, { name: 'חיפוי פרונט מדרגות – ריצוף חוץ', kind: 'riserTiles', id: 'risers-' + g.fin.color, status: 'provisional',
+          rows: [['קצוות', this.EX.risers.map(R => `${this.EX.rooms.find(r => r.room === R.hi)?.roomName} ← ${this.EX.rooms.find(r => r.room === R.lo)?.roomName}: ${f2(R.length_m)} מ' · עד ${Math.round(R.maxStep_m * 100)} ס"מ`).join(' | ')],
+            ['שטח', `${f2(area)} מ"ר · ${pieces} חלקים`], ['פוגות', 'בהמשך קווי הפוגה של האריחים באזור הגבוה (הרשת המשותפת)'], ['שכבות', `דבק + אריח (${f2(t * 100)} ס"מ) – זמני`]],
+          source: 'data/finishes/tiling/exterior.json risers (tools/finishes/derive_exterior.py)', note: 'פרונט המדרגה מכוסה מפני הריצוף הנמוך עד הגבוה (אביחי 14.11.2026). פרט אף / פינה – לא במקורות (open-issues #217).' });
+        this.riserStats = { area, pieces };
+      }
+    }
     // an exterior zone marked for change (owner-changes.json – e.g. OC-16, the parking kept to K-21): red outline + tag
     for (const r of (this.EX?.rooms || []).filter(x => x.change)) {
       const col = this.ctx.data.display.ownerChangeColor || '#e53935', grp = new THREE.Group(), pts = [];

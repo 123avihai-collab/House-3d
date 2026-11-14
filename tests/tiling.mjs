@@ -92,7 +92,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       // the panel buttons (a tap in the model on the lid's tiles does the same): open – the animation – closed again
       W.refresh(); const b = document.querySelector('#panel .tiling [data-act="hatch-' + ids[0] + '"]'); r.hatch.button = !!b;
       if (b) { b.click(); await new Promise(res => setTimeout(res, (HZ.D.openMs ?? 1400) + 300)); r.hatch.byButton = +L.t.toFixed(3); HZ.toggle(ids[0]); await new Promise(res => setTimeout(res, (HZ.D.openMs ?? 1400) + 300)); r.hatch.closedAgain = +L.t.toFixed(3); } }
-    for (const z of W.zones.filter(z => z.r.outdoor && !z.r.hatch && !z.r.stairLanding)) {
+    for (const z of W.zones.filter(z => z.r.outdoor && !z.r.hatch && !z.r.stairLanding && !z.r.step)) {
       for (const sp of z.r.spots) { const d = z.zTop(sp.E, sp.N) - (sp.z - H0); const rs = (z.r.raisedSpots || []).find(x => x.handle === sp.handle);
         // a spot inside a raised piece (concrete too high for the permit level – listed in raisedSpots): the finish = the raised level
         if (rs ? Math.abs(z.zTop(sp.E, sp.N) - (rs.raisedTo - H0)) > 0.001 : Math.abs(d) > 0.001) r.ext.bad.push([z.key, sp.handle, +d.toFixed(4)]); }
@@ -100,6 +100,8 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       if (Math.abs(tl.dz1) > 1e-6 || Math.abs(st + z.r.layers.find(l => l.id === 'extFill').dz1) > 1e-6) r.ext.bad.push([z.key, 'stack']);
     }
     r.ext.tileLayer = a.registry.items.filter(i => i.meta.kind === 'tiles' && i.tags.layer === 'extTile').length;
+    // step fronts (exterior.json risers): built, cut where the tile joints of the higher zone cross the edge (all zones tiled here)
+    r.risers = { want: (a.modules.finishes.EX?.risers || []).length, items: a.registry.items.filter(i => i.meta.kind === 'riserTiles').length, ...(a.modules.finishes.riserStats || {}) };
     // tiled outdoor stairs (exterior.json stairs): one item per stair, a piece on every tread and riser, the finish on the source levels
     const ST = a.modules.finishes.EX?.stairs || [];
     r.stairs = ST.map(S => ({ id: S.id, item: a.registry.items.some(i => i.meta.kind === 'stairTiles' && i.meta.id === 'stairTiles-' + S.id), n: S.pieces.length, want: S.treads + S.risers,
@@ -136,7 +138,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
   if (info.followers.some(f => !f.none && (!f.sameFrame || !f.grid || !f.pieces || !f.item))) fail(name, 'follower (OC-13 walkway) tiles not on the leader grid', info.followers);
   if (!info.grid || info.grid.on !== 1 || info.grid.off !== 0 || !info.grid.items || !info.grid.label.includes('חלוקה')) fail(name, 'grid toggle failed', info.grid);
   if (info.productFail) fail(name, 'product does not match the catalog', info.product);
-  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.stairs?.length || info.stairs.some(s => !s.item || s.n !== s.want || Math.abs(s.top - s.srcTop) > 1e-6) || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001 || !info.hatch.button || info.hatch.byButton !== 1 || info.hatch.closedAgain !== 0) fail(name, 'exterior paving check failed', info.ext);
+  if (!info.ext || info.ext.zones !== info.ext.want || info.ext.want < 1 || info.ext.bad.length || info.ext.tileLayer !== info.ext.zones || info.ext.changeMarks !== info.ext.changeWant || !info.grid2 || info.grid2.starts !== 1 || !info.grid2.same || !info.grid2.better || info.grid2.members < 8 || !info.risers || !info.risers.want || !info.risers.items || !(info.risers.pieces > info.risers.want) || !(info.risers.area > 0) || !info.stairs?.length || info.stairs.some(s => !s.item || s.n !== s.want || Math.abs(s.top - s.srcTop) > 1e-6) || !info.hatch || info.hatch.n !== 2 || info.hatch.items !== 2 || Math.abs(info.hatch.ang - info.hatch.want) > 0.01 || info.hatch.closed > 0.001 || !info.hatch.button || info.hatch.byButton !== 1 || info.hatch.closedAgain !== 0) fail(name, 'exterior paving check failed', info.ext);
   // pool tiling + coping (src/tiling/pool.js): drawn, quantities = the derived areas, a change rebuilds, coping covers the walls
   const pool = await page.evaluate(async () => {
     const a = window.__app, P = a.modules.finishes.pool; if (!P) return { missing: true };
@@ -181,7 +183,7 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
     await page.screenshot({ path: path.join(shotsDir, `tiling-${name}-3d.png`) });
   }
   const sl0 = info.out.reduce((a, z) => a + z.slivers0, 0), sl1 = info.out.reduce((a, z) => a + z.slivers1, 0);
-  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, followers: info.followers, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, hatch: info.hatch, stairs: info.stairs, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
+  console.log(name, JSON.stringify({ zones: info.zones, tileItems: info.tileItems, followers: info.followers, placeholder: [info.placeholder0, info.placeholder1], slivers: [sl0, sl1], area: info.totalArea, order: info.order, big: info.big, product: info.product, ext: info.ext, grid2: info.grid2, hatch: info.hatch, stairs: info.stairs, risers: info.risers, xlsx, pool: { items: pool.items0, total: pool.q?.total, pieces: pool.pieces } }));
   const errs = errors.filter(e => !/favicon/.test(e));
   if (errs.length) fail(name, 'console errors', errs.slice(0, 5));
   await ctx.close();

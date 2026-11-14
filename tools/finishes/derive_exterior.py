@@ -119,6 +119,10 @@ def concrete_tops():
     # each piece goes to the exterior zone it borders most – directly or through the pieces next to it (a beam end beyond a wall cap)
     cand = [k for k in SL if k in BU['slabs']]
     owner = {}
+    # Avihai's assignments (fit.assignTops): a piece -> a named zone, e.g. the passage between the east yard and the parking (14.11.2026)
+    for a_ in FIT.get('assignTops', []):
+        for i, (g, top, eid) in enumerate(out):
+            if eid == a_['element'] and g.distance(Point(*a_['near'])) < 0.3: owner[i] = a_['zone']
     for _ in range(4):
         for i, (g, top, eid) in enumerate(out):
             if i in owner: continue

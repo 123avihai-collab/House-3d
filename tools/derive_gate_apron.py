@@ -62,7 +62,20 @@ pts, zz = [], []
 for c in ST['contours']:
     for x, y in c['points']: pts.append((x, y)); zz.append(c['z'])
 for s in PH['streetSpots']: pts.append(tuple(s['at'])); zz.append(s['z'])
-street = LinearNDInterpolator(np.array(pts), np.array(zz))
+street0 = LinearNDInterpolator(np.array(pts), np.array(zz))
+# the street as built in the model: + the owner correction on the lot line (front-street.json ownerLevels – the architect's line,
+# Avihai 14.11.2026; full on the lot line, which is where it is read here)
+OLP = FS.get('ownerLevels', {}).get('points', []); sOff = FS['frontLine']['s2457_on_line']
+
+
+def street(E, N):
+    h = float(street0(E, N))
+    if OLP:
+        t = front.project(Point(E, N)) - sOff
+        d = OLP[0]['delta'] if t <= OLP[0]['s'] else OLP[-1]['delta'] if t >= OLP[-1]['s'] else next(
+            a['delta'] + (b['delta'] - a['delta']) * (t - a['s']) / (b['s'] - a['s']) for a, b in zip(OLP, OLP[1:]) if a['s'] <= t <= b['s'])
+        h += d
+    return h
 
 ctrl = []   # (E, N, H, kind, ref)
 ring = list(P.exterior.coords)[:-1]

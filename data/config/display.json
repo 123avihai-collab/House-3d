@@ -454,5 +454,9 @@
  "ui": {
   "hintFade_ms": 7000,
   "_doc": "js/ui/ui.js: interface timings"
+ },
+ "gateApron": {
+  "_doc": "כניסת החניה – אבן משתלבת (js/geometry/gateApron.js) – קבועי תצוגה בלבד",
+  "lift_m": 0.004
  }
 }

@@ -69,7 +69,8 @@
   "tilingDoorStrips": "data/finishes/tiling/door-strips.json",
   "frontStreet": "data/site/front-street.json",
   "pileBearing": "data/structure/pile-bearing.json",
-  "claddingStone": "data/finishes/cladding/stone.json"
+  "claddingStone": "data/finishes/cladding/stone.json",
+  "gateApron": "data/site/gate-apron.json"
  },
  "editorFiles": {
   "_doc": "קבצים שרק עורך הצנרת הדו-ממדי (editor.html) טוען; המודל התלת-ממדי לא טוען אותם.",

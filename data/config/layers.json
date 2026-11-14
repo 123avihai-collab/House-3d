@@ -34,6 +34,11 @@
      "visible": true
     },
     {
+     "id": "gateApron",
+     "label": "כניסת החניה – אבן משתלבת (בתוך המגרש)",
+     "visible": true
+    },
+    {
      "id": "frontStreetProfile",
      "label": "קו הרחוב לפי חזית החומה (השוואה)",
      "visible": true

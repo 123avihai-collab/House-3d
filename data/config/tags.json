@@ -58,7 +58,8 @@
      "label": "רחוב מול המגרש בלבד",
      "note": "הרחוב בחזית בלבד – בלי שאר רחובות הסביבה",
      "layers": [
-      "frontStreet"
+      "frontStreet",
+      "gateApron"
      ],
      "offLayers": [
       "street"

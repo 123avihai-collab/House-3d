@@ -228,6 +228,14 @@
       "roughness": 0.9,
       "envMapIntensity": 0.7,
       "_doc": "דשא סינטטי בגינות (OC-17) – טקסטורת דשא (Poly Haven leafy_grass, CC0) בגוון ירוק אחיד, תצוגה בלבד"
+    },
+    "envDriveway": {
+      "texture": "assets/textures/rectangular_paving_grey",
+      "size_m": 1.5,
+      "tint": "#6e6f72",
+      "roughness": 1.0,
+      "envMapIntensity": 0.75,
+      "_why": "אבן משתלבת \"מלבן\" אפור גרפיט 15/30/7 – כניסת החניה בתוך המגרש (נספח פרטי פיתוח 003, פרט 10); אריח הטקסטורה = 10 אבנים × 0.15 מ' = 1.5 מ'; הגוון – קירוב (תצוגה)"
     }
   }
 }

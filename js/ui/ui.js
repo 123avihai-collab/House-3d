@@ -392,34 +392,37 @@ export class UI {
     return wrap;
   }
 
-  // "מגרש וסביבה" in the floors tab (Avihai 14.11.2026): the garden inside the lot and the street in front of the lot, each one
-  // switch – on = its layers on, its floor shown and opaque (they looked see-through with no way back)
-  siteParts(s) {
+  // "מגרש וסביבה" in the floors tab (Avihai 14.11.2026): its parts (data/config/tags.json floors[site].parts – neighbours, the lot
+  // soil without the gardens, the front + back gardens, the street in front) – each one a switch (on = its layers on, the floor
+  // shown and opaque, the last step) and its own opacity slider (state.partOpacity, on top of the floor's)
+  siteParts(s, f) {
     const { app } = this;
-    const parts = [
-      { id: 'garden', label: 'גינה בתוך המגרש', note: 'מילוי, מצע ודשא סינטטי (OC-17)', on: ['gardenFill', 'gardenBase', 'gardenTurf'] },
-      { id: 'front', label: 'רחוב מול המגרש בלבד', note: 'הרחוב בחזית בלבד – בלי שאר רחובות הסביבה', on: ['frontStreet'], off: ['street'] },
-    ];
-    const isOn = (p) => p.on.every(id => s.layers[id] !== false) && (p.off || []).every(id => s.layers[id] === false);
+    const onIds = (p) => p.onLayers || p.layers;
+    const isOn = (p) => (p.anyOn ? p.layers.some(id => s.layers[id] === true) : onIds(p).every(id => s.layers[id] !== false)) && (p.offLayers || []).every(id => s.layers[id] === false);
     const set = (p, v) => {
-      const st = app.store.get(), layers = { ...st.layers, ...Object.fromEntries(p.on.map(id => [id, v])) };
+      const st = app.store.get(), layers = { ...st.layers, ...Object.fromEntries((v ? onIds(p) : p.layers).map(id => [id, v])) };
       const patch = { layers };
       if (v) {
-        for (const id of p.off || []) layers[id] = false;
-        const fl = new Set(app.registry.items.filter(i => p.on.includes(i.tags.layer)).map(i => i.tags.floor));
+        for (const id of p.offLayers || []) layers[id] = false;
+        const fl = new Set(app.registry.items.filter(i => p.layers.includes(i.tags.layer)).map(i => i.tags.floor));
         patch.floors = Object.fromEntries(Object.entries(st.floors).map(([k, x]) => [k, fl.has(k) ? { ...x, visible: true, opacity: 1 } : x]));
         if (st.stageIndex < app.data.tags.sequence.length - 1) patch.stageIndex = app.data.tags.sequence.length - 1;
       }
       app.store.set(patch, { label: 'siteParts' }); this.refreshPanel();
     };
-    return h('div', { class: 'site-parts' }, parts.map(p => h('label', { class: 'row', 'data-part': p.id },
-      h('input', { type: 'checkbox', checked: isOn(p), onchange: (e) => set(p, e.target.checked) }), p.label, h('small', { class: 'muted' }, ` – ${p.note}`))));
+    return h('div', { class: 'site-parts' }, (f.parts || []).map(p => {
+      const op = s.partOpacity?.[p.id] ?? 1;
+      return h('div', { class: 'site-part', 'data-part': p.id },
+        h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: isOn(p), onchange: (e) => set(p, e.target.checked) }), h('b', {}, p.label), h('small', { class: 'muted' }, ` – ${p.note}`)),
+        p.opacity === false ? '' : h('div', { class: 'row' }, 'שקיפות', h('input', { type: 'range', min: 0.1, max: 1, step: 0.05, value: op, 'aria-label': `שקיפות – ${p.label}`,
+          oninput: (e) => app.store.setCoalesced('partOp' + p.id, { partOpacity: { ...(app.store.get().partOpacity || {}), [p.id]: +e.target.value } }) })));
+    }));
   }
 
   panel_floors() {
     const { app } = this; const s = app.store.get();
     const wrap = h('div', {}, h('p', { class: 'muted' }, 'הצגה, הסתרה ושקיפות לכל קומה (נשמר בדפדפן).'),
-      h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])) }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות'),
+      h('div', { class: 'btns' }, h('button', { onclick: () => app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, opacity: 1 }])), partOpacity: {} }, { label: 'opacityReset' }) }, 'איפוס שקיפות – כל הקומות אטומות'),
         h('button', { onclick: () => { const on = app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false);
           app.store.set({ floors: Object.fromEntries(Object.entries(s.floors).map(([k, v]) => [k, { ...v, ceiling: on }])) }, { label: 'ceilings' }); } },
           app.data.tags.floors.some(f => f.ceilingLayers && s.floors[f.id]?.ceiling === false) ? 'להחזיר את כל התקרות' : 'להסיר את כל התקרות'),
@@ -436,7 +439,7 @@ export class UI {
           'רצפה', h('small', { class: 'muted' }, ` – ${f.floorLabel}`)) : '',
         f.ceilingLayers ? h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.ceiling !== false, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, ceiling: e.target.checked } } }, { label: 'ceiling' }) }),
           'תקרה', h('small', { class: 'muted' }, ` – ${f.ceilingLabel}`)) : '',
-        f.id === 'site' ? this.siteParts(s) : '',
+        f.parts ? this.siteParts(s, f) : '',
         h('div', { class: 'row' }, 'שקיפות', h('input', { type: 'range', min: 0.1, max: 1, step: 0.05, value: st.opacity,
           oninput: (e) => app.store.setCoalesced('floorOp' + f.id, { floors: { ...app.store.get().floors, [f.id]: { ...st, opacity: +e.target.value } } }) })),
         h('button', { class: 'small', onclick: () => app.store.set({ floors: Object.fromEntries(app.data.tags.floors.map(x => [x.id, { ...s.floors[x.id], visible: x.id === f.id }])) }, { label: 'solo' }) }, 'רק קומה זו')));

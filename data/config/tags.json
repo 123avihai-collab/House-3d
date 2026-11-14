@@ -4,7 +4,67 @@
   {
    "id": "site",
    "label": "מגרש וסביבה",
-   "level": null
+   "level": null,
+   "_docParts": "תת-שכבות של 'מגרש וסביבה' בלשונית קומות (החלטת אביחי 14.11.2026): מתג + שקיפות לכל אחת. layers = השכבות של החלק (השקיפות חלה עליהן); onLayers = מה נדלק כשמסמנים (ברירת מחדל: layers); offLayers = מה נכבה כשמסמנים; opacity:false = בלי מחוון שקיפות",
+   "parts": [
+    {
+     "id": "neighbors",
+     "label": "שכנים",
+     "note": "מגרשי השכנים, בתים, חומות, חצרות, קווים ותוויות",
+     "layers": [
+      "neighborLots",
+      "neighborLotLines",
+      "neighborHouses",
+      "neighborFences",
+      "neighborYards",
+      "neighborEnvelopes",
+      "neighborSheet04",
+      "neighborParking",
+      "neighborEntrances",
+      "neighborBuildingLines",
+      "neighborLabels"
+     ],
+     "onLayers": [
+      "neighborLots",
+      "neighborLotLines",
+      "neighborLabels",
+      "neighborHouses",
+      "neighborFences",
+      "neighborYards"
+     ],
+     "anyOn": true
+    },
+    {
+     "id": "soil",
+     "label": "אדמת המגרש (בלי שטחי הגינון)",
+     "note": "פני קרקע מתוכננים של 5187 + קרקע קיימת (מדידה 2025)",
+     "layers": [
+      "topoPlanned",
+      "topoExisting2025"
+     ]
+    },
+    {
+     "id": "garden",
+     "label": "שטחי גינון – קדמי ואחורי",
+     "note": "מילוי, מצע ודשא סינטטי בשתי הגינות (OC-17)",
+     "layers": [
+      "gardenFill",
+      "gardenBase",
+      "gardenTurf"
+     ]
+    },
+    {
+     "id": "front",
+     "label": "רחוב מול המגרש בלבד",
+     "note": "הרחוב בחזית בלבד – בלי שאר רחובות הסביבה",
+     "layers": [
+      "frontStreet"
+     ],
+     "offLayers": [
+      "street"
+     ]
+    }
+   ]
   },
   {
    "id": "unit",

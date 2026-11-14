@@ -13,6 +13,10 @@ export class Registry {
       for (const l of f.ceilingLayers || []) (this.switchOf[l] ||= []).push([f.id, 'ceiling']);
       for (const l of f.floorLayers || []) (this.switchOf[l] ||= []).push([f.id, 'slab']);
     }
+    // parts of a floor (tags.json floors[].parts – "שכנים" / "אדמת המגרש" / "גינון" of מגרש וסביבה): layer -> part id,
+    // each part has its own opacity (state.partOpacity[id]) on top of the floor's
+    this.partOf = {};
+    for (const f of tagsConfig.floors) for (const p of f.parts || []) if (p.opacity !== false) for (const l of p.layers) this.partOf[l] = p.id;
   }
   add(object3d, tags, meta = {}) {
     for (const k of ['floor', 'system', 'stage', 'layer']) {
@@ -87,7 +91,7 @@ export class Registry {
       // per-layer label switch: the marking lines (userData.annotation) here; the CSS labels are filtered every frame by
       // js/core/labels.js (step / distance / section / selection)
       if (visible) { const lo = !!state.labelsOff?.[t.layer]; it.object.traverse(o => { if (o.userData.annotation && !o.isCSS2DObject) o.visible = !lo; }); }
-      if (visible) this.applyOpacity(it, floor.opacity);
+      if (visible) this.applyOpacity(it, floor.opacity * (state.partOpacity?.[this.partOf[t.layer]] ?? 1));
     }
     this.listeners.forEach(f => f());
   }

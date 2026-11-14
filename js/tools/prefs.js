@@ -86,7 +86,7 @@ export class Prefs {
     for (const id of ids) { if (p.seen && !p.seen.includes(id)) p.seen.push(id); this.fresh?.delete(id); }
     const s = this.app.store.get();
     const floors = Object.fromEntries(Object.entries(s.floors).map(([k, f]) => [k, { ...f, opacity: 1 }]));
-    this.app.store.set({ layers: { ...s.layers, ...Object.fromEntries(ids.map(id => [id, true])) }, floors }, { record: false });
+    this.app.store.set({ layers: { ...s.layers, ...Object.fromEntries(ids.map(id => [id, true])) }, floors, partOpacity: {} }, { record: false });
     if (p === this.p) this.writeLocal();
   }
   restore(p) {

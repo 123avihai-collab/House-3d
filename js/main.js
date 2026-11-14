@@ -87,6 +87,7 @@ async function main() {
   const defaults = {
     version: 2, mode: 'view', layers,
     floors: Object.fromEntries(data.tags.floors.map(f => [f.id, { visible: true, opacity: 1, ceiling: true, slab: true }])),
+    partOpacity: {},   // opacity of the parts of a floor (tags.json floors[].parts), 1 when missing
     stageIndex: data.tags.sequence.length - 1, systemFilter: null,
     sun: { date: today, minutes: 600 },
     section: { hOn: false, hLevel: 3, vOn: false, vAxis: 'E', vPos: 0, vFlip: false },

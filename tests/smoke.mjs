@@ -282,6 +282,17 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1500, height: 900 }
       return shown ? 'ok' : 'no inspect card while walking';
     })();
     if (info.mapWalk !== 'ok') errors.push('map walk: ' + info.mapWalk);
+    // מגרש וסביבה – parts (tags.json floors[site].parts): switch + own opacity on the part's components only
+    info.siteParts = await page.evaluate(() => {
+      const a = window.__app, parts = a.data.tags.floors.find(f => f.id === 'site').parts || [];
+      for (const id of ['neighbors', 'soil', 'garden']) if (!parts.some(p => p.id === id)) return 'missing part ' + id;
+      a.store.set({ layers: { ...a.store.get().layers, gardenTurf: true, topoPlanned: true }, partOpacity: { garden: 0.4 } });
+      const op = (layer) => { let v = null; a.registry.items.find(i => i.tags.layer === layer && i.object.visible)?.object.traverse(o => { if (o.isMesh && v == null) v = (Array.isArray(o.material) ? o.material[0] : o.material).opacity; }); return v; };
+      const g = op('gardenTurf'), t = op('topoPlanned');
+      a.store.set({ partOpacity: {} });
+      return g != null && g < 0.5 && (t == null || t > 0.99) ? 'ok' : `turf ${g} topo ${t}`;
+    });
+    if (info.siteParts !== 'ok') errors.push('site parts: ' + info.siteParts);
     await page.evaluate(() => { localStorage.clear(); });
     const errs2 = await page.evaluate(() => window.__errors);
     errors.push(...errs2.filter(e => !(info.errors || []).includes(e)));

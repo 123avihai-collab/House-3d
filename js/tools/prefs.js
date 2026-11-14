@@ -79,14 +79,17 @@ export class Prefs {
     if (p.last?.layers && p.last.layers.contours !== false) p.last.layers.contours = false;
   }
   // at every open (Avihai 14.11.2026): layers marked onAtOpen in data/config/layers.json (the gardening) are ON even when the saved
-  // view has them off / in "מוסתרות" / removed, and every floor is opaque again (the opacity slider is not restored)
+  // view has them off / in "מוסתרות" / removed, every floor is opaque again (the opacity slider is not restored) and no x-ray mode is on
   atOpen(p) {
     const ids = this.app.data.layers.groups.flatMap(g => g.layers.filter(l => l.onAtOpen).map(l => l.id));
     p.binned = (p.binned || []).filter(id => !ids.includes(id)); p.dropped = (p.dropped || []).filter(id => !ids.includes(id));
     for (const id of ids) { if (p.seen && !p.seen.includes(id)) p.seen.push(id); this.fresh?.delete(id); }
     const s = this.app.store.get();
     const floors = Object.fromEntries(Object.entries(s.floors).map(([k, f]) => [k, { ...f, opacity: 1 }]));
-    this.app.store.set({ layers: { ...s.layers, ...Object.fromEntries(ids.map(id => [id, true])) }, floors, partOpacity: {} }, { record: false });
+    // the see-through modes a previous visit left on are off too (Avihai 14.11.2026 – "the grass and the soil look transparent"):
+    // pipes x-ray (terrain at 12%), "show hidden" (concrete x-ray) and the system filter of the electrical steps (hides the ground)
+    this.app.store.set({ layers: { ...s.layers, ...Object.fromEntries(ids.map(id => [id, true])) }, floors, partOpacity: {},
+      systemFilter: null, showHidden: false, ...(s.plumbing ? { plumbing: { ...s.plumbing, xray: false } } : {}) }, { record: false });
     if (p === this.p) this.writeLocal();
   }
   restore(p) {

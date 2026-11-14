@@ -5,7 +5,7 @@ Plan      : sources/plumbing/אינסטלציה חתכים הכל.dxf, block 'pi
             "Tovna_Mamad_Window_Dubble" (two steel blast leaves that slide into two wall niches, inner glass wing),
             "דלת ממד נגררת - פלרז" (sliding blast door, drawn open beside the opening), "צינור אורור 4" / "Zinor8_Ext"
             (sleeves with flanges), and the two niches of the window drawn on A-WALL. Placed on k-21 like the openings.
-Elevation : העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור….pdf (the sheet titled "חזית מערבית", 1:100, vector):
+Elevation : sources/architecture/חזית מזרח - צד יחידת דיור….pdf (the sheet titled "חזית מערבית", 1:100, vector):
             level tags +1.10 / +2.10 of the window, the window outline, the two ø20 flanges of the 4" sleeves.
 Everything is stored in the local frame of each family: u along the wall, v across it (ITM unit vectors), metres.
 Also fixes in data/architecture/openings.json + data/structure/floor-ground.json: G09 sill / head per the elevation tags,
@@ -22,7 +22,7 @@ from shapely.geometry import Polygon, Point
 import extract_openings as X
 
 F = X.F; ROOT = F.ROOT; r3 = F.r3
-ELEV = 'העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf'
+ELEV = 'sources/architecture/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf'
 PT_PER_M = 72 / 0.0254 / 100          # 1:100
 cm = lambda v: r3(v / 100)
 

@@ -539,8 +539,8 @@
    "OK_cm": 210,
    "status": "source",
    "note": "",
-   "heightSource": "העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
-   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"Tovna_Mamad_Window_Dubble - 2010 - mamad win\" (מזהה 1063985); גובה: העתק למודל - חזיתות + חתכים/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
+   "heightSource": "sources/architecture/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
+   "source": "sources/plumbing/אינסטלציה חתכים הכל.dxf בלוק pituah, שכבה A-GLAZ, \"Tovna_Mamad_Window_Dubble - 2010 - mamad win\" (מזהה 1063985); גובה: sources/architecture/חזית מזרח - צד יחידת דיור - מבט על קנמ 1-10.pdf: תגיות +1.10 / +2.10 (tools/extract_mamad.py)",
    "host": "GW10",
    "hostThickness_m": 0.3,
    "cutITM": [

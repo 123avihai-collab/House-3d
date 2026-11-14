@@ -16,9 +16,4 @@
 
 ## צילומי בדיקה
 
-`docs/finishes/screenshots/round4/`:
-- חוץ: out-north, out-south, out-east, out-west
-- פנים: in-living, in-bedroom, in-first-room
-- אדן חלון מקרוב: sill-closeup
-- מעקה בנוי בגג: parapet
-- הגבהה במרפסת: balcony-upstand
+הצילומים (round4) נמחקו בניקוי המאגר 14.11.2026 בהחלטת אביחי – אפשר להפיק מחדש מהמודל.

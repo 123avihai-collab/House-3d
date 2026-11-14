@@ -44,3 +44,12 @@
 
 - `npm test` עבר (בדיקת נתונים + כל בדיקות הדפדפן, בלי שגיאות קונסול ובלי 404 על טקסטורה או מודול).
 - `python3 tools/build_artifact.py` – 283 קבצים לפרסום.
+
+## סבב 2 – החלטות אביחי (14.11.2026)
+
+| # | פעולה | חיסכון |
+|---|---|---|
+| 1 | נמחקו 82 צילומי מסך ב-`docs/` שאף קובץ לא מפנה אליהם (docs/screenshots, docs/plumbing/screenshots, docs/finishes/screenshots כולל round4, 8 ב-docs/verification). לא נדרשים להמשך הבנייה – אפשר להפיק מחדש מהמודל | 60.6 MB |
+| 2 | נמחק הגיבוי `data/plumbing/edits-backup-2026-11-09/` (27 קבצים) | 0.1 MB |
+| 3 | "העתק למודל - חזיתות + חתכים" הועברה ל-`sources/architecture/` (5 קבצים); העותק הכפול של "חתך א-א – חזית מערב" הוסר. עודכנו `tools/extract_mamad.py`, `data/architecture/mamad.json`, `openings.json`, `docs/verification/mamad.md`, `sources/README.md`. החילוץ הורץ מחדש – רק שדות `source` השתנו | 0.2 MB |
+| 4 | היסטוריית Git – לא משוכתבת (החלטה) | – |

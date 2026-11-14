@@ -44039,6 +44039,392 @@
    "status": "provisional"
   }
  ],
+ "proposalElements": [
+  {
+   "kind": "beam",
+   "beam": "LS-N",
+   "element": "LS-N",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "width": 0.2,
+   "bottom": -0.023,
+   "top": 1.76,
+   "pergola": false,
+   "sides": [
+    {
+     "a": [
+      179587.476,
+      576243.569
+     ],
+     "b": [
+      179588.301,
+      576243.236
+     ],
+     "normal": [
+      -0.374,
+      -0.927
+     ],
+     "z0": -0.023,
+     "z1": 1.76,
+     "area": 1.586,
+     "room": null
+    },
+    {
+     "a": [
+      179588.301,
+      576243.236
+     ],
+     "b": [
+      179588.376,
+      576243.421
+     ],
+     "normal": [
+      0.927,
+      -0.376
+     ],
+     "z0": -0.023,
+     "z1": 1.76,
+     "area": 0.356,
+     "room": null
+    },
+    {
+     "a": [
+      179588.376,
+      576243.421
+     ],
+     "b": [
+      179587.558,
+      576243.751
+     ],
+     "normal": [
+      0.374,
+      0.927
+     ],
+     "z0": -0.023,
+     "z1": 1.76,
+     "area": 1.574,
+     "room": null
+    },
+    {
+     "a": [
+      179587.558,
+      576243.751
+     ],
+     "b": [
+      179587.365,
+      576243.829
+     ],
+     "normal": [
+      0.374,
+      0.927
+     ],
+     "z0": 1.4,
+     "z1": 1.76,
+     "area": 0.075,
+     "room": null
+    },
+    {
+     "a": [
+      179587.365,
+      576243.829
+     ],
+     "b": [
+      179587.476,
+      576243.569
+     ],
+     "normal": [
+      -0.92,
+      -0.393
+     ],
+     "z0": 1.4,
+     "z1": 1.76,
+     "area": 0.102,
+     "room": null
+    }
+   ],
+   "flats": [
+    {
+     "part": "top",
+     "z": 1.76,
+     "ringITM": [
+      [
+       179587.476,
+       576243.569
+      ],
+      [
+       179588.301,
+       576243.236
+      ],
+      [
+       179588.376,
+       576243.421
+      ],
+      [
+       179587.365,
+       576243.829
+      ]
+     ],
+     "area": 0.198,
+     "room": null
+    }
+   ],
+   "area": 3.891,
+   "net": 3.891,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "type": "exterior",
+   "overridden": false,
+   "key": "ground|element|OC-12|LS-N",
+   "variant": {
+    "change": "OC-12",
+    "show": "original"
+   },
+   "proposal": true,
+   "typeReason": "עמוד מסתור כביסה (OC-12) – סנפיר מסתור כביסה – טיח חוץ צמנטי על הפאות והראש, מפני הריצוף GS5 ומעלה; רק במצב ההצעה, לא בכמויות",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: על בטון GS5 (‎−0.26, data/structure/floor-ground.json) – זמני, אין יסוד בתוכניות; הריצוף GS5 מכסה את הרגל; טיח: הנחיית אביחי 14.11.2026 – data/finishes/config.json proposalFinishes",
+   "status": "provisional"
+  },
+  {
+   "kind": "beam",
+   "beam": "LS-S",
+   "element": "LS-S",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "width": 0.2,
+   "bottom": -0.028,
+   "top": 1.76,
+   "pergola": false,
+   "sides": [
+    {
+     "a": [
+      179586.579,
+      576241.774
+     ],
+     "b": [
+      179586.774,
+      576241.695
+     ],
+     "normal": [
+      -0.375,
+      -0.927
+     ],
+     "z0": 1.4,
+     "z1": 1.76,
+     "area": 0.076,
+     "room": null
+    },
+    {
+     "a": [
+      179586.774,
+      576241.695
+     ],
+     "b": [
+      179587.552,
+      576241.381
+     ],
+     "normal": [
+      -0.375,
+      -0.927
+     ],
+     "z0": -0.028,
+     "z1": 1.76,
+     "area": 1.501,
+     "room": null
+    },
+    {
+     "a": [
+      179587.552,
+      576241.381
+     ],
+     "b": [
+      179587.627,
+      576241.567
+     ],
+     "normal": [
+      0.927,
+      -0.374
+     ],
+     "z0": -0.028,
+     "z1": 1.76,
+     "area": 0.359,
+     "room": null
+    },
+    {
+     "a": [
+      179587.627,
+      576241.567
+     ],
+     "b": [
+      179586.839,
+      576241.885
+     ],
+     "normal": [
+      0.374,
+      0.927
+     ],
+     "z0": -0.028,
+     "z1": 1.76,
+     "area": 1.519,
+     "room": null
+    },
+    {
+     "a": [
+      179586.839,
+      576241.885
+     ],
+     "b": [
+      179586.579,
+      576241.774
+     ],
+     "normal": [
+      -0.393,
+      0.92
+     ],
+     "z0": 1.4,
+     "z1": 1.76,
+     "area": 0.102,
+     "room": null
+    }
+   ],
+   "flats": [
+    {
+     "part": "top",
+     "z": 1.76,
+     "ringITM": [
+      [
+       179586.579,
+       576241.774
+      ],
+      [
+       179587.552,
+       576241.381
+      ],
+      [
+       179587.627,
+       576241.567
+      ],
+      [
+       179586.839,
+       576241.885
+      ]
+     ],
+     "area": 0.19,
+     "room": null
+    }
+   ],
+   "area": 3.747,
+   "net": 3.747,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "type": "exterior",
+   "overridden": false,
+   "key": "ground|element|OC-12|LS-S",
+   "variant": {
+    "change": "OC-12",
+    "show": "original"
+   },
+   "proposal": true,
+   "typeReason": "עמוד מסתור כביסה (OC-12) – סנפיר מסתור כביסה – טיח חוץ צמנטי על הפאות והראש, מפני הריצוף GS5 ומעלה; רק במצב ההצעה, לא בכמויות",
+   "source": "sources/permit/permit-sheet1-gramushka.dwg תצוגה \"קרקע פיתוח\", שכבה A-WALL (קווי הסנפירים ליד \"מסתור כביסה\"), גאורפרנס tools/extract_dev_heights.py (ICP); גובה: \"גובה מסתור כביסה מתוכנן 282.26\" (G-ANNO-DIMS); תחתית: על בטון GS5 (‎−0.26, data/structure/floor-ground.json) – זמני, אין יסוד בתוכניות; הריצוף GS5 מכסה את הרגל; טיח: הנחיית אביחי 14.11.2026 – data/finishes/config.json proposalFinishes",
+   "status": "provisional"
+  },
+  {
+   "kind": "beam",
+   "beam": "WB-1",
+   "element": "WB-1",
+   "floor": "ground",
+   "room": null,
+   "roomType": "outdoor",
+   "width": 0.2,
+   "bottom": -0.35,
+   "top": 0.0,
+   "pergola": false,
+   "sides": [
+    {
+     "a": [
+      179590.043,
+      576242.696
+     ],
+     "b": [
+      179590.015,
+      576242.627
+     ],
+     "normal": [
+      0.928,
+      -0.374
+     ],
+     "z0": -0.35,
+     "z1": -0.26,
+     "area": 0.007,
+     "room": null
+    },
+    {
+     "a": [
+      179589.405,
+      576241.116
+     ],
+     "b": [
+      179588.643,
+      576241.423
+     ],
+     "normal": [
+      -0.374,
+      -0.928
+     ],
+     "z0": -0.35,
+     "z1": 0.0,
+     "area": 0.288,
+     "room": null
+    }
+   ],
+   "flats": [
+    {
+     "part": "soffit",
+     "z": -0.35,
+     "ringITM": [
+      [
+       179589.281,
+       576243.004
+      ],
+      [
+       179590.043,
+       576242.696
+      ],
+      [
+       179589.405,
+       576241.116
+      ],
+      [
+       179588.643,
+       576241.423
+      ]
+     ],
+     "area": 1.401,
+     "room": null
+    }
+   ],
+   "area": 1.696,
+   "net": 1.696,
+   "scaffold": false,
+   "scaffoldArea": 0,
+   "defaultType": "exterior",
+   "type": "exterior",
+   "overridden": false,
+   "key": "ground|element|OC-13|WB-1",
+   "variant": {
+    "change": "OC-13",
+    "show": "original"
+   },
+   "proposal": true,
+   "typeReason": "מרפסת מעבר מעל מדרגות היחידה (OC-13) – גשר מעבר – טיח חוץ צמנטי על התחתית ועל השפות הפתוחות עד פני הריצוף; רק במצב ההצעה, לא בכמויות",
+   "source": "היקף: חלק פתח מדרגות הירידה (floor-ground.json openZones basementStairs) מהקצה הימני של הדלת G08 (חדר השירות, מבט מבחוץ) עד קיר המרתף BW1 בקצה – לפי בקשת אביחי ק43; ראש ‎−0.15 כמו GS1 (סף G08 ‎±0.00); עובי 0.20 כעובי BW1 – זמני; לא מופיע בתוכניות הקונסטרוקטור; טיח: הנחיית אביחי 14.11.2026 – data/finishes/config.json proposalFinishes",
+   "status": "provisional"
+  }
+ ],
  "patches": [
   {
    "kind": "patch",

@@ -8,6 +8,7 @@ import { MaterialLibrary } from './core/materials.js';
 import { buildTerrain } from './geometry/terrain.js';
 import { buildSite, centroid } from './geometry/site.js';
 import { buildFrontStreet } from './geometry/frontStreet.js';
+import { buildGateApron } from './geometry/gateApron.js';
 import { buildEnvironment } from '../src/environment/index.js';
 import { buildExcavation } from './geometry/excavation.js';
 import { buildPiles } from './geometry/piles.js';
@@ -60,6 +61,7 @@ async function main() {
   ctx.ground = tm('terrain', () => buildTerrain(ctx));
   tm('site', () => buildSite(ctx));
   tm('frontStreet', () => buildFrontStreet(ctx));   // street in front of the lot (data/site/front-street.json)
+  tm('gateApron', () => buildGateApron(ctx));   // parking entrance inside the lot – interlocking pavers (data/site/gate-apron.json)
   const environment = tm('environment', () => buildEnvironment(ctx));
   const quantities = { excavation: tm('excavation', () => buildExcavation(ctx)), piles: tm('piles', () => buildPiles(ctx)), foundations: tm('foundations', () => buildFoundations(ctx)),
     plumbing: tm('plumbingFoundations', () => buildPlumbingFoundations(ctx)), pool: tm('pool', () => buildPool(ctx)), groundFloor: tm('groundFloor', () => buildFloorSkeleton(ctx, data.floorGround)),

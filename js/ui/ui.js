@@ -392,6 +392,30 @@ export class UI {
     return wrap;
   }
 
+  // "מגרש וסביבה" in the floors tab (Avihai 14.11.2026): the garden inside the lot and the street in front of the lot, each one
+  // switch – on = its layers on, its floor shown and opaque (they looked see-through with no way back)
+  siteParts(s) {
+    const { app } = this;
+    const parts = [
+      { id: 'garden', label: 'גינה בתוך המגרש', note: 'מילוי, מצע ודשא סינטטי (OC-17)', on: ['gardenFill', 'gardenBase', 'gardenTurf'] },
+      { id: 'front', label: 'רחוב מול המגרש בלבד', note: 'הרחוב בחזית בלבד – בלי שאר רחובות הסביבה', on: ['frontStreet'], off: ['street'] },
+    ];
+    const isOn = (p) => p.on.every(id => s.layers[id] !== false) && (p.off || []).every(id => s.layers[id] === false);
+    const set = (p, v) => {
+      const st = app.store.get(), layers = { ...st.layers, ...Object.fromEntries(p.on.map(id => [id, v])) };
+      const patch = { layers };
+      if (v) {
+        for (const id of p.off || []) layers[id] = false;
+        const fl = new Set(app.registry.items.filter(i => p.on.includes(i.tags.layer)).map(i => i.tags.floor));
+        patch.floors = Object.fromEntries(Object.entries(st.floors).map(([k, x]) => [k, fl.has(k) ? { ...x, visible: true, opacity: 1 } : x]));
+        if (st.stageIndex < app.data.tags.sequence.length - 1) patch.stageIndex = app.data.tags.sequence.length - 1;
+      }
+      app.store.set(patch, { label: 'siteParts' }); this.refreshPanel();
+    };
+    return h('div', { class: 'site-parts' }, parts.map(p => h('label', { class: 'row', 'data-part': p.id },
+      h('input', { type: 'checkbox', checked: isOn(p), onchange: (e) => set(p, e.target.checked) }), p.label, h('small', { class: 'muted' }, ` – ${p.note}`))));
+  }
+
   panel_floors() {
     const { app } = this; const s = app.store.get();
     const wrap = h('div', {}, h('p', { class: 'muted' }, 'הצגה, הסתרה ושקיפות לכל קומה (נשמר בדפדפן).'),
@@ -412,6 +436,7 @@ export class UI {
           'רצפה', h('small', { class: 'muted' }, ` – ${f.floorLabel}`)) : '',
         f.ceilingLayers ? h('label', { class: 'row' }, h('input', { type: 'checkbox', checked: st.ceiling !== false, onchange: (e) => app.store.set({ floors: { ...s.floors, [f.id]: { ...st, ceiling: e.target.checked } } }, { label: 'ceiling' }) }),
           'תקרה', h('small', { class: 'muted' }, ` – ${f.ceilingLabel}`)) : '',
+        f.id === 'site' ? this.siteParts(s) : '',
         h('div', { class: 'row' }, 'שקיפות', h('input', { type: 'range', min: 0.1, max: 1, step: 0.05, value: st.opacity,
           oninput: (e) => app.store.setCoalesced('floorOp' + f.id, { floors: { ...app.store.get().floors, [f.id]: { ...st, opacity: +e.target.value } } }) })),
         h('button', { class: 'small', onclick: () => app.store.set({ floors: Object.fromEntries(app.data.tags.floors.map(x => [x.id, { ...s.floors[x.id], visible: x.id === f.id }])) }, { label: 'solo' }) }, 'רק קומה זו')));
